@@ -3,5 +3,5 @@ spring:
     group:
       monolith:
         - api
-        - article-ingestor
-        - article-enricher
+        - ingestor
+        - enricher
