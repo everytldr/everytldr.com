@@ -6,7 +6,7 @@ plugins {
 
 group = "org.tldrtimes"
 version = "0.0.1-SNAPSHOT"
-description = "backend"
+description = "TLDR Times backend"
 
 java {
     toolchain {

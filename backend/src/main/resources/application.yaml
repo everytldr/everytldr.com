@@ -1,3 +1,7 @@
 spring:
-  application:
-    name: backend
+  profiles:
+    group:
+      monolith:
+        - api
+        - article-ingestor
+        - article-enricher

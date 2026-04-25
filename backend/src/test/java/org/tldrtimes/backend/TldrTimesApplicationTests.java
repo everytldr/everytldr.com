@@ -1,10 +1,10 @@
-package org.tldrtimes.server;
+package org.tldrtimes.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BackendApplicationTests {
+class TldrTimesApplicationTests {
 
     @Test
     void contextLoads() {
