@@ -1,4 +1,4 @@
-package org.tldrtimes.backend.enricher;
+package org.tldrtimes.enricher;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

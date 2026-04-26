@@ -1,4 +1,4 @@
-package org.tldrtimes.backend;
+package org.tldrtimes;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

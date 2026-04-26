@@ -1,4 +1,4 @@
-package org.tldrtimes.backend.common;
+package org.tldrtimes.common;
 
 import org.springframework.context.annotation.Configuration;
 

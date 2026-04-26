@@ -1,4 +1,4 @@
-package org.tldrtimes.backend.api;
+package org.tldrtimes.api;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
