@@ -10,3 +10,11 @@ spring:
     username: ${DB_USERNAME:tldrtimes}
     password: ${DB_PASSWORD:tldrtimes}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
