@@ -36,6 +36,10 @@ public class SnowflakeIdGenerator {
         this.workerId = workerId;
     }
 
+    public static Instant extractTimestamp(long id) {
+        return Instant.ofEpochMilli(EPOCH_MS + (id >>> TIMESTAMP_SHIFT));
+    }
+
     public synchronized long generateId() {
         long now = clock.millis();
 
