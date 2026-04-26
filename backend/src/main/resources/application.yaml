@@ -18,3 +18,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
   flyway:
     enabled: ${FLYWAY_ENABLED:true}
+
+tldrtimes:
+  snowflake:
+    worker-id: ${APP_WORKER_ID:0}
