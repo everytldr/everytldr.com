@@ -5,5 +5,4 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("api")
-public class ApiConfig {
-}
+public class ApiConfig {}
