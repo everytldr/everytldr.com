@@ -1,5 +1,6 @@
 package org.tldrtimes.common.domain.support;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
@@ -24,6 +25,7 @@ public abstract class BaseEntity {
     @SnowflakeId
     private Long id;
 
+    @Column
     @LastModifiedDate
     private Instant updatedAt;
 
