@@ -22,7 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class BaseEntity {
   @Id @SnowflakeId private Long id;
 
-  @Column @LastModifiedDate private Instant updatedAt;
+  @Column(nullable = false) @LastModifiedDate private Instant updatedAt;
 
   @Transient private Instant createdAt;
 
