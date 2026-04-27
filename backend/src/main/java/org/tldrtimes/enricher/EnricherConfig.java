@@ -5,5 +5,4 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("enricher")
-public class EnricherConfig {
-}
+public class EnricherConfig {}
