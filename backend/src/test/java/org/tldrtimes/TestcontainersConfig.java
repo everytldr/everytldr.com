@@ -7,11 +7,9 @@ import org.testcontainers.containers.MySQLContainer;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfig {
-
-    @Bean
-    @ServiceConnection
-    MySQLContainer<?> mysqlContainer() {
-        return new MySQLContainer<>("mysql:8.4")
-                .withReuse(true);
-    }
+  @Bean
+  @ServiceConnection
+  MySQLContainer<?> mysqlContainer() {
+    return new MySQLContainer<>("mysql:8.4").withReuse(true);
+  }
 }

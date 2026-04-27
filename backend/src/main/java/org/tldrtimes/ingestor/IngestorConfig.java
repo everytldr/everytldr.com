@@ -5,5 +5,4 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("ingestor")
-public class IngestorConfig {
-}
+public class IngestorConfig {}

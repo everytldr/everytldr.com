@@ -9,8 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("test")
 class TldrTimesApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
+  @Test
+  void contextLoads() {}
 }

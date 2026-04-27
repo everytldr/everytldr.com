@@ -18,33 +18,32 @@ import org.tldrtimes.common.domain.support.BaseEntity;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ArticleIngestionJob extends BaseEntity {
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(
+      name = "article_id",
+      nullable = false,
+      unique = true,
+      foreignKey = @ForeignKey(name = "fk_article_ingestion_job_article"))
+  private Article article;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "article_id",
-            nullable = false,
-            unique = true,
-            foreignKey = @ForeignKey(name = "fk_article_ingestion_job_article"))
-    private Article article;
+  @Column(unique = true, columnDefinition = "BINARY(32) NOT NULL")
+  private byte[] urlHash;
 
-    @Column(unique = true, columnDefinition = "BINARY(32) NOT NULL")
-    private byte[] urlHash;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 32)
+  private IngestionState state;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 32)
-    private IngestionState state;
+  private ArticleIngestionJob(Article article, byte[] urlHash, IngestionState state) {
+    this.article = article;
+    this.urlHash = urlHash;
+    this.state = state;
+  }
 
-    private ArticleIngestionJob(Article article, byte[] urlHash, IngestionState state) {
-        this.article = article;
-        this.urlHash = urlHash;
-        this.state = state;
-    }
+  public static ArticleIngestionJob create(Article article, byte[] urlHash) {
+    return new ArticleIngestionJob(article, urlHash, IngestionState.PENDING);
+  }
 
-    public static ArticleIngestionJob create(Article article, byte[] urlHash) {
-        return new ArticleIngestionJob(article, urlHash, IngestionState.PENDING);
-    }
-
-    public void transitionTo(IngestionState next) {
-        this.state = next;
-    }
+  public void transitionTo(IngestionState next) {
+    this.state = next;
+  }
 }

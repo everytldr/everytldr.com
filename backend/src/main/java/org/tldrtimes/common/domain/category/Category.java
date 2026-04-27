@@ -12,23 +12,20 @@ import org.tldrtimes.common.domain.support.BaseEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = @UniqueConstraint(
-        name = "uk_category_slug",
-        columnNames = "slug"))
+@Table(uniqueConstraints = @UniqueConstraint(name = "uk_category_slug", columnNames = "slug"))
 public class Category extends BaseEntity {
+  @Column(nullable = false, length = 50)
+  private String slug;
 
-    @Column(nullable = false, length = 50)
-    private String slug;
+  @Column(columnDefinition = "INT NOT NULL DEFAULT 0")
+  private int sortOrder;
 
-    @Column(columnDefinition = "INT NOT NULL DEFAULT 0")
-    private int sortOrder;
+  private Category(String slug, int sortOrder) {
+    this.slug = slug;
+    this.sortOrder = sortOrder;
+  }
 
-    private Category(String slug, int sortOrder) {
-        this.slug = slug;
-        this.sortOrder = sortOrder;
-    }
-
-    public static Category create(String slug, int sortOrder) {
-        return new Category(slug, sortOrder);
-    }
+  public static Category create(String slug, int sortOrder) {
+    return new Category(slug, sortOrder);
+  }
 }

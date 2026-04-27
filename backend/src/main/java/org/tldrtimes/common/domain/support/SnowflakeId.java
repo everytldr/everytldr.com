@@ -9,5 +9,4 @@ import org.hibernate.annotations.IdGeneratorType;
 @IdGeneratorType(HibernateSnowflakeIdGenerator.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
-public @interface SnowflakeId {
-}
+public @interface SnowflakeId {}

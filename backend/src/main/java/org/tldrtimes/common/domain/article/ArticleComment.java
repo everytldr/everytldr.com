@@ -16,67 +16,58 @@ import org.tldrtimes.common.domain.support.SoftDeletableEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(indexes = @Index(
-        name = "idx_article_comment_article_id",
-        columnList = "article_id, id"))
+@Table(indexes = @Index(name = "idx_article_comment_article_id", columnList = "article_id, id"))
 public class ArticleComment extends SoftDeletableEntity {
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(
+      name = "article_id",
+      nullable = false,
+      foreignKey = @ForeignKey(name = "fk_article_comment_article"))
+  private Article article;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "article_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_article_comment_article"))
-    private Article article;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parent_id", foreignKey = @ForeignKey(name = "fk_article_comment_parent"))
+  private ArticleComment parent;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "parent_id",
-            foreignKey = @ForeignKey(name = "fk_article_comment_parent"))
-    private ArticleComment parent;
+  @Column(nullable = false, length = 50)
+  private String nickname;
 
-    @Column(nullable = false, length = 50)
-    private String nickname;
+  @Column(columnDefinition = "CHAR(60) NOT NULL")
+  private String passwordHash;
 
-    @Column(columnDefinition = "CHAR(60) NOT NULL")
-    private String passwordHash;
+  @Column(columnDefinition = "CHAR(64) NOT NULL")
+  private String ipHash;
 
-    @Column(columnDefinition = "CHAR(64) NOT NULL")
-    private String ipHash;
+  @Column(columnDefinition = "TEXT NOT NULL")
+  private String content;
 
-    @Column(columnDefinition = "TEXT NOT NULL")
-    private String content;
+  private ArticleComment(
+      Article article,
+      ArticleComment parent,
+      String nickname,
+      String passwordHash,
+      String ipHash,
+      String content) {
+    this.article = article;
+    this.parent = parent;
+    this.nickname = nickname;
+    this.passwordHash = passwordHash;
+    this.ipHash = ipHash;
+    this.content = content;
+  }
 
-    private ArticleComment(
-            Article article,
-            ArticleComment parent,
-            String nickname,
-            String passwordHash,
-            String ipHash,
-            String content) {
-        this.article = article;
-        this.parent = parent;
-        this.nickname = nickname;
-        this.passwordHash = passwordHash;
-        this.ipHash = ipHash;
-        this.content = content;
-    }
+  public static ArticleComment createTopLevel(
+      Article article, String nickname, String passwordHash, String ipHash, String content) {
+    return new ArticleComment(article, null, nickname, passwordHash, ipHash, content);
+  }
 
-    public static ArticleComment createTopLevel(
-            Article article,
-            String nickname,
-            String passwordHash,
-            String ipHash,
-            String content) {
-        return new ArticleComment(article, null, nickname, passwordHash, ipHash, content);
-    }
-
-    public static ArticleComment createReply(
-            Article article,
-            ArticleComment parent,
-            String nickname,
-            String passwordHash,
-            String ipHash,
-            String content) {
-        return new ArticleComment(article, parent, nickname, passwordHash, ipHash, content);
-    }
+  public static ArticleComment createReply(
+      Article article,
+      ArticleComment parent,
+      String nickname,
+      String passwordHash,
+      String ipHash,
+      String content) {
+    return new ArticleComment(article, parent, nickname, passwordHash, ipHash, content);
+  }
 }

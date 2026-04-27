@@ -13,15 +13,13 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("deleted_at IS NULL")
 public abstract class SoftDeletableEntity extends BaseEntity {
+  @Column private Instant deletedAt;
 
-    @Column
-    private Instant deletedAt;
+  public void softDelete(Instant at) {
+    this.deletedAt = at;
+  }
 
-    public void softDelete(Instant at) {
-        this.deletedAt = at;
-    }
-
-    public boolean isSoftDeleted() {
-        return deletedAt != null;
-    }
+  public boolean isSoftDeleted() {
+    return deletedAt != null;
+  }
 }

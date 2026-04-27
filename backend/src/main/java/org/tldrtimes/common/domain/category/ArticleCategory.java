@@ -16,31 +16,32 @@ import org.tldrtimes.common.domain.support.BaseEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = @UniqueConstraint(
-        name = "uk_article_category_article_category",
-        columnNames = {"article_id", "category_id"}))
+@Table(
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uk_article_category_article_category",
+            columnNames = {"article_id", "category_id"}))
 public class ArticleCategory extends BaseEntity {
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(
+      name = "article_id",
+      nullable = false,
+      foreignKey = @ForeignKey(name = "fk_article_category_article"))
+  private Article article;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "article_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_article_category_article"))
-    private Article article;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(
+      name = "category_id",
+      nullable = false,
+      foreignKey = @ForeignKey(name = "fk_article_category_category"))
+  private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "category_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_article_category_category"))
-    private Category category;
+  private ArticleCategory(Article article, Category category) {
+    this.article = article;
+    this.category = category;
+  }
 
-    private ArticleCategory(Article article, Category category) {
-        this.article = article;
-        this.category = category;
-    }
-
-    public static ArticleCategory create(Article article, Category category) {
-        return new ArticleCategory(article, category);
-    }
+  public static ArticleCategory create(Article article, Category category) {
+    return new ArticleCategory(article, category);
+  }
 }

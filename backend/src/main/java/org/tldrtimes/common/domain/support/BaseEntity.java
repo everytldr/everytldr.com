@@ -20,45 +20,39 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
+  @Id @SnowflakeId private Long id;
 
-    @Id
-    @SnowflakeId
-    private Long id;
+  @Column @LastModifiedDate private Instant updatedAt;
 
-    @Column
-    @LastModifiedDate
-    private Instant updatedAt;
+  @Transient private Instant createdAt;
 
-    @Transient
-    private Instant createdAt;
+  @PostLoad
+  @PostPersist
+  private void deriveCreatedAt() {
+    this.createdAt = (id == null) ? null : SnowflakeIdGenerator.extractTimestamp(id);
+  }
 
-    @PostLoad
-    @PostPersist
-    private void deriveCreatedAt() {
-        this.createdAt = (id == null) ? null : SnowflakeIdGenerator.extractTimestamp(id);
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-
-        Class<?> thisClass = Hibernate.getClass(this);
-        Class<?> otherClass = Hibernate.getClass(obj);
-        if (!thisClass.equals(otherClass)) {
-            return false;
-        }
-
-        BaseEntity that = (BaseEntity) obj;
-        return id != null && id.equals(that.id);
+    Class<?> thisClass = Hibernate.getClass(this);
+    Class<?> otherClass = Hibernate.getClass(obj);
+    if (!thisClass.equals(otherClass)) {
+      return false;
     }
 
-    @Override
-    public int hashCode() {
-        return Hibernate.getClass(this).hashCode();
-    }
+    BaseEntity that = (BaseEntity) obj;
+    return id != null && id.equals(that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Hibernate.getClass(this).hashCode();
+  }
 }
