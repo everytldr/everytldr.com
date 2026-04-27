@@ -8,28 +8,41 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.tldrtimes.common.domain.article.Article;
 import org.tldrtimes.common.domain.support.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uk_article_ingestion_job_article",
+          columnNames = "article_id"),
+      @UniqueConstraint(
+          name = "uk_article_ingestion_job_url_hash",
+          columnNames = "url_hash")
+    })
 public class ArticleIngestionJob extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(
       name = "article_id",
       nullable = false,
-      unique = true,
       foreignKey = @ForeignKey(name = "fk_article_ingestion_job_article"))
   private Article article;
 
-  @Column(unique = true, columnDefinition = "BINARY(32) NOT NULL")
+  @Column(columnDefinition = "BINARY(32) NOT NULL")
   private byte[] urlHash;
 
   @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
   @Column(nullable = false, length = 32)
   private IngestionState state;
 
