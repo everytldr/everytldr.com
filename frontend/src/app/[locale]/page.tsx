@@ -1,12 +1,10 @@
-import { useTranslations } from "next-intl";
+import Translation from "@/components/Translation";
 import Image from "next/image";
 
 export default function Home() {
-  const t = useTranslations("common");
-
   return (
     <main>
-      <h1>{t("test")}</h1>
+      <Translation path="common.test" />
       <Image
         className="text-black"
         src="/next.svg"
