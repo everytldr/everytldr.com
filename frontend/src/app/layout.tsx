@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import type { PropsWithChildren } from "react";
-import localFont from "next/font/local";
-import { Playfair_Display, Source_Serif_4, JetBrains_Mono, Noto_Serif_KR } from "next/font/google";
 import { cn } from "@/utils/class-name";
+import type { Metadata } from "next";
+import { JetBrains_Mono, Noto_Serif_KR, Playfair_Display, Source_Serif_4 } from "next/font/google";
+import localFont from "next/font/local";
+import type { PropsWithChildren } from "react";
 import "./globals.css";
 
 const pretendard = localFont({
@@ -45,7 +45,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html
-      lang="en"
       className={cn(
         pretendard.variable,
         playfairDisplay.variable,
@@ -54,6 +53,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         notoSerifKR.variable,
         "antialiased",
       )}
+      lang="en"
     >
       <body>{children}</body>
     </html>

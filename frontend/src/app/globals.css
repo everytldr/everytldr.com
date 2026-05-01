@@ -1,11 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-display:
-    var(--font-playfair-display), var(--font-noto-serif-kr), Georgia, serif;
-  --font-body:
-    var(--font-source-serif-4), var(--font-noto-serif-kr), Georgia, serif;
+  --font-display: var(--font-playfair-display), var(--font-noto-serif-kr), Georgia, serif;
+  --font-body: var(--font-source-serif-4), var(--font-noto-serif-kr), Georgia, serif;
   --font-ui: var(--font-pretendard), system-ui, sans-serif;
-  --font-mono:
-    var(--font-jetbrains-mono), var(--font-pretendard), ui-monospace, monospace;
+  --font-mono: var(--font-jetbrains-mono), var(--font-pretendard), ui-monospace, monospace;
 }
