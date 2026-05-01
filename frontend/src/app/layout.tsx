@@ -1,17 +1,53 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import type { PropsWithChildren } from "react";
+import localFont from "next/font/local";
+import {
+  Playfair_Display,
+  Source_Serif_4,
+  JetBrains_Mono,
+  Noto_Serif_KR,
+} from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const pretendard = localFont({
+  src: "../fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  weight: "45 920",
+  style: "normal",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
   subsets: ["latin"],
+  display: "swap",
 });
+
+const sourceSerif4 = Source_Serif_4({
+  variable: "--font-source-serif-4",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const notoSerifKR = Noto_Serif_KR({
+  variable: "--font-noto-serif-kr",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const fontVariables = [
+  pretendard.variable,
+  playfairDisplay.variable,
+  sourceSerif4.variable,
+  jetbrainsMono.variable,
+  notoSerifKR.variable,
+].join(" ");
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,10 +56,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
+    <html lang="en" className={`${fontVariables} antialiased`}>
       <body>{children}</body>
     </html>
   );
