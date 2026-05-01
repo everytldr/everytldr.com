@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated message bundles (source of truth in messages/src/*.yml)
+/messages/*.json

@@ -2,12 +2,11 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 export default function Home() {
-  const t = useTranslations("HomePage");
+  const t = useTranslations("common");
 
   return (
     <main>
-      <h1>{t("title")}</h1>
-      <p>{t("description")}</p>
+      <h1>{t("test")}</h1>
       <Image
         className="text-black"
         src="/next.svg"
