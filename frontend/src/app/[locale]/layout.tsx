@@ -1,8 +1,9 @@
-import "@/app/globals.css";
+import GlobalProvider from "@/components/GlobalProvider";
 import { routing } from "@/i18n/routing";
+import "@/styles/globals.css";
 import { cn } from "@/utils/class-name";
 import type { Metadata } from "next";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { JetBrains_Mono, Noto_Serif_KR, Playfair_Display, Source_Serif_4 } from "next/font/google";
 import localFont from "next/font/local";
@@ -56,7 +57,6 @@ type Props = PropsWithChildren<{
 
 export default async function RootLayout({ params, children }: Props) {
   const { locale } = await params;
-
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
@@ -75,7 +75,7 @@ export default async function RootLayout({ params, children }: Props) {
       lang={locale}
     >
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <GlobalProvider>{children}</GlobalProvider>
       </body>
     </html>
   );
