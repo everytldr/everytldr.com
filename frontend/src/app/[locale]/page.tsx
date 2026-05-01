@@ -1,4 +1,5 @@
 import Translation from "@/components/Translation";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export default function Home() {
@@ -20,6 +21,14 @@ export default function Home() {
         width={16}
         height={16}
       />
+      <section className="flex flex-wrap gap-3">
+        <Button>Default</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="destructive">Destructive</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="link">Link</Button>
+      </section>
     </main>
   );
 }
