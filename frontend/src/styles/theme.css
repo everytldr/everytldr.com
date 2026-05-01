@@ -1,0 +1,34 @@
+@theme {
+  --color-ink: #000000;
+  --color-page-ink: #1a1a1a;
+  --color-paper: #ffffff;
+  --color-elevated: #1a1a1a;
+  --color-caption: #757575;
+  --color-disabled: #999999;
+  --color-hairline: #e2e8f0;
+  --color-rule: #4a5568;
+  --color-link: #057dbc;
+  --color-error: #e53e3e;
+
+  --font-display: var(--font-playfair-display), var(--font-noto-serif-kr), Georgia, serif;
+  --font-body: var(--font-source-serif-4), var(--font-noto-serif-kr), Georgia, serif;
+  --font-ui: var(--font-pretendard), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), var(--font-pretendard), ui-monospace, monospace;
+
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+}
+
+.dark {
+  --color-ink: #ffffff;
+  --color-page-ink: #ffffff;
+  --color-paper: #000000;
+  --color-caption: #999999;
+  --color-hairline: #2a2a2a;
+  --color-link: #4ab1e8;
+}

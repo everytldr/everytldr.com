@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./shadcn.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
