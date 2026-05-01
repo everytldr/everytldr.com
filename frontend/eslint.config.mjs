@@ -7,6 +7,11 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   eslintPluginPrettierRecommended,
+  {
+    rules: {
+      curly: ["error", "all"],
+    },
+  },
   globalIgnores([
     // INFO: Default ignores of eslint-config-next:
     ".next/**",
