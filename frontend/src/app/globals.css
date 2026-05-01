@@ -6,3 +6,9 @@
   --font-ui: var(--font-pretendard), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), var(--font-pretendard), ui-monospace, monospace;
 }
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
