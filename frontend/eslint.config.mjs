@@ -42,6 +42,11 @@ const eslintConfig = defineConfig([
               message:
                 "Bypasses the public API. Import from '@/<layer>/<slice|segment>' (its index.ts). For same-segment files, use a relative path like './file' to avoid a circular import through index.ts.",
             },
+            {
+              group: ["../../**"],
+              message:
+                "Cross-slice/layer relative import bypasses the public API. Use '@/<layer>/<slice|segment>' instead.",
+            },
           ],
         },
       ],
