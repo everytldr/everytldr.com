@@ -1,4 +1,4 @@
-import type { Maybe } from "@/types/misc";
+import type { Maybe } from "@/shared/lib/nullable";
 
 export function assert(
   condition: unknown,

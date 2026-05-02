@@ -11,7 +11,7 @@ type Props<T extends keyof JSX.IntrinsicElements = "span"> = {
   as?: T;
 } & Omit<ComponentProps<T>, "children">;
 
-export default function Translation<T extends keyof JSX.IntrinsicElements = "span">({
+export function Translation<T extends keyof JSX.IntrinsicElements = "span">({
   path,
   values,
   as,

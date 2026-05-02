@@ -1,17 +1,17 @@
-import GlobalProvider from "@/components/GlobalProvider";
-import { routing } from "@/i18n/routing";
-import "@/styles/globals.css";
-import { cn } from "@/utils/class-name";
+import { GlobalProvider } from "@/app/providers";
+import "@/app/styles/globals.css";
+import { routing } from "@/shared/i18n";
+import { cn } from "@/shared/lib";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { JetBrains_Mono, Noto_Serif_KR, Playfair_Display, Source_Serif_4 } from "next/font/google";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 
 const pretendard = localFont({
-  src: "../../fonts/PretendardVariable.woff2",
+  src: "../../src/app/fonts/PretendardVariable.woff2",
   variable: "--font-pretendard",
   weight: "45 920",
   style: "normal",

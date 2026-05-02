@@ -1,8 +1,8 @@
 "use client";
 
-import { Nullable, Optional } from "@/types/misc";
-import { assert } from "@/utils/assert";
-import { createContext, ReactNode, useContext, useEffect, useMemo } from "react";
+import { assert } from "@/shared/lib/assert";
+import { type Nullable, type Optional } from "@/shared/lib/nullable";
+import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react";
 import { useStorageState } from "synced-storage/react";
 
 export type Theme = "light" | "dark" | "system";
@@ -20,7 +20,7 @@ export function useTheme() {
   return context;
 }
 
-export default function ThemeProvider({ children }: { children: ReactNode }) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useStorageState<Theme>(THEME_COOKIE_KEY, "system");
 
   const value: ThemeContextValue = useMemo(

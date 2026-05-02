@@ -2,12 +2,12 @@
  * AI-generated. Do not edit by hand.
  */
 
+import { type Locale, locales } from "@/shared/i18n/locale";
 import { watch } from "chokidar";
 import { debounce, isPlainObject, mapValues, pickBy } from "lodash-es";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { Locale, locales } from "../src/i18n/locale";
 
 const SRC_DIR = resolve(process.cwd(), "messages/src");
 const OUT_DIR = resolve(process.cwd(), "messages");

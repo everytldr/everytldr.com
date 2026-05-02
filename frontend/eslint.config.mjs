@@ -10,6 +10,22 @@ const eslintConfig = defineConfig([
   {
     rules: {
       curly: ["error", "all"],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          prefer: "type-imports",
+          fixStyle: "inline-type-imports",
+          disallowTypeAnnotations: true,
+        },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "ExportNamedDeclaration[source=null][declaration=null]",
+          message:
+            "Place 'export' inline on the declaration (export function/const/...) instead of a trailing 'export { ... }'. Re-exports with 'from' are allowed.",
+        },
+      ],
     },
   },
   globalIgnores([

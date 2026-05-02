@@ -1,8 +1,8 @@
-import Translation from "@/components/Translation";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
+import { Translation } from "@/shared/ui/translation";
 import Image from "next/image";
 
-export default function Home() {
+export function HomePage() {
   return (
     <main>
       <Translation path="common.test" />

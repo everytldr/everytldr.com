@@ -1,10 +1,10 @@
-import ThemeProvider from "@/components/ThemeProvider";
+import { ThemeProvider } from "@/app/providers/theme-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { cookies } from "next/headers";
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import { SyncedStorageProvider } from "synced-storage/react";
 
-export default async function GlobalProvider({ children }: PropsWithChildren) {
+export async function GlobalProvider({ children }: PropsWithChildren) {
   const cookieStore = await cookies();
 
   return (
