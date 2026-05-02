@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "lint": "eslint",
-    "dev": "tsx scripts/build-messages.ts && concurrently -n app,messages -c blue,green \"pnpm dev:app\" \"pnpm dev:messages\"",
+    "lint": "pnpm lint:eslint && pnpm lint:steiger",
+    "lint:eslint": "eslint",
+    "lint:steiger": "steiger ./src",
+    "dev": "tsx scripts/build-messages.ts && concurrently -n app,messages,steiger -c blue,green,yellow \"pnpm dev:app\" \"pnpm dev:messages\" \"pnpm dev:steiger\"",
     "dev:app": "next dev",
     "dev:messages": "tsx scripts/build-messages.ts --watch",
-    "build": "pnpm build:app && pnpm build:messages",
+    "dev:steiger": "steiger ./src --watch",
+    "build": "pnpm build:messages && pnpm lint:steiger && pnpm build:app",
     "build:app": "next build",
     "build:messages": "tsx scripts/build-messages.ts",
     "start": "next start"
@@ -26,6 +29,7 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
+    "@feature-sliced/steiger-plugin": "^0.5.7",
     "@tailwindcss/postcss": "^4",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
@@ -40,6 +44,7 @@
     "prettier": "^3.8.3",
     "prettier-plugin-organize-imports": "^4.3.0",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "steiger": "^0.5.11",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "6.0.3",
