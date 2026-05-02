@@ -1,3 +1,4 @@
+import { jetbrainsMono, notoSerifKR, playfairDisplay, pretendard, sourceSerif4 } from "@/app/fonts";
 import { GlobalProvider } from "@/app/providers";
 import "@/app/styles/globals.css";
 import { routing } from "@/shared/i18n";
@@ -5,42 +6,8 @@ import { cn } from "@/shared/lib";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import { JetBrains_Mono, Noto_Serif_KR, Playfair_Display, Source_Serif_4 } from "next/font/google";
-import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { type PropsWithChildren } from "react";
-
-const pretendard = localFont({
-  src: "../../src/app/fonts/PretendardVariable.woff2",
-  variable: "--font-pretendard",
-  weight: "45 920",
-  style: "normal",
-  display: "swap",
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair-display",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const sourceSerif4 = Source_Serif_4({
-  variable: "--font-source-serif-4",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const notoSerifKR = Noto_Serif_KR({
-  variable: "--font-noto-serif-kr",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
