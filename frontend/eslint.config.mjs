@@ -26,6 +26,25 @@ const eslintConfig = defineConfig([
             "Place 'export' inline on the declaration (export function/const/...) instead of a trailing 'export { ... }'. Re-exports with 'from' are allowed.",
         },
       ],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/app/*/**",
+                "@/pages/*/**",
+                "@/widgets/*/**",
+                "@/features/*/**",
+                "@/entities/*/**",
+                "@/shared/*/**",
+              ],
+              message:
+                "Bypasses the public API. Import from '@/<layer>/<slice|segment>' (its index.ts). For same-segment files, use a relative path like './file' to avoid a circular import through index.ts.",
+            },
+          ],
+        },
+      ],
     },
   },
   globalIgnores([
