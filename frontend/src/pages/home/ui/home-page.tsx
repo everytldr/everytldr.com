@@ -1,5 +1,4 @@
-import { Button } from "@/shared/ui/button";
-import { Translation } from "@/shared/ui/translation";
+import { Button, Translation } from "@/shared/ui";
 import Image from "next/image";
 
 export function HomePage() {

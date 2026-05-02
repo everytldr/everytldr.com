@@ -1,7 +1,6 @@
 "use client";
 
-import { assert } from "@/shared/lib/assert";
-import { type Nullable, type Optional } from "@/shared/lib/nullable";
+import { assert, type Nullable, type Optional } from "@/shared/lib";
 import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react";
 import { useStorageState } from "synced-storage/react";
 
