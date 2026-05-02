@@ -2,7 +2,7 @@
  * AI-generated. Do not edit by hand.
  */
 
-import { type Locale, locales } from "@/shared/i18n/locale";
+import { type Locale, locales } from "@/shared/i18n";
 import { watch } from "chokidar";
 import { debounce, isPlainObject, mapValues, pickBy } from "lodash-es";
 import { readdir, readFile, writeFile } from "node:fs/promises";

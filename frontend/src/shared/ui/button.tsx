@@ -1,4 +1,4 @@
-import { cn } from "@/shared/lib/class-name";
+import { cn } from "@/shared/lib";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 
