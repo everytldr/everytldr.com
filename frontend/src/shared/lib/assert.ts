@@ -1,4 +1,4 @@
-import type { Maybe } from "./nullable";
+import type { Maybe } from "./nullish";
 
 export function assert(
   condition: unknown,
