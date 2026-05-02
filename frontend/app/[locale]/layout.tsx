@@ -1,6 +1,6 @@
 import { jetbrainsMono, notoSerifKR, playfairDisplay, pretendard, sourceSerif4 } from "@/app/fonts";
 import { GlobalProvider } from "@/app/providers";
-import "@/app/styles/globals.css";
+import "@/app/styles";
 import { routing } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import type { Metadata } from "next";
