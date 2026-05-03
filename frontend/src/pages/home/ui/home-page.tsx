@@ -1,32 +1,13 @@
-import { Button, Translation } from "@/shared/ui";
-import Image from "next/image";
+import { Logo } from "@/shared/ui";
 
 export function HomePage() {
   return (
-    <main>
-      <Translation path="common.test" />
-      <Image
-        className="text-black"
-        src="/next.svg"
-        alt="Next.js logo"
-        width={100}
-        height={20}
-        priority
-      />
-      <Image
-        className="dark:invert"
-        src="/vercel.svg"
-        alt="Vercel logomark"
-        width={16}
-        height={16}
-      />
-      <section className="flex flex-wrap gap-3">
-        <Button>Default</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="destructive">Destructive</Button>
-        <Button variant="ghost">Ghost</Button>
-        <Button variant="link">Link</Button>
+    <main className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+      <section className="flex items-center justify-center bg-white p-16">
+        <Logo />
+      </section>
+      <section className="dark flex items-center justify-center bg-[#1a1a1a] p-16">
+        <Logo />
       </section>
     </main>
   );
