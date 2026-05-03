@@ -1,6 +1,6 @@
 # 1. Scope
 
-This document specifies the persistence layer for the TLDR Times backend: which entities exist, how they map to the database, how identifiers are generated, and which conventions every entity follows. Reader: an autonomous coding agent with no prior context on this codebase.
+This document specifies the persistence layer for the everytldr backend: which entities exist, how they map to the database, how identifiers are generated, and which conventions every entity follows. Reader: an autonomous coding agent with no prior context on this codebase.
 
 Out of scope: HTTP layer, ingestion business logic, summarization pipeline, frontend.
 

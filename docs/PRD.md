@@ -1,4 +1,4 @@
-# TLDR Times — Product Requirements Document
+# everytldr — Product Requirements Document
 
 ## 1. Goals
 - Let readers consume news originally written in languages they don't read, via AI-generated summaries in their preferred language.
