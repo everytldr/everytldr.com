@@ -1,11 +1,11 @@
 import LogoDark from "./logo-dark.svg";
 import LogoLight from "./logo-light.svg";
 
-type Props = {
+type LogoProps = {
   className?: string;
 };
 
-export function Logo({ className }: Props) {
+export function Logo({ className }: LogoProps) {
   return (
     <div className={className}>
       <LogoLight className="block dark:hidden" />

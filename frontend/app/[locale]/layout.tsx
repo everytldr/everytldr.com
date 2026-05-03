@@ -18,11 +18,11 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-type Props = PropsWithChildren<{
+type RootLayoutProps = PropsWithChildren<{
   params: Promise<{ locale: string }>;
 }>;
 
-export default async function RootLayout({ params, children }: Props) {
+export default async function RootLayout({ params, children }: RootLayoutProps) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) {
     notFound();

@@ -5,7 +5,7 @@ import { createElement, type ComponentProps, type JSX } from "react";
 type Messages = AppConfig["Messages"];
 type MessageKey = MessageKeys<Messages, NestedKeyOf<Messages>>;
 
-type Props<T extends keyof JSX.IntrinsicElements = "span"> = {
+type TranslationProps<T extends keyof JSX.IntrinsicElements = "span"> = {
   path: MessageKey;
   values?: Record<string, string | number>;
   as?: T;
@@ -16,7 +16,7 @@ export function Translation<T extends keyof JSX.IntrinsicElements = "span">({
   values,
   as,
   ...props
-}: Props<T>) {
+}: TranslationProps<T>) {
   const t = useTranslations();
 
   return createElement(as || "span", props, t(path, values));
