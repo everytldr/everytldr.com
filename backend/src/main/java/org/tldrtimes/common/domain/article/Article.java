@@ -24,7 +24,8 @@ public class Article extends SoftDeletableEntity {
   @Column(nullable = false, length = 10)
   private String language;
 
-  @Column private Instant publishedAt;
+  @Column(nullable = false)
+  private Instant publishedAt;
 
   private Article(
       String sourceUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
