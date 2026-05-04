@@ -44,7 +44,7 @@ common.domain.support/      BaseEntity, SoftDeletableEntity,
 common.domain.article/      Article, ArticleSummary, ArticleLike, ArticleComment, *Repository
 common.domain.category/     Category, ArticleCategory, *Repository
 common.domain.ingestion/    ArticleIngestionJob, IngestionState, *Repository
-common.domain.source/       RssSource, *Repository
+common.domain.source/       ArticleSource, SourceType, *Repository
 ```
 
 Repositories sit beside their entities in the same package. There is no top-level `repository/` folder.
@@ -146,7 +146,7 @@ Allocation per entity:
 | `ArticleCategory` | `BaseEntity` |
 | `ArticleIngestionJob` | `BaseEntity` |
 | `Category` | `BaseEntity` |
-| `RssSource` | `BaseEntity` |
+| `ArticleSource` | `BaseEntity` |
 
 ## 4.2. Lombok policy
 
@@ -229,7 +229,7 @@ Rationale: dialect parity with production. SQL valid on H2 but invalid on MySQL 
 Order is the topological sort of foreign-key dependency. Each step compiles only after the previous step.
 
 1. § 7.2.1. `Category` (no FKs)
-2. § 7.2.2. `RssSource` (no FKs)
+2. § 7.2.2. `ArticleSource` (no FKs)
 3. § 7.2.3. `Article` (no FKs)
 4. § 7.2.4. `ArticleIngestionJob` (FK → `Article`)
 5. § 7.2.5. `ArticleSummary` (FK → `Article`)
@@ -252,14 +252,15 @@ Inherited columns are omitted from each table; refer to § 4.1. Concretely:
 
 Display labels (Korean, English, …) are resolved client-side from `slug` via i18n resources; no `name` column.
 
-### 7.2.2. `rss_source`
+### 7.2.2. `article_source`
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
 | `name` | `VARCHAR(100)` | `NOT NULL` | Display name, e.g. `BBC Sport` |
-| `url` | `VARCHAR(500)` | `NOT NULL UNIQUE` | RSS feed URL |
+| `url` | `VARCHAR(500)` | `NOT NULL UNIQUE` | Provider locator. For RSS this is the feed URL; for Guardian API this is an API-key-free locator such as a section/search URL. |
 | `is_active` | `BOOLEAN` | `NOT NULL DEFAULT TRUE`, indexed | Inactive sources skipped by ingestor |
-| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en`. The article emitted from this feed inherits this value. |
+| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en`. Articles emitted from this source inherit this value. |
+| `source_type` | `VARCHAR(32)` | `NOT NULL` | Java `SourceType` enum, mapped `EnumType.STRING`; values include `GUARDIAN_API` and `RSS`. |
 
 ### 7.2.3. `article`
 
@@ -427,7 +428,7 @@ The questions tracked here in earlier drafts are now closed. The resolutions are
 
 | ID | Question | Decision | Where applied |
 |---|---|---|---|
-| Q1 | Add `language` column to `rss_source`? | **Yes**; `VARCHAR(10) NOT NULL`, BCP-47 lowercase. | § 7.2.2. |
+| Q1 | Generalize `rss_source` to `article_source`? | **Yes**; `ArticleSource` represents a provider-specific collection channel with `language` and `source_type`. | § 7.2.2. |
 | Q2 | How is the initial `category` row (`football`) seeded? | **Deferred.** No seed migration was committed in this round. Population path (Flyway data migration, Spring `ApplicationRunner`, or operational `INSERT`) will be decided alongside the first ingestion run. | not yet applied |
 | Q3 | Store original (untranslated) article title? | **No**. Operational identification of an article uses `article.source_url` and the loaded `article_summary.title` for the active reader language. | § 7.2.3. |
 | Q4 | Add `processed_at`, `last_error_message` to `article_ingestion_job`? | **No** for now. Add when retry/observability work begins; not required for MVP correctness. | § 7.2.4. |
