@@ -1,0 +1,67 @@
+package org.tldrtimes.ingestor.provider.guardian;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.tldrtimes.common.domain.source.ArticleSource;
+import org.tldrtimes.common.domain.source.SourceType;
+import org.tldrtimes.ingestor.provider.CollectedArticle;
+
+class GuardianArticleMapperTest {
+
+  private final GuardianArticleMapper guardianArticleMapper = new GuardianArticleMapper();
+
+  @Test
+  void mapsGuardianResultToCollectedArticle() {
+    GuardianSearchResponse response =
+        new GuardianSearchResponse(
+            new GuardianSearchResponse.Response(
+                List.of(
+                    new GuardianSearchResponse.Result(
+                        "2026-05-04T10:15:30Z",
+                        "https://www.theguardian.com/football/example",
+                        new GuardianSearchResponse.Fields(
+                            "https://media.guim.co.uk/example-thumbnail.jpg")))));
+    ArticleSource source =
+        ArticleSource.create(
+            "The Guardian Football",
+            "https://content.guardianapis.com/search?section=football",
+            "en",
+            SourceType.GUARDIAN_API);
+
+    List<CollectedArticle> actual = guardianArticleMapper.map(response, source);
+
+    assertThat(actual).hasSize(1);
+    CollectedArticle article = actual.getFirst();
+    assertThat(article.sourceUrl()).isEqualTo("https://www.theguardian.com/football/example");
+    assertThat(article.sourceName()).isEqualTo("The Guardian Football");
+    assertThat(article.thumbnailUrl()).isEqualTo("https://media.guim.co.uk/example-thumbnail.jpg");
+    assertThat(article.language()).isEqualTo("en");
+    assertThat(article.publishedAt()).isEqualTo(Instant.parse("2026-05-04T10:15:30Z"));
+  }
+
+  @Test
+  void mapsMissingThumbnailAsNull() {
+    GuardianSearchResponse response =
+        new GuardianSearchResponse(
+            new GuardianSearchResponse.Response(
+                List.of(
+                    new GuardianSearchResponse.Result(
+                        "2026-05-04T10:15:30Z",
+                        "https://www.theguardian.com/football/no-thumbnail",
+                        null))));
+    ArticleSource source =
+        ArticleSource.create(
+            "The Guardian Football",
+            "https://content.guardianapis.com/search?section=football",
+            "en",
+            SourceType.GUARDIAN_API);
+
+    List<CollectedArticle> actual = guardianArticleMapper.map(response, source);
+
+    assertThat(actual).hasSize(1);
+    assertThat(actual.getFirst().thumbnailUrl()).isNull();
+  }
+}
