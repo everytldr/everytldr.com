@@ -20,7 +20,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("org.testcontainers:testcontainers-bom:1.20.4")
+        mavenBom("org.testcontainers:testcontainers-bom:2.0.5")
     }
 }
 
@@ -43,8 +43,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:mysql")
-    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-mysql")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
