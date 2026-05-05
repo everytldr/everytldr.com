@@ -23,12 +23,8 @@ import org.tldrtimes.common.domain.support.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
     uniqueConstraints = {
-      @UniqueConstraint(
-          name = "uk_article_ingestion_job_article",
-          columnNames = "article_id"),
-      @UniqueConstraint(
-          name = "uk_article_ingestion_job_url_hash",
-          columnNames = "url_hash")
+      @UniqueConstraint(name = "uk_article_ingestion_job_article", columnNames = "article_id"),
+      @UniqueConstraint(name = "uk_article_ingestion_job_url_hash", columnNames = "url_hash")
     })
 public class ArticleIngestionJob extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)

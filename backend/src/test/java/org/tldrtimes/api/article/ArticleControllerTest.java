@@ -32,17 +32,12 @@ import org.tldrtimes.common.domain.category.CategoryRepository;
 @ActiveProfiles("test")
 @Transactional
 class ArticleControllerTest {
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-  @Autowired
-  private ArticleRepository articleRepository;
-  @Autowired
-  private ArticleSummaryRepository summaryRepository;
-  @Autowired
-  private ArticleCategoryRepository articleCategoryRepository;
-  @Autowired
-  private CategoryRepository categoryRepository;
+  @Autowired private ArticleRepository articleRepository;
+  @Autowired private ArticleSummaryRepository summaryRepository;
+  @Autowired private ArticleCategoryRepository articleCategoryRepository;
+  @Autowired private CategoryRepository categoryRepository;
 
   private Category football;
   private Category tech;
@@ -120,7 +115,8 @@ class ArticleControllerTest {
     assertThat(firstPage).extracting(ArticleListProjection::title).containsExactly("T0", "T1");
 
     ArticleListProjection boundary = firstPage.getLast();
-    List<ArticleListProjection> secondPage = findRecent("ko", null, boundary.publishedAt(), boundary.id(), 2);
+    List<ArticleListProjection> secondPage =
+        findRecent("ko", null, boundary.publishedAt(), boundary.id(), 2);
     assertThat(secondPage).extracting(ArticleListProjection::title).containsExactly("T2", "T3");
   }
 
@@ -153,9 +149,10 @@ class ArticleControllerTest {
   }
 
   private Article saveArticleWithoutSummary(Instant publishedAt, Category category) {
-    Article article = articleRepository.saveAndFlush(
-        Article.create(
-            "https://example.com/" + System.nanoTime(), "Example", null, "en", publishedAt));
+    Article article =
+        articleRepository.saveAndFlush(
+            Article.create(
+                "https://example.com/" + System.nanoTime(), "Example", null, "en", publishedAt));
     if (category != null) {
       articleCategoryRepository.saveAndFlush(ArticleCategory.create(article, category));
     }
