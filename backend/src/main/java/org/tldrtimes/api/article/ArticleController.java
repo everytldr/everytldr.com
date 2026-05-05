@@ -1,5 +1,9 @@
 package org.tldrtimes.api.article;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +18,7 @@ import org.tldrtimes.common.domain.language.SupportedLanguage;
 @RestController
 @RequestMapping("/api/articles")
 @Profile("api")
+@Tag(name = "Articles")
 public class ArticleController {
   private final ArticleService articleService;
 
@@ -22,8 +27,10 @@ public class ArticleController {
   }
 
   @GetMapping
+  @Operation(operationId = "listArticles")
+  @Parameter(in = ParameterIn.HEADER, name = "Accept-Language", required = false)
   public ArticleListResponse list(
-      @ResolvedLanguage SupportedLanguage language,
+      @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false) String category,
       @RequestParam(required = false) Integer size) {
