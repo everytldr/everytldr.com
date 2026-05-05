@@ -14,10 +14,10 @@ import org.tldrtimes.common.domain.language.SupportedLanguage;
 
 @Service
 @Profile("api")
-public class ArticleListService {
+public class ArticleService {
   private final ArticleRepository articleRepository;
 
-  public ArticleListService(ArticleRepository articleRepository) {
+  public ArticleService(ArticleRepository articleRepository) {
     this.articleRepository = articleRepository;
   }
 

@@ -15,10 +15,10 @@ import org.tldrtimes.common.domain.language.SupportedLanguage;
 @RequestMapping("/api/articles")
 @Profile("api")
 public class ArticleController {
-  private final ArticleListService articleListService;
+  private final ArticleService articleService;
 
-  public ArticleController(ArticleListService articleListService) {
-    this.articleListService = articleListService;
+  public ArticleController(ArticleService articleService) {
+    this.articleService = articleService;
   }
 
   @GetMapping
@@ -31,7 +31,7 @@ public class ArticleController {
     ArticleListCursor.Decoded decoded = cursor == null ? null : ArticleListCursor.decode(cursor);
 
     Pagination.Page<ArticleListProjection> page =
-        articleListService.listRecent(
+        articleService.listRecent(
             language,
             category,
             decoded == null ? null : decoded.publishedAt(),
