@@ -37,7 +37,7 @@ jobs:
 
       - name: Apply eslint --fix
         working-directory: frontend
-        run: pnpm exec eslint --fix
+        run: pnpm lint:eslint --fix
 
       - name: Detect drift
         id: drift
@@ -64,6 +64,6 @@ jobs:
           steps.drift.outputs.changed == 'true' &&
           github.event_name == 'push'
         run: |
-          echo "::error::Frontend code is not properly formatted on $GITHUB_REF. Run 'pnpm exec eslint --fix' in frontend/ and commit before merging."
+          echo "::error::Frontend code is not properly formatted on $GITHUB_REF. Run 'pnpm lint:eslint --fix' in frontend/ and commit before merging."
           git --no-pager diff -- frontend
           exit 1
