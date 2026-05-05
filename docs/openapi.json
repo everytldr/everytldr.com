@@ -89,9 +89,6 @@
             "format" : "int32",
             "type" : "integer"
           }
-        }, {
-          "in" : "header",
-          "name" : "Accept-Language"
         } ],
         "responses" : {
           "200" : {
