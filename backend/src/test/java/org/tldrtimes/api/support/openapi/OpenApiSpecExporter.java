@@ -40,8 +40,7 @@ class OpenApiSpecExporter {
     Path target = Paths.get(outputPath).toAbsolutePath().normalize();
     Files.createDirectories(target.getParent());
 
-    ObjectMapper mapper =
-        new ObjectMapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+    ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
     Object tree = mapper.readValue(body, Object.class);
     Files.writeString(
         target, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree) + "\n");
