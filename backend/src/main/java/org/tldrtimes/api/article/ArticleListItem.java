@@ -15,7 +15,7 @@ public record ArticleListItem(
     return new ArticleListItem(
         projection.id(),
         projection.title(),
-        projection.content(),
+        projection.summary(),
         projection.thumbnailUrl(),
         projection.publishedAt(),
         projection.source(),

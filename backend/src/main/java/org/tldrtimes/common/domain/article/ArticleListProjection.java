@@ -5,7 +5,7 @@ import java.time.Instant;
 public record ArticleListProjection(
     Long id,
     String title,
-    String content,
+    String summary,
     String thumbnailUrl,
     Instant publishedAt,
     String source,
