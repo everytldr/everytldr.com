@@ -31,7 +31,7 @@ class SoftDeleteTest {
   void softDeletedArticleIsHiddenFromFindById() {
     Article article =
         articleRepository.saveAndFlush(
-            Article.create("https://example.com/news/1", "Example", null, "en", null));
+            Article.create("https://example.com/news/1", "Example", null, "en", Instant.now()));
     Long id = article.getId();
 
     article.softDelete(Instant.now());
@@ -45,10 +45,10 @@ class SoftDeleteTest {
   void softDeletedArticleIsHiddenFromFindAll() {
     Article kept =
         articleRepository.saveAndFlush(
-            Article.create("https://example.com/keep", "Example", null, "en", null));
+            Article.create("https://example.com/keep", "Example", null, "en", Instant.now()));
     Article deleted =
         articleRepository.saveAndFlush(
-            Article.create("https://example.com/delete", "Example", null, "en", null));
+            Article.create("https://example.com/delete", "Example", null, "en", Instant.now()));
     Long keptId = kept.getId();
     Long deletedId = deleted.getId();
 
@@ -66,7 +66,7 @@ class SoftDeleteTest {
   void softDeletedCommentIsHiddenFromFindById() {
     Article article =
         articleRepository.saveAndFlush(
-            Article.create("https://example.com/news/2", "Example", null, "en", null));
+            Article.create("https://example.com/news/2", "Example", null, "en", Instant.now()));
 
     ArticleComment comment =
         commentRepository.saveAndFlush(
