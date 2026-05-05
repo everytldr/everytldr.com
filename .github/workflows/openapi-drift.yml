@@ -16,7 +16,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   drift:
@@ -67,17 +66,6 @@ jobs:
           git add docs/openapi.json
           git commit -m "chore: regenerate docs/openapi.json"
           git push
-
-      - name: Approve PR
-        if: |
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr review ${{ github.event.pull_request.number }} \
-            --approve \
-            --body "OpenAPI spec is in sync with the API code."
 
       - name: Fail on drift (push to protected branches)
         if: |
