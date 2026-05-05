@@ -271,7 +271,7 @@ Base: `SoftDeletableEntity`.
 | `source` | `VARCHAR(100)` | `NOT NULL` | Publisher display name |
 | `thumbnail_url` | `VARCHAR(1000)` | `NULL` | |
 | `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en` |
-| `published_at` | `DATETIME(6)` | `NULL` | Unknown if `NULL` |
+| `published_at` | `DATETIME(6)` | `NOT NULL`, indexed | Backs `(published_at DESC, id DESC)` list ordering |
 
 The original (untranslated) article title is not stored. See § 9. Q3.
 

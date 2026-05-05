@@ -2,6 +2,8 @@ package org.tldrtimes.common.domain.article;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,6 +13,7 @@ import org.tldrtimes.common.domain.support.SoftDeletableEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = @Index(name = "idx_article_published_at", columnList = "published_at"))
 public class Article extends SoftDeletableEntity {
   @Column(nullable = false, length = 1000)
   private String sourceUrl;
@@ -24,7 +27,8 @@ public class Article extends SoftDeletableEntity {
   @Column(nullable = false, length = 10)
   private String language;
 
-  @Column private Instant publishedAt;
+  @Column(nullable = false)
+  private Instant publishedAt;
 
   private Article(
       String sourceUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
