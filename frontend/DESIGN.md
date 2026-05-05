@@ -1,278 +1,1031 @@
-# Design System Inspired by WIRED
+---
+version: alpha
+name: everytldr
+description: A multilingual, theme-aware news-summary canvas — light surfaces anchored on white (#ffffff), dark surfaces on warm near-black (#131316). Pretendard Variable typography adapts to Korean and English with locale-aware sizing. Single Read Blue accent (#0a66ff light / #5e93ff dark) for primary actions and links; Liked Rose reserved for the heart-toggled state. Article cards photo-first with pastel category badges that swap to deep-tint variants in dark mode (Notion lineage); comments and source-link cards inherit Notion's sober rectangular geometry; card-grid density and modest display weights from Airbnb; elevation flat-with-hairline by default, with hover-shadow on light converting to surface-lift on dark. The Verge contributes only its monospaced timestamp pattern. Built for a card-grid list page and a focused reading detail page with anonymous likes and threaded comments.
 
-## 1. Visual Theme & Atmosphere
+colors:
+  # Brand
+  primary: "#0a66ff"
+  primary-dark: "#5e93ff"
+  primary-pressed: "#0850cc"
+  primary-pressed-dark: "#4d82e8"
+  primary-disabled: "#cce0ff"
+  primary-disabled-dark: "#1f3055"
+  on-primary: "#ffffff"
 
-WIRED's homepage feels like a printed broadsheet that someone has plugged into a wall socket. The grid is dense, the rules are thin, the type is loud, and almost every surface is paper-white or pure black with no rounded corners and no decoration that doesn't earn its place. Image rectangles butt directly against headlines, hairline dividers separate stories the way pica rules separate columns in a real magazine, and the only colors that aren't grayscale come from the photography itself. There is no "card with shadow" anywhere — the entire layout is held together by typographic weight and the discipline of rules and whitespace, the same way a Condé Nast print page would be assembled in a paste-up room.
+  # Like state
+  like-active: "#e11d48"
+  like-active-dark: "#fb7185"
+  like-inactive: "#6a6a6a"
+  like-inactive-dark: "#8a8a92"
 
-The signature move is the **typographic stack**: a brutally large custom serif (WiredDisplay) for the main headline, a humanist serif (BreveText) for body and decks, a geometric sans (Apercu) for UI affordances, and a hard mono uppercase (WiredMono) for the kickers, eyebrows, and timestamps that mark every story. That mono kicker — usually black caps with letter-spacing wide enough to read as a Geiger-counter tick — is what makes a WIRED page instantly recognizable from across the room.
+  # Surface (light)
+  canvas: "#ffffff"
+  surface-soft: "#f7f7f7"
+  surface-strong: "#f2f2f2"
 
-There is exactly one accent color that matters: a saturated link blue (`#057dbc`) that lights up underlined hover states like a CRT scanline. Everything else is black, paper white, and two grays — the design's confidence comes from refusing to invent more.
+  # Surface (dark)
+  canvas-dark: "#131316"
+  surface-soft-dark: "#1c1c20"
+  surface-strong-dark: "#26262b"
 
-**Key Characteristics:**
-- Newsstand-density editorial grid: rules and whitespace, never cards or shadows
-- Custom serif display + technical mono kickers — the Condé-Nast-meets-engineering-lab voice
-- Strictly square corners on every image, container, and ribbon (only icon buttons are circular)
-- 2px hard black borders on buttons and links — printerly, not webby
-- Mono ALL-CAPS eyebrows on every story with wide tracking (0.9–1.2px)
-- Single ink-blue accent for links; everything else lives in pure grayscale
-- Dark theme = the *footer*, not the page; the page itself is committed paper-white
+  # Hairlines (light)
+  hairline: "#e5e3df"
+  hairline-soft: "#ebebeb"
+  hairline-strong: "#c1c1c1"
 
-## 2. Color Palette & Roles
+  # Hairlines (dark)
+  hairline-dark: "#2a2a2f"
+  hairline-soft-dark: "#1f1f23"
+  hairline-strong-dark: "#3d3d44"
 
-### Primary (Editorial Ink)
-- **WIRED Black** (`#000000`): Pure ink for ribbons, section dividers, button borders, headline rules — the strongest hand on the page.
-- **Page Ink** (`#1a1a1a`): Near-black used for headlines and body type. Slightly softened so long-form reading doesn't feel like staring at a power button.
-- **Paper White** (`#ffffff`): Default canvas for the entire site. Treat it like newsprint stock — uninterrupted, never tinted.
+  # Text (light)
+  ink: "#1a1a1a"
+  body: "#3f3f3f"
+  meta: "#6a6a6a"
+  meta-soft: "#929292"
 
-### Secondary (Editorial Voice)
-- **Link Blue** (`#057dbc`): The single brand accent. Used for inline link hovers, breadcrumbs, and the rare button — never for backgrounds, never decorated. Think of it as the only color allowed in a black-and-white film.
+  # Text (dark)
+  ink-dark: "#f5f5f7"
+  body-dark: "#c8c8d0"
+  meta-dark: "#8a8a92"
+  meta-soft-dark: "#6a6a72"
 
-### Surface & Background
-- **Newsprint** (`#ffffff`): Editorial pages, story grids, hero zones.
-- **Footer Ink** (`#1a1a1a`): The only inverted region on the homepage. Paper white type sits on top.
-- **Hairline Tint** (`#e2e8f0`): Reserved for `<hr>` elements between sections — barely visible, like a margin rule.
+  on-dark: "#ffffff"
+  on-dark-meta: "#a4a097"
 
-### Neutrals & Text
-- **Headline Black** (`#1a1a1a`): All H1/H2 display type.
-- **Body Gray** (`#1a1a1a`): Long-form body text — same ink as headlines for unity.
-- **Caption Gray** (`#757575`): Secondary metadata: bylines, timestamps, photo credits.
-- **Disabled Gray** (`#999999`): Inactive links, low-priority labels.
-- **Hairline Border** (`#e2e8f0`): Subtle separators only.
+  # Category tints (light)
+  tint-emerald: "#d9f3e1"
+  tint-sky: "#dcecfa"
+  tint-rose: "#fde0ec"
+  tint-peach: "#ffe8d4"
+  tint-lavender: "#e6e0f5"
+  tint-yellow: "#fef7d6"
+  tint-gray: "#f0eeec"
 
-### Semantic & Accent
-- **Brand Hover Blue** (`#057dbc`): Link rollover state — also serves as the only "interactive" cue.
-- *(WIRED's homepage intentionally omits semantic success/error/warning palettes — this is editorial, not a SaaS dashboard.)*
+  text-emerald: "#15803d"
+  text-sky: "#0369a1"
+  text-rose: "#be123c"
+  text-peach: "#c2410c"
+  text-lavender: "#6b21a8"
+  text-yellow: "#854d0e"
+  text-gray: "#404040"
 
-### Gradient System
-None. WIRED uses zero gradients. The closest thing to a gradient on the page is the tonal range inside a photograph — gradients live *in the imagery*, not in the chrome.
+  # Category tints (dark)
+  tint-emerald-dark: "#0e2419"
+  tint-sky-dark: "#0a1e30"
+  tint-rose-dark: "#2c1019"
+  tint-peach-dark: "#29170c"
+  tint-lavender-dark: "#1d172e"
+  tint-yellow-dark: "#292210"
+  tint-gray-dark: "#232328"
 
-## 3. Typography Rules
+  text-emerald-dark: "#6ee7b7"
+  text-sky-dark: "#7dd3fc"
+  text-rose-dark: "#fda4af"
+  text-peach-dark: "#fdba74"
+  text-lavender-dark: "#c4b5fd"
+  text-yellow-dark: "#fde047"
+  text-gray-dark: "#d4d4d8"
 
-### Font Family
-- **WiredDisplay** (custom serif, fallback `helvetica`) — Display headlines and feature titles.
-- **BreveText** (humanist serif, fallback `helvetica`) — Article body, decks, longer captions.
-- **Apercu** (geometric sans, fallback `helvetica`) — UI labels, buttons, navigation, mid-weight headings.
-- **WiredMono** (custom monospace, fallback `helvetica`) — Eyebrows, kickers, timestamps, section labels, ALL CAPS.
-- **Inter** (sans, system fallback) — Utility UI in newer modules.
-- **ProximaNova** (sans, fallback `helvetica`) — Legacy UI surfaces.
-- **WIRED Mono** (custom mono, fallback `Monaco, Courier New, Courier`) — Article-page eyebrows.
+  # Semantic (paired)
+  semantic-success: "#15803d"
+  semantic-success-dark: "#34d399"
+  semantic-warning: "#ea580c"
+  semantic-warning-dark: "#fb923c"
+  semantic-error: "#dc2626"
+  semantic-error-dark: "#f87171"
 
-### Hierarchy
+  # Misc
+  scrim: "#000000"
+  legal-link: "#428bff"
+  legal-link-dark: "#7ab2ff"
 
-| Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
-|---|---|---|---|---|---|---|
-| Display Headline (Hero) | WiredDisplay | 64px / 4.00rem | regular | 0.93 | -0.5px | Tight, almost touching descenders — newsstand presence |
-| Display Headline (Mobile / Mid) | WiredDisplay | 26px / 1.63rem | regular | 1.08 | — | Same face, scaled down for grid blocks |
-| Section Heading | Apercu | 20px / 1.25rem | 700 | 1.20 | -0.28px | Bold sans for module titles ("Most Popular", "Featured") |
-| Subheading | Apercu | 17px / 1.06rem | 700 | 1.29 | -0.144px | Story decks within feature blocks |
-| Article Deck (Serif) | BreveText | 19px / 1.19rem | regular | 1.47 | 0.108px | Long-form lead paragraphs |
-| Article Body (Serif) | BreveText | 16px / 1.00rem | regular | 1.50 | 0.09px | Standard paragraph text |
-| UI Heading | Apercu | 16px / 1.00rem | 700 | 1.25 | 0.3px | Inline UI labels, button captions |
-| Button Label | Apercu | 16px / 1.00rem | 700 | 1.25 | 0.3px | All caps optional, depending on placement |
-| Link (Inline UI) | Apercu | 14px / 0.88rem | regular | 1.29 | 0.4px | Footer links, secondary nav |
-| Eyebrow / Kicker | WiredMono | 13px / 0.81rem | regular | 1.23 | 0.92px | UPPERCASE — story category above headline |
-| Eyebrow Bold | WiredMono | 13px / 0.81rem | 700 | 1.23 | — | UPPERCASE — featured story marker |
-| Section Ribbon | WiredMono | 12px / 0.75rem | 700 | 1.00 | 1.2px | UPPERCASE — black-bar section labels |
-| Photo Caption | BreveText | 12.73px / 0.80rem | 700 | 2.20 (relaxed) | 0.108px | Generous leading — print-photo treatment |
-| Timestamp / Meta | WiredMono | 12px / 0.75rem | regular | 1.33 | 1.1px | UPPERCASE, used for "X HOURS AGO" markers |
-| Tertiary Footer Link | ProximaNova | 11px / 0.69rem | regular | 1.45 | — | Newsletter footer, legal links |
-| Inter UI Heading | Inter | 16px / 1.00rem | 600 | 1.23 | 0.108px | Newer module headers |
-| Inter UI Caption | Inter | 14px / 0.88rem | 600 | 1.40 | — | Compact UI metadata |
+typography:
+  hero-display:
+    fontFamily: "'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif"
+    fontSize: 56px
+    fontWeight: 700
+    lineHeight: 1.10
+    letterSpacing: -1px
+  display-xl:
+    fontFamily: "'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif"
+    fontSize: 40px
+    fontWeight: 700
+    lineHeight: 1.15
+    letterSpacing: -0.5px
+  display-lg:
+    fontFamily: "'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif"
+    fontSize: 32px
+    fontWeight: 700
+    lineHeight: 1.20
+    letterSpacing: -0.5px
+  display-md:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 24px
+    fontWeight: 700
+    lineHeight: 1.30
+    letterSpacing: -0.25px
+  display-sm:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 20px
+    fontWeight: 600
+    lineHeight: 1.35
+    letterSpacing: 0
+  title-md:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 16px
+    fontWeight: 600
+    lineHeight: 1.40
+    letterSpacing: 0
+  title-sm:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 14px
+    fontWeight: 600
+    lineHeight: 1.40
+    letterSpacing: 0
+  body-lg:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 18px
+    fontWeight: 400
+    lineHeight: 1.65
+    letterSpacing: 0
+  body-md:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 16px
+    fontWeight: 400
+    lineHeight: 1.60
+    letterSpacing: 0
+  body-sm:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 14px
+    fontWeight: 400
+    lineHeight: 1.55
+    letterSpacing: 0
+  caption:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 13px
+    fontWeight: 500
+    lineHeight: 1.40
+    letterSpacing: 0
+  caption-mono:
+    fontFamily: "'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace"
+    fontSize: 12px
+    fontWeight: 500
+    lineHeight: 1.40
+    letterSpacing: 0.2px
+  micro:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 11px
+    fontWeight: 600
+    lineHeight: 1.30
+    letterSpacing: 0.4px
+  button-md:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 15px
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: 0
+  button-sm:
+    fontFamily: "'Pretendard Variable', Pretendard, sans-serif"
+    fontSize: 14px
+    fontWeight: 500
+    lineHeight: 1.25
+    letterSpacing: 0
 
-### Principles
-- **Four faces, four jobs.** WiredDisplay is for shouting, BreveText is for reading, Apercu is for clicking, WiredMono is for labeling. They never trade roles. This separation is what keeps the page from feeling like a typography sample.
-- **Tight headlines, generous body.** Display type runs as low as 0.93 line-height (nearly touching), while body BreveText opens out to 1.47–1.50. The contrast is the editorial fingerprint.
-- **Mono is always uppercase.** Every WiredMono usage carries `text-transform: uppercase` and 0.9–1.2px letter-spacing. Treat lowercase mono as broken — it should not appear on a WIRED page.
-- **Bold is rare.** Apercu uses weight 700 only for UI emphasis; the editorial layer (Display + BreveText) leans entirely on size and ink color, never on bolding.
-- **Letter-spacing has two registers**: positive (0.9–1.2px) for ALL-CAPS mono, negative (-0.144 to -0.5px) for large display serif. Never neutral on the largest type.
+rounded:
+  none: 0px
+  xs: 4px
+  sm: 8px
+  md: 12px
+  lg: 16px
+  xl: 24px
+  full: 9999px
 
-### Note on Font Substitutes
-The line-height values in the hierarchy table (especially the 0.93 on the 64px hero) assume the **proprietary WiredDisplay and BreveText faces**, which have tight metrics with short ascenders/descenders. If you substitute these with wide-metric open-source fonts like **Playfair Display** or **Libre Caslon**, loosen display line-heights by approximately **+0.10 to +0.12** to prevent ascender/descender collisions on wrapping lines (e.g., 0.93 → 1.05, 1.08 → 1.18). Apercu substitutes (Inter, Work Sans, Manrope) work at the token values without adjustment. BreveText body substitutes (Lora, Source Serif 4) also work without adjustment because body leading is already generous.
+spacing:
+  2xs: 4px
+  xs: 8px
+  sm: 12px
+  md: 16px
+  lg: 24px
+  xl: 32px
+  2xl: 48px
+  section: 64px
 
-## 4. Component Stylings
+components:
+  button-primary:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.button-md}"
+    rounded: "{rounded.sm}"
+    padding: "10px 18px"
+    height: 44px
+  button-primary-pressed:
+    backgroundColor: "{colors.primary-pressed}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.sm}"
+  button-primary-disabled:
+    backgroundColor: "{colors.primary-disabled}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.sm}"
+  button-secondary:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.button-md}"
+    rounded: "{rounded.sm}"
+    padding: "10px 18px"
+    height: 44px
+    border: "1px solid {colors.hairline-strong}"
+  button-ghost:
+    backgroundColor: transparent
+    textColor: "{colors.ink}"
+    typography: "{typography.button-md}"
+    rounded: "{rounded.sm}"
+    padding: "8px 14px"
+  button-link:
+    backgroundColor: transparent
+    textColor: "{colors.primary}"
+    typography: "{typography.body-sm}"
+    padding: "0"
+  button-pill-filter:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.body}"
+    typography: "{typography.button-sm}"
+    rounded: "{rounded.full}"
+    padding: "8px 16px"
+    border: "1px solid {colors.hairline}"
+    height: 36px
+  button-pill-filter-active:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.button-sm}"
+    rounded: "{rounded.full}"
+    padding: "8px 16px"
+    height: 36px
+  icon-button-circle:
+    backgroundColor: "{colors.surface-strong}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.full}"
+    height: 36px
+  article-card:
+    backgroundColor: "{colors.canvas}"
+    rounded: "{rounded.md}"
+    padding: "0"
+    border: "1px solid {colors.hairline}"
+  article-card-photo:
+    rounded: "{rounded.md}"
+    aspectRatio: "16/9"
+  article-card-body:
+    backgroundColor: "{colors.canvas}"
+    padding: "{spacing.md}"
+  article-card-featured:
+    backgroundColor: "{colors.canvas}"
+    rounded: "{rounded.lg}"
+    padding: "0"
+    border: "1px solid {colors.hairline}"
+  article-card-compact:
+    backgroundColor: "{colors.canvas}"
+    rounded: "{rounded.sm}"
+    padding: "{spacing.sm}"
+  category-badge-emerald:
+    backgroundColor: "{colors.tint-emerald}"
+    textColor: "{colors.text-emerald}"
+    typography: "{typography.micro}"
+    rounded: "{rounded.xs}"
+    padding: "4px 8px"
+  category-badge-sky:
+    backgroundColor: "{colors.tint-sky}"
+    textColor: "{colors.text-sky}"
+    typography: "{typography.micro}"
+    rounded: "{rounded.xs}"
+    padding: "4px 8px"
+  category-badge-rose:
+    backgroundColor: "{colors.tint-rose}"
+    textColor: "{colors.text-rose}"
+    typography: "{typography.micro}"
+    rounded: "{rounded.xs}"
+    padding: "4px 8px"
+  category-badge-peach:
+    backgroundColor: "{colors.tint-peach}"
+    textColor: "{colors.text-peach}"
+    typography: "{typography.micro}"
+    rounded: "{rounded.xs}"
+    padding: "4px 8px"
+  category-badge-lavender:
+    backgroundColor: "{colors.tint-lavender}"
+    textColor: "{colors.text-lavender}"
+    typography: "{typography.micro}"
+    rounded: "{rounded.xs}"
+    padding: "4px 8px"
+  category-badge-yellow:
+    backgroundColor: "{colors.tint-yellow}"
+    textColor: "{colors.text-yellow}"
+    typography: "{typography.micro}"
+    rounded: "{rounded.xs}"
+    padding: "4px 8px"
+  category-badge-gray:
+    backgroundColor: "{colors.tint-gray}"
+    textColor: "{colors.text-gray}"
+    typography: "{typography.micro}"
+    rounded: "{rounded.xs}"
+    padding: "4px 8px"
+  like-button:
+    backgroundColor: transparent
+    textColor: "{colors.meta}"
+    typography: "{typography.caption}"
+    padding: "6px 10px"
+    rounded: "{rounded.full}"
+  like-button-active:
+    backgroundColor: transparent
+    textColor: "{colors.like-active}"
+    typography: "{typography.caption}"
+    padding: "6px 10px"
+    rounded: "{rounded.full}"
+  comment-thread:
+    backgroundColor: "{colors.canvas}"
+    padding: "{spacing.lg} 0"
+  comment-card:
+    backgroundColor: transparent
+    padding: "{spacing.md} 0"
+    border: "0 0 1px {colors.hairline-soft} solid"
+  comment-card-nested:
+    backgroundColor: "{colors.surface-soft}"
+    rounded: "{rounded.md}"
+    padding: "{spacing.md}"
+  comment-textarea:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.md}"
+    padding: "{spacing.md}"
+    border: "1px solid {colors.hairline-strong}"
+    minHeight: 96px
+  source-link-card:
+    backgroundColor: "{colors.surface-soft}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-sm}"
+    rounded: "{rounded.md}"
+    padding: "{spacing.md}"
+    border: "1px solid {colors.hairline}"
+  text-input:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.sm}"
+    padding: "12px 16px"
+    height: 44px
+    border: "1px solid {colors.hairline-strong}"
+  text-input-focused:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    border: "2px solid {colors.primary}"
+  search-input:
+    backgroundColor: "{colors.surface-soft}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.full}"
+    padding: "10px 20px"
+    height: 44px
+    border: "1px solid {colors.hairline}"
+  top-nav:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.button-md}"
+    height: 64px
+    border: "0 0 1px {colors.hairline} solid"
+  category-tab-strip:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.meta}"
+    typography: "{typography.button-sm}"
+    border: "0 0 1px {colors.hairline} solid"
+  category-tab:
+    backgroundColor: transparent
+    textColor: "{colors.meta}"
+    typography: "{typography.button-sm}"
+    padding: "{spacing.sm} {spacing.md}"
+  category-tab-active:
+    backgroundColor: transparent
+    textColor: "{colors.ink}"
+    typography: "{typography.button-sm}"
+    padding: "{spacing.sm} {spacing.md}"
+    border: "0 0 2px {colors.ink} solid"
+  language-pill:
+    backgroundColor: "{colors.surface-soft}"
+    textColor: "{colors.ink}"
+    typography: "{typography.button-sm}"
+    rounded: "{rounded.full}"
+    padding: "6px 12px"
+    height: 32px
+  pagination-button:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.button-sm}"
+    rounded: "{rounded.sm}"
+    padding: "8px 14px"
+    border: "1px solid {colors.hairline}"
+    height: 36px
+  empty-state:
+    backgroundColor: "{colors.surface-soft}"
+    textColor: "{colors.meta}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.md}"
+    padding: "{spacing.2xl}"
+    border: "1px solid {colors.hairline-soft}"
+  footer-region:
+    backgroundColor: "{colors.surface-soft}"
+    textColor: "{colors.body}"
+    typography: "{typography.body-sm}"
+    padding: "{spacing.section} {spacing.xl}"
+    border: "1px solid 0 0 0 {colors.hairline}"
+  footer-link:
+    backgroundColor: transparent
+    textColor: "{colors.body}"
+    typography: "{typography.body-sm}"
+---
 
-### Buttons
+# 1. everytldr Design System.
 
-**Primary CTA — Black Outline ("Subscribe")**
-- Background: `#ffffff` (Paper White)
-- Text: `#000000` (WIRED Black), Apercu 16px / 700 / 0.3px tracking
-- Border: `2px solid #000000` — the printerly hard rule, not a 1px UI border
-- Border radius: `0` (square corners)
-- Padding: vertical ≈ 12–14px, horizontal ≈ 24px
-- Hover: background flips to `#000000`, text flips to `#ffffff` — pure inversion, no easing on the rule
-- Transition: ~150ms color/background only
+Design specification for a multilingual news-summarisation web service supporting Korean and English with light and dark themes.
 
-**Secondary — Inverted ("Sign In", in dark zones)**
-- Background: `#000000`
-- Text: `#ffffff`
-- Border: `2px solid #ffffff`
-- Same square corners, same inversion-on-hover behavior
+## 1.1. Purpose.
 
-**Tertiary — Underlined Inline Link**
-- Treated as a button when wrapped in nav: text `#1a1a1a`, underline always present, hover swaps color to `#057dbc` while keeping the underline
-- No padding, no border, no background — this is editorial linking, not UI
+Define tokens, components, layouts, and rules for a card-grid list page and a focused reading detail page with anonymous likes and threaded comments. Reference UX: news.hada.io, Naver / Daum 뉴스 (Korean news portals).
 
-**Pill / Round Icon Button**
-- Border radius: `50%` (the only circular shape on the site)
-- Used exclusively for icon controls (search, account, social) in the header
-- Border: 1px solid `#757575` or no border depending on placement
-- Size: ~32–40px square footprint
+## 1.2. PRD Scope.
 
-**Tag / Span Pill**
-- Border radius: `1920px` (effectively a full pill — only used inside text spans like "BREAKING")
-- Background: solid black or red accent depending on context
-- Text: white, mono 11–12px caps
+| Requirement | Spec |
+|---|---|
+| Categories | Closed enum; MVP = `football` only |
+| Summary languages | Korean + English; extensible |
+| Article list | Title + 2-line summary + thumbnail + category + time + likes + comments |
+| Article detail | Summary + source link + view count + like + comment thread |
+| Likes | Anonymous; one per reader; toggleable |
+| Comments | Anonymous; threaded; soft-deletable; auto-generated nicknames |
+| Themes | Light + Dark + Auto (follows OS) |
 
-### Cards & Containers
-- **Cards do not exist.** WIRED's homepage has no rounded boxes, no shadows, no surface elevation.
-- A "story tile" is just an image rectangle stacked above a kicker + headline + deck, separated from neighbors by **1px hairline rules** (`#000000` or `#4a5568`) or by raw whitespace.
-- The closest thing to a "container" is the black ribbon section header (e.g., "MOST POPULAR") — a full-bleed black bar with white WiredMono caps, no padding refinement, no rounded ends.
-- Hover behavior on a story tile: the headline link text shifts from `#1a1a1a` to `#057dbc` and the underline appears. The image itself does not zoom, lift, or shadow.
+## 1.3. Glossary.
 
-### Inputs & Forms
-- **Newsletter input**: rectangular, `2px solid #000000` border, `0` radius, white background, Apercu 16px placeholder.
-- **Focus**: border stays 2px black, no glow ring, no color change — focus is signaled by the blinking caret only. (Add a 2px outset for accessibility if you ship this — WIRED's own implementation under-serves keyboard users here.)
-- **Error**: text label below in `#e53e3e` (Fides cookie overlay borrows this red — use sparingly).
-- **Disabled**: text drops to `#a0aec0`, border softens to `#757575`.
+| Term | Definition |
+|---|---|
+| Pretendard | Open-source Korean variable typeface; metric-compatible with Inter |
+| Inter | Open-source Latin sans-serif; reference metric for Pretendard |
+| Hangul | Korean writing system; syllabic blocks |
+| Jamo (자모) | Component letter of a Hangul syllable |
+| Myungjo (명조) | Korean serif typeface; reads as old-print / funerary |
+| Locale | A `(language, region)` pair driving content + display rules |
+| FOIT | Flash of Invisible Text during font load |
+| FOUT | Flash of Unstyled Text during font load |
+| `prefers-color-scheme` | CSS media query exposing OS-level dark/light preference |
+| WCAG AA | Web accessibility standard: 4.5:1 contrast for body text, 3:1 for large text and UI components |
+| OLED | Display technology emitting no light at black pixels; #000000 produces "scroll smear" artifact |
+| SSR | Server-Side Rendering: HTML produced server-side before browser receives it |
+| PRD | Product Requirements Document |
+| MVP | Minimum Viable Product |
 
-### Navigation
-- **Top utility bar**: black (`#000000`) full-bleed strip, ~32–40px tall, mono caps links separated by hairline dividers, `#ffffff` text, hover → `#057dbc`.
-- **Main nav**: paper-white (`#ffffff`) row beneath the bug logo, Apercu 14–16px / regular, hover → `#057dbc` underline.
-- **Logo**: WIRED bug, ~209×42px, centered or left-aligned, never recolored, always pure black on white.
-- **Mobile**: nav collapses to a hamburger left of the bug logo. Section nav becomes a slide-down drawer of mono caps links.
-- **Transition**: hover color swaps are instant or ~120ms; no bouncy easing — editorial restraint.
+# 2. Design Lineage.
 
-### Image Treatment
-- **Aspect ratios**: predominantly 16:9 for hero images, 4:3 for grid story tiles, 1:1 for smaller "Most Popular" thumbnails.
-- **Corners**: ALWAYS 0 radius. Square. The only rounded image is a circular author avatar (50%).
-- **Full-bleed**: hero photographs run edge-to-edge of the column they occupy; no inset, no border.
-- **Captions**: BreveText 12.73px / 700 with relaxed 2.20 line-height — placed directly under the image, italicized in some templates.
-- **Hover**: no zoom, no opacity dip — only the headline below the image responds.
-- **Lazy loading**: standard `loading="lazy"` on all below-the-fold imagery.
+The system composes parts of three external systems with one project-original innovation.
 
-### Editorial Ribbons & Section Markers
-- Black bar (`#000000`) full-bleed with white WiredMono uppercase label inside (e.g., "MOST POPULAR", "BACKCHANNEL", "GEAR").
-- Height ~32–40px, no padding refinement, no rounded ends.
-- Sometimes a thin 2px black rule sits directly above or below to double-frame the bar.
+## 2.1. Adopted Patterns.
 
-### Numbered Lists ("Most Popular")
-- A vertical list of stories prefixed with WiredDisplay numerals (01, 02, 03…) at ~40–48px, sitting tight against the headline they label.
-- Hairline rule between each item, no other decoration.
-
-## 5. Layout Principles
-
-### Spacing System
-- **Base unit**: 8px.
-- **Scale**: 1px (hairline), 4px, 8px, 12px, 14.11px, 15px, 16px, 24px, 25.46px, 29.66px, 32px, 40px, 48px, 64px.
-- **Section padding**: typically 32–48px vertical between major editorial blocks.
-- **Card padding**: there are no cards; the gutter between story tiles is 24–32px horizontally and 16–24px vertically.
-- **Inline spacing**: kickers sit ~4–8px above headlines; decks sit ~8–12px below headlines; bylines/timestamps another 8–12px below the deck.
-
-### Grid & Container
-- **Max width**: ~1280–1600px on desktop (the dembrandt sweep detected breakpoints up to 1600px), centered with generous outer margins.
-- **Column patterns**: 12-column grid that resolves into 2/3/4 column story arrangements depending on module — feature blocks often run a "1 large + 2 small" pattern with hairline rules between each.
-- **Column gutters**: ~24–32px, separated by hairline `#000000` or `#4a5568` 1px rules where the editorial logic demands a "page-fold" feel.
-
-### Whitespace Philosophy
-WIRED treats whitespace the way a magazine art director treats margin: it's the silence around the type, not a styling choice. The page never breathes excessively (this is not Stripe or Apple); it breathes *editorially* — enough room to keep adjacent stories from arguing, never enough to suggest there's nothing on the page. If an empty area looks like it could fit another headline, that empty area is doing its job.
-
-### Border Radius Scale
-- `0` — every container, every image, every button, every input. The default.
-- `1920px` — only inside text spans that need to look like a full pill ("BREAKING", "LIVE").
-- `50%` — only on round icon buttons and circular author avatars.
-
-There are exactly three radii on the entire site, and two of them are reserved for non-rectangular shapes. This is the **strictest** corner discipline of any major editorial property.
-
-## 6. Depth & Elevation
-
-| Level | Treatment | Use |
+| Pattern | Source | Reason |
 |---|---|---|
-| 0 | No shadow, no border | Default editorial surface — text on paper |
-| 1 | 1px solid `#e2e8f0` hairline `<hr>` | Quiet section divider, almost invisible |
-| 2 | 1px solid `#000000` hairline rule | Editorial column divider — printerly, structural |
-| 3 | 2px solid `#000000` border | Buttons, inputs, ribbons — interactive emphasis |
-| 4 | Black ribbon bar (`#000000` fill) | Section labels — the most "elevated" surface on the page |
-| 5 | Inverted footer block | Dark `#1a1a1a` zone with white type — the only inversion |
+| Card-grid density (16–24px gutters, 64px section) | Airbnb | Marketplace card-grid maps 1:1 to news feed; denser than typical 80–96px SaaS section |
+| Photo-first article card schema | Airbnb | `property-card` slot order (thumbnail → badge → title → meta → action) matches news card |
+| Modest display weights (500–700) | Airbnb | Hangul reads "blocky" at 700+; weight 800–900 reads as black squares |
+| Single accent + photo-led visual heft | Airbnb | News thumbnails carry weight; type recedes |
+| Sober rectangles (8px button, 12px card) | Notion | Editorial / docs register; not consumer marketplace |
+| Pastel category-tint badges (7 variants) | Notion | Mature, accessible, multi-hue tag system |
+| Comment / threaded discussion | Notion | Only source with stacked-authored-content components |
+| Hairline-as-elevation | Notion + Verge | 1px border replaces shadow; pairs with single hover-shadow tier |
+| Inter-metric-compatible UI font | Notion | Pretendard substitutes cleanly without re-laying body text |
+| Mono-numeric timestamp | The Verge | News-feed timestamp convention; "5h ago" |
+| Per-locale font scaling | Project-original | None of three sources address bilingual KR/EN typography |
 
-WIRED's depth philosophy is **flat by religion**. There is exactly one shadow token in the entire site (a default `0 0 0 transparent` placeholder) and no `box-shadow` is applied to story tiles, headers, modals, or cards. Depth is communicated by **rule weight** (1px hairline → 2px hard rule → solid black ribbon), not by simulated lighting.
+## 2.2. Rejected Patterns.
 
-### Decorative Depth
-None. No gradients, no glow, no halos, no scrim overlays beyond the standard photo caption gradient. WIRED earns its visual interest from photography and typographic contrast, not from chrome.
-
-## 7. Do's and Don'ts
-
-### Do
-- **Do** use 2px hard black borders on every primary button — no 1px softness, no rounded edges.
-- **Do** put a WiredMono ALL-CAPS kicker above every story headline (4–8px above, 0.9–1.2px tracking).
-- **Do** use BreveText for any paragraph longer than two lines — Apercu is for UI, not reading.
-- **Do** keep images square-cornered, edge-to-edge, with the caption hugging the bottom edge.
-- **Do** separate story tiles with hairline rules or whitespace, never with cards or shadows.
-- **Do** invert (black background, white type) only for footers, ribbons, and the utility nav strip.
-- **Do** use `#057dbc` link blue exclusively for hover states — never as a background or button fill.
-- **Do** scale headlines aggressively: 64px on hero, 26px on grid blocks, never 32px "safe middle ground".
-
-### Don't
-- **Don't** add `box-shadow` to anything. Ever. WIRED doesn't ship shadows.
-- **Don't** round corners on rectangular containers — `border-radius: 0` is law.
-- **Don't** mix typefaces inside one role: WiredDisplay never sets body, BreveText never sets buttons.
-- **Don't** use color outside grayscale + `#057dbc`. No orange CTAs, no green success pills.
-- **Don't** use Apercu in lowercase for kickers — that's WiredMono's job, and it must be UPPERCASE.
-- **Don't** use gradients, blurs, glassmorphism, or atmospheric effects — they break the printerly contract.
-- **Don't** rely on hover lift effects. WIRED's hover is a color swap on text, nothing more.
-- **Don't** invent new pill shapes. Round = icons only. Pill = inline text spans only. Everything else is square.
-
-## 8. Responsive Behavior
-
-### Breakpoints
-
-| Name | Width | Key Changes |
+| Pattern | Source | Reason |
 |---|---|---|
-| Small Mobile | <375px | Single column, hamburger nav, all hero modules collapse to stacked image-headline-deck |
-| Mobile | 375–767px | Single column, story grid becomes vertical scroll, "Most Popular" numbers shrink to 32px |
-| Tablet | 768–1023px | 2-column story grid, sidebar collapses below main feed, nav becomes condensed |
-| Desktop | 1024–1599px | Full editorial 3–4 column grid, sidebar restored, max headline scale active |
-| Large Desktop | ≥1600px | Page caps at ~1600px container, whitespace expands at the margins, no further scaling |
+| Acid-mint + ultraviolet hazard palette | The Verge | Too loud for serious foreign-news service to Korean readers |
+| Manuka 107px display | The Verge | Hangul at that scale reads as advertisement, not news |
+| Serif body (FK Roman) | The Verge | Korean serif (myungjo) carries old-print / funerary register |
+| Rausch (#ff385c) primary | Airbnb | Too consumer-marketplace for a reading service |
+| Pricing tiers, workspace mockup hero | Notion | No matching SaaS sales motion |
 
-The dembrandt sweep detected an unusual range of intermediate breakpoints (1280, 1025, 1024, 1023, 768, 767, 667, 599, 570, 569, 480, 425, 375, 320, 319) — Wired's grid micro-tunes at almost every common viewport, especially around the iPad portrait/landscape boundary.
+# 3. Tokens.
 
-### Touch Targets
-- Primary button: ~44x44px minimum (16px text + 12–14px vertical padding satisfies WCAG AAA).
-- Mono caps links in the utility bar are smaller (~32px tall) — WIRED's own implementation undershoots WCAG here. **For derivative work, pad mono nav links to 44px.**
-- Round icon buttons in the header are ~40px circles, comfortably touch-friendly.
+## 3.1. Color.
 
-### Collapsing Strategy
-- **Nav**: utility bar drops below 768px; main nav collapses into hamburger drawer. Bug logo recenters on mobile.
-- **Grid**: 4-col → 3-col → 2-col → 1-col as viewport tightens. Hairline rules persist between every column count, so the printerly feel survives the collapse.
-- **Spacing**: vertical rhythm tightens from 48px → 32px → 24px between modules on mobile. Horizontal page padding shrinks from 64px → 24px → 16px.
-- **Type**: WiredDisplay hero scales from 64px to ~36–42px on mobile, headlines from 26px to ~22px, kickers stay locked at 12–13px (mono caps don't scale down further or they become unreadable).
+### 3.1.1. Light Palette.
 
-### Image Behavior
-- All images are responsive raster (`srcset`-driven), aspect ratios preserved: 16:9 hero, 4:3 mid, 1:1 thumbnails.
-- No art-direction swaps — the same crop scales across breakpoints.
-- `loading="lazy"` on all below-the-fold imagery, `eager` on the hero only.
+| Token | Hex | Use |
+|---|---|---|
+| `primary` | #0a66ff | Primary CTA, link, focus ring (Read Blue) |
+| `primary-pressed` | #0850cc | Press state |
+| `primary-disabled` | #cce0ff | Disabled CTA |
+| `on-primary` | #ffffff | Text on Read Blue |
+| `like-active` | #e11d48 | Filled-heart state ONLY |
+| `like-inactive` | #6a6a6a | Outline-heart state |
+| `canvas` | #ffffff | Page floor; default card surface |
+| `surface-soft` | #f7f7f7 | Footer band, source-link card, nested replies |
+| `surface-strong` | #f2f2f2 | Icon-button surface; disabled-input fill |
+| `hairline` | #e5e3df | Default 1px border (warm neutral) |
+| `hairline-soft` | #ebebeb | Long-scroll dividers |
+| `hairline-strong` | #c1c1c1 | Input outlines |
+| `ink` | #1a1a1a | Headlines, primary text |
+| `body` | #3f3f3f | Long-form summary text |
+| `meta` | #6a6a6a | Card meta, timestamps, footer links |
+| `meta-soft` | #929292 | Disabled link text |
 
-## 9. Agent Prompt Guide
+The token name is `meta`, not `muted`, to avoid colliding with shadcn's `--color-muted` (which means a *subtle surface*, not a text colour). shadcn-style `bg-muted` continues to work via the `surface-soft` alias defined in `shadcn.css`.
 
-### Quick Color Reference
-- **Primary Ink (text + ribbons)**: "WIRED Black (`#000000`)"
-- **Page Canvas**: "Paper White (`#ffffff`)"
-- **Headline / Body Text**: "Page Ink (`#1a1a1a`)"
-- **Caption / Metadata**: "Caption Gray (`#757575`)"
-- **Hairline / Quiet Border**: "Hairline Tint (`#e2e8f0`)"
-- **Link Hover Accent (the only color)**: "Link Blue (`#057dbc`)"
+`ink` = #1a1a1a (not Airbnb's #222) because Hangul stroke density makes #222 perceptually one shade lighter than Latin on white.
 
-### Example Component Prompts
-1. *"Create an editorial story tile with a 16:9 image (square corners), an UPPERCASE WiredMono kicker in `#1a1a1a` above a 26px WiredDisplay headline. Separate the tile from its neighbor with a 1px black hairline rule. No card, no shadow, no border-radius."*
-2. *"Design a primary subscribe button with a 2px solid `#000000` border, square corners, `#ffffff` background, Apercu 16px / 700 / 0.3px tracking text in `#000000`. Hover state inverts to black background with white text in 150ms."*
-3. *"Build a 'Most Popular' module: full-bleed black ribbon header with WiredMono uppercase label in white, followed by a numbered list (01–05) using 40px WiredDisplay numerals and 17px Apercu 700 headlines, separated by hairline rules."*
-4. *"Create a newsletter signup form with a 2px solid black input border, no radius, Apercu 16px placeholder in `#757575`, and an inverted black submit button beside it."*
-5. *"Design a footer in `#1a1a1a` with paper-white tertiary navigation in ProximaNova 11px, hover color `#057dbc`, and a centered WIRED bug logo at the top of the block."*
+### 3.1.2. Dark Palette.
 
-### Iteration Guide
-When refining existing screens generated with this design system:
-1. **Audit corners first.** If you see any `border-radius` other than `0`, `50%` (icons/avatars), or `1920px` (text pills), flatten it. Round corners are the single most common mistake.
-2. **Audit shadows.** Strip every `box-shadow`. If a tile needs to feel "lifted", use a 2px black border or a hairline rule instead.
-3. **Audit typeface roles.** Make sure WiredDisplay only sets headlines, BreveText only sets reading body, Apercu only sets UI, WiredMono only sets ALL-CAPS labels. Swapping roles breaks the voice instantly.
-4. **Audit color sprawl.** If a color outside `#000`, `#1a1a1a`, `#757575`, `#e2e8f0`, `#ffffff`, `#057dbc` appears in chrome (not photography), remove it. WIRED's restraint is non-negotiable.
-5. **Audit kickers.** Every story should have an UPPERCASE mono kicker. Without it, the page reads as a generic blog, not WIRED.
-6. **Audit rules.** Add hairline `1px solid #000` dividers wherever two stories or modules meet without a clear visual break. Rules are the connective tissue.
+Each light token has a `-dark` companion. Hex values are hand-tuned, not arithmetic inversions. Rationale: § 3.1.5.
+
+| Token | Hex | Light counterpart |
+|---|---|---|
+| `primary-dark` | #5e93ff | `primary` |
+| `primary-pressed-dark` | #4d82e8 | `primary-pressed` |
+| `primary-disabled-dark` | #1f3055 | `primary-disabled` |
+| `like-active-dark` | #fb7185 | `like-active` |
+| `like-inactive-dark` | #8a8a92 | `like-inactive` |
+| `canvas-dark` | #131316 | `canvas` |
+| `surface-soft-dark` | #1c1c20 | `surface-soft` |
+| `surface-strong-dark` | #26262b | `surface-strong` |
+| `hairline-dark` | #2a2a2f | `hairline` |
+| `hairline-soft-dark` | #1f1f23 | `hairline-soft` |
+| `hairline-strong-dark` | #3d3d44 | `hairline-strong` |
+| `ink-dark` | #f5f5f7 | `ink` |
+| `body-dark` | #c8c8d0 | `body` |
+| `meta-dark` | #8a8a92 | `meta` |
+| `meta-soft-dark` | #6a6a72 | `meta-soft` |
+
+### 3.1.3. Category Tints.
+
+Seven variants. MVP exercises `emerald` only; remainder are extensible reserves for the closed category enum (§ 1.2.).
+
+| Variant | Light bg / text | Dark bg / text | Recommended category |
+|---|---|---|---|
+| Emerald | #d9f3e1 / #15803d | #0e2419 / #6ee7b7 | Football (MVP) |
+| Sky | #dcecfa / #0369a1 | #0a1e30 / #7dd3fc | Tech |
+| Rose | #fde0ec / #be123c | #2c1019 / #fda4af | Entertainment |
+| Peach | #ffe8d4 / #c2410c | #29170c / #fdba74 | Economy |
+| Lavender | #e6e0f5 / #6b21a8 | #1d172e / #c4b5fd | Politics |
+| Yellow | #fef7d6 / #854d0e | #292210 / #fde047 | General |
+| Gray | #f0eeec / #404040 | #232328 / #d4d4d8 | Fallback |
+
+All pairs ≥ 7:1 contrast (well above WCAG AA — § 1.3.).
+
+A finite, hand-balanced set (vs. free-form colour) guarantees that any new category added later picks from a tested pool, preventing accessibility-failure drift.
+
+### 3.1.4. Semantic.
+
+| Token | Light | Dark |
+|---|---|---|
+| `semantic-success` | #15803d | #34d399 |
+| `semantic-warning` | #ea580c | #fb923c |
+| `semantic-error` | #dc2626 | #f87171 |
+
+### 3.1.5. Dark-Palette Rationale.
+
+| Decision | Reason |
+|---|---|
+| `canvas-dark` = #131316, NOT #000000 | Pure black causes OLED (§ 1.3.) scroll smear and harsh perception. #131316 matches BBC News, NYT, The Guardian, Naver Dark, Daum Dark canon. |
+| `ink-dark` = #f5f5f7, NOT #ffffff | Pure white on dark vibrates at small sizes (especially Hangul). Apple macOS dark precedent. |
+| `primary-dark` = #5e93ff (lifted from #0a66ff) | #0a66ff on `canvas-dark` is ~4.0:1 — fails WCAG AA (§ 1.3.). Lifted variant is ~5.4:1. Apple `primary-on-dark` (#2997ff) precedent. |
+| `like-active-dark` = #fb7185 (lifted from #e11d48) | #e11d48 on dark over-saturates and reads as alert; softer rose retains affirmation register. |
+| Surface ladder roles invert (cards on `surface-soft-dark`, not `canvas-dark`) | Additive light reads "raised" on dark; cards must be lighter than container to feel elevated. |
+| Light tints replaced with deep-bg + bright-text pairs | Light pastel on dark canvas glows as halo. Inverted luminance with same hue identity preserves recognition. |
+
+## 3.2. Typography.
+
+### 3.2.1. Font Family.
+
+```
+'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif
+```
+
+Mono fallback (timestamps only):
+```
+'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace
+```
+
+| Decision | Reason |
+|---|---|
+| Single family across UI | Korean serif (myungjo — § 1.3.) reads as old-print/funerary; serif/sans contrast does not register on Hangul syllabic blocks |
+| Pretendard chosen | Inter-metric-compatible (§ 1.3.); used by Toss, Daangn (modern Korean product canon); SIL OFL — no licensing risk |
+| Mono restricted to numerics | Hangul in monospace breaks compositional rhythm |
+| `font-display: swap` mandatory | FOUT (§ 1.3.) acceptable; FOIT (§ 1.3.) blocks time-sensitive news scanning |
+
+### 3.2.2. Hierarchy.
+
+English baseline. Korean overrides: § 3.2.3.
+
+| Token | Size (px) | Weight | Line-height | Letter-spacing (px) | Use |
+|---|---|---|---|---|---|
+| `hero-display` | 56 | 700 | 1.10 | -1 | Marketing landing (rare) |
+| `display-xl` | 40 | 700 | 1.15 | -0.5 | Article-detail `<h1>` |
+| `display-lg` | 32 | 700 | 1.20 | -0.5 | List section header |
+| `display-md` | 24 | 700 | 1.30 | -0.25 | Featured card title |
+| `display-sm` | 20 | 600 | 1.35 | 0 | Default card title |
+| `title-md` | 16 | 600 | 1.40 | 0 | Comment author, source publisher |
+| `title-sm` | 14 | 600 | 1.40 | 0 | Footer column heads |
+| `body-lg` | 18 | 400 | 1.65 | 0 | Article-detail summary (reading register) |
+| `body-md` | 16 | 400 | 1.60 | 0 | Comment body, default |
+| `body-sm` | 14 | 400 | 1.55 | 0 | Card summary, secondary copy |
+| `caption` | 13 | 500 | 1.40 | 0 | Like / comment counts |
+| `caption-mono` | 12 | 500 | 1.40 | 0.2 | Relative-time timestamps |
+| `micro` | 11 | 600 | 1.30 | 0.4 | Category badge text |
+| `button-md` | 15 | 600 | 1.25 | 0 | Default button label |
+| `button-sm` | 14 | 500 | 1.25 | 0 | Pill filter, language pill |
+
+### 3.2.3. Korean Overrides.
+
+Apply via `:lang(ko)` selector. Mechanism: § 4.5.
+
+| Token | English | Korean (size / line-height / letter-spacing) |
+|---|---|---|
+| `hero-display` | 56 / 1.10 / -1 | 44 / 1.25 / 0 |
+| `display-xl` | 40 / 1.15 / -0.5 | 32 / 1.30 / 0 |
+| `display-lg` | 32 / 1.20 / -0.5 | 26 / 1.35 / 0 |
+| `display-md` | 24 / 1.30 / -0.25 | 20 / 1.40 / 0 |
+| `display-sm` | 20 / 1.35 / 0 | 18 / 1.45 / 0 |
+| `title-*` | unchanged | size unchanged; line-height +0.05 |
+| `body-*` | unchanged | size unchanged; line-height +0.05 |
+| `caption` / `micro` / `button-*` | unchanged | unchanged |
+
+### 3.2.4. Rules.
+
+| Rule | Reason |
+|---|---|
+| Negative letter-spacing on Latin only | Hangul jamo (§ 1.3.) collide visually at negative tracking |
+| Body line-height +0.05 in Korean | Hangul x-height + full-block glyph requires more leading than Latin descenders |
+| Weight ladder = 400 / 500 / 600 / 700 only | 300 too thin for Hangul small sizes; 800+ becomes black squares |
+
+## 3.3. Spacing.
+
+Base unit 4px. Tokens: `2xs=4 xs=8 sm=12 md=16 lg=24 xl=32 2xl=48 section=64`.
+
+Section vertical padding 64px is denser than typical 80–96px SaaS marketing — matches news-feed expectation (§ 2.1.).
+
+## 3.4. Radius.
+
+| Token | px | Use |
+|---|---|---|
+| `none` | 0 | Reserved |
+| `xs` | 4 | Category badge |
+| `sm` | 8 | Buttons, inputs, pagination |
+| `md` | 12 | Cards, comment-textarea, source-link card |
+| `lg` | 16 | Featured cards, modals |
+| `xl` | 24 | Reserved |
+| `full` | 9999 | Pills, search input, like button, icon button |
+
+Card radius 12px (not Airbnb's 14px) for editorial register; composes against 8px button radius as 4px-step nesting.
+
+## 3.5. Elevation.
+
+| Level | Light | Dark | Use |
+|---|---|---|---|
+| 0 (flat) | 1px `hairline` border | 1px `hairline-dark` border | All defaults |
+| 1 (hover) | `box-shadow: rgba(0,0,0,0.04) 0 2px 6px, rgba(0,0,0,0.08) 0 4px 12px` | Background lifts to `surface-strong-dark`; hairline → `rgba(255,255,255,0.08)` | Card hover; dropdowns |
+| Modal scrim | `scrim` at 50% opacity | `scrim` at 65% opacity | Modals, sheets |
+
+| Decision | Reason |
+|---|---|
+| Shadow → surface-lift on dark | Drop shadow on dark reads as smudge; precedent: GitHub, Linear, Vercel, Apple macOS |
+| Scrim opacity bumped 50→65% on dark | 50% reads as content-disappeared because scrim darkens already-dark canvas |
+| Two tiers (not Notion's four) | No marketing pricing-tier or workspace-mockup surfaces |
+
+# 4. Theming.
+
+## 4.1. State Model.
+
+| State | Behaviour |
+|---|---|
+| `auto` (default) | Follows OS `prefers-color-scheme` (§ 1.3.) |
+| `light` | Forced light regardless of OS |
+| `dark` | Forced dark regardless of OS |
+
+Mirrors PRD §2.3 language preference state model.
+
+## 4.2. Persistence.
+
+Single anonymous cookie shared with language preference. Cookie key `theme`; values `auto | light | dark`; default `auto`.
+
+## 4.3. CSS Mechanism.
+
+Tokens exposed as CSS custom properties on `:root`. Components reference `var(--colors-*)` exclusively — no hard-coded hex.
+
+```css
+:root {
+  --colors-canvas: #ffffff;
+  --colors-ink: #1a1a1a;
+  --colors-primary: #0a66ff;
+  --colors-hairline: #e5e3df;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --colors-canvas: #131316;
+    --colors-ink: #f5f5f7;
+    --colors-primary: #5e93ff;
+    --colors-hairline: #2a2a2f;
+  }
+}
+
+[data-theme="light"] { /* explicit overrides — win over @media */ }
+[data-theme="dark"]  { /* explicit overrides — win over @media */ }
+```
+
+| Property | Reason |
+|---|---|
+| CSS variables, not separate stylesheets | Hot-swap on toggle without React re-render; SSR (§ 1.3.) safe |
+| `[data-theme]` set on `<html>` server-side from cookie before paint | Prevents FOIT (§ 1.3.) on first render |
+| Explicit `[data-theme]` overrides win over `@media` | User's manual choice supersedes OS state |
+
+## 4.4. Toggle UI.
+
+`icon-button-circle` (§ 5.1.) in top-nav next to language pill. Cycle: `auto → light → dark → auto`. Icons: half-sun-half-moon / sun / moon. Mobile collapses into settings drawer.
+
+Cycle `auto → light → dark` (not `auto → dark`) so a user wanting OS-sync after exploring fixed modes returns to `auto` within one full revolution.
+
+## 4.5. Theme × Locale Composition.
+
+Theme = value swap (CSS variable). Locale = property swap (`:lang(ko)` rewrites size / leading / tracking — § 3.2.3.). Independent selectors compose without conflict.
+
+```css
+.display-xl {
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: var(--colors-ink);
+}
+:lang(ko) .display-xl {
+  font-size: 32px;
+  line-height: 1.30;
+  letter-spacing: 0;
+}
+```
+
+Six render states (3 themes × 2 locales) handled with no per-state class duplication.
+
+# 5. Components.
+
+All components consume token references only — no inline hex / px (§ 7.1.).
+
+## 5.1. Buttons.
+
+| Component | Background | Text | Radius | Padding | Height |
+|---|---|---|---|---|---|
+| `button-primary` | `primary` | `on-primary` | `sm` | 10×18 | 44 |
+| `button-primary-pressed` | `primary-pressed` | `on-primary` | `sm` | — | — |
+| `button-primary-disabled` | `primary-disabled` | `on-primary` | `sm` | — | — |
+| `button-secondary` | `canvas` | `ink` | `sm` (1px `hairline-strong` border) | 10×18 | 44 |
+| `button-ghost` | transparent | `ink` | `sm` | 8×14 | — |
+| `button-link` | transparent | `primary` | — | 0 | — |
+| `button-pill-filter` | `canvas` | `body` | `full` (1px `hairline` border) | 8×16 | 36 |
+| `button-pill-filter-active` | `ink` | `on-dark` | `full` | 8×16 | 36 |
+| `icon-button-circle` | `surface-strong` | `ink` | `full` | — | 36 |
+
+Active filter uses `ink`, not `primary`: Read Blue is reserved for primary-action affordances.
+
+## 5.2. Article Card.
+
+The list-page workhorse. Anatomy:
+
+| Slot | Content | Token |
+|---|---|---|
+| Photo plate | 16:9 thumbnail; `border-radius: md md 0 0` | `article-card-photo` |
+| Category badge | One of seven tints (§ 5.3.) | — |
+| Title | Article title; line-clamp 2 | `display-sm` |
+| Summary | 2-line truncated summary | `body-sm`, color `body` |
+| Meta | publisher · timestamp · likes · comments | `caption` / `caption-mono` |
+
+| State | Light | Dark |
+|---|---|---|
+| Default | `canvas` bg, 1px `hairline` | `surface-soft-dark` bg, 1px `hairline-dark` |
+| Hover | shadow Level 1 (§ 3.5.); title → `primary` | bg → `surface-strong-dark`; title → `primary-dark` |
+
+Variants: `article-card-featured` (16px radius, `display-md` title); `article-card-compact` (no photo; sidebar use).
+
+Photo fallback: when source has no thumbnail, render `surface-soft` block at 16:9 with category badge centred at 1.5× size. Mandatory — grid alignment depends on every card having a 16:9 lead element.
+
+## 5.3. Category Badge.
+
+Seven variants: `category-badge-{emerald|sky|rose|peach|lavender|yellow|gray}` (§ 3.1.3.).
+
+| Property | Value |
+|---|---|
+| Typography | `micro` (11/600/0.4px) |
+| Radius | `xs` (4px) |
+| Padding | 4×8 |
+
+MVP exercises `emerald` only.
+
+## 5.4. Like Button.
+
+Two distinct components — colour and icon swap:
+
+| State | Icon | Text colour | Padding | Radius |
+|---|---|---|---|---|
+| `like-button` | outline heart | `meta` | 6×10 | `full` |
+| `like-button-active` | filled heart | `like-active` (light) / `like-active-dark` (dark) | 6×10 | `full` |
+
+Both render count in `caption`. Counts shorten beyond 999 → `1.2k`, `12k`, `1.2m`. Korean locale: `1.2천`, `1.2만` (Naver convention).
+
+Count text stays in `meta` even when active — only the icon flips colour. Reason: full-colour count makes meta-strip read as alert.
+
+## 5.5. Comment Thread.
+
+| Component | Surface | Indent | Radius |
+|---|---|---|---|
+| `comment-thread` | `canvas` | — | — |
+| `comment-card` (top-level) | transparent | 0 | 0; bottom 1px `hairline-soft` |
+| `comment-card-nested` (reply) | `surface-soft` | 32 | `md` |
+| `comment-textarea` | `canvas` | — | `md`; min-height 96; focus border 2px `primary` |
+
+Per-card layout: avatar (32×32 circle) + nickname (`title-md`) + timestamp (`caption-mono`) + body (`body-md`) + action bar (like, reply).
+
+Depth cap = 2. Replies-to-replies render flat with `@nickname` mention prefix. Reason: deeper indents break visually on mobile.
+
+Soft-delete: deleted comments removed from DOM. No `[deleted]` placeholder. Threads collapse around the absence (PRD §2.7).
+
+## 5.6. Source Link Card.
+
+Sits above comment thread on detail page (PRD §2.8 attribution on primary scroll path).
+
+| Property | Value |
+|---|---|
+| Background | `surface-soft` |
+| Radius | `md` |
+| Border | 1px `hairline` |
+| Padding | `md` |
+| Line 1 | Publisher name (`title-md` `ink`) |
+| Line 2 | "View original article →" (`body-sm` `primary`) |
+| Anchor attrs | `target="_blank"` `rel="noopener noreferrer"` |
+
+## 5.7. Inputs.
+
+| Component | Background | Radius | Padding | Height | Border |
+|---|---|---|---|---|---|
+| `text-input` | `canvas` | `sm` | 12×16 | 44 | 1px `hairline-strong` |
+| `text-input-focused` | `canvas` | `sm` | 12×16 | 44 | 2px `primary` |
+| `search-input` | `surface-soft` | `full` | 10×20 | 44 | 1px `hairline` |
+| `comment-textarea` | see § 5.5. | — | — | — | — |
+
+Validation error: border switches to `semantic-error`; helper text below in `caption` `semantic-error`.
+
+## 5.8. Navigation.
+
+| Component | Property | Value |
+|---|---|---|
+| `top-nav` | Background | `canvas` (light) / `canvas-dark` (dark) |
+| | Height | 64; sticky |
+| | Border | 1px bottom `hairline` |
+| | Left | logo (max 28px height) |
+| | Right | language pill + theme toggle (§ 4.4.) + settings icon |
+| `category-tab-strip` | Border | 1px bottom `hairline` |
+| `category-tab-active` | Active marker | 2px `ink` underline (NOT `primary`) |
+| `language-pill` | Background | `surface-soft` |
+| | Radius | `full`; padding 6×12; height 32 |
+
+Active category tab uses `ink`, not `primary` — same logic as filter pill (§ 5.1.).
+
+Mobile: language pill + theme toggle collapse into settings drawer.
+
+## 5.9. Footer.
+
+| Property | Value |
+|---|---|
+| Background | `surface-soft` |
+| Padding | section × xl |
+| Border | 1px top `hairline` |
+| Layout | 3-column at desktop (Service / Categories / About); accordion below 768px |
+| Link | `body-sm` `body` (hover → `ink`) |
+
+## 5.10. Pagination.
+
+`pagination-button` — 36px height, `sm` radius, `button-sm` typography, 1px `hairline` border. Active page: `ink` fill + `on-dark` text.
+
+Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
+
+## 5.11. Empty State.
+
+`surface-soft` card, `body-md` `meta`, `md` radius, `2xl` padding. Used for: empty category filter, empty comment thread, empty-language fallback prompt.
+
+## 5.12. Modal.
+
+`canvas` surface, `lg` radius. Scrim per § 3.5. Desktop 480px wide; mobile full-bleed slide-up.
+
+# 6. Layouts.
+
+## 6.1. Article List.
+
+Top-to-bottom: top-nav (sticky) → category-tab-strip (sticky) → 3-column card grid → pagination → footer.
+
+| Breakpoint | Grid |
+|---|---|
+| ≥ 1024px | 3-column |
+| 768–1023 | 2-column |
+| < 768 | 1-column |
+
+Gutter 16. 3-up cap (not 4-up): at 1280px content / 4 cols / 16 gutter the summary line drops to ~50–55 chars, forcing line-clamps that lose information. 3-up gives ~70–75 chars per line — comfortable for both Korean and English.
+
+Multi-select category filter NOT supported in MVP (PRD §2.4).
+
+## 6.2. Article Detail.
+
+Single-column 720px reading column. Order:
+
+1. top-nav
+2. Hero image (16:9, content-width ~1024px)
+3. Category badge (§ 5.3.)
+4. Title (`display-xl`)
+5. Meta strip: publisher · `caption-mono` timestamp · view count
+6. Like button (large variant)
+7. `xl` gap
+8. Summary body (`body-lg` — reading register)
+9. `xl` gap
+10. Source-link card (§ 5.6.)
+11. `section` (64px) gap
+12. Comments header (`display-md` + count in `caption meta`)
+13. `comment-textarea` (§ 5.5.)
+14. `comment-thread`
+15. footer
+
+| Constraint | Spec |
+|---|---|
+| Reading column max-width | 720px (50–70 char per line at `body-lg` for KR + EN) |
+| Source-link card position | ABOVE comment thread (PRD §2.8 attribution on primary scroll path) |
+| View count dedup (PRD §2.5) | Server cookie + IP-hash bucket; UI is read-only |
+| Like state (PRD §2.6) | `(article, anonymous_reader_id)`; same dedup bucket |
+
+## 6.3. Responsive Behaviour.
+
+| Name | Width | Changes |
+|---|---|---|
+| Small mobile | < 360 | 1-col grid; nav 56; reply indent 16; hero 21:9 → 16:9 |
+| Mobile | 360–767 | 1-col grid; nav 56; "Load more" pagination; modal slide-up |
+| Tablet | 768–1023 | 2-col grid; reading column 720 (32px gutters) |
+| Desktop | 1024–1279 | 3-col grid; full top-nav |
+| Wide | ≥ 1280 | 3-col cap; content cap 1280 |
+
+| Element | Collapse |
+|---|---|
+| Top nav | Language pill + theme toggle → settings drawer below 768 |
+| Category tab strip | Horizontal scroll below 1024; never hamburger (always-visible category nav is news convention) |
+| Footer | 3-col → accordion below 768 |
+| Reply indent | 32 → 16 below 360 |
+
+Touch targets ≥ 44×44 for primary actions; pill controls 32–36 with extended tap zones (8–12px internal padding).
+
+# 7. Rules.
+
+## 7.1. Do.
+
+- Use `primary` for primary-action affordances; `like-active` for the filled-heart only.
+- Use one of the seven `category-badge-*` variants — never invent a tint.
+- Place source-link card above comment thread (§ 6.2.).
+- Use `caption-mono` for relative-time strings only.
+- Use 1px `hairline` (or `-dark`) as default elevation.
+- Apply `:lang(ko)` overrides for every display token (§ 3.2.3.).
+- Reference colours via `var(--colors-*)` — never hard-code hex (§ 4.3.).
+- Set `[data-theme]` on `<html>` server-side from cookie before first paint (§ 4.3.).
+- Render `surface-soft` (or `-dark`) + centred badge as fallback for any thumbnail-less article (§ 5.2.).
+- Cap comment thread depth at 2; use `@nickname` mentions beyond.
+- Define `-dark` companion for every new colour token; verify ≥ WCAG AA against `canvas-dark`.
+
+## 7.2. Don't.
+
+- No serif anywhere — light or dark, Korean or English (§ 3.2.1.).
+- No negative letter-spacing on Korean (§ 3.2.4.).
+- No `primary` on active filter / category tab / heart-filled (§ 5.1., § 5.4., § 5.8.).
+- No `like-active` outside the filled-heart state (§ 5.4.).
+- No second accent colour — extend via category tints first (§ 3.1.3.).
+- No default shadow on cards — hover-float only (§ 3.5.).
+- No Hangul in `caption-mono` (§ 3.2.4.).
+- No `rounded.xl` (24px) without explicit justification (§ 3.4.).
+- No background gradients (compete with thumbnails — § 3.1.).
+- No `[deleted]` placeholder for soft-deleted comments (§ 5.5.).
+- No `like-active` on the count text — only the icon flips (§ 5.4.).
+- No #000000 canvas-dark; no #ffffff ink-dark; no shadow on dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
+- No mechanical surface-ladder inversion — cards on `surface-soft-dark`, canvas behind is deepest tone (§ 3.1.5.).
+
+# 8. Known Gaps.
+
+| Gap | Recommendation |
+|---|---|
+| Search results page UI | PRD post-MVP |
+| Push notification banner | PRD §6 open question |
+| Comment moderation surfaces | PRD §6 open question |
+| Skeleton / loading states | `surface-strong` rectangles, 1.5s pulse |
+| Form validation helpers | Extend `semantic-error` token usage |
+| Languages beyond KR/EN | Per-script density evaluation (§ 3.2.3.) |
+| Featured-card selection logic | Product decision pending |
+| Bright thumbnail hard-edge in dark | 1px `hairline-dark` ring or 5% darkening overlay |
+| Like-button hover lift in dark | Consider 1px `primary-dark` ring instead of surface-lift |
+| OS theme transition mid-session | `transition: background-color 200ms, color 200ms, border-color 200ms` on `<html>` and `<body>` |
