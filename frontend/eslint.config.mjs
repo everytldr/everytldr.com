@@ -47,6 +47,12 @@ const eslintConfig = defineConfig([
               message:
                 "Cross-slice/layer relative import bypasses the public API. Use '@/<layer>/<slice|segment>' instead.",
             },
+            {
+              group: ["**/api/fetcher", "**/api/fetcher.*"],
+              importNames: ["_fetch"],
+              message:
+                "_fetch is the orval mutator. Do not call it directly — use the generated API client under '@/shared/api/generated/...'.",
+            },
           ],
         },
       ],
@@ -58,6 +64,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "**/*.gen.ts",
+    "**/*.gen.schemas.ts",
   ]),
 ]);
 
