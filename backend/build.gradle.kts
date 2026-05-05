@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "7.0.4"
 }
 
 group = "org.tldrtimes"
@@ -48,6 +49,13 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
+}
+
+spotless {
+    java {
+        target("src/**/*.java")
+        googleJavaFormat("1.27.0")
+    }
 }
 
 tasks.withType<Test> {
