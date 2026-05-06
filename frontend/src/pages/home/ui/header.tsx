@@ -25,18 +25,18 @@ export async function Header({ className }: HeaderProps) {
         <div className="flex items-center gap-2">
           {otherLocale && (
             <Link
+              className="hidden h-8 items-center rounded-full bg-surface-soft px-3 text-button-sm text-ink transition-colors hover:bg-surface-strong md:inline-flex"
               href="/"
               locale={otherLocale}
-              className="hidden h-8 items-center rounded-full bg-surface-soft px-3 text-button-sm text-ink transition-colors hover:bg-surface-strong md:inline-flex"
             >
               {currentLocale.toUpperCase()}
             </Link>
           )}
           <ThemeToggle />
           <button
+            className="inline-flex size-9 items-center justify-center rounded-full bg-surface-strong text-ink transition-colors hover:bg-surface-soft"
             type="button"
             aria-label="Settings"
-            className="inline-flex size-9 items-center justify-center rounded-full bg-surface-strong text-ink transition-colors hover:bg-surface-soft"
           >
             <Settings className="size-4" />
           </button>
