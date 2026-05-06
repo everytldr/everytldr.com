@@ -2,8 +2,10 @@ package org.tldrtimes.ingestor.provider;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.tldrtimes.common.domain.source.SourceType;
 
+@Component
 @RequiredArgsConstructor
 public class ArticleSourceClientRegistry {
 
