@@ -4,6 +4,10 @@ name: everytldr
 description: A multilingual, theme-aware news-summary canvas — light surfaces anchored on white (#ffffff), dark surfaces on warm near-black (#131316). Pretendard Variable typography adapts to Korean and English with locale-aware sizing. Single Read Blue accent (#0a66ff light / #5e93ff dark) for primary actions and links; Liked Rose reserved for the heart-toggled state. Article cards photo-first with pastel category badges that swap to deep-tint variants in dark mode (Notion lineage); comments and source-link cards inherit Notion's sober rectangular geometry; card-grid density and modest display weights from Airbnb; elevation flat-with-hairline by default, with hover-shadow on light converting to surface-lift on dark. The Verge contributes only its monospaced timestamp pattern. Built for a card-grid list page and a focused reading detail page with anonymous likes and threaded comments.
 
 colors:
+  # Tokens are Tailwind v4 utility names (e.g. `primary` → `bg-primary`, `text-primary`).
+  # The `-dark` suffix marks the dark-mode VALUE of the same token; the `.dark` class on <html>
+  # rebinds these CSS vars. There is no `bg-primary-dark` utility (§ 3.1.2., § 4.3.).
+
   # Brand
   primary: "#0a66ff"
   primary-dark: "#5e93ff"
@@ -516,6 +520,8 @@ The system composes parts of three external systems with one project-original in
 
 ## 3.1. Color.
 
+Color tokens live in the `@theme` block of `src/app/styles/theme.css`. Each `--color-{token}` auto-generates Tailwind utilities `bg-{token}`, `text-{token}`, `border-{token}`, `ring-{token}`, etc. Dark values rebind the same name inside `.dark` — there are no `-dark` utilities (§ 3.1.2.).
+
 ### 3.1.1. Light Palette.
 
 | Token | Hex | Use |
@@ -543,7 +549,9 @@ The token name is `meta`, not `muted`, to avoid colliding with shadcn's `--color
 
 ### 3.1.2. Dark Palette.
 
-Each light token has a `-dark` companion. Hex values are hand-tuned, not arithmetic inversions. Rationale: § 3.1.5.
+Dark-mode hex values rebind the **same** custom property name within `.dark` (e.g. `--color-canvas` flips from `#ffffff` to `#131316`). There is no separate `bg-canvas-dark` Tailwind utility — `bg-canvas` automatically swaps when `<html class="dark">` is applied (§ 4.3.). The `-dark` suffix in the table below labels the override **value**, not a distinct token.
+
+Hex values are hand-tuned, not arithmetic inversions. Rationale: § 3.1.5.
 
 | Token | Hex | Light counterpart |
 |---|---|---|
@@ -623,7 +631,7 @@ Mono fallback (timestamps only):
 
 ### 3.2.2. Hierarchy.
 
-English baseline. Korean overrides: § 3.2.3.
+Each `--text-{token}` (with companion `--text-{token}--line-height`, `--text-{token}--letter-spacing`, `--text-{token}--font-weight`) generates one Tailwind utility (`text-display-xl`, `text-body-md`, …) that bundles all four properties at once. English baseline; Korean overrides: § 3.2.3.
 
 | Token | Size (px) | Weight | Line-height | Letter-spacing (px) | Use |
 |---|---|---|---|---|---|
@@ -668,11 +676,13 @@ Apply via `:lang(ko)` selector. Mechanism: § 4.5.
 
 ## 3.3. Spacing.
 
-Base unit 4px. Tokens: `2xs=4 xs=8 sm=12 md=16 lg=24 xl=32 2xl=48 section=64`.
+Base unit 4px. Tokens: `2xs=4 xs=8 sm=12 md=16 lg=24 xl=32 2xl=48 section=64`. Each generates `p-*`, `m-*`, `gap-*`, `space-*` utilities (e.g. `p-md` = 16px padding, `gap-section` = 64px gap, `mt-xl` = 32px top margin).
 
 Section vertical padding 64px is denser than typical 80–96px SaaS marketing — matches news-feed expectation (§ 2.1.).
 
 ## 3.4. Radius.
+
+Tokens generate `rounded-{token}` utilities. `rounded-none` and `rounded-full` are Tailwind built-ins.
 
 | Token | px | Use |
 |---|---|---|
@@ -688,11 +698,13 @@ Card radius 12px (not Airbnb's 14px) for editorial register; composes against 8p
 
 ## 3.5. Elevation.
 
-| Level | Light | Dark | Use |
+Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`). On `.dark` it rebinds to `none` — components lift via surface tone instead (`dark:hover:bg-surface-strong`).
+
+| Level | Light | Dark | Tailwind |
 |---|---|---|---|
-| 0 (flat) | 1px `hairline` border | 1px `hairline-dark` border | All defaults |
-| 1 (hover) | `box-shadow: rgba(0,0,0,0.04) 0 2px 6px, rgba(0,0,0,0.08) 0 4px 12px` | Background lifts to `surface-strong-dark`; hairline → `rgba(255,255,255,0.08)` | Card hover; dropdowns |
-| Modal scrim | `scrim` at 50% opacity | `scrim` at 65% opacity | Modals, sheets |
+| 0 (flat) | 1px `hairline` border | 1px `hairline` border (rebound) | `border border-hairline` |
+| 1 (hover) | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | `none`; pair with surface lift | `hover:shadow-hover dark:hover:bg-surface-strong` |
+| Modal scrim | `scrim` at 50% opacity | `scrim` at 65% opacity | `bg-scrim/50 dark:bg-scrim/65` |
 
 | Decision | Reason |
 |---|---|
@@ -710,7 +722,7 @@ Card radius 12px (not Airbnb's 14px) for editorial register; composes against 8p
 | `light` | Forced light regardless of OS |
 | `dark` | Forced dark regardless of OS |
 
-Mirrors PRD §2.3 language preference state model.
+A client-side theme provider reads the preference and toggles the `.dark` class on `<html>`. Mirrors PRD §2.3 language preference state model.
 
 ## 4.2. Persistence.
 
@@ -718,34 +730,34 @@ Single anonymous cookie shared with language preference. Cookie key `theme`; val
 
 ## 4.3. CSS Mechanism.
 
-Tokens exposed as CSS custom properties on `:root`. Components reference `var(--colors-*)` exclusively — no hard-coded hex.
+Tailwind v4 CSS-first config. Tokens declared in the `@theme` block of `src/app/styles/theme.css` — each `--color-*`, `--text-*`, `--radius-*`, `--spacing-*` token auto-generates a matching utility (`bg-canvas`, `text-display-xl`, `rounded-md`, `p-md`, …). Components compose Tailwind utilities exclusively — no inline hex, no component stylesheets.
 
 ```css
-:root {
-  --colors-canvas: #ffffff;
-  --colors-ink: #1a1a1a;
-  --colors-primary: #0a66ff;
-  --colors-hairline: #e5e3df;
+/* theme.css */
+@theme {
+  --color-canvas: #ffffff;
+  --color-ink: #1a1a1a;
+  --color-primary: #0a66ff;
+  --color-hairline: #e5e3df;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --colors-canvas: #131316;
-    --colors-ink: #f5f5f7;
-    --colors-primary: #5e93ff;
-    --colors-hairline: #2a2a2f;
-  }
+.dark {
+  --color-canvas: #131316;
+  --color-ink: #f5f5f7;
+  --color-primary: #5e93ff;
+  --color-hairline: #2a2a2f;
 }
 
-[data-theme="light"] { /* explicit overrides — win over @media */ }
-[data-theme="dark"]  { /* explicit overrides — win over @media */ }
+/* globals.css */
+@custom-variant dark (&:where(.dark, .dark *));
 ```
 
 | Property | Reason |
 |---|---|
-| CSS variables, not separate stylesheets | Hot-swap on toggle without React re-render; SSR (§ 1.3.) safe |
-| `[data-theme]` set on `<html>` server-side from cookie before paint | Prevents FOIT (§ 1.3.) on first render |
-| Explicit `[data-theme]` overrides win over `@media` | User's manual choice supersedes OS state |
+| `@theme` block, not per-component stylesheets | Tailwind v4 builds utilities from this block at compile time; hot-swap on toggle without React re-render |
+| `.dark` rebinds the same `--color-*` names | One utility (`bg-canvas`) auto-adapts; there is no `bg-canvas-dark` (§ 3.1.2.) |
+| `.dark` set on `<html>` server-side from cookie before paint | Prevents flash of wrong theme on first render |
+| `@custom-variant dark` enables `dark:` prefix | Component-level overrides like `dark:bg-surface-soft`, `dark:text-meta`, `dark:hover:bg-surface-strong` |
 
 ## 4.4. Toggle UI.
 
@@ -755,27 +767,32 @@ Cycle `auto → light → dark` (not `auto → dark`) so a user wanting OS-sync 
 
 ## 4.5. Theme × Locale Composition.
 
-Theme = value swap (CSS variable). Locale = property swap (`:lang(ko)` rewrites size / leading / tracking — § 3.2.3.). Independent selectors compose without conflict.
+Theme = value swap of `--color-*` (rebound on `.dark`). Locale = value swap of `--text-*` (rebound on `:lang(ko)` — § 3.2.3.). Both axes operate on the CSS-variable layer that Tailwind utilities read from, so a single `text-display-xl text-ink` markup adapts to all four (theme × locale) combinations with no per-state class.
 
 ```css
-.display-xl {
-  font-size: 40px;
-  line-height: 1.15;
-  letter-spacing: -0.5px;
-  color: var(--colors-ink);
+@theme {
+  --text-display-xl: 40px;
+  --text-display-xl--line-height: 1.15;
+  --text-display-xl--letter-spacing: -0.5px;
+  --text-display-xl--font-weight: 700;
 }
-:lang(ko) .display-xl {
-  font-size: 32px;
-  line-height: 1.30;
-  letter-spacing: 0;
+
+:lang(ko) {
+  --text-display-xl: 32px;
+  --text-display-xl--line-height: 1.30;
+  --text-display-xl--letter-spacing: 0;
 }
+```
+
+```jsx
+<h1 className="text-display-xl text-ink">{title}</h1>
 ```
 
 Six render states (3 themes × 2 locales) handled with no per-state class duplication.
 
 # 5. Components.
 
-All components consume token references only — no inline hex / px (§ 7.1.).
+Components are compositions of Tailwind utilities — no component stylesheets, no inline hex / px (§ 7.1.). Token references in the tables below map directly to Tailwind classes: `primary` → `bg-primary` / `text-primary`, `sm` → `rounded-sm`, `md` → `p-md` / `gap-md`, `display-xl` → `text-display-xl`, etc.
 
 ## 5.1. Buttons.
 
@@ -993,8 +1010,8 @@ Touch targets ≥ 44×44 for primary actions; pill controls 32–36 with extende
 - Use `caption-mono` for relative-time strings only.
 - Use 1px `hairline` (or `-dark`) as default elevation.
 - Apply `:lang(ko)` overrides for every display token (§ 3.2.3.).
-- Reference colours via `var(--colors-*)` — never hard-code hex (§ 4.3.).
-- Set `[data-theme]` on `<html>` server-side from cookie before first paint (§ 4.3.).
+- Reference colours via Tailwind utilities (`bg-*`, `text-*`, `border-*`) or `var(--color-*)` directly — never hard-code hex (§ 4.3.).
+- Set the `.dark` class on `<html>` server-side from cookie before first paint (§ 4.3.).
 - Render `surface-soft` (or `-dark`) + centred badge as fallback for any thumbnail-less article (§ 5.2.).
 - Cap comment thread depth at 2; use `@nickname` mentions beyond.
 - Define `-dark` companion for every new colour token; verify ≥ WCAG AA against `canvas-dark`.
