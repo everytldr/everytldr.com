@@ -1,3 +1,4 @@
+import { cn } from "../lib";
 import LogoDark from "./logo-dark.svg";
 import LogoLight from "./logo-light.svg";
 
@@ -7,9 +8,9 @@ type LogoProps = {
 
 export function Logo({ className }: LogoProps) {
   return (
-    <div className={className}>
-      <LogoLight className="block dark:hidden" />
-      <LogoDark className="hidden dark:block" />
+    <div className={cn("", className)}>
+      <LogoLight className="block size-full dark:hidden" />
+      <LogoDark className="hidden size-full dark:block" />
     </div>
   );
 }

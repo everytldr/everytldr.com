@@ -1,15 +1,23 @@
+import { type SubCategorySlug } from "@/shared/config";
 import { Container } from "@/shared/ui";
-import { Header } from "./header";
+import { FloatingSubNav } from "@/widgets/floating-sub-nav";
+import { CategoryNav } from "./category-nav";
 
-export function HomePage() {
+type HomePageProps = {
+  className?: string;
+  categorySlug: SubCategorySlug;
+};
+
+export function HomePage({ className, categorySlug }: HomePageProps) {
   return (
-    <>
-      <Header />
+    <div className={className}>
+      <CategoryNav categorySlug={categorySlug} />
+      <FloatingSubNav categorySlug={categorySlug} />
       <main>
-        <Container className="py-16">
+        <Container className="py-2xl">
           <p>hello world</p>
         </Container>
       </main>
-    </>
+    </div>
   );
 }
