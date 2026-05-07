@@ -15,6 +15,9 @@ Apply the `className` field of `{ComponentName}Props` (§ 1.1.) to the component
 ## 1.3. Inner element className
 To expose styling for a non-outermost child element, declare an additional optional prop on `{ComponentName}Props` (§ 1.1.) named `{elementName}ClassName: string` (e.g. `labelClassName`, `iconClassName`) and apply it to that specific child.
 
+## 1.4. Children prop
+When `{ComponentName}Props` (§ 1.1.) needs `children`, type it via `PropsWithChildren` from `react`; do not declare `children: ReactNode` manually. Import the symbol directly (`import { PropsWithChildren } from "react"`); the namespaced form `React.PropsWithChildren` is forbidden.
+
 # 2. UI Component Sourcing
 
 ## 2.1. shadcn precedence
