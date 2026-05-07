@@ -64,4 +64,51 @@ class GuardianArticleMapperTest {
     assertThat(actual).hasSize(1);
     assertThat(actual.getFirst().thumbnailUrl()).isNull();
   }
+
+  @Test
+  void skipsInvalidGuardianResultsAndMapsValidOnes() {
+    GuardianSearchResponse response =
+        new GuardianSearchResponse(
+            new GuardianSearchResponse.Response(
+                List.of(
+                    new GuardianSearchResponse.Result(
+                        "not-a-date", "https://www.theguardian.com/football/invalid-date", null),
+                    new GuardianSearchResponse.Result(
+                        null, "https://www.theguardian.com/football/missing-date", null),
+                    new GuardianSearchResponse.Result("2026-05-04T10:15:30Z", "", null),
+                    new GuardianSearchResponse.Result(
+                        "2026-05-04T10:15:30Z",
+                        "https://www.theguardian.com/football/valid",
+                        null))));
+    ArticleSource source =
+        ArticleSource.create(
+            "The Guardian Football",
+            "https://content.guardianapis.com/search?section=football",
+            "en",
+            SourceType.GUARDIAN_API);
+
+    List<CollectedArticle> actual = guardianArticleMapper.map(response, source);
+
+    assertThat(actual).hasSize(1);
+    assertThat(actual.getFirst().sourceUrl())
+        .isEqualTo("https://www.theguardian.com/football/valid");
+    assertThat(actual.getFirst().publishedAt()).isEqualTo(Instant.parse("2026-05-04T10:15:30Z"));
+  }
+
+  @Test
+  void returnsEmptyListWhenGuardianResponseIsMissingResults() {
+    ArticleSource source =
+        ArticleSource.create(
+            "The Guardian Football",
+            "https://content.guardianapis.com/search?section=football",
+            "en",
+            SourceType.GUARDIAN_API);
+
+    assertThat(guardianArticleMapper.map(null, source)).isEmpty();
+    assertThat(guardianArticleMapper.map(new GuardianSearchResponse(null), source)).isEmpty();
+    assertThat(
+            guardianArticleMapper.map(
+                new GuardianSearchResponse(new GuardianSearchResponse.Response(null)), source))
+        .isEmpty();
+  }
 }
