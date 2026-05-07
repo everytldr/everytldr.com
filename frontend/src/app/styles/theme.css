@@ -4,9 +4,11 @@
 
   --color-*: initial;
   --color-primary: #0a66ff;
+  --color-primary-hover: #095ce6;
   --color-primary-pressed: #0850cc;
   --color-primary-disabled: #cce0ff;
   --color-on-primary: #ffffff;
+  --color-on-ink: #ffffff;
 
   --color-like-active: #e11d48;
   --color-like-inactive: var(--color-meta);
@@ -14,6 +16,7 @@
   --color-canvas: #ffffff;
   --color-surface-soft: #f7f7f7;
   --color-surface-strong: #f2f2f2;
+  --color-surface-pressed: #e8e8e8;
 
   --color-hairline: #e5e3df;
   --color-hairline-soft: #ebebeb;
@@ -23,8 +26,6 @@
   --color-body: #3f3f3f;
   --color-meta: #6a6a6a;
   --color-meta-soft: #929292;
-  --color-on-dark: #ffffff;
-  --color-on-dark-meta: #a4a097;
 
   --color-tint-emerald: #d9f3e1;
   --color-tint-sky: #dcecfa;
@@ -47,7 +48,6 @@
   --color-semantic-error: #dc2626;
 
   --color-scrim: #000000;
-  --color-legal-link: #428bff;
 
   --text-hero-display: 56px;
   --text-hero-display--line-height: 1.1;
@@ -144,8 +144,10 @@
 
 .dark {
   --color-primary: #5e93ff;
+  --color-primary-hover: #5589f4;
   --color-primary-pressed: #4d82e8;
   --color-primary-disabled: #1f3055;
+  --color-on-ink: #131316;
 
   --color-like-active: #fb7185;
   --color-like-inactive: #8a8a92;
@@ -154,6 +156,7 @@
   --color-canvas: #131316;
   --color-surface-soft: #1c1c20;
   --color-surface-strong: #26262b;
+  --color-surface-pressed: #2f2f35;
 
   --color-hairline: #2a2a2f;
   --color-hairline-soft: #1f1f23;
@@ -163,7 +166,6 @@
   --color-body: #c8c8d0;
   --color-meta: #8a8a92;
   --color-meta-soft: #6a6a72;
-  --color-like-inactive: var(--color-meta);
 
   --color-tint-emerald: #0e2419;
   --color-tint-sky: #0a1e30;
@@ -184,8 +186,6 @@
   --color-semantic-success: #34d399;
   --color-semantic-warning: #fb923c;
   --color-semantic-error: #f87171;
-
-  --color-legal-link: #7ab2ff;
 
   /* Drop shadow on dark reads as smudge — components lift via surface tone instead. */
   --shadow-hover: none;
