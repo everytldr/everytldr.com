@@ -3,6 +3,8 @@ import { GlobalProvider } from "@/app/providers";
 import "@/app/styles";
 import { routing } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
+import { Footer } from "@/widgets/footer";
+import { Header } from "@/widgets/header";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -32,8 +34,12 @@ export default async function RootLayout({ params, children }: RootLayoutProps) 
 
   return (
     <html className={cn(pretendard.variable, jetbrainsMono.variable)} lang={locale}>
-      <body>
-        <GlobalProvider>{children}</GlobalProvider>
+      <body className="flex min-h-dvh flex-col">
+        <GlobalProvider>
+          <Header locale={locale} />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </GlobalProvider>
       </body>
     </html>
   );
