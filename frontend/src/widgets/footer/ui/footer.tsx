@@ -18,7 +18,7 @@ export function Footer({ className }: FooterProps) {
 
   return (
     <footer className={cn("border-t border-hairline bg-canvas", className)}>
-      <Container className="flex flex-col items-start gap-md py-xl text-body-sm text-meta md:flex-row md:items-center md:justify-between">
+      <Container className="flex flex-col items-start gap-md py-xl text-body-sm text-meta pc:flex-row pc:items-center pc:justify-between">
         <div className="flex items-center gap-md">
           <Link href="/" aria-label="everytldr">
             <Logo className="h-5" />

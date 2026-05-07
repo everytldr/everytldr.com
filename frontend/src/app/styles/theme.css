@@ -140,6 +140,8 @@
   --spacing-section: 64px;
 
   --shadow-hover: 0 2px 6px 0 rgb(0 0 0 / 0.04), 0 4px 12px 0 rgb(0 0 0 / 0.08);
+
+  --breakpoint-pc: 768px;
 }
 
 .dark {

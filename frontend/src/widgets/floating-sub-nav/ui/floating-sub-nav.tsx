@@ -56,7 +56,7 @@ export function FloatingSubNav({ className, categorySlug }: FloatingSubNavProps)
       )}
       aria-hidden={!visible}
     >
-      <Container className="flex h-14 items-stretch justify-center md:h-16">
+      <Container className="flex h-14 items-stretch justify-center pc:h-16">
         <nav className="flex" aria-label={t("header.aria-label.subcategories")}>
           <ul className="flex items-stretch gap-xl">
             {category.subs.map((sub) => {
