@@ -1,3 +1,8 @@
+spring:
+  batch:
+    job:
+      enabled: false
+
 tldrtimes:
   ingestor:
     guardian:
