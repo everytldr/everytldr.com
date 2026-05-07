@@ -264,6 +264,12 @@ Display labels (Korean, English, …) are resolved client-side from `slug` via i
 | `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en`. Articles emitted from this source inherit this value. |
 | `source_type` | `VARCHAR(32)` | `NOT NULL` | Java `SourceType` enum, mapped `EnumType.STRING`; values include `GUARDIAN_API` and `RSS`. |
 
+For `GUARDIAN_API`, `url` is a provider locator, not the final outbound request URL. It must not contain `api-key` or other secrets. The ingestor extracts supported provider parameters such as `section` from this locator, while the actual Guardian API base URL comes from `tldrtimes.ingestor.guardian.base-url`. This keeps credentials and outbound host configuration outside reference data and prevents database rows from controlling the request host.
+
+Seed policy: initial `article_source` rows are managed by Flyway versioned SQL migrations. Because SQL migrations do not invoke Hibernate's `@SnowflakeId` generator, seed rows must provide explicit fixed IDs. These IDs are still Snowflake-format values, not arbitrary small integers: use the project epoch and bit layout from § 8, set the timestamp to the migration's chosen UTC reference instant, reserve `workerId = 1023` for Flyway reference data, and increment the sequence from `1` within the same migration. Runtime application processes must not use `workerId = 1023`; assign `APP_WORKER_ID` values from `0..1022` so generated runtime IDs cannot collide with reference-data IDs.
+
+Example: `V5__seed_article_sources.sql` seeds Guardian football with timestamp `2026-05-07T00:00:00Z`, `workerId = 1023`, and `sequence = 1`, producing ID `45660871069790209`.
+
 ### 7.2.3. `article`
 
 Base: `SoftDeletableEntity`.
