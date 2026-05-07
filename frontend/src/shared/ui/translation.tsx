@@ -6,18 +6,18 @@ type Messages = AppConfig["Messages"];
 type MessageKey = MessageKeys<Messages, NestedKeyOf<Messages>>;
 
 type TranslationProps<T extends keyof JSX.IntrinsicElements = "span"> = {
-  path: MessageKey;
+  tKey: MessageKey;
   values?: Record<string, string | number>;
   as?: T;
 } & Omit<ComponentProps<T>, "children">;
 
 export function Translation<T extends keyof JSX.IntrinsicElements = "span">({
-  path,
+  tKey,
   values,
   as,
   ...props
 }: TranslationProps<T>) {
   const t = useTranslations();
 
-  return createElement(as || "span", props, t(path, values));
+  return createElement(as || "span", props, t(tKey, values));
 }
