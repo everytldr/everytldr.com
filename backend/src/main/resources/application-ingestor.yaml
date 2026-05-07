@@ -1,0 +1,6 @@
+tldrtimes:
+  ingestor:
+    guardian:
+      base-url: ${GUARDIAN_BASE_URL:https://content.guardianapis.com}
+      api-key: ${GUARDIAN_API_KEY:}
+      page-size: ${GUARDIAN_PAGE_SIZE:20}
