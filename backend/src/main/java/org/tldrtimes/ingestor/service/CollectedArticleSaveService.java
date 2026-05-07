@@ -1,14 +1,5 @@
 package org.tldrtimes.ingestor.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.tldrtimes.common.domain.article.Article;
-import org.tldrtimes.common.domain.article.ArticleRepository;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJob;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJobRepository;
-import org.tldrtimes.ingestor.provider.CollectedArticle;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -16,19 +7,25 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.tldrtimes.common.domain.ingestion.ArticleIngestionJobRepository;
+import org.tldrtimes.ingestor.provider.CollectedArticle;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CollectedArticleSaveService {
 
   private record ArticleCandidate(
       CollectedArticle collectedArticle, byte[] urlHash, String urlHashHex) {}
 
-  private final ArticleRepository articleRepository;
-
   private final ArticleIngestionJobRepository articleIngestionJobRepository;
 
-  @Transactional
+  private final CollectedArticleCandidateSaveService collectedArticleCandidateSaveService;
+
   public void saveNewArticles(List<CollectedArticle> collectedArticles) {
     if (collectedArticles == null || collectedArticles.isEmpty()) return;
 
@@ -58,17 +55,14 @@ public class CollectedArticleSaveService {
     for (ArticleCandidate candidate : candidates) {
       if (existingHashHexes.contains(candidate.urlHashHex)) continue;
 
-      Article article =
-          Article.create(
-              candidate.collectedArticle.sourceUrl(),
-              candidate.collectedArticle.sourceName(),
-              candidate.collectedArticle.thumbnailUrl(),
-              candidate.collectedArticle.language(),
-              candidate.collectedArticle.publishedAt());
-      Article savedArticle = articleRepository.save(article);
-
-      ArticleIngestionJob job = ArticleIngestionJob.create(savedArticle, candidate.urlHash);
-      articleIngestionJobRepository.save(job);
+      try {
+        collectedArticleCandidateSaveService.saveNewArticleCandidate(
+            candidate.collectedArticle, candidate.urlHash);
+      } catch (DataIntegrityViolationException e) {
+        log.info(
+            "Skipped article candidate because article ingestion job already exists. urlHash={}",
+            candidate.urlHashHex);
+      }
     }
   }
 

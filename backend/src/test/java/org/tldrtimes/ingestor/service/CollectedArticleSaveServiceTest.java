@@ -9,12 +9,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import org.tldrtimes.TestcontainersConfig;
 import org.tldrtimes.common.domain.article.Article;
 import org.tldrtimes.common.domain.article.ArticleRepository;
@@ -26,7 +27,6 @@ import org.tldrtimes.ingestor.provider.CollectedArticle;
 @SpringBootTest
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("test")
-@Transactional
 class CollectedArticleSaveServiceTest {
 
   @PersistenceContext private EntityManager entityManager;
@@ -37,13 +37,21 @@ class CollectedArticleSaveServiceTest {
 
   @Autowired private ArticleIngestionJobRepository articleIngestionJobRepository;
 
+  @BeforeEach
+  @AfterEach
+  void cleanDatabase() {
+    articleIngestionJobRepository.deleteAllInBatch();
+    articleRepository.deleteAllInBatch();
+    entityManager.clear();
+  }
+
   @Test
   void savesNewArticleAndPendingJob() {
     CollectedArticle collectedArticle =
         collectedArticle("https://www.theguardian.com/football/example");
 
     collectedArticleSaveService.saveNewArticles(List.of(collectedArticle));
-    flushAndClear();
+    clearPersistenceContext();
 
     Article article = articleRepository.findAll().getFirst();
     assertThat(article.getSourceUrl()).isEqualTo(collectedArticle.sourceUrl());
@@ -63,7 +71,7 @@ class CollectedArticleSaveServiceTest {
 
     collectedArticleSaveService.saveNewArticles(
         List.of(collectedArticle(url), collectedArticle(url)));
-    flushAndClear();
+    clearPersistenceContext();
 
     assertThat(articleRepository.findAll()).hasSize(1);
     assertThat(articleIngestionJobRepository.findAll()).hasSize(1);
@@ -77,10 +85,10 @@ class CollectedArticleSaveServiceTest {
             Article.create(url, "The Guardian Football", null, "en", Instant.parse("2026-05-04T10:15:30Z")));
     articleIngestionJobRepository.saveAndFlush(
         ArticleIngestionJob.create(existingArticle, sha256(url)));
-    flushAndClear();
+    clearPersistenceContext();
 
     collectedArticleSaveService.saveNewArticles(List.of(collectedArticle(url)));
-    flushAndClear();
+    clearPersistenceContext();
 
     assertThat(articleRepository.findAll()).hasSize(1);
     assertThat(articleIngestionJobRepository.findAll()).hasSize(1);
@@ -96,11 +104,11 @@ class CollectedArticleSaveServiceTest {
                 existingUrl, "The Guardian Football", null, "en", Instant.parse("2026-05-04T10:15:30Z")));
     articleIngestionJobRepository.saveAndFlush(
         ArticleIngestionJob.create(existingArticle, sha256(existingUrl)));
-    flushAndClear();
+    clearPersistenceContext();
 
     collectedArticleSaveService.saveNewArticles(
         List.of(collectedArticle(existingUrl), collectedArticle(newUrl)));
-    flushAndClear();
+    clearPersistenceContext();
 
     assertThat(articleRepository.findAll()).extracting(Article::getSourceUrl).containsExactlyInAnyOrder(existingUrl, newUrl);
     assertThat(articleIngestionJobRepository.findAll()).hasSize(2);
@@ -123,7 +131,7 @@ class CollectedArticleSaveServiceTest {
                 "file:///etc/passwd",
                 "en",
                 Instant.parse("2026-05-04T10:15:30Z"))));
-    flushAndClear();
+    clearPersistenceContext();
 
     assertThat(articleRepository.findAll()).isEmpty();
     assertThat(articleIngestionJobRepository.findAll()).isEmpty();
@@ -138,8 +146,7 @@ class CollectedArticleSaveServiceTest {
         Instant.parse("2026-05-04T10:15:30Z"));
   }
 
-  private void flushAndClear() {
-    entityManager.flush();
+  private void clearPersistenceContext() {
     entityManager.clear();
   }
 
