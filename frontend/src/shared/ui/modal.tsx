@@ -19,7 +19,7 @@ type ModalProps = PropsWithChildren<{
 
 export function Modal({
   className,
-  hideCloseButton = false,
+  hideCloseButton,
   isOpen,
   position = "center",
   header,

@@ -8,6 +8,7 @@ import { Modal } from "./modal";
 type ResponsiveDialogProps = PropsWithChildren<{
   className?: string;
   isOpen: boolean;
+  modal?: { hideCloseButton?: boolean };
   header: {
     className?: string;
     title: string;
@@ -23,5 +24,5 @@ export function ResponsiveDialog(props: ResponsiveDialogProps) {
     return <BottomSheet {...props} />;
   }
 
-  return <Modal {...props} />;
+  return <Modal {...props} hideCloseButton={props.modal?.hideCloseButton} />;
 }
