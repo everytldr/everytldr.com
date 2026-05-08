@@ -29,7 +29,7 @@ export function Modal({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={cn(position === "top" && "top-2xl translate-y-0", className)}
+        className={cn(position === "top" && "top-sm translate-y-0", className)}
         showCloseButton={!hideCloseButton}
       >
         <DialogHeader className={header.className}>
