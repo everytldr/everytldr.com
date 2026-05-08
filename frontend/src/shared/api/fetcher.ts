@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+import { isBrowser } from "@/shared/lib";
+
+const BASE_URL = isBrowser() ? "" : (process.env.BACKEND_URL ?? "http://localhost:8080");
 
 export class ApiError extends Error {
   status: number;
@@ -14,7 +16,7 @@ export class ApiError extends Error {
 
 // NOTE: orval-generated client mutator. Do not call directly.
 export const _fetch = async <T>(url: string, init?: RequestInit): Promise<T> => {
-  const response = await fetch(`${API_BASE_URL}${url}`, {
+  const response = await fetch(`${BASE_URL}${url}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
