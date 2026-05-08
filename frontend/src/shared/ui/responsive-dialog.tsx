@@ -8,7 +8,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
 
 type ResponsiveDialogProps = PropsWithChildren<{
   className?: string;
-  titleClassName?: string;
+  headerClassName?: string;
   isOpen: boolean;
   header: {
     title: string;
@@ -19,7 +19,7 @@ type ResponsiveDialogProps = PropsWithChildren<{
 
 export function ResponsiveDialog({
   className,
-  titleClassName,
+  headerClassName,
   isOpen,
   header,
   children,
@@ -31,8 +31,8 @@ export function ResponsiveDialog({
     return (
       <Drawer open={isOpen} onOpenChange={handleOpenChange}>
         <DrawerContent className={cn("pb-xl", className)}>
-          <DrawerHeader>
-            <DrawerTitle className={titleClassName}>{header.title}</DrawerTitle>
+          <DrawerHeader className={headerClassName}>
+            <DrawerTitle>{header.title}</DrawerTitle>
             {header.description && <DrawerDescription>{header.description}</DrawerDescription>}
           </DrawerHeader>
           {children}
@@ -44,8 +44,8 @@ export function ResponsiveDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className={className}>
-        <DialogHeader>
-          <DialogTitle className={titleClassName}>{header.title}</DialogTitle>
+        <DialogHeader className={headerClassName}>
+          <DialogTitle>{header.title}</DialogTitle>
           {header.description && <DialogDescription>{header.description}</DialogDescription>}
         </DialogHeader>
         {children}
