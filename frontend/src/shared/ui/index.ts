@@ -28,4 +28,5 @@ export {
 export { IconButton } from "./icon-button";
 export { Input } from "./input";
 export { Logo } from "./logo";
+export { ResponsiveDialog } from "./responsive-dialog";
 export { Translation } from "./translation";
