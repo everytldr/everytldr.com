@@ -18,15 +18,15 @@ export function Footer({ className }: FooterProps) {
 
   return (
     <footer className={cn("border-t border-hairline bg-canvas", className)}>
-      <Container className="flex flex-col items-start gap-md py-xl text-body-sm text-meta pc:flex-row pc:items-center pc:justify-between">
-        <div className="flex items-center gap-md">
+      <Container className="flex flex-col items-start gap-md py-xl text-meta pc:flex-row pc:items-center pc:justify-between">
+        <div className="flex items-center gap-md text-body-sm">
           <Link href="/" aria-label="everytldr">
             <Logo className="h-5" />
           </Link>
           <span>© {year} everytldr</span>
         </div>
 
-        <nav className="flex flex-wrap items-center gap-x-sm gap-y-xs">
+        <nav className="flex flex-wrap items-center gap-x-sm gap-y-xs text-nav-sm">
           <FooterLink href={ABOUT_URL}>
             <Translation tKey="footer.about" />
           </FooterLink>
@@ -39,7 +39,7 @@ export function Footer({ className }: FooterProps) {
             <Translation tKey="footer.terms" />
           </FooterLink>
           <FooterSeparator />
-          <FooterLink href={GITHUB_URL} external>
+          <FooterLink href={GITHUB_URL}>
             <Translation tKey="footer.github" />
           </FooterLink>
         </nav>
@@ -51,18 +51,16 @@ export function Footer({ className }: FooterProps) {
 type FooterLinkProps = PropsWithChildren<{
   className?: string;
   href: string;
-  external?: boolean;
 }>;
 
-function FooterLink({ className, href, external, children }: FooterLinkProps) {
+function FooterLink({ className, href, children }: FooterLinkProps) {
   return (
     <ConditionalLink
       className={cn(
-        "rounded-sm transition-colors outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+        "transition-colors outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
         className,
       )}
       href={href}
-      external={external}
     >
       {children}
     </ConditionalLink>
