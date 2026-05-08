@@ -1,3 +1,8 @@
 test:
   en: "Welcome to everytldr"
   ko: "everytldr에 오신 것을 환영합니다"
+
+aria-label:
+  close:
+    en: "Close"
+    ko: "닫기"
