@@ -39,7 +39,7 @@ export function Footer({ className }: FooterProps) {
             <Translation tKey="footer.terms" />
           </FooterLink>
           <FooterSeparator />
-          <FooterLink href={GITHUB_URL} external>
+          <FooterLink href={GITHUB_URL}>
             <Translation tKey="footer.github" />
           </FooterLink>
         </nav>
@@ -51,10 +51,9 @@ export function Footer({ className }: FooterProps) {
 type FooterLinkProps = PropsWithChildren<{
   className?: string;
   href: string;
-  external?: boolean;
 }>;
 
-function FooterLink({ className, href, external, children }: FooterLinkProps) {
+function FooterLink({ className, href, children }: FooterLinkProps) {
   return (
     <ConditionalLink
       className={cn(
@@ -62,7 +61,6 @@ function FooterLink({ className, href, external, children }: FooterLinkProps) {
         className,
       )}
       href={href}
-      external={external}
     >
       {children}
     </ConditionalLink>
