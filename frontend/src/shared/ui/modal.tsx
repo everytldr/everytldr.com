@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 type ModalProps = PropsWithChildren<{
   className?: string;
   headerClassName?: string;
+  hideCloseButton?: boolean;
   isOpen: boolean;
   position?: "center" | "top";
   header: {
@@ -19,6 +20,7 @@ type ModalProps = PropsWithChildren<{
 export function Modal({
   className,
   headerClassName,
+  hideCloseButton = false,
   isOpen,
   position = "center",
   header,
@@ -27,7 +29,10 @@ export function Modal({
 }: ModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className={cn(position === "top" && "top-2xl translate-y-0", className)}>
+      <DialogContent
+        className={cn(position === "top" && "top-2xl translate-y-0", className)}
+        showCloseButton={!hideCloseButton}
+      >
         <DialogHeader className={headerClassName}>
           <DialogTitle>{header.title}</DialogTitle>
           {header.description && <DialogDescription>{header.description}</DialogDescription>}
