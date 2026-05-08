@@ -8,6 +8,7 @@ export enum MainCategorySlug {
 }
 
 export enum SubCategorySlug {
+  Discover = "discover",
   Latest = "latest",
   Trending = "trending",
   Epl = "epl",
@@ -23,7 +24,7 @@ export type CategoryNode = {
 export const CATEGORIES: CategoryNode[] = [
   {
     slug: MainCategorySlug.Home,
-    subs: [SubCategorySlug.Latest, SubCategorySlug.Trending],
+    subs: [SubCategorySlug.Discover, SubCategorySlug.Latest, SubCategorySlug.Trending],
   },
   { slug: MainCategorySlug.Sport, subs: [SubCategorySlug.Epl] },
   { slug: MainCategorySlug.Politics, subs: [SubCategorySlug.Domestic] },

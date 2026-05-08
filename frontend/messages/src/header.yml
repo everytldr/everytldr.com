@@ -61,6 +61,9 @@ category:
     ko: "IT/과학"
 
 subcategory:
+  discover:
+    en: "Discover"
+    ko: "추천"
   latest:
     en: "Latest"
     ko: "최신"
