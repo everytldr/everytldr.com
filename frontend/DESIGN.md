@@ -238,6 +238,8 @@ Each `--text-{token}` (with companion `--text-{token}--line-height`, `--text-{to
 | `micro`        | 11        | 600    | 1.30        | 0.4                 | Tag / badge text                         |
 | `button-md`    | 15        | 600    | 1.25        | 0                   | Default button label                     |
 | `button-sm`    | 14        | 500    | 1.25        | 0                   | Pill / chip label                        |
+| `nav-md`       | 18        | 700    | 1.25        | -0.25               | Primary navigation label (tabs, `<nav>`) |
+| `nav-sm`       | 12        | 500    | 1.30        | 0                   | Secondary / sub-nav label (tabs, `<nav>`) |
 
 ### 3.2.3. Korean Overrides.
 
@@ -253,6 +255,8 @@ Apply via `:lang(ko)` selector. Mechanism: § 4.5.
 | `title-*`                        | unchanged         | size unchanged; line-height +0.05            |
 | `body-*`                         | unchanged         | size unchanged; line-height +0.05            |
 | `caption` / `micro` / `button-*` | unchanged         | unchanged                                    |
+| `nav-md`                         | 18 / 1.25 / -0.25 | 17 / 1.30 / 0                                |
+| `nav-sm`                         | 12 / 1.30 / 0     | 12 / 1.35 / 0                                |
 
 ### 3.2.4. Rules.
 
@@ -511,6 +515,8 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 - No second accent colour — extend via category tints first (§ 3.1.3.).
 - No default shadow (§ 3.5.).
 - No Hangul in `caption-mono` (§ 3.2.4.).
+- No `display-*`, `title-*`, or `body-*` on categorical navigation labels; use `nav-*` (§ 3.2.2.).
+- No second-nav size hierarchy by font weight alone (§ 3.2.2.).
 - No `rounded.xl` (24px) without explicit justification (§ 3.4.).
 - No background gradients (§ 3.1.).
 - No #000000 canvas-dark; no #ffffff ink-dark; no shadow on dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
