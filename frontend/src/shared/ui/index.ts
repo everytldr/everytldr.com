@@ -28,7 +28,7 @@ export {
 } from "./drawer";
 export { IconButton } from "./icon-button";
 export { Input } from "./input";
-export { Logo } from "./logo";
+export { default as Logo } from "./logo.svg";
 export { Modal } from "./modal";
 export { ResponsiveDialog } from "./responsive-dialog";
 export { Translation } from "./translation";
