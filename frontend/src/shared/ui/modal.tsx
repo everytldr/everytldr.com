@@ -6,11 +6,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 type ModalProps = PropsWithChildren<{
   className?: string;
-  headerClassName?: string;
   hideCloseButton?: boolean;
   isOpen: boolean;
   position?: "center" | "top";
   header: {
+    className?: string;
     title: string;
     description?: string;
   };
@@ -19,7 +19,6 @@ type ModalProps = PropsWithChildren<{
 
 export function Modal({
   className,
-  headerClassName,
   hideCloseButton = false,
   isOpen,
   position = "center",
@@ -33,7 +32,7 @@ export function Modal({
         className={cn(position === "top" && "top-2xl translate-y-0", className)}
         showCloseButton={!hideCloseButton}
       >
-        <DialogHeader className={headerClassName}>
+        <DialogHeader className={header.className}>
           <DialogTitle>{header.title}</DialogTitle>
           {header.description && <DialogDescription>{header.description}</DialogDescription>}
         </DialogHeader>

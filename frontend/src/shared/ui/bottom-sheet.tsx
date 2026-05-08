@@ -6,27 +6,20 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
 
 type BottomSheetProps = PropsWithChildren<{
   className?: string;
-  headerClassName?: string;
   isOpen: boolean;
   header: {
+    className?: string;
     title: string;
     description?: string;
   };
   onClose: () => void;
 }>;
 
-export function BottomSheet({
-  className,
-  headerClassName,
-  isOpen,
-  header,
-  children,
-  onClose,
-}: BottomSheetProps) {
+export function BottomSheet({ className, isOpen, header, children, onClose }: BottomSheetProps) {
   return (
     <Drawer open={isOpen} onOpenChange={handleOpenChange}>
       <DrawerContent className={cn("pb-xl", className)}>
-        <DrawerHeader className={headerClassName}>
+        <DrawerHeader className={header.className}>
           <DrawerTitle>{header.title}</DrawerTitle>
           {header.description && <DrawerDescription>{header.description}</DrawerDescription>}
         </DrawerHeader>

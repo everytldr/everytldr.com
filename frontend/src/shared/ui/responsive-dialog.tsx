@@ -7,9 +7,9 @@ import { Modal } from "./modal";
 
 type ResponsiveDialogProps = PropsWithChildren<{
   className?: string;
-  headerClassName?: string;
   isOpen: boolean;
   header: {
+    className?: string;
     title: string;
     description?: string;
   };
