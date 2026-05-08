@@ -13,7 +13,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  if (slug === SubCategorySlug.Latest) {
+  if (slug === SubCategorySlug.Discover) {
     return { alternates: { canonical: `/${locale}` } };
   }
   return {};
