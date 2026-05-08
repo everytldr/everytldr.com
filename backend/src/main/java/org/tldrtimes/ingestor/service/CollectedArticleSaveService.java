@@ -27,19 +27,38 @@ public class CollectedArticleSaveService {
   private final CollectedArticleCandidateSaveService collectedArticleCandidateSaveService;
 
   public void saveNewArticles(List<CollectedArticle> collectedArticles) {
-    if (collectedArticles == null || collectedArticles.isEmpty()) return;
+    int receivedCount = collectedArticles == null ? 0 : collectedArticles.size();
+    if (receivedCount == 0) {
+      log.info(
+          "Finished saving collected articles. received=0, valid=0, invalidSkipped=0, duplicateInBatchSkipped=0, existingDuplicateSkipped=0, concurrencyDuplicateSkipped=0, saved=0");
+      return;
+    }
 
     Set<String> seenUrls = new HashSet<>();
     List<CollectedArticle> validArticles = new ArrayList<>();
+    int invalidSkippedCount = 0;
+    int duplicateInBatchSkippedCount = 0;
 
     for (CollectedArticle article : collectedArticles) {
-      if (!isValid(article)) continue;
+      if (!isValid(article)) {
+        invalidSkippedCount++;
+        continue;
+      }
       if (seenUrls.add(article.sourceUrl())) {
         validArticles.add(article);
+      } else {
+        duplicateInBatchSkippedCount++;
       }
     }
 
-    if (validArticles.isEmpty()) return;
+    if (validArticles.isEmpty()) {
+      log.info(
+          "Finished saving collected articles. received={}, valid=0, invalidSkipped={}, duplicateInBatchSkipped={}, existingDuplicateSkipped=0, concurrencyDuplicateSkipped=0, saved=0",
+          receivedCount,
+          invalidSkippedCount,
+          duplicateInBatchSkippedCount);
+      return;
+    }
 
     List<ArticleCandidate> candidates = new ArrayList<>();
     for (CollectedArticle article : validArticles) {
@@ -52,18 +71,37 @@ public class CollectedArticleSaveService {
     Set<String> existingHashHexes =
         existingUrlHashes.stream().map(this::toHex).collect(Collectors.toSet());
 
+    int existingDuplicateSkippedCount = 0;
+    int concurrencyDuplicateSkippedCount = 0;
+    int savedCount = 0;
+
     for (ArticleCandidate candidate : candidates) {
-      if (existingHashHexes.contains(candidate.urlHashHex)) continue;
+      if (existingHashHexes.contains(candidate.urlHashHex)) {
+        existingDuplicateSkippedCount++;
+        continue;
+      }
 
       try {
         collectedArticleCandidateSaveService.saveNewArticleCandidate(
             candidate.collectedArticle, candidate.urlHash);
+        savedCount++;
       } catch (DataIntegrityViolationException e) {
+        concurrencyDuplicateSkippedCount++;
         log.info(
             "Skipped article candidate because article ingestion job already exists. urlHash={}",
             candidate.urlHashHex);
       }
     }
+
+    log.info(
+        "Finished saving collected articles. received={}, valid={}, invalidSkipped={}, duplicateInBatchSkipped={}, existingDuplicateSkipped={}, concurrencyDuplicateSkipped={}, saved={}",
+        receivedCount,
+        validArticles.size(),
+        invalidSkippedCount,
+        duplicateInBatchSkippedCount,
+        existingDuplicateSkippedCount,
+        concurrencyDuplicateSkippedCount,
+        savedCount);
   }
 
   private boolean isValid(CollectedArticle article) {

@@ -28,6 +28,12 @@ public class ArticleIngestionService {
       try {
         ArticleSourceClient client = articleSourceClientRegistry.getClient(source.getSourceType());
         List<CollectedArticle> collectedArticles = client.collect(source);
+        log.info(
+            "Collected articles from source. sourceId={}, sourceName={}, sourceType={}, collected={}",
+            source.getId(),
+            source.getName(),
+            source.getSourceType(),
+            collectedArticles == null ? 0 : collectedArticles.size());
         collectedArticleSaveService.saveNewArticles(collectedArticles);
       } catch (RuntimeException e) {
         log.warn(
