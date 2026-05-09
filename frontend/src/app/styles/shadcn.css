@@ -1,44 +1,43 @@
 @theme inline {
-  --color-background: var(--color-paper);
-  --color-foreground: var(--color-page-ink);
+  --color-background: var(--color-canvas);
+  --color-foreground: var(--color-ink);
 
-  --color-card: var(--color-paper);
-  --color-card-foreground: var(--color-page-ink);
+  --color-card: var(--color-canvas);
+  --color-card-foreground: var(--color-ink);
 
-  --color-popover: var(--color-paper);
-  --color-popover-foreground: var(--color-page-ink);
+  --color-popover: var(--color-canvas);
+  --color-popover-foreground: var(--color-ink);
 
-  --color-primary: var(--color-ink);
-  --color-primary-foreground: var(--color-paper);
+  --color-primary-foreground: var(--color-on-primary);
 
-  --color-secondary: var(--color-page-ink);
-  --color-secondary-foreground: var(--color-paper);
+  --color-secondary: var(--color-surface-soft);
+  --color-secondary-foreground: var(--color-ink);
 
-  --color-muted: var(--color-hairline);
-  --color-muted-foreground: var(--color-caption);
+  --color-accent: var(--color-surface-soft);
+  --color-accent-foreground: var(--color-ink);
 
-  --color-accent: var(--color-hairline);
-  --color-accent-foreground: var(--color-page-ink);
+  --color-muted: var(--color-surface-soft);
+  --color-muted-foreground: var(--color-meta);
 
-  --color-destructive: var(--color-error);
-  --color-destructive-foreground: var(--color-paper);
+  --color-destructive: var(--color-semantic-error);
+  --color-destructive-foreground: var(--color-on-primary);
 
   --color-border: var(--color-hairline);
-  --color-input: var(--color-ink);
-  --color-ring: var(--color-ink);
+  --color-input: var(--color-hairline-strong);
+  --color-ring: var(--color-primary);
 
-  --color-chart-1: var(--color-ink);
-  --color-chart-2: var(--color-page-ink);
-  --color-chart-3: var(--color-rule);
-  --color-chart-4: var(--color-caption);
-  --color-chart-5: var(--color-link);
+  --color-chart-1: var(--color-primary);
+  --color-chart-2: var(--color-text-emerald);
+  --color-chart-3: var(--color-text-sky);
+  --color-chart-4: var(--color-text-rose);
+  --color-chart-5: var(--color-text-peach);
 
-  --color-sidebar: var(--color-paper);
-  --color-sidebar-foreground: var(--color-page-ink);
-  --color-sidebar-primary: var(--color-ink);
-  --color-sidebar-primary-foreground: var(--color-paper);
-  --color-sidebar-accent: var(--color-hairline);
-  --color-sidebar-accent-foreground: var(--color-page-ink);
+  --color-sidebar: var(--color-canvas);
+  --color-sidebar-foreground: var(--color-ink);
+  --color-sidebar-primary: var(--color-primary);
+  --color-sidebar-primary-foreground: var(--color-on-primary);
+  --color-sidebar-accent: var(--color-surface-soft);
+  --color-sidebar-accent-foreground: var(--color-ink);
   --color-sidebar-border: var(--color-hairline);
-  --color-sidebar-ring: var(--color-ink);
+  --color-sidebar-ring: var(--color-primary);
 }

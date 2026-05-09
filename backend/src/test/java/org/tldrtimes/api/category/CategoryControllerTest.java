@@ -18,8 +18,7 @@ import org.tldrtimes.common.domain.category.CategoryRepository;
 @ActiveProfiles("test")
 @Transactional
 class CategoryControllerTest {
-  @Autowired
-  private CategoryRepository categoryRepository;
+  @Autowired private CategoryRepository categoryRepository;
 
   @Test
   void ordersBySortOrderThenIdAscending() {

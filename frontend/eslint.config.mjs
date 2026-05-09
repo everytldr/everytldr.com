@@ -1,14 +1,60 @@
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import perfectionist from "eslint-plugin-perfectionist";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import { defineConfig, globalIgnores } from "eslint/config";
+
+const buildPropOrderingOptions = (multilineSelector) => {
+  const customGroups = [
+    { groupName: "key", elementNamePattern: "^key$" },
+    { groupName: "ref", elementNamePattern: "^ref$" },
+    { groupName: "className", elementNamePattern: "^className$" },
+    { groupName: "innerClassName", elementNamePattern: ".ClassName$" },
+    { groupName: "id", elementNamePattern: "^id$" },
+    { groupName: "domAttrs", elementNamePattern: "^(data|aria)-" },
+    {
+      groupName: "multilineProps",
+      modifiers: ["multiline"],
+      selector: multilineSelector,
+    },
+    { groupName: "handlers", elementNamePattern: "^on[A-Z]" },
+  ];
+  const groups = [
+    "key",
+    "ref",
+    "className",
+    "innerClassName",
+    "unknown",
+    "id",
+    "domAttrs",
+    "multilineProps",
+    "handlers",
+  ];
+
+  return {
+    type: "unsorted",
+    customGroups,
+    groups,
+  };
+};
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   eslintPluginPrettierRecommended,
   {
+    plugins: { perfectionist },
     rules: {
+      "perfectionist/sort-jsx-props": ["error", buildPropOrderingOptions("prop")],
+      "perfectionist/sort-object-types": ["error", buildPropOrderingOptions("property")],
+      "perfectionist/sort-objects": [
+        "error",
+        {
+          ...buildPropOrderingOptions("property"),
+          useConfigurationIf: { objectType: "destructured" },
+        },
+        { type: "unsorted" },
+      ],
       curly: ["error", "all"],
       "@typescript-eslint/consistent-type-imports": [
         "error",
@@ -47,6 +93,12 @@ const eslintConfig = defineConfig([
               message:
                 "Cross-slice/layer relative import bypasses the public API. Use '@/<layer>/<slice|segment>' instead.",
             },
+            {
+              group: ["**/api/fetcher", "**/api/fetcher.*"],
+              importNames: ["_fetch"],
+              message:
+                "_fetch is the orval mutator. Do not call it directly — use the generated API client under '@/shared/api/generated/...'.",
+            },
           ],
         },
       ],
@@ -58,6 +110,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "**/*.gen.ts",
+    "**/*.gen.schemas.ts",
   ]),
 ]);
 

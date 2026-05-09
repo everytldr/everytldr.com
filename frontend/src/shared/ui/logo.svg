@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 28" width="130" height="28" role="img" aria-label="every tl;dr">
+  <rect x="1" y="2" width="24" height="24" rx="5" ry="5" fill="none" stroke="var(--color-ink)" stroke-width="1.5"/>
+  <circle cx="13.8" cy="10.4" r="1.8" fill="var(--color-ink)"/>
+  <path fill="var(--color-ink)" d="M12.7 13.8 L15.3 13.8 L13.2 19.4 L11.1 19.4 Z"/>
+  <text x="32" y="20" font-family="'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif" font-size="22" letter-spacing="-0.5"><tspan font-weight="400" fill="var(--color-meta)">every</tspan><tspan font-weight="600" fill="var(--color-ink)">tl;dr</tspan></text>
+</svg>
