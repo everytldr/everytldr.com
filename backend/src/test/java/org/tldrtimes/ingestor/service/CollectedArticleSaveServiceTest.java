@@ -60,7 +60,8 @@ class CollectedArticleSaveServiceTest {
     assertThat(article.getLanguage()).isEqualTo(collectedArticle.language());
     assertThat(article.getPublishedAt()).isEqualTo(collectedArticle.publishedAt());
 
-    ArticleIngestionJob job = articleIngestionJobRepository.findByArticleId(article.getId()).orElseThrow();
+    ArticleIngestionJob job =
+        articleIngestionJobRepository.findByArticleId(article.getId()).orElseThrow();
     assertThat(job.getState()).isEqualTo(IngestionState.PENDING);
     assertThat(job.getUrlHash()).containsExactly(sha256(collectedArticle.sourceUrl()));
   }
@@ -82,7 +83,8 @@ class CollectedArticleSaveServiceTest {
     String url = "https://www.theguardian.com/football/existing";
     Article existingArticle =
         articleRepository.saveAndFlush(
-            Article.create(url, "The Guardian Football", null, "en", Instant.parse("2026-05-04T10:15:30Z")));
+            Article.create(
+                url, "The Guardian Football", null, "en", Instant.parse("2026-05-04T10:15:30Z")));
     articleIngestionJobRepository.saveAndFlush(
         ArticleIngestionJob.create(existingArticle, sha256(url)));
     clearPersistenceContext();
@@ -101,7 +103,11 @@ class CollectedArticleSaveServiceTest {
     Article existingArticle =
         articleRepository.saveAndFlush(
             Article.create(
-                existingUrl, "The Guardian Football", null, "en", Instant.parse("2026-05-04T10:15:30Z")));
+                existingUrl,
+                "The Guardian Football",
+                null,
+                "en",
+                Instant.parse("2026-05-04T10:15:30Z")));
     articleIngestionJobRepository.saveAndFlush(
         ArticleIngestionJob.create(existingArticle, sha256(existingUrl)));
     clearPersistenceContext();
@@ -110,7 +116,9 @@ class CollectedArticleSaveServiceTest {
         List.of(collectedArticle(existingUrl), collectedArticle(newUrl)));
     clearPersistenceContext();
 
-    assertThat(articleRepository.findAll()).extracting(Article::getSourceUrl).containsExactlyInAnyOrder(existingUrl, newUrl);
+    assertThat(articleRepository.findAll())
+        .extracting(Article::getSourceUrl)
+        .containsExactlyInAnyOrder(existingUrl, newUrl);
     assertThat(articleIngestionJobRepository.findAll()).hasSize(2);
   }
 
@@ -122,8 +130,14 @@ class CollectedArticleSaveServiceTest {
         List.of(
             collectedArticle(""),
             new CollectedArticle(validUrl, "", null, "en", Instant.parse("2026-05-04T10:15:30Z")),
-            new CollectedArticle(validUrl + "/missing-language", "The Guardian Football", null, "", Instant.parse("2026-05-04T10:15:30Z")),
-            new CollectedArticle(validUrl + "/missing-published-at", "The Guardian Football", null, "en", null),
+            new CollectedArticle(
+                validUrl + "/missing-language",
+                "The Guardian Football",
+                null,
+                "",
+                Instant.parse("2026-05-04T10:15:30Z")),
+            new CollectedArticle(
+                validUrl + "/missing-published-at", "The Guardian Football", null, "en", null),
             collectedArticle("javascript:alert(1)"),
             new CollectedArticle(
                 validUrl + "/bad-thumbnail",

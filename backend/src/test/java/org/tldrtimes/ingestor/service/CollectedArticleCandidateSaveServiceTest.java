@@ -88,7 +88,9 @@ class CollectedArticleCandidateSaveServiceTest {
         .isInstanceOf(DataIntegrityViolationException.class);
     entityManager.clear();
 
-    assertThat(articleRepository.findAll()).extracting(Article::getSourceUrl).containsOnly(existingUrl);
+    assertThat(articleRepository.findAll())
+        .extracting(Article::getSourceUrl)
+        .containsOnly(existingUrl);
     assertThat(articleIngestionJobRepository.findAll()).hasSize(1);
   }
 

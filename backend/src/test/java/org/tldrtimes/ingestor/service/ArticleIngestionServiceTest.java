@@ -19,7 +19,8 @@ class ArticleIngestionServiceTest {
   @Test
   void continuesWithNextSourceWhenOneSourceFails() {
     ArticleSourceRepository articleSourceRepository = mock(ArticleSourceRepository.class);
-    ArticleSourceClientRegistry articleSourceClientRegistry = mock(ArticleSourceClientRegistry.class);
+    ArticleSourceClientRegistry articleSourceClientRegistry =
+        mock(ArticleSourceClientRegistry.class);
     CollectedArticleSaveService collectedArticleSaveService =
         mock(CollectedArticleSaveService.class);
     ArticleIngestionService articleIngestionService =

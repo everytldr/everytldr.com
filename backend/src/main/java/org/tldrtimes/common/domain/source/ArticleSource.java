@@ -32,7 +32,8 @@ public class ArticleSource extends BaseEntity {
   @JdbcTypeCode(SqlTypes.VARCHAR)
   private SourceType sourceType;
 
-  private ArticleSource(String name, String url, String language, SourceType sourceType, boolean isActive) {
+  private ArticleSource(
+      String name, String url, String language, SourceType sourceType, boolean isActive) {
     this.name = name;
     this.url = url;
     this.language = language;
@@ -40,7 +41,8 @@ public class ArticleSource extends BaseEntity {
     this.isActive = isActive;
   }
 
-  public static ArticleSource create(String name, String url, String language, SourceType sourceType) {
+  public static ArticleSource create(
+      String name, String url, String language, SourceType sourceType) {
     return new ArticleSource(name, url, language, sourceType, true);
   }
 

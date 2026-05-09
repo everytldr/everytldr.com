@@ -117,12 +117,15 @@ class GuardianArticleSourceClientTest {
   }
 
   private GuardianArticleSourceClient newClient(
-      GuardianArticleSourceClient.ClientProperties properties, RestClient.Builder restClientBuilder) {
-    return new GuardianArticleSourceClient(restClientBuilder, properties, new GuardianArticleMapper());
+      GuardianArticleSourceClient.ClientProperties properties,
+      RestClient.Builder restClientBuilder) {
+    return new GuardianArticleSourceClient(
+        restClientBuilder, properties, new GuardianArticleMapper());
   }
 
   private GuardianArticleSourceClient.ClientProperties defaultProperties() {
-    return new GuardianArticleSourceClient.ClientProperties("https://content.guardianapis.com", "test-key", 2);
+    return new GuardianArticleSourceClient.ClientProperties(
+        "https://content.guardianapis.com", "test-key", 2);
   }
 
   private String searchResponseJson() {
