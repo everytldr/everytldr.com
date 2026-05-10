@@ -15,12 +15,16 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
 export function useTheme(): [Theme, (theme: Theme) => void] {
   const { theme, setTheme } = useNextTheme();
-  return [toTheme(theme), setTheme];
+  return [parseTheme(theme), setTheme];
 }
 
-function toTheme(value: string | undefined): Theme {
-  if (value === "light" || value === "dark" || value === "system") {
-    return value;
+function parseTheme(value: string | undefined): Theme {
+  switch (value) {
+    case "light":
+    case "dark":
+    case "system":
+      return value;
+    default:
+      return "system";
   }
-  return "system";
 }
