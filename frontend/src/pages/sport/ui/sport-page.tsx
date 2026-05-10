@@ -1,5 +1,6 @@
 import { type EplTeam, SubCategorySlug } from "@/shared/config";
-import { Container } from "@/shared/ui";
+import { notFound } from "next/navigation";
+import { EplPage } from "./epl-page";
 
 type SportPageProps = { className?: string } & (
   | { categorySlug: SubCategorySlug.NBA; filter?: unknown } // TODO: MVP 이후에 구현 예정
@@ -7,27 +8,9 @@ type SportPageProps = { className?: string } & (
 );
 
 export function SportPage(props: SportPageProps) {
-  const { className, categorySlug } = props;
-
-  if (categorySlug === SubCategorySlug.EPL) {
-    return (
-      <div className={className}>
-        <main>
-          <Container className="py-2xl">
-            <p>hello world</p>
-          </Container>
-        </main>
-      </div>
-    );
+  if (props.categorySlug === SubCategorySlug.EPL) {
+    return <EplPage className={props.className} filter={props.filter} />;
   }
 
-  return (
-    <div className={className}>
-      <main>
-        <Container className="py-2xl">
-          <p>hello world</p>
-        </Container>
-      </main>
-    </div>
-  );
+  notFound();
 }
