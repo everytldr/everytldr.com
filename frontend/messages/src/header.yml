@@ -73,6 +73,9 @@ subcategory:
   epl:
     en: "EPL"
     ko: "EPL"
+  nba:
+    en: "NBA"
+    ko: "NBA"
   domestic:
     en: "Domestic"
     ko: "국내"
