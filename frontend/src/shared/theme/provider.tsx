@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
-import { type PropsWithChildren } from "react";
+import { type PropsWithChildren, useSyncExternalStore } from "react";
 
 export type Theme = "light" | "dark" | "system";
 
@@ -15,7 +15,16 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
 export function useTheme(): [Theme, (theme: Theme) => void] {
   const { theme, setTheme } = useNextTheme();
-  return [parseTheme(theme), setTheme];
+  const hydrated = useHydrated();
+  return [hydrated ? parseTheme(theme) : "system", setTheme];
+}
+
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 }
 
 function parseTheme(value: string | undefined): Theme {
