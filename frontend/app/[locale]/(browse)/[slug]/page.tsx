@@ -1,6 +1,11 @@
 import { HomePage } from "@/pages/home";
 import { SportPage } from "@/pages/sport";
-import { DEFAULT_SUB_CATEGORY_SLUG, SUB_CATEGORY_SLUGS, SubCategorySlug } from "@/shared/config";
+import {
+  DEFAULT_SUB_CATEGORY_SLUG,
+  HOME_CATEGORY_NODE,
+  SUB_CATEGORY_SLUGS,
+  SubCategorySlug,
+} from "@/shared/config";
 import { locales } from "@/shared/i18n";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -34,5 +39,9 @@ export default async function Page({ params }: PageProps) {
     return <SportPage categorySlug={slug} />;
   }
 
-  return <HomePage />;
+  if (HOME_CATEGORY_NODE.subs.includes(slug)) {
+    return <HomePage />;
+  }
+
+  notFound();
 }
