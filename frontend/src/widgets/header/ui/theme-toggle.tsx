@@ -12,7 +12,7 @@ type ThemeToggleProps = {
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
   const t = useTranslations("header");
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useTheme();
   const state = useMemo(() => getThemeState(theme), [theme]);
 
   return (

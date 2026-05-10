@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
-import { type Dispatch, type PropsWithChildren, type SetStateAction } from "react";
+import { type PropsWithChildren } from "react";
 
 export type Theme = "light" | "dark" | "system";
 
@@ -13,13 +13,14 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   );
 }
 
-export function useTheme(): {
-  theme: Theme;
-  setTheme: Dispatch<SetStateAction<Theme>>;
-} {
+export function useTheme(): [Theme, (theme: Theme) => void] {
   const { theme, setTheme } = useNextTheme();
-  return {
-    theme: (theme ?? "system") as Theme,
-    setTheme: setTheme as Dispatch<SetStateAction<Theme>>,
-  };
+  return [toTheme(theme), setTheme];
+}
+
+function toTheme(value: string | undefined): Theme {
+  if (value === "light" || value === "dark" || value === "system") {
+    return value;
+  }
+  return "system";
 }
