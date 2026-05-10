@@ -1,51 +1,25 @@
 "use client";
 
-import { assert, type Nullable, type Optional } from "@/shared/lib";
-import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react";
-import { useStorageState } from "synced-storage/react";
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
+import { type Dispatch, type PropsWithChildren, type SetStateAction } from "react";
 
 export type Theme = "light" | "dark" | "system";
-export const THEME_COOKIE_KEY = "theme";
 
-type ThemeContextValue = {
-  themeState: [Theme, React.Dispatch<React.SetStateAction<Theme>>];
-};
-
-const ThemeContext = createContext<Nullable<ThemeContextValue>>(null);
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  assert(context, "useTheme must be used within a ThemeProvider");
-  return context;
+export function ThemeProvider({ children }: PropsWithChildren) {
+  return (
+    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+      {children}
+    </NextThemesProvider>
+  );
 }
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useStorageState<Theme>(THEME_COOKIE_KEY, "system");
-
-  const value: ThemeContextValue = useMemo(
-    () => ({ themeState: [theme, setTheme] }),
-    [theme, setTheme],
-  );
-
-  useEffect(() => {
-    const root = document.documentElement;
-
-    const toggleDark = (isDark: Optional<boolean>) => {
-      const next = typeof isDark === "boolean" ? isDark : !isDark;
-      root.classList.toggle("dark", next);
-    };
-
-    if (theme === "system") {
-      const handleThemeChange = (e: MediaQueryListEvent) => toggleDark(e.matches);
-      const mq = window.matchMedia("(prefers-color-scheme: dark)");
-      toggleDark(mq.matches);
-      mq.addEventListener("change", handleThemeChange);
-
-      return () => mq.removeEventListener("change", handleThemeChange);
-    }
-
-    toggleDark(theme === "dark");
-  }, [theme]);
-
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+export function useTheme(): {
+  theme: Theme;
+  setTheme: Dispatch<SetStateAction<Theme>>;
+} {
+  const { theme, setTheme } = useNextTheme();
+  return {
+    theme: (theme ?? "system") as Theme,
+    setTheme: setTheme as Dispatch<SetStateAction<Theme>>,
+  };
 }
