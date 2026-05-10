@@ -33,7 +33,11 @@ export default async function RootLayout({ params, children }: RootLayoutProps) 
   setRequestLocale(locale);
 
   return (
-    <html className={cn(pretendard.variable, jetbrainsMono.variable)} lang={locale}>
+    <html
+      className={cn(pretendard.variable, jetbrainsMono.variable)}
+      lang={locale}
+      suppressHydrationWarning
+    >
       <body className="flex min-h-dvh flex-col">
         <GlobalProvider>
           <Header locale={locale} />
