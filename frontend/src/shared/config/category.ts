@@ -33,6 +33,8 @@ export const CATEGORIES: CategoryNode[] = [
 
 export const SUB_CATEGORY_SLUGS: SubCategorySlug[] = CATEGORIES.flatMap((c) => c.subs);
 
+export const DEFAULT_SUB_CATEGORY_SLUG: SubCategorySlug = SubCategorySlug.Discover;
+
 export function findRootCategory(sub: SubCategorySlug): CategoryNode {
   const category = CATEGORIES.find((c) => c.subs.includes(sub));
   assert(category, "Invalid subcategory slug");
