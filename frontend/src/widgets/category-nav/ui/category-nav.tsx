@@ -1,16 +1,25 @@
-import { CATEGORIES, type SubCategorySlug, findRootCategory } from "@/shared/config";
+"use client";
+
+import {
+  CATEGORIES,
+  DEFAULT_SUB_CATEGORY_SLUG,
+  type SubCategorySlug,
+  findRootCategory,
+} from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { buildMainCategoryUrl, buildSubcategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 
 type CategoryNavProps = {
   className?: string;
-  categorySlug: SubCategorySlug;
 };
 
-export async function CategoryNav({ className, categorySlug }: CategoryNavProps) {
-  const t = await getTranslations();
+export function CategoryNav({ className }: CategoryNavProps) {
+  const t = useTranslations();
+  const { slug } = useParams<{ slug?: SubCategorySlug }>();
+  const categorySlug = slug ?? DEFAULT_SUB_CATEGORY_SLUG;
   const category = findRootCategory(categorySlug);
 
   return (

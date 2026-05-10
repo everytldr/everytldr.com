@@ -1,19 +1,21 @@
 "use client";
 
-import { type SubCategorySlug, findRootCategory } from "@/shared/config";
+import { DEFAULT_SUB_CATEGORY_SLUG, type SubCategorySlug, findRootCategory } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { buildSubcategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useRafState } from "react-use";
 
 type FloatingSubNavProps = {
   className?: string;
-  categorySlug: SubCategorySlug;
 };
 
-export function FloatingSubNav({ className, categorySlug }: FloatingSubNavProps) {
+export function FloatingSubNav({ className }: FloatingSubNavProps) {
+  const { slug } = useParams<{ slug?: SubCategorySlug }>();
+  const categorySlug = slug ?? DEFAULT_SUB_CATEGORY_SLUG;
   const t = useTranslations();
   const [visible, setVisible] = useRafState(false);
 

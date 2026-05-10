@@ -1,5 +1,7 @@
 import { HomePage } from "@/pages/home";
-import { SUB_CATEGORY_SLUGS, SubCategorySlug } from "@/shared/config";
+import { SportPage } from "@/pages/sport";
+import { DEFAULT_SUB_CATEGORY_SLUG, SUB_CATEGORY_SLUGS, SubCategorySlug } from "@/shared/config";
+import { locales } from "@/shared/i18n";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -8,12 +10,14 @@ type PageProps = {
 };
 
 export function generateStaticParams() {
-  return SUB_CATEGORY_SLUGS.map((slug) => ({ slug }));
+  return locales.flatMap((locale) => {
+    return SUB_CATEGORY_SLUGS.map((slug) => ({ locale, slug }));
+  });
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  if (slug === SubCategorySlug.Discover) {
+  if (slug === DEFAULT_SUB_CATEGORY_SLUG) {
     return { alternates: { canonical: `/${locale}` } };
   }
   return {};
@@ -26,5 +30,9 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  return <HomePage categorySlug={slug} />;
+  if (slug === SubCategorySlug.EPL || slug === SubCategorySlug.NBA) {
+    return <SportPage categorySlug={slug} />;
+  }
+
+  return <HomePage />;
 }

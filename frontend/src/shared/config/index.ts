@@ -1,5 +1,7 @@
 export {
   CATEGORIES,
+  DEFAULT_SUB_CATEGORY_SLUG,
+  EplTeam,
   MainCategorySlug,
   SUB_CATEGORY_SLUGS,
   SubCategorySlug,

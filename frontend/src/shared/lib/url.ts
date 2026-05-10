@@ -1,7 +1,12 @@
-import { type CategoryNode, MainCategorySlug, SubCategorySlug } from "@/shared/config";
+import {
+  type CategoryNode,
+  DEFAULT_SUB_CATEGORY_SLUG,
+  MainCategorySlug,
+  type SubCategorySlug,
+} from "@/shared/config";
 
 function buildCategoryUrl(main: MainCategorySlug, sub: SubCategorySlug): string {
-  if (main === MainCategorySlug.Home && sub === SubCategorySlug.Discover) {
+  if (main === MainCategorySlug.Home && sub === DEFAULT_SUB_CATEGORY_SLUG) {
     return "/";
   }
   return `/${sub}`;
