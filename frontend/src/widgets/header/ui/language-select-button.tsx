@@ -38,8 +38,8 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
       value={locale}
       options={LANGUAGE_OPTIONS}
       title={t("language")}
-      renderMobileTrigger={({ openSheet }) => (
-        <IconButton Icon={Globe} aria-label={t("language")} onClick={openSheet} />
+      renderMobileTrigger={({ open }) => (
+        <IconButton Icon={Globe} aria-label={t("language")} onClick={open} />
       )}
       renderDesktopTrigger={() => (
         <button

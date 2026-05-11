@@ -27,7 +27,7 @@ type ResponsiveSelectorSingleProps<T extends string> = {
   title: string;
   renderMobileTrigger: (state: {
     selected: Optional<SelectorOption<T>>;
-    openSheet: () => void;
+    open: () => void;
   }) => ReactNode;
   renderDesktopTrigger: (state: { selected: Optional<SelectorOption<T>> }) => ReactNode;
   onChange: (value: T) => void;
@@ -41,7 +41,7 @@ type ResponsiveSelectorMultiProps<T extends string> = {
   title: string;
   renderMobileTrigger: (state: {
     selected: readonly SelectorOption<T>[];
-    openSheet: () => void;
+    open: () => void;
   }) => ReactNode;
   renderDesktopTrigger: (state: { selected: readonly SelectorOption<T>[] }) => ReactNode;
   onChange: (values: readonly T[]) => void;
@@ -96,7 +96,7 @@ function MobileSingleSelector<T extends string>({
 
   return (
     <div className={cn(className)}>
-      {renderMobileTrigger({ selected, openSheet: () => setIsOpen(true) })}
+      {renderMobileTrigger({ selected, open: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
         <div className="flex flex-col gap-2xs px-md pb-md" role="radiogroup" aria-label={title}>
           {options.map((opt) => {
@@ -175,7 +175,7 @@ function MobileMultiSelector<T extends string>({
 
   return (
     <div className={cn(className)}>
-      {renderMobileTrigger({ selected, openSheet: () => setIsOpen(true) })}
+      {renderMobileTrigger({ selected, open: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
         <div className="flex flex-col gap-2xs px-md pb-md" role="group" aria-label={title}>
           {options.map((opt) => {
