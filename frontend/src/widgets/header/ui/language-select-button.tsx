@@ -33,7 +33,7 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
   const pathname = usePathname();
 
   return (
-    <ResponsiveSelector<Locale>
+    <ResponsiveSelector
       className={className}
       value={locale}
       options={LANGUAGE_OPTIONS}
