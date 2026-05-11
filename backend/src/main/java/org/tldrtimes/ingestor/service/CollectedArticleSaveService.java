@@ -19,6 +19,10 @@ import org.tldrtimes.ingestor.provider.CollectedArticle;
 @Slf4j
 public class CollectedArticleSaveService {
 
+  private static final int MAX_URL_LENGTH = 1000;
+  private static final int MAX_SOURCE_NAME_LENGTH = 100;
+  private static final int MAX_LANGUAGE_LENGTH = 10;
+
   private record ArticleCandidate(
       CollectedArticle collectedArticle, byte[] urlHash, String urlHashHex) {}
 
@@ -105,21 +109,24 @@ public class CollectedArticleSaveService {
   }
 
   private boolean isValid(CollectedArticle article) {
-    if (article == null) return false;
-    if (article.sourceUrl() == null
-        || article.sourceUrl().isBlank()
-        || article.sourceUrl().length() > 1000) return false;
-    if (!isHttpUrl(article.sourceUrl())) return false;
-    if (article.sourceName() == null
-        || article.sourceName().isBlank()
-        || article.sourceName().length() > 100) return false;
-    if (article.language() == null
-        || article.language().isBlank()
-        || article.language().length() > 10) return false;
-    if (article.publishedAt() == null) return false;
-    if (article.thumbnailUrl() != null && article.thumbnailUrl().length() > 1000) return false;
-    if (article.thumbnailUrl() != null && !isHttpUrl(article.thumbnailUrl())) return false;
-    return true;
+    return article != null
+        && isRequiredHttpUrl(article.sourceUrl())
+        && hasRequiredText(article.sourceName(), MAX_SOURCE_NAME_LENGTH)
+        && hasRequiredText(article.language(), MAX_LANGUAGE_LENGTH)
+        && article.publishedAt() != null
+        && isOptionalHttpUrl(article.thumbnailUrl());
+  }
+
+  private boolean isRequiredHttpUrl(String value) {
+    return hasRequiredText(value, MAX_URL_LENGTH) && isHttpUrl(value);
+  }
+
+  private boolean isOptionalHttpUrl(String value) {
+    return value == null || isRequiredHttpUrl(value);
+  }
+
+  private boolean hasRequiredText(String value, int maxLength) {
+    return value != null && !value.isBlank() && value.length() <= maxLength;
   }
 
   private boolean isHttpUrl(String value) {
