@@ -57,7 +57,7 @@ The system composes parts of three external systems with one project-original in
 | Single accent + image-led visual heft            | Airbnb           | News imagery carries weight; type recedes                                                       |
 | Sober rectangles (8px button, 12px container)    | Notion           | Editorial / docs register; not consumer marketplace                                             |
 | Pastel category-tint pairs (7 variants)          | Notion           | Mature, accessible, multi-hue tag system                                                        |
-| Hairline-as-elevation                            | Notion + Verge   | 1px border replaces shadow; pairs with single hover-shadow tier                                 |
+| Hairline-as-elevation                            | Notion + Verge   | 1px border anchors the editorial / docs register                                                |
 | Inter-metric-compatible UI font                  | Notion           | Pretendard substitutes cleanly without re-laying body text                                      |
 | Mono-numeric numerics                            | The Verge        | Timestamps and metric counters anchor to a tabular mono register                                |
 | Per-locale font scaling                          | Project-original | None of three sources address bilingual KR/EN typography                                        |
@@ -290,19 +290,14 @@ Container radius 12px (not Airbnb's 14px) for editorial register; composes again
 
 ## 3.5. Elevation.
 
-Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`). On `.dark` it rebinds to `none` — components lift via surface tone instead (`dark:hover:bg-surface-strong`).
+| Level       | Light                  | Dark                            | Tailwind                       |
+| ----------- | ---------------------- | ------------------------------- | ------------------------------ |
+| 0 (flat)    | 1px `hairline` border  | 1px `hairline` border (rebound) | `border border-hairline`       |
+| Modal scrim | `scrim` at 50% opacity | `scrim` at 65% opacity          | `bg-scrim/50 dark:bg-scrim/65` |
 
-| Level       | Light                                                       | Dark                            | Tailwind                                          |
-| ----------- | ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------- |
-| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound) | `border border-hairline`                          |
-| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | `none`; pair with surface lift  | `hover:shadow-hover dark:hover:bg-surface-strong` |
-| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity          | `bg-scrim/50 dark:bg-scrim/65`                    |
-
-| Decision                            | Reason                                                                              |
-| ----------------------------------- | ----------------------------------------------------------------------------------- |
-| Shadow → surface-lift on dark       | Drop shadow on dark reads as smudge; precedent: GitHub, Linear, Vercel, Apple macOS |
-| Scrim opacity bumped 50→65% on dark | 50% reads as content-disappeared because scrim darkens already-dark canvas          |
-| Two tiers (not Notion's four)       | No marketing pricing-tier or workspace-mockup surfaces                              |
+| Decision                            | Reason                                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| Scrim opacity bumped 50→65% on dark | 50% reads as content-disappeared because scrim darkens already-dark canvas |
 
 # 4. Theming.
 
@@ -513,13 +508,12 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 - No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `button-pill-filter-active` — § 3.1.1., § 5.1.1.).
 - No `like-active` outside its dedicated toggle state (§ 3.1.1.).
 - No second accent colour — extend via category tints first (§ 3.1.3.).
-- No default shadow (§ 3.5.).
 - No Hangul in `caption-mono` (§ 3.2.4.).
 - No `display-*`, `title-*`, or `body-*` on categorical navigation labels; use `nav-*` (§ 3.2.2.).
 - No second-nav size hierarchy by font weight alone (§ 3.2.2.).
 - No `rounded.xl` (24px) without explicit justification (§ 3.4.).
 - No background gradients (§ 3.1.).
-- No #000000 canvas-dark; no #ffffff ink-dark; no shadow on dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
+- No #000000 canvas-dark; no #ffffff ink-dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
 - No mechanical surface-ladder inversion (§ 3.1.5.).
 - No `surface-strong` or `surface-pressed` as an interactive component's resting fill (§ 3.1.6.).
 - No fifth surface tier (`surface-stronger`, `surface-deeper`, …) (§ 3.1.6.).
