@@ -25,7 +25,11 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
         { value: Locale.Ko, content: "한국어" },
       ]}
       renderMobileTrigger={({ open }) => (
-        <IconButton Icon={Globe} aria-label={t("language")} onClick={open} />
+        <IconButton
+          Icon={Globe}
+          aria-label={`${t("language")}: ${locale.toUpperCase()}`}
+          onClick={open}
+        />
       )}
       renderDesktopTrigger={() => (
         <button

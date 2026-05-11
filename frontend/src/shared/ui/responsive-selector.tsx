@@ -104,7 +104,7 @@ function MobileSingleSelector<T extends string>({
             return (
               <button
                 key={opt.value}
-                className="flex h-12 cursor-pointer items-center justify-between gap-sm rounded-md px-md text-button-md text-ink transition-colors outline-none hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
+                className="flex h-12 cursor-pointer items-center justify-between gap-sm rounded-sm px-md text-button-md text-ink transition-colors outline-none hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
                 type="button"
                 role="radio"
                 aria-checked={isCurrent}
@@ -183,7 +183,7 @@ function MobileMultiSelector<T extends string>({
             return (
               <button
                 key={opt.value}
-                className="flex h-12 cursor-pointer items-center justify-between gap-sm rounded-md px-md text-button-md text-ink transition-colors outline-none hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
+                className="flex h-12 cursor-pointer items-center justify-between gap-sm rounded-sm px-md text-button-md text-ink transition-colors outline-none hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
                 type="button"
                 role="checkbox"
                 aria-checked={isCurrent}
