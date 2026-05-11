@@ -41,16 +41,21 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
   return <DesktopLanguageSelectButton className={className} locale={locale} />;
 }
 
-type MobileLanguageSelectButtonProps = {
-  className?: string;
-  locale: Locale;
-};
+type MobileLanguageSelectButtonProps = LanguageSelectButtonProps;
 
 function MobileLanguageSelectButton({ className, locale }: MobileLanguageSelectButtonProps) {
   const t = useTranslations("header");
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  function handleSelect(next: Locale) {
+    setIsOpen(false);
+    if (next === locale) {
+      return;
+    }
+    router.replace(pathname, { locale: next });
+  }
 
   return (
     <div className={cn(className)}>
@@ -60,19 +65,24 @@ function MobileLanguageSelectButton({ className, locale }: MobileLanguageSelectB
         header={{ title: t("language") }}
         onClose={() => setIsOpen(false)}
       >
-        <div className="flex flex-col gap-2xs px-md pb-md">
+        <div
+          className="flex flex-col gap-2xs px-md pb-md"
+          role="radiogroup"
+          aria-label={t("language")}
+        >
           {LANGUAGES.map((lang) => {
             const isCurrent = lang.code === locale;
             return (
               <button
                 key={lang.code}
-                className="flex h-12 cursor-pointer items-center justify-between gap-sm rounded-md px-md text-body-md text-ink transition-colors outline-none hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
+                className="flex h-12 cursor-pointer items-center justify-between gap-sm rounded-md px-md text-button-md text-ink transition-colors outline-none hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
                 type="button"
-                aria-current={isCurrent}
+                role="radio"
+                aria-checked={isCurrent}
                 onClick={() => handleSelect(lang.code)}
               >
                 <span>{lang.native}</span>
-                {isCurrent && <Check className="size-5 text-primary" />}
+                {isCurrent && <Check className="size-5 text-ink" />}
               </button>
             );
           })}
@@ -80,25 +90,22 @@ function MobileLanguageSelectButton({ className, locale }: MobileLanguageSelectB
       </BottomSheet>
     </div>
   );
-
-  function handleSelect(next: Locale) {
-    setIsOpen(false);
-    if (next === locale) {
-      return;
-    }
-    router.replace(pathname, { locale: next });
-  }
 }
 
-type DesktopLanguageSelectButtonProps = {
-  className?: string;
-  locale: Locale;
-};
+type DesktopLanguageSelectButtonProps = LanguageSelectButtonProps;
 
 function DesktopLanguageSelectButton({ className, locale }: DesktopLanguageSelectButtonProps) {
   const t = useTranslations("header");
   const router = useRouter();
   const pathname = usePathname();
+
+  function handleSelect(value: string) {
+    const target = LANGUAGES.find((lang) => lang.code === value);
+    if (!target || target.code === locale) {
+      return;
+    }
+    router.replace(pathname, { locale: target.code });
+  }
 
   return (
     <div className={cn(className)}>
@@ -123,12 +130,4 @@ function DesktopLanguageSelectButton({ className, locale }: DesktopLanguageSelec
       </DropdownMenu>
     </div>
   );
-
-  function handleSelect(value: string) {
-    const target = LANGUAGES.find((lang) => lang.code === value);
-    if (!target || target.code === locale) {
-      return;
-    }
-    router.replace(pathname, { locale: target.code });
-  }
 }
