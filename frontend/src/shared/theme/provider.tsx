@@ -1,51 +1,39 @@
 "use client";
 
-import { assert, type Nullable, type Optional } from "@/shared/lib";
-import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react";
-import { useStorageState } from "synced-storage/react";
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
+import { type PropsWithChildren, useSyncExternalStore } from "react";
 
 export type Theme = "light" | "dark" | "system";
-export const THEME_COOKIE_KEY = "theme";
 
-type ThemeContextValue = {
-  themeState: [Theme, React.Dispatch<React.SetStateAction<Theme>>];
-};
-
-const ThemeContext = createContext<Nullable<ThemeContextValue>>(null);
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  assert(context, "useTheme must be used within a ThemeProvider");
-  return context;
+export function ThemeProvider({ children }: PropsWithChildren) {
+  return (
+    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+      {children}
+    </NextThemesProvider>
+  );
 }
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useStorageState<Theme>(THEME_COOKIE_KEY, "system");
+export function useTheme(): [Theme, (theme: Theme) => void] {
+  const { theme, setTheme } = useNextTheme();
+  const hydrated = useHydrated();
+  return [hydrated ? parseTheme(theme) : "system", setTheme];
+}
 
-  const value: ThemeContextValue = useMemo(
-    () => ({ themeState: [theme, setTheme] }),
-    [theme, setTheme],
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
   );
+}
 
-  useEffect(() => {
-    const root = document.documentElement;
-
-    const toggleDark = (isDark: Optional<boolean>) => {
-      const next = typeof isDark === "boolean" ? isDark : !isDark;
-      root.classList.toggle("dark", next);
-    };
-
-    if (theme === "system") {
-      const handleThemeChange = (e: MediaQueryListEvent) => toggleDark(e.matches);
-      const mq = window.matchMedia("(prefers-color-scheme: dark)");
-      toggleDark(mq.matches);
-      mq.addEventListener("change", handleThemeChange);
-
-      return () => mq.removeEventListener("change", handleThemeChange);
-    }
-
-    toggleDark(theme === "dark");
-  }, [theme]);
-
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+function parseTheme(value: string | undefined): Theme {
+  switch (value) {
+    case "light":
+    case "dark":
+    case "system":
+      return value;
+    default:
+      return "system";
+  }
 }
