@@ -1,7 +1,7 @@
 "use client";
 
 import { useIsCoarsePointer } from "@/shared/hooks";
-import { Locale, usePathname, useRouter } from "@/shared/i18n";
+import { isLocale, Locale, usePathname, useRouter } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import {
   BottomSheet,
@@ -33,28 +33,44 @@ type LanguageSelectButtonProps = {
 
 export function LanguageSelectButton({ className, locale }: LanguageSelectButtonProps) {
   const isCoarsePointer = useIsCoarsePointer();
-
-  if (isCoarsePointer) {
-    return <MobileLanguageSelectButton className={className} locale={locale} />;
-  }
-
-  return <DesktopLanguageSelectButton className={className} locale={locale} />;
-}
-
-type MobileLanguageSelectButtonProps = LanguageSelectButtonProps;
-
-function MobileLanguageSelectButton({ className, locale }: MobileLanguageSelectButtonProps) {
-  const t = useTranslations("header");
   const router = useRouter();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
 
   function handleSelect(next: Locale) {
-    setIsOpen(false);
     if (next === locale) {
       return;
     }
     router.replace(pathname, { locale: next });
+  }
+
+  if (isCoarsePointer) {
+    return (
+      <MobileLanguageSelectButton className={className} locale={locale} onSelect={handleSelect} />
+    );
+  }
+
+  return (
+    <DesktopLanguageSelectButton className={className} locale={locale} onSelect={handleSelect} />
+  );
+}
+
+type LanguageSelectInnerProps = LanguageSelectButtonProps & {
+  onSelect: (next: Locale) => void;
+};
+
+type MobileLanguageSelectButtonProps = LanguageSelectInnerProps;
+
+function MobileLanguageSelectButton({
+  className,
+  locale,
+  onSelect,
+}: MobileLanguageSelectButtonProps) {
+  const t = useTranslations("header");
+  const [isOpen, setIsOpen] = useState(false);
+
+  function handleClick(next: Locale) {
+    setIsOpen(false);
+    onSelect(next);
   }
 
   return (
@@ -79,7 +95,7 @@ function MobileLanguageSelectButton({ className, locale }: MobileLanguageSelectB
                 type="button"
                 role="radio"
                 aria-checked={isCurrent}
-                onClick={() => handleSelect(lang.code)}
+                onClick={() => handleClick(lang.code)}
               >
                 <span>{lang.native}</span>
                 {isCurrent && <Check className="size-5 text-ink" />}
@@ -92,20 +108,14 @@ function MobileLanguageSelectButton({ className, locale }: MobileLanguageSelectB
   );
 }
 
-type DesktopLanguageSelectButtonProps = LanguageSelectButtonProps;
+type DesktopLanguageSelectButtonProps = LanguageSelectInnerProps;
 
-function DesktopLanguageSelectButton({ className, locale }: DesktopLanguageSelectButtonProps) {
+function DesktopLanguageSelectButton({
+  className,
+  locale,
+  onSelect,
+}: DesktopLanguageSelectButtonProps) {
   const t = useTranslations("header");
-  const router = useRouter();
-  const pathname = usePathname();
-
-  function handleSelect(value: string) {
-    const target = LANGUAGES.find((lang) => lang.code === value);
-    if (!target || target.code === locale) {
-      return;
-    }
-    router.replace(pathname, { locale: target.code });
-  }
 
   return (
     <div className={cn(className)}>
@@ -119,7 +129,10 @@ function DesktopLanguageSelectButton({ className, locale }: DesktopLanguageSelec
           <ChevronDown className="size-4 transition-transform" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-40" align="end">
-          <DropdownMenuRadioGroup value={locale} onValueChange={handleSelect}>
+          <DropdownMenuRadioGroup
+            value={locale}
+            onValueChange={(value) => isLocale(value) && onSelect(value)}
+          >
             {LANGUAGES.map((lang) => (
               <DropdownMenuRadioItem key={lang.code} value={lang.code}>
                 {lang.native}
