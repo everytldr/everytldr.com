@@ -72,6 +72,30 @@ export function DropdownMenuItem({ className, ...props }: DropdownMenuItemProps)
   );
 }
 
+type DropdownMenuCheckboxItemProps = ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>;
+
+export function DropdownMenuCheckboxItem({
+  className,
+  children,
+  ...props
+}: DropdownMenuCheckboxItemProps) {
+  return (
+    <DropdownMenuPrimitive.CheckboxItem
+      className={cn(
+        "relative flex h-9 cursor-pointer items-center justify-between gap-sm rounded-sm px-sm text-button-sm text-ink transition-colors outline-none select-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[highlighted]:bg-surface-soft dark:data-[highlighted]:bg-surface-strong",
+        className,
+      )}
+      data-slot="dropdown-menu-checkbox-item"
+      {...props}
+    >
+      <span>{children}</span>
+      <DropdownMenuPrimitive.ItemIndicator>
+        <Check className="size-4 text-ink" />
+      </DropdownMenuPrimitive.ItemIndicator>
+    </DropdownMenuPrimitive.CheckboxItem>
+  );
+}
+
 type DropdownMenuRadioGroupProps = ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>;
 
 export function DropdownMenuRadioGroup({ ...props }: DropdownMenuRadioGroupProps) {
