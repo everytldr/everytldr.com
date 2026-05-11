@@ -18,8 +18,9 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
   return (
     <ResponsiveSelector
       className={className}
-      value={locale}
       title={t("language")}
+      value={locale}
+      multiple={false}
       options={[
         { value: Locale.En, content: "English" },
         { value: Locale.Ko, content: "한국어" },

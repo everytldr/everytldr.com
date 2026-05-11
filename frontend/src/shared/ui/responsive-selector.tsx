@@ -21,9 +21,9 @@ export type SelectorOption<T extends string> = {
 
 type ResponsiveSelectorSingleProps<T extends string> = {
   className?: string;
-  multiple?: false;
+  multiple: false;
   value: T;
-  options: readonly SelectorOption<T>[];
+  options: SelectorOption<T>[];
   title: string;
   renderMobileTrigger: (state: {
     selected: Optional<SelectorOption<T>>;
@@ -36,22 +36,19 @@ type ResponsiveSelectorSingleProps<T extends string> = {
 type ResponsiveSelectorMultiProps<T extends string> = {
   className?: string;
   multiple: true;
-  value: readonly T[];
-  options: readonly SelectorOption<T>[];
+  value: T[];
+  options: SelectorOption<T>[];
   title: string;
-  renderMobileTrigger: (state: {
-    selected: readonly SelectorOption<T>[];
-    open: () => void;
-  }) => ReactNode;
-  renderDesktopTrigger: (state: { selected: readonly SelectorOption<T>[] }) => ReactNode;
-  onChange: (values: readonly T[]) => void;
+  renderMobileTrigger: (state: { selected: SelectorOption<T>[]; open: () => void }) => ReactNode;
+  renderDesktopTrigger: (state: { selected: SelectorOption<T>[] }) => ReactNode;
+  onChange: (values: T[]) => void;
 };
 
 type ResponsiveSelectorProps<T extends string> =
   | ResponsiveSelectorSingleProps<T>
   | ResponsiveSelectorMultiProps<T>;
 
-function toggleValue<T>(values: readonly T[], target: T): readonly T[] {
+function toggleValue<T>(values: T[], target: T): T[] {
   return values.includes(target) ? values.filter((v) => v !== target) : [...values, target];
 }
 
