@@ -11,9 +11,6 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
   IconButton,
-  RadioGroup,
-  RadioGroupIndicator,
-  RadioGroupItem,
 } from "@/shared/ui";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -21,13 +18,12 @@ import { useState } from "react";
 
 type Language = {
   code: Locale;
-  glyph: string;
   native: string;
 };
 
 const LANGUAGES: readonly Language[] = [
-  { code: Locale.En, glyph: "EN", native: "English" },
-  { code: Locale.Ko, glyph: "KO", native: "한국어" },
+  { code: Locale.En, native: "English" },
+  { code: Locale.Ko, native: "한국어" },
 ];
 
 type LanguageSelectButtonProps = {
@@ -72,6 +68,11 @@ function MobileLanguageSelectButton({
   const t = useTranslations("header");
   const [isOpen, setIsOpen] = useState(false);
 
+  function handleClick(next: Locale) {
+    setIsOpen(false);
+    onSelect(next);
+  }
+
   return (
     <div className={cn(className)}>
       <IconButton Icon={Globe} aria-label={t("language")} onClick={() => setIsOpen(true)} />
@@ -80,31 +81,28 @@ function MobileLanguageSelectButton({
         header={{ title: t("language") }}
         onClose={() => setIsOpen(false)}
       >
-        <RadioGroup
+        <div
           className="flex flex-col gap-2xs px-md pb-md"
-          value={locale}
+          role="radiogroup"
           aria-label={t("language")}
-          onValueChange={(value) => isLocale(value) && onSelect(value)}
         >
-          {LANGUAGES.map((lang) => (
-            <RadioGroupItem
-              key={lang.code}
-              className="flex h-12 items-center justify-between gap-sm rounded-md px-md hover:bg-surface-soft active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
-              value={lang.code}
-              onClick={() => setIsOpen(false)}
-            >
-              <span className="flex items-center gap-sm">
-                <span className="rounded-xs border border-hairline px-xs py-2xs font-mono text-caption-mono text-meta">
-                  {lang.glyph}
-                </span>
-                <span className="text-button-md text-ink">{lang.native}</span>
-              </span>
-              <RadioGroupIndicator>
-                <Check className="size-5 text-ink" />
-              </RadioGroupIndicator>
-            </RadioGroupItem>
-          ))}
-        </RadioGroup>
+          {LANGUAGES.map((lang) => {
+            const isCurrent = lang.code === locale;
+            return (
+              <button
+                key={lang.code}
+                className="flex h-12 cursor-pointer items-center justify-between gap-sm rounded-md px-md text-button-md text-ink transition-colors outline-none hover:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed"
+                type="button"
+                role="radio"
+                aria-checked={isCurrent}
+                onClick={() => handleClick(lang.code)}
+              >
+                <span>{lang.native}</span>
+                {isCurrent && <Check className="size-5 text-ink" />}
+              </button>
+            );
+          })}
+        </div>
       </BottomSheet>
     </div>
   );
