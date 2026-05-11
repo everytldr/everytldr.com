@@ -2,25 +2,9 @@
 
 import { Locale, usePathname, useRouter } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
-import { IconButton, ResponsiveSelector, type SelectorOption } from "@/shared/ui";
+import { IconButton, ResponsiveSelector } from "@/shared/ui";
 import { ChevronDown, Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-type Language = {
-  code: Locale;
-  glyph: string;
-  native: string;
-};
-
-const LANGUAGES: readonly Language[] = [
-  { code: Locale.En, glyph: "EN", native: "English" },
-  { code: Locale.Ko, glyph: "KO", native: "한국어" },
-];
-
-const LANGUAGE_OPTIONS: readonly SelectorOption<Locale>[] = LANGUAGES.map((lang) => ({
-  value: lang.code,
-  content: <LanguageOptionContent glyph={lang.glyph} native={lang.native} />,
-}));
 
 type LanguageSelectButtonProps = {
   className?: string;
@@ -36,8 +20,11 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
     <ResponsiveSelector
       className={className}
       value={locale}
-      options={LANGUAGE_OPTIONS}
       title={t("language")}
+      options={[
+        { value: Locale.En, content: <LanguageOptionContent glyph="EN" native="English" /> },
+        { value: Locale.Ko, content: <LanguageOptionContent glyph="KO" native="한국어" /> },
+      ]}
       renderMobileTrigger={({ open }) => (
         <IconButton Icon={Globe} aria-label={t("language")} onClick={open} />
       )}
