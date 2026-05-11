@@ -42,4 +42,5 @@ export { Input } from "./input";
 export { default as Logo } from "./logo.svg";
 export { Modal } from "./modal";
 export { ResponsiveDialog } from "./responsive-dialog";
+export { ResponsiveSelector, type SelectorOption } from "./responsive-selector";
 export { Translation } from "./translation";
