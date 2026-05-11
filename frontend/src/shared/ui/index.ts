@@ -41,5 +41,6 @@ export { IconButton } from "./icon-button";
 export { Input } from "./input";
 export { default as Logo } from "./logo.svg";
 export { Modal } from "./modal";
+export { RadioGroup, RadioGroupIndicator, RadioGroupItem } from "./radio-group";
 export { ResponsiveDialog } from "./responsive-dialog";
 export { Translation } from "./translation";
