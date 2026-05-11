@@ -19,26 +19,17 @@ export type SelectorOption<T extends string> = {
   content: ReactNode;
 };
 
-type ResponsiveSelectorSingleTriggerState<T extends string> = {
-  isOpen: boolean;
-  selected: Optional<SelectorOption<T>>;
-};
-
-type ResponsiveSelectorMultiTriggerState<T extends string> = {
-  isOpen: boolean;
-  selected: readonly SelectorOption<T>[];
-};
-
 type ResponsiveSelectorSingleProps<T extends string> = {
   className?: string;
   multiple?: false;
   value: T;
   options: readonly SelectorOption<T>[];
   title: string;
-  renderMobileTrigger: (
-    state: ResponsiveSelectorSingleTriggerState<T> & { openSheet: () => void },
-  ) => ReactNode;
-  renderDesktopTrigger: (state: ResponsiveSelectorSingleTriggerState<T>) => ReactNode;
+  renderMobileTrigger: (state: {
+    selected: Optional<SelectorOption<T>>;
+    openSheet: () => void;
+  }) => ReactNode;
+  renderDesktopTrigger: (state: { selected: Optional<SelectorOption<T>> }) => ReactNode;
   onChange: (value: T) => void;
 };
 
@@ -48,16 +39,21 @@ type ResponsiveSelectorMultiProps<T extends string> = {
   value: readonly T[];
   options: readonly SelectorOption<T>[];
   title: string;
-  renderMobileTrigger: (
-    state: ResponsiveSelectorMultiTriggerState<T> & { openSheet: () => void },
-  ) => ReactNode;
-  renderDesktopTrigger: (state: ResponsiveSelectorMultiTriggerState<T>) => ReactNode;
+  renderMobileTrigger: (state: {
+    selected: readonly SelectorOption<T>[];
+    openSheet: () => void;
+  }) => ReactNode;
+  renderDesktopTrigger: (state: { selected: readonly SelectorOption<T>[] }) => ReactNode;
   onChange: (values: readonly T[]) => void;
 };
 
 type ResponsiveSelectorProps<T extends string> =
   | ResponsiveSelectorSingleProps<T>
   | ResponsiveSelectorMultiProps<T>;
+
+function toggleValue<T>(values: readonly T[], target: T): readonly T[] {
+  return values.includes(target) ? values.filter((v) => v !== target) : [...values, target];
+}
 
 export function ResponsiveSelector<T extends string>(props: ResponsiveSelectorProps<T>) {
   return props.multiple ? (
@@ -100,7 +96,7 @@ function MobileSingleSelector<T extends string>({
 
   return (
     <div className={cn(className)}>
-      {renderMobileTrigger({ isOpen, selected, openSheet: () => setIsOpen(true) })}
+      {renderMobileTrigger({ selected, openSheet: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
         <div className="flex flex-col gap-2xs px-md pb-md" role="radiogroup" aria-label={title}>
           {options.map((opt) => {
@@ -139,15 +135,12 @@ function DesktopSingleSelector<T extends string>({
   renderDesktopTrigger,
   onChange,
 }: ResponsiveSelectorSingleProps<T>) {
-  const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((opt) => opt.value === value);
 
   return (
     <div className={cn(className)}>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>
-          {renderDesktopTrigger({ isOpen, selected })}
-        </DropdownMenuTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>{renderDesktopTrigger({ selected })}</DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-40" align="end">
           <DropdownMenuRadioGroup value={value} onValueChange={handleSelect}>
             {options.map((opt) => (
@@ -182,7 +175,7 @@ function MobileMultiSelector<T extends string>({
 
   return (
     <div className={cn(className)}>
-      {renderMobileTrigger({ isOpen, selected, openSheet: () => setIsOpen(true) })}
+      {renderMobileTrigger({ selected, openSheet: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
         <div className="flex flex-col gap-2xs px-md pb-md" role="group" aria-label={title}>
           {options.map((opt) => {
@@ -194,7 +187,7 @@ function MobileMultiSelector<T extends string>({
                 type="button"
                 role="checkbox"
                 aria-checked={isCurrent}
-                onClick={() => handleToggle(opt.value)}
+                onClick={() => onChange(toggleValue(value, opt.value))}
               >
                 {opt.content}
                 {isCurrent && <Check className="size-5 shrink-0 text-ink" />}
@@ -205,11 +198,6 @@ function MobileMultiSelector<T extends string>({
       </BottomSheet>
     </div>
   );
-
-  function handleToggle(target: T) {
-    const next = value.includes(target) ? value.filter((v) => v !== target) : [...value, target];
-    onChange(next);
-  }
 }
 
 function DesktopMultiSelector<T extends string>({
@@ -219,21 +207,19 @@ function DesktopMultiSelector<T extends string>({
   renderDesktopTrigger,
   onChange,
 }: ResponsiveSelectorMultiProps<T>) {
-  const [isOpen, setIsOpen] = useState(false);
   const selected = options.filter((opt) => value.includes(opt.value));
 
   return (
     <div className={cn(className)}>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>
-          {renderDesktopTrigger({ isOpen, selected })}
-        </DropdownMenuTrigger>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>{renderDesktopTrigger({ selected })}</DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-40" align="end">
           {options.map((opt) => (
             <DropdownMenuCheckboxItem
               key={opt.value}
               checked={value.includes(opt.value)}
-              onCheckedChange={() => handleToggle(opt.value)}
+              onCheckedChange={() => onChange(toggleValue(value, opt.value))}
+              // keep menu open on toggle
               onSelect={(e) => e.preventDefault()}
             >
               {opt.content}
@@ -243,9 +229,4 @@ function DesktopMultiSelector<T extends string>({
       </DropdownMenu>
     </div>
   );
-
-  function handleToggle(target: T) {
-    const next = value.includes(target) ? value.filter((v) => v !== target) : [...value, target];
-    onChange(next);
-  }
 }
