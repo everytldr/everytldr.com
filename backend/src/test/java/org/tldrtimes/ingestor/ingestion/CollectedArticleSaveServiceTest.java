@@ -1,4 +1,4 @@
-package org.tldrtimes.ingestor.service;
+package org.tldrtimes.ingestor.ingestion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.tldrtimes.TestcontainersConfig;
-import org.tldrtimes.ingestor.service.ArticleIngestionService;
+import org.tldrtimes.ingestor.ingestion.ArticleIngestionService;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)

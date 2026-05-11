@@ -1,4 +1,4 @@
-package org.tldrtimes.ingestor.service;
+package org.tldrtimes.ingestor.ingestion;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

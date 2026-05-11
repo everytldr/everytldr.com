@@ -1,4 +1,4 @@
-package org.tldrtimes.ingestor.service;
+package org.tldrtimes.ingestor.ingestion;
 
 import java.net.URI;
 import java.net.URISyntaxException;

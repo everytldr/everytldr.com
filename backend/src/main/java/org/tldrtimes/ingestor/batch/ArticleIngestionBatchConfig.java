@@ -9,7 +9,7 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.tldrtimes.ingestor.service.ArticleIngestionService;
+import org.tldrtimes.ingestor.ingestion.ArticleIngestionService;
 
 @Configuration
 @Profile("ingestor")
