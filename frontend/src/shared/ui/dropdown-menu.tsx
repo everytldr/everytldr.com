@@ -34,7 +34,7 @@ export function DropdownMenuContent({
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         className={cn(
-          "z-50 min-w-[var(--radix-dropdown-menu-trigger-width)] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border border-hairline bg-canvas p-2xs text-ink shadow-hover outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-surface-soft",
+          "z-50 min-w-32 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border border-hairline bg-canvas p-2xs text-ink shadow-hover outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:bg-surface-soft",
           className,
         )}
         sideOffset={sideOffset}
@@ -96,7 +96,7 @@ export function DropdownMenuRadioItem({
     >
       <span>{children}</span>
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="size-4 text-primary" />
+        <Check className="size-4 text-ink" />
       </DropdownMenuPrimitive.ItemIndicator>
     </DropdownMenuPrimitive.RadioItem>
   );
