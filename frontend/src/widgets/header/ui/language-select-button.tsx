@@ -1,7 +1,6 @@
 "use client";
 
 import { Locale, usePathname, useRouter } from "@/shared/i18n";
-import { cn } from "@/shared/lib";
 import { IconButton, ResponsiveSelector } from "@/shared/ui";
 import { ChevronDown, Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -22,8 +21,8 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
       value={locale}
       title={t("language")}
       options={[
-        { value: Locale.En, content: <LanguageOptionContent glyph="EN" native="English" /> },
-        { value: Locale.Ko, content: <LanguageOptionContent glyph="KO" native="한국어" /> },
+        { value: Locale.En, content: "English" },
+        { value: Locale.Ko, content: "한국어" },
       ]}
       renderMobileTrigger={({ open }) => (
         <IconButton Icon={Globe} aria-label={t("language")} onClick={open} />
@@ -46,21 +45,4 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
   function handleChange(next: Locale) {
     router.replace(pathname, { locale: next });
   }
-}
-
-type LanguageOptionContentProps = {
-  className?: string;
-  glyph: string;
-  native: string;
-};
-
-function LanguageOptionContent({ className, glyph, native }: LanguageOptionContentProps) {
-  return (
-    <span className={cn("flex items-center gap-sm", className)}>
-      <span className="rounded-xs border border-hairline px-xs py-2xs font-mono text-caption-mono text-meta">
-        {glyph}
-      </span>
-      <span>{native}</span>
-    </span>
-  );
 }
