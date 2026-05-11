@@ -1,7 +1,7 @@
 "use client";
 
 import { useIsCoarsePointer } from "@/shared/hooks";
-import { cn } from "@/shared/lib";
+import { cn, type Optional } from "@/shared/lib";
 import { Check } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { BottomSheet } from "./bottom-sheet";
@@ -20,7 +20,7 @@ export type SelectorOption<T extends string> = {
 
 type ResponsiveSelectorTriggerState<T extends string> = {
   isOpen: boolean;
-  selected: SelectorOption<T> | undefined;
+  selected: Optional<SelectorOption<T>>;
 };
 
 type ResponsiveSelectorMobileTriggerState<T extends string> = ResponsiveSelectorTriggerState<T> & {
