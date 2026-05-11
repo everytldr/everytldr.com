@@ -29,19 +29,15 @@ type ResponsiveSelectorMultiTriggerState<T extends string> = {
   selected: readonly SelectorOption<T>[];
 };
 
-type ResponsiveSelectorMobileSingleTriggerState<T extends string> =
-  ResponsiveSelectorSingleTriggerState<T> & { openSheet: () => void };
-
-type ResponsiveSelectorMobileMultiTriggerState<T extends string> =
-  ResponsiveSelectorMultiTriggerState<T> & { openSheet: () => void };
-
 type ResponsiveSelectorSingleProps<T extends string> = {
   className?: string;
   multiple?: false;
   value: T;
   options: readonly SelectorOption<T>[];
   title: string;
-  renderMobileTrigger: (state: ResponsiveSelectorMobileSingleTriggerState<T>) => ReactNode;
+  renderMobileTrigger: (
+    state: ResponsiveSelectorSingleTriggerState<T> & { openSheet: () => void },
+  ) => ReactNode;
   renderDesktopTrigger: (state: ResponsiveSelectorSingleTriggerState<T>) => ReactNode;
   onChange: (value: T) => void;
 };
@@ -52,7 +48,9 @@ type ResponsiveSelectorMultiProps<T extends string> = {
   value: readonly T[];
   options: readonly SelectorOption<T>[];
   title: string;
-  renderMobileTrigger: (state: ResponsiveSelectorMobileMultiTriggerState<T>) => ReactNode;
+  renderMobileTrigger: (
+    state: ResponsiveSelectorMultiTriggerState<T> & { openSheet: () => void },
+  ) => ReactNode;
   renderDesktopTrigger: (state: ResponsiveSelectorMultiTriggerState<T>) => ReactNode;
   onChange: (values: readonly T[]) => void;
 };
