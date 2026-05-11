@@ -32,9 +32,9 @@ type ResponsiveSelectorProps<T extends string> = {
   value: T;
   options: readonly SelectorOption<T>[];
   title: string;
-  mobileTrigger: (state: ResponsiveSelectorMobileTriggerState<T>) => ReactNode;
-  desktopTrigger: (state: ResponsiveSelectorTriggerState<T>) => ReactNode;
-  onValueChange: (value: T) => void;
+  renderMobileTrigger: (state: ResponsiveSelectorMobileTriggerState<T>) => ReactNode;
+  renderDesktopTrigger: (state: ResponsiveSelectorTriggerState<T>) => ReactNode;
+  onChange: (value: T) => void;
 };
 
 export function ResponsiveSelector<T extends string>({
@@ -42,32 +42,28 @@ export function ResponsiveSelector<T extends string>({
   value,
   options,
   title,
-  mobileTrigger,
-  desktopTrigger,
-  onValueChange,
+  renderMobileTrigger,
+  renderDesktopTrigger,
+  onChange,
 }: ResponsiveSelectorProps<T>) {
   const isCoarsePointer = useIsCoarsePointer();
 
-  if (isCoarsePointer) {
-    return (
-      <MobileResponsiveSelector
-        className={className}
-        value={value}
-        options={options}
-        title={title}
-        renderTrigger={mobileTrigger}
-        onValueChange={onValueChange}
-      />
-    );
-  }
-
-  return (
+  return isCoarsePointer ? (
+    <MobileResponsiveSelector
+      className={className}
+      value={value}
+      options={options}
+      title={title}
+      renderTrigger={renderMobileTrigger}
+      onChange={onChange}
+    />
+  ) : (
     <DesktopResponsiveSelector
       className={className}
       value={value}
       options={options}
-      renderTrigger={desktopTrigger}
-      onValueChange={onValueChange}
+      renderTrigger={renderDesktopTrigger}
+      onChange={onChange}
     />
   );
 }
@@ -78,7 +74,7 @@ type MobileResponsiveSelectorProps<T extends string> = {
   options: readonly SelectorOption<T>[];
   title: string;
   renderTrigger: (state: ResponsiveSelectorMobileTriggerState<T>) => ReactNode;
-  onValueChange: (value: T) => void;
+  onChange: (value: T) => void;
 };
 
 function MobileResponsiveSelector<T extends string>({
@@ -87,17 +83,10 @@ function MobileResponsiveSelector<T extends string>({
   options,
   title,
   renderTrigger,
-  onValueChange,
+  onChange,
 }: MobileResponsiveSelectorProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((opt) => opt.value === value);
-
-  function handleSelect(next: T) {
-    setIsOpen(false);
-    if (next !== value) {
-      onValueChange(next);
-    }
-  }
 
   return (
     <div className={cn(className)}>
@@ -124,6 +113,13 @@ function MobileResponsiveSelector<T extends string>({
       </BottomSheet>
     </div>
   );
+
+  function handleSelect(next: T) {
+    setIsOpen(false);
+    if (next !== value) {
+      onChange(next);
+    }
+  }
 }
 
 type DesktopResponsiveSelectorProps<T extends string> = {
@@ -131,7 +127,7 @@ type DesktopResponsiveSelectorProps<T extends string> = {
   value: T;
   options: readonly SelectorOption<T>[];
   renderTrigger: (state: ResponsiveSelectorTriggerState<T>) => ReactNode;
-  onValueChange: (value: T) => void;
+  onChange: (value: T) => void;
 };
 
 function DesktopResponsiveSelector<T extends string>({
@@ -139,17 +135,10 @@ function DesktopResponsiveSelector<T extends string>({
   value,
   options,
   renderTrigger,
-  onValueChange,
+  onChange,
 }: DesktopResponsiveSelectorProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((opt) => opt.value === value);
-
-  function handleSelect(next: string) {
-    const target = options.find((opt) => opt.value === next);
-    if (target && target.value !== value) {
-      onValueChange(target.value);
-    }
-  }
 
   return (
     <div className={cn(className)}>
@@ -167,4 +156,11 @@ function DesktopResponsiveSelector<T extends string>({
       </DropdownMenu>
     </div>
   );
+
+  function handleSelect(next: string) {
+    const target = options.find((opt) => opt.value === next);
+    if (target && target.value !== value) {
+      onChange(target.value);
+    }
+  }
 }

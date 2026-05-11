@@ -32,20 +32,16 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
   const router = useRouter();
   const pathname = usePathname();
 
-  function handleChange(next: Locale) {
-    router.replace(pathname, { locale: next });
-  }
-
   return (
     <ResponsiveSelector<Locale>
       className={className}
       value={locale}
       options={LANGUAGE_OPTIONS}
       title={t("language")}
-      mobileTrigger={({ openSheet }) => (
+      renderMobileTrigger={({ openSheet }) => (
         <IconButton Icon={Globe} aria-label={t("language")} onClick={openSheet} />
       )}
-      desktopTrigger={() => (
+      renderDesktopTrigger={() => (
         <button
           className="inline-flex h-9 cursor-pointer items-center gap-xs rounded-full border border-hairline bg-canvas px-md text-button-sm text-body transition-colors outline-none hover:bg-surface-soft hover:text-ink focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:bg-surface-strong active:text-ink data-[state=open]:bg-surface-soft data-[state=open]:text-ink dark:hover:bg-surface-strong dark:active:bg-surface-pressed dark:data-[state=open]:bg-surface-strong [&[data-state=open]>svg:last-child]:rotate-180"
           type="button"
@@ -56,9 +52,13 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
           <ChevronDown className="size-4 transition-transform" />
         </button>
       )}
-      onValueChange={handleChange}
+      onChange={handleChange}
     />
   );
+
+  function handleChange(next: Locale) {
+    router.replace(pathname, { locale: next });
+  }
 }
 
 type LanguageOptionContentProps = {
