@@ -26,6 +26,17 @@ export {
   DrawerTitle,
   DrawerTrigger,
 } from "./drawer";
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 export { IconButton } from "./icon-button";
 export { Input } from "./input";
 export { default as Logo } from "./logo.svg";
