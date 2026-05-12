@@ -294,11 +294,11 @@ Container radius 12px (not Airbnb's 14px) for editorial register; composes again
 
 Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`).
 
-| Level       | Light                                                       | Dark                            | Tailwind                       |
-| ----------- | ----------------------------------------------------------- | ------------------------------- | ------------------------------ |
-| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound) | `border border-hairline`       |
-| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | (same)                          | `hover:shadow-hover`           |
-| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity          | `bg-scrim/50 dark:bg-scrim/65` |
+| Level       | Light                                                       | Dark                                             | Tailwind                       |
+| ----------- | ----------------------------------------------------------- | ------------------------------------------------ | ------------------------------ |
+| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound)                  | `border border-hairline`       |
+| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | `none` (surface tone substitutes — see § 3.1.5.) | `hover:shadow-hover`           |
+| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity                           | `bg-scrim/50 dark:bg-scrim/65` |
 
 | Decision                            | Reason                                                                     |
 | ----------------------------------- | -------------------------------------------------------------------------- |
