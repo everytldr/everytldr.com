@@ -26,7 +26,7 @@ export function Input({
       <input
         ref={innerRef}
         className={cn(
-          "peer size-full cursor-pointer py-sm text-body-md text-ink ring-1 transition-all outline-none ring-inset not-placeholder-shown:pr-11 focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed aria-invalid:ring-2 aria-invalid:ring-semantic-error",
+          "peer size-full py-sm text-body-md text-ink ring-1 transition-all outline-none ring-inset not-placeholder-shown:pr-11 focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed aria-invalid:ring-2 aria-invalid:ring-semantic-error",
           "[&::-webkit-search-cancel-button]:appearance-none", // NOTE: webkit clear button
           variant === "default" &&
             "rounded-sm bg-canvas px-md ring-hairline-strong hover:ring-ink disabled:bg-surface-strong disabled:text-meta-soft disabled:ring-hairline",
