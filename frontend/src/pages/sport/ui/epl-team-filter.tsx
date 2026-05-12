@@ -8,10 +8,9 @@ import {
 } from "@/shared/config";
 import { Link, useRouter } from "@/shared/i18n";
 import { buildEplFilterUrl, cn } from "@/shared/lib";
-import { ResponsiveSelector, Translation } from "@/shared/ui";
+import { Chip, ResponsiveSelector, Translation } from "@/shared/ui";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type ComponentProps, type PropsWithChildren } from "react";
 import { EplTeamCrest } from "./epl-team-crest";
 
 type EplTeamFilterProps = {
@@ -35,17 +34,21 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
       aria-label={t("epl.aria-label.team-filter")}
     >
       <div className="flex h-12 items-center gap-2xs">
-        <PillLink href={buildEplFilterUrl()} isActive={!filter}>
-          <Translation tKey="epl.all-teams" />
-        </PillLink>
+        <Chip asChild isActive={!filter}>
+          <Link href={buildEplFilterUrl()} aria-current={!filter ? "page" : undefined}>
+            <Translation tKey="epl.all-teams" />
+          </Link>
+        </Chip>
 
         {EPL_BIG_SIX_TEAMS.map((team) => {
           const isActive = filter === team;
           return (
-            <PillLink key={team} href={buildEplFilterUrl(team)} isActive={isActive}>
-              <EplTeamCrest className="hidden md:inline-block" team={team} />
-              <Translation tKey={`epl.team-short.${team}`} />
-            </PillLink>
+            <Chip key={team} asChild isActive={isActive}>
+              <Link href={buildEplFilterUrl(team)} aria-current={isActive ? "page" : undefined}>
+                <EplTeamCrest className="hidden md:inline-block" team={team} />
+                <Translation tKey={`epl.team-short.${team}`} />
+              </Link>
+            </Chip>
           );
         })}
 
@@ -67,9 +70,9 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
             })),
           ]}
           renderMobileTrigger={({ isOpen, open }) => (
-            <PickerTrigger
+            <Chip
               isActive={isTriggerActive}
-              isOpen={isOpen}
+              type="button"
               aria-haspopup="dialog"
               aria-label={t("epl.aria-label.team-picker")}
               onClick={open}
@@ -79,16 +82,28 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
               ) : (
                 <Translation tKey="epl.more-teams" />
               )}
-            </PickerTrigger>
+              <ChevronDown
+                className={cn("size-4 transition-transform", isOpen && "rotate-180")}
+                aria-hidden
+              />
+            </Chip>
           )}
-          renderDesktopTrigger={() => (
-            <PickerTrigger isActive={isTriggerActive} aria-label={t("epl.aria-label.team-picker")}>
+          renderDesktopTrigger={({ isOpen }) => (
+            <Chip
+              isActive={isTriggerActive}
+              type="button"
+              aria-label={t("epl.aria-label.team-picker")}
+            >
               {isTriggerActive ? (
                 <Translation tKey={`epl.team.${filter}`} />
               ) : (
                 <Translation tKey="epl.more-teams" />
               )}
-            </PickerTrigger>
+              <ChevronDown
+                className={cn("size-4 transition-transform", isOpen && "rotate-180")}
+                aria-hidden
+              />
+            </Chip>
           )}
           onChange={handleSelect}
         />
@@ -99,64 +114,4 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
   function handleSelect(next: TeamPickerValue) {
     router.push(next === ALL_VALUE ? buildEplFilterUrl() : buildEplFilterUrl(next));
   }
-}
-
-type PillLinkProps = PropsWithChildren<{
-  className?: string;
-  href: string;
-  isActive: boolean;
-}>;
-
-function PillLink({ className, href, isActive, children }: PillLinkProps) {
-  return (
-    <Link
-      className={cn(
-        "inline-flex h-9 items-center gap-2xs rounded-full px-md text-button-sm whitespace-nowrap transition-colors outline-none",
-        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
-        isActive
-          ? "border border-transparent bg-ink text-on-ink active:bg-ink/90"
-          : "border border-hairline bg-canvas text-body hover:bg-surface-soft hover:text-ink active:bg-surface-strong active:text-ink dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
-        className,
-      )}
-      href={href}
-      aria-current={isActive ? "page" : undefined}
-    >
-      {children}
-    </Link>
-  );
-}
-
-type PickerTriggerProps = ComponentProps<"button"> & {
-  isActive: boolean;
-  isOpen?: boolean;
-};
-
-function PickerTrigger({
-  className,
-  isActive,
-  isOpen = false,
-  children,
-  ...props
-}: PickerTriggerProps) {
-  return (
-    <button
-      className={cn(
-        "group inline-flex h-9 items-center gap-2xs rounded-full px-md text-button-sm whitespace-nowrap transition-colors outline-none",
-        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
-        isActive
-          ? "border border-transparent bg-ink text-on-ink active:bg-ink/90"
-          : "border border-hairline bg-canvas text-body hover:bg-surface-soft hover:text-ink active:bg-surface-strong active:text-ink dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
-        className,
-      )}
-      type="button"
-      data-state={isOpen ? "open" : "closed"}
-      {...props}
-    >
-      {children}
-      <ChevronDown
-        className="size-4 transition-transform group-data-[state=open]:rotate-180"
-        aria-hidden
-      />
-    </button>
-  );
 }
