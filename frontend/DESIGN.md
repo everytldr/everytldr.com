@@ -138,9 +138,9 @@ Hex values are hand-tuned, not arithmetic inversions. Rationale: § 3.1.5.
 
 ### 3.1.3. Category Tints.
 
-Seven hand-balanced bg/text pairs, exposed as `tint-{hue}` / `text-{hue}` token pairs. Each pair is a closed accessible palette intended for tag/chip/badge surfaces that need a categorical hue beyond `primary` and `like-active`.
+Seven hand-balanced bg/fg pairs, exposed as `tint-{hue}` / `tint-{hue}-fg` token pairs. Each pair is a closed accessible palette intended for tag/chip/badge surfaces that need a categorical hue beyond `primary` and `like-active`.
 
-| Variant  | Light bg / text   | Dark bg / text    |
+| Variant  | Light bg / fg     | Dark bg / fg      |
 | -------- | ----------------- | ----------------- |
 | Emerald  | #d9f3e1 / #15803d | #0e2419 / #6ee7b7 |
 | Sky      | #dcecfa / #0369a1 | #0a1e30 / #7dd3fc |
