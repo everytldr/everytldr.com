@@ -10,6 +10,11 @@ public class TestcontainersConfig {
   @Bean
   @ServiceConnection
   MySQLContainer<?> mysqlContainer() {
-    return new MySQLContainer<>("mysql:8.4").withReuse(true);
+    return new MySQLContainer<>("mysql:8.4")
+        .withUrlParam("useSSL", "false")
+        .withUrlParam("allowPublicKeyRetrieval", "true")
+        .withUrlParam("serverTimezone", "Asia/Seoul")
+        .withUrlParam("characterEncoding", "UTF-8")
+        .withReuse(true);
   }
 }

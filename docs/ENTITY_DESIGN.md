@@ -44,7 +44,7 @@ common.domain.support/      BaseEntity, SoftDeletableEntity,
 common.domain.article/      Article, ArticleSummary, ArticleLike, ArticleComment, *Repository
 common.domain.category/     Category, ArticleCategory, *Repository
 common.domain.ingestion/    ArticleIngestionJob, IngestionState, *Repository
-common.domain.source/       RssSource, *Repository
+common.domain.source/       ArticleSource, SourceType, *Repository
 ```
 
 Repositories sit beside their entities in the same package. There is no top-level `repository/` folder.
@@ -146,7 +146,7 @@ Allocation per entity:
 | `ArticleCategory` | `BaseEntity` |
 | `ArticleIngestionJob` | `BaseEntity` |
 | `Category` | `BaseEntity` |
-| `RssSource` | `BaseEntity` |
+| `ArticleSource` | `BaseEntity` |
 
 ## 4.2. Lombok policy
 
@@ -229,7 +229,7 @@ Rationale: dialect parity with production. SQL valid on H2 but invalid on MySQL 
 Order is the topological sort of foreign-key dependency. Each step compiles only after the previous step.
 
 1. § 7.2.1. `Category` (no FKs)
-2. § 7.2.2. `RssSource` (no FKs)
+2. § 7.2.2. `ArticleSource` (no FKs)
 3. § 7.2.3. `Article` (no FKs)
 4. § 7.2.4. `ArticleIngestionJob` (FK → `Article`)
 5. § 7.2.5. `ArticleSummary` (FK → `Article`)
@@ -252,14 +252,23 @@ Inherited columns are omitted from each table; refer to § 4.1. Concretely:
 
 Display labels (Korean, English, …) are resolved client-side from `slug` via i18n resources; no `name` column.
 
-### 7.2.2. `rss_source`
+`Category` is the product-defined taxonomy used for article classification and API filtering. The MVP source domain remains football, but the MVP category taxonomy may include football-domain subcategories such as leagues, teams, and competitions. These rows must exist before enrichment so the enricher can choose one of the allowed categories.
+
+### 7.2.2. `article_source`
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
 | `name` | `VARCHAR(100)` | `NOT NULL` | Display name, e.g. `BBC Sport` |
-| `url` | `VARCHAR(500)` | `NOT NULL UNIQUE` | RSS feed URL |
+| `url` | `VARCHAR(500)` | `NOT NULL UNIQUE` | Provider locator. For RSS this is the feed URL; for Guardian API this is an API-key-free locator such as a section/search URL. |
 | `is_active` | `BOOLEAN` | `NOT NULL DEFAULT TRUE`, indexed | Inactive sources skipped by ingestor |
-| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en`. The article emitted from this feed inherits this value. |
+| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en`. Articles emitted from this source inherit this value. |
+| `source_type` | `VARCHAR(32)` | `NOT NULL` | Java `SourceType` enum, mapped `EnumType.STRING`; values include `GUARDIAN_API` and `RSS`. |
+
+For `GUARDIAN_API`, `url` is a provider locator, not the final outbound request URL. It must not contain `api-key` or other secrets. The ingestor extracts supported provider parameters such as `section` from this locator, while the actual Guardian API base URL comes from `tldrtimes.ingestor.guardian.base-url`. This keeps credentials and outbound host configuration outside reference data and prevents database rows from controlling the request host.
+
+Seed policy: initial `article_source` rows are managed by Flyway versioned SQL migrations. Because SQL migrations do not invoke Hibernate's `@SnowflakeId` generator, seed rows must provide explicit fixed IDs. These IDs are still Snowflake-format values, not arbitrary small integers: use the project epoch and bit layout from § 8, set the timestamp to the migration's chosen UTC reference instant, reserve `workerId = 1023` for Flyway reference data, and increment the sequence from `1` within the same migration. Runtime application processes must not use `workerId = 1023`; assign `APP_WORKER_ID` values from `0..1022` so generated runtime IDs cannot collide with reference-data IDs.
+
+Example: `V5__seed_article_sources.sql` seeds Guardian football with timestamp `2026-05-07T00:00:00Z`, `workerId = 1023`, and `sequence = 1`, producing ID `45660871069790209`.
 
 ### 7.2.3. `article`
 
@@ -287,13 +296,15 @@ Base: `BaseEntity`. 1:1 with `article`.
 
 `IngestionState` values: `PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`, `RETRY_SCHEDULED`. Allowed transitions are enforced in domain code, not in the database.
 
+The ingestor creates `ArticleIngestionJob(PENDING)` after saving source article metadata. It does not decide or persist the article category. The enricher later processes pending jobs, writes summaries, selects one existing category from the product-defined taxonomy, and then marks the job according to the processing outcome.
+
 The Java field is annotated `@Enumerated(EnumType.STRING)` plus `@JdbcTypeCode(SqlTypes.VARCHAR)`. Hibernate 6 and later default `@Enumerated(STRING)` to native MySQL `ENUM(...)`; the explicit `VARCHAR` JDBC type code suppresses that mapping and produces a plain `VARCHAR(32)`. Hibernate still emits a `CHECK` constraint named `article_ingestion_job_chk_1` enumerating the valid string values. The constraint is accepted: adding an enum value requires a `DROP CONSTRAINT` / `ADD CONSTRAINT` migration, which is lighter than altering a native `ENUM` column type. The `@UniqueConstraint` annotations on the entity's `@Table` give the two unique indexes explicit names (`uk_article_ingestion_job_article`, `uk_article_ingestion_job_url_hash`) instead of Hibernate's auto-generated hash names.
 
 Dedupe flow:
 
 1. Compute `url_hash = SHA-256(source_url)`.
 2. Query `article_ingestion_job WHERE url_hash = ?`. If found, skip.
-3. In one transaction: insert `article`, then insert `article_ingestion_job` with `state = PENDING`. Concurrent inserts collide on the `url_hash` UNIQUE index; the loser's transaction rolls back.
+3. In one transaction: insert `article`, then insert `article_ingestion_job` with `state = PENDING`. Do not insert `article_category` in the ingestor transaction; category assignment happens during enrichment. Concurrent inserts collide on the `url_hash` UNIQUE index; the loser's transaction rolls back.
 
 ### 7.2.5. `article_summary`
 
@@ -305,6 +316,8 @@ Dedupe flow:
 | `content` | `TEXT` | `NOT NULL` | LLM summary; no DB length cap |
 
 Composite UNIQUE: `(article_id, language)`.
+
+`ArticleSummary` rows are produced by the enricher. In the same successful enrichment flow, the enricher must select one existing category and create the article's `ArticleCategory` row. If summary generation or category selection fails, the job must not be marked `SUCCEEDED`.
 
 ### 7.2.6. `article_like`
 
@@ -335,7 +348,7 @@ Soft-delete behavior: see § 3.5.
 
 ### 7.2.8. `article_category`
 
-Explicit join entity (not `@ManyToMany`).
+Explicit join entity (not `@ManyToMany`). This table stores the category selected during enrichment.
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
@@ -343,6 +356,8 @@ Explicit join entity (not `@ManyToMany`).
 | `category_id` | `BIGINT` | `NOT NULL`, FK → `category(id)` | |
 
 Composite UNIQUE: `(article_id, category_id)`.
+
+MVP business rules require exactly one primary category per article. The current schema prevents duplicate pairs but does not prevent multiple different categories for the same article; enforce the one-category invariant in the enricher service and its tests unless the schema is changed later.
 
 ## 7.3. Excluded
 
@@ -427,7 +442,7 @@ The questions tracked here in earlier drafts are now closed. The resolutions are
 
 | ID | Question | Decision | Where applied |
 |---|---|---|---|
-| Q1 | Add `language` column to `rss_source`? | **Yes**; `VARCHAR(10) NOT NULL`, BCP-47 lowercase. | § 7.2.2. |
+| Q1 | Generalize `rss_source` to `article_source`? | **Yes**; `ArticleSource` represents a provider-specific collection channel with `language` and `source_type`. | § 7.2.2. |
 | Q2 | How is the initial `category` row (`football`) seeded? | **Deferred.** No seed migration was committed in this round. Population path (Flyway data migration, Spring `ApplicationRunner`, or operational `INSERT`) will be decided alongside the first ingestion run. | not yet applied |
 | Q3 | Store original (untranslated) article title? | **No**. Operational identification of an article uses `article.source_url` and the loaded `article_summary.title` for the active reader language. | § 7.2.3. |
 | Q4 | Add `processed_at`, `last_error_message` to `article_ingestion_job`? | **No** for now. Add when retry/observability work begins; not required for MVP correctness. | § 7.2.4. |
