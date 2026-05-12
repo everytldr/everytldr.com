@@ -290,19 +290,18 @@ Container radius 12px (not Airbnb's 14px) for editorial register; composes again
 
 ## 3.5. Elevation.
 
-Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`). On `.dark` it rebinds to `none` — components lift via surface tone instead (`dark:hover:bg-surface-strong`).
+Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`).
 
-| Level       | Light                                                       | Dark                            | Tailwind                                          |
-| ----------- | ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------- |
-| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound) | `border border-hairline`                          |
-| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | `none`; pair with surface lift  | `hover:shadow-hover dark:hover:bg-surface-strong` |
-| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity          | `bg-scrim/50 dark:bg-scrim/65`                    |
+| Level       | Light                                                       | Dark                   | Tailwind                       |
+| ----------- | ----------------------------------------------------------- | ---------------------- | ------------------------------ |
+| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound) | `border border-hairline`       |
+| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | (same)                 | `hover:shadow-hover`           |
+| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity | `bg-scrim/50 dark:bg-scrim/65` |
 
-| Decision                            | Reason                                                                              |
-| ----------------------------------- | ----------------------------------------------------------------------------------- |
-| Shadow → surface-lift on dark       | Drop shadow on dark reads as smudge; precedent: GitHub, Linear, Vercel, Apple macOS |
-| Scrim opacity bumped 50→65% on dark | 50% reads as content-disappeared because scrim darkens already-dark canvas          |
-| Two tiers (not Notion's four)       | No marketing pricing-tier or workspace-mockup surfaces                              |
+| Decision                            | Reason                                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| Scrim opacity bumped 50→65% on dark | 50% reads as content-disappeared because scrim darkens already-dark canvas |
+| Two tiers (not Notion's four)       | No marketing pricing-tier or workspace-mockup surfaces                     |
 
 # 4. Theming.
 
@@ -519,7 +518,7 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 - No second-nav size hierarchy by font weight alone (§ 3.2.2.).
 - No `rounded.xl` (24px) without explicit justification (§ 3.4.).
 - No background gradients (§ 3.1.).
-- No #000000 canvas-dark; no #ffffff ink-dark; no shadow on dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
+- No #000000 canvas-dark; no #ffffff ink-dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
 - No mechanical surface-ladder inversion (§ 3.1.5.).
 - No `surface-strong` or `surface-pressed` as an interactive component's resting fill (§ 3.1.6.).
 - No fifth surface tier (`surface-stronger`, `surface-deeper`, …) (§ 3.1.6.).
