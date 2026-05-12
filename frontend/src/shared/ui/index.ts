@@ -1,5 +1,6 @@
 export { BottomSheet } from "./bottom-sheet";
 export { Button } from "./button";
+export { Chip } from "./chip";
 export { ConditionalLink } from "./conditional-link";
 export { Container } from "./container";
 export {
