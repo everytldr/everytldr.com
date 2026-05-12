@@ -87,7 +87,7 @@ Color tokens live in the `@theme` block of `src/app/styles/theme.css`. Each `--c
 | `primary-pressed`  | #0850cc | `:active` (held-down) on `primary` CTA / link                                                                                              |
 | `primary-disabled` | #cce0ff | Disabled CTA                                                                                                                               |
 | `on-primary`       | #ffffff | Text on Read Blue                                                                                                                          |
-| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `button-pill-filter-active`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                       |
+| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `button-pill-filter-active`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                      |
 | `like-active`      | #e11d48 | Filled-heart state ONLY                                                                                                                    |
 | `like-inactive`    | #6a6a6a | Outline-heart state                                                                                                                        |
 | `canvas`           | #ffffff | Page floor (light); see § 3.1.6. for surface-ladder semantics                                                                              |
@@ -221,24 +221,24 @@ Mono fallback (timestamps only):
 
 Each `--text-{token}` (with companion `--text-{token}--line-height`, `--text-{token}--letter-spacing`, `--text-{token}--font-weight`) generates one Tailwind utility (`text-display-xl`, `text-body-md`, …) that bundles all four properties at once. English baseline; Korean overrides: § 3.2.3.
 
-| Token          | Size (px) | Weight | Line-height | Letter-spacing (px) | Use                                      |
-| -------------- | --------- | ------ | ----------- | ------------------- | ---------------------------------------- |
-| `hero-display` | 56        | 700    | 1.10        | -1                  | Marketing hero (rare)                    |
-| `display-xl`   | 40        | 700    | 1.15        | -0.5                | Page `<h1>`                              |
-| `display-lg`   | 32        | 700    | 1.20        | -0.5                | Section heading                          |
-| `display-md`   | 24        | 700    | 1.30        | -0.25               | Sub-section / featured heading           |
-| `display-sm`   | 20        | 600    | 1.35        | 0                   | Default heading / card-style title       |
-| `title-md`     | 16        | 600    | 1.40        | 0                   | Strong inline labels (author, publisher) |
-| `title-sm`     | 14        | 600    | 1.40        | 0                   | Tertiary headings, list-section labels   |
-| `body-lg`      | 18        | 400    | 1.65        | 0                   | Long-form reading body                   |
-| `body-md`      | 16        | 400    | 1.60        | 0                   | Default body                             |
-| `body-sm`      | 14        | 400    | 1.55        | 0                   | Secondary copy, summaries                |
-| `caption`      | 13        | 500    | 1.40        | 0                   | Counters and inline metrics              |
-| `caption-mono` | 12        | 500    | 1.40        | 0.2                 | Tabular numerics (timestamps, counts)    |
-| `micro`        | 11        | 600    | 1.30        | 0.4                 | Tag / badge text                         |
-| `button-md`    | 15        | 600    | 1.25        | 0                   | Default button label                     |
-| `button-sm`    | 14        | 500    | 1.25        | 0                   | Pill / chip label                        |
-| `nav-md`       | 18        | 700    | 1.25        | -0.25               | Primary navigation label (tabs, `<nav>`) |
+| Token          | Size (px) | Weight | Line-height | Letter-spacing (px) | Use                                       |
+| -------------- | --------- | ------ | ----------- | ------------------- | ----------------------------------------- |
+| `hero-display` | 56        | 700    | 1.10        | -1                  | Marketing hero (rare)                     |
+| `display-xl`   | 40        | 700    | 1.15        | -0.5                | Page `<h1>`                               |
+| `display-lg`   | 32        | 700    | 1.20        | -0.5                | Section heading                           |
+| `display-md`   | 24        | 700    | 1.30        | -0.25               | Sub-section / featured heading            |
+| `display-sm`   | 20        | 600    | 1.35        | 0                   | Default heading / card-style title        |
+| `title-md`     | 16        | 600    | 1.40        | 0                   | Strong inline labels (author, publisher)  |
+| `title-sm`     | 14        | 600    | 1.40        | 0                   | Tertiary headings, list-section labels    |
+| `body-lg`      | 18        | 400    | 1.65        | 0                   | Long-form reading body                    |
+| `body-md`      | 16        | 400    | 1.60        | 0                   | Default body                              |
+| `body-sm`      | 14        | 400    | 1.55        | 0                   | Secondary copy, summaries                 |
+| `caption`      | 13        | 500    | 1.40        | 0                   | Counters and inline metrics               |
+| `caption-mono` | 12        | 500    | 1.40        | 0.2                 | Tabular numerics (timestamps, counts)     |
+| `micro`        | 11        | 600    | 1.30        | 0.4                 | Tag / badge text                          |
+| `button-md`    | 15        | 600    | 1.25        | 0                   | Default button label                      |
+| `button-sm`    | 14        | 500    | 1.25        | 0                   | Pill / chip label                         |
+| `nav-md`       | 18        | 700    | 1.25        | -0.25               | Primary navigation label (tabs, `<nav>`)  |
 | `nav-sm`       | 12        | 500    | 1.30        | 0                   | Secondary / sub-nav label (tabs, `<nav>`) |
 
 ### 3.2.3. Korean Overrides.
@@ -487,7 +487,15 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 
 ## 5.5. Modal.
 
-`canvas` surface, `lg` radius. Scrim per § 3.5. Desktop 480px wide; mobile full-bleed slide-up.
+`canvas` surface, `lg` radius. Scrim per § 3.5. Mobile full-bleed slide-up. Desktop width is selected via the `size` prop:
+
+| Size | Width | Use                                                                                                |
+| ---- | ----- | -------------------------------------------------------------------------------------------------- |
+| `sm` | 480px | Default. Confirmations, single-form dialogs, short choices.                                        |
+| `md` | 560px | Forms with helper copy, single-column lists.                                                       |
+| `lg` | 640px | Information-dense surfaces with multiple sections (e.g. desktop search modal — §§ 5.1.1., 5.2.1.). |
+
+No size beyond `lg` exists. A surface that needs more horizontal real estate is a page, not a modal.
 
 # 6. Rules.
 
