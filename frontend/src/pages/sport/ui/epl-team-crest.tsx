@@ -30,7 +30,7 @@ export function EplTeamCrest({ className, team }: EplTeamCrestProps) {
   return (
     <div
       className={cn(
-        "inline-block size-4 dark:drop-shadow-[0_0_1px_#fff] [&>svg]:size-full",
+        "inline-block size-md dark:drop-shadow-[0_0_1px_#fff] [&>svg]:size-full",
         className,
       )}
       aria-hidden
