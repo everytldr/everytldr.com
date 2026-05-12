@@ -87,7 +87,7 @@ Color tokens live in the `@theme` block of `src/app/styles/theme.css`. Each `--c
 | `primary-pressed`  | #0850cc | `:active` (held-down) on `primary` CTA / link                                                                                              |
 | `primary-disabled` | #cce0ff | Disabled CTA                                                                                                                               |
 | `on-primary`       | #ffffff | Text on Read Blue                                                                                                                          |
-| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `chip-active`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                                    |
+| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `chip-selected`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                                    |
 | `like-active`      | #e11d48 | Filled-heart state ONLY                                                                                                                    |
 | `like-inactive`    | #6a6a6a | Outline-heart state                                                                                                                        |
 | `canvas`           | #ffffff | Page floor (light); see § 3.1.6. for surface-ladder semantics                                                                              |
@@ -398,7 +398,7 @@ Components are compositions of Tailwind utilities — no component stylesheets, 
 | `button-ghost`       | transparent       | `ink`        | `sm`   | 8×16       | auto   | none                  |
 | `button-link`        | transparent       | `primary`    | —      | 0          | auto   | none                  |
 | `chip`               | `canvas`          | `body`       | `full` | 8×16       | 36     | 1px `hairline`        |
-| `chip-active`        | `ink`             | `on-ink`     | `full` | 8×16       | 36     | none                  |
+| `chip-selected`        | `ink`             | `on-ink`     | `full` | 8×16       | 36     | none                  |
 | `icon-button-circle` | `surface-soft`    | `ink`        | `full` | 8 (square) | 36×36  | none                  |
 
 Active filter uses `ink`, not `primary` (§ 3.1.1.).
@@ -417,7 +417,7 @@ Pseudo-class mapping is fixed: `pressed` ↔ `:active`; `hover` ↔ `:hover`; `d
 | `button-link`              | `text-primary-hover`, `underline`                        | `text-primary-pressed`           | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2` (offset on text bbox)          |
 | `chip` (light)             | `bg-surface-soft`, `text-ink`                            | `bg-surface-strong`, `text-ink`  | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
 | `chip` (dark)              | `bg-surface-strong`, `text-ink`                          | `bg-surface-pressed`, `text-ink` | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
-| `chip-active`              | unchanged (active filter is a state, not a hover target) | `bg-ink/90`                      | n/a                                         | (same)                                                             |
+| `chip-selected`              | unchanged (active filter is a state, not a hover target) | `bg-ink/90`                      | n/a                                         | (same)                                                             |
 | `icon-button-circle`       | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary` (no offset — circle bbox is the visual edge) |
 
 | Decision                                                                                                                   | Reason                                                                                                                                                                                   |
@@ -520,7 +520,7 @@ No size beyond `lg` exists. A surface that needs more horizontal real estate is 
 
 - No serif anywhere — light or dark, Korean or English (§ 3.2.1.).
 - No negative letter-spacing on Korean (§ 3.2.4.).
-- No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `chip-active` — § 3.1.1., § 5.1.1.).
+- No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `chip-selected` — § 3.1.1., § 5.1.1.).
 - No `like-active` outside its dedicated toggle state (§ 3.1.1.).
 - No second accent colour — extend via category tints first (§ 3.1.3.).
 - No default shadow (§ 3.5.).

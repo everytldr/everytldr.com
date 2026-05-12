@@ -34,7 +34,7 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
         />
       )}
       renderDesktopTrigger={({ isOpen }) => (
-        <Chip asChild isActive={false}>
+        <Chip asChild isSelected={false}>
           <button type="button" aria-label={`${t("language")}: ${locale.toUpperCase()}`}>
             <Globe className="size-4" />
             <span>{locale.toUpperCase()}</span>

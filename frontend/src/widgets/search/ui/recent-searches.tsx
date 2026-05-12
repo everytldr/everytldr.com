@@ -42,7 +42,7 @@ function RecentChip({ className, term, onSelect, onRemove }: RecentChipProps) {
   const t = useTranslations("search");
 
   return (
-    <Chip className={className} asChild isActive={false}>
+    <Chip className={className} asChild isSelected={false}>
       <span>
         <button
           className="outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
