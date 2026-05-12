@@ -14,8 +14,8 @@ type FloatingSubNavProps = {
 };
 
 export function FloatingSubNav({ className }: FloatingSubNavProps) {
-  const { slug } = useParams<{ slug?: SubCategorySlug }>();
-  const categorySlug = slug ?? DEFAULT_SUB_CATEGORY_SLUG;
+  const params = useParams<{ slug?: SubCategorySlug }>();
+  const categorySlug = params?.slug ?? DEFAULT_SUB_CATEGORY_SLUG;
   const t = useTranslations();
   const [visible, setVisible] = useRafState(false);
 
