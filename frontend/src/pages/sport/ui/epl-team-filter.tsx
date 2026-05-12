@@ -11,7 +11,7 @@ import { buildEplFilterUrl, cn } from "@/shared/lib";
 import { ResponsiveSelector, Translation } from "@/shared/ui";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type PropsWithChildren } from "react";
+import { type ComponentProps, type PropsWithChildren } from "react";
 import { EplTeamCrest } from "./epl-team-crest";
 
 type EplTeamFilterProps = {
@@ -66,16 +66,10 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
               ),
             })),
           ]}
-          renderMobileTrigger={({ open }) => (
-            <button
-              className={cn(
-                "inline-flex h-9 items-center gap-2xs rounded-full px-md text-button-sm whitespace-nowrap transition-colors outline-none",
-                "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
-                isTriggerActive
-                  ? "border border-transparent bg-ink text-on-ink active:bg-ink/90"
-                  : "border border-hairline bg-canvas text-body hover:bg-surface-soft active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
-              )}
-              type="button"
+          renderMobileTrigger={({ isOpen, open }) => (
+            <PickerTrigger
+              isActive={isTriggerActive}
+              isOpen={isOpen}
               aria-haspopup="dialog"
               aria-label={t("epl.aria-label.team-picker")}
               onClick={open}
@@ -85,28 +79,16 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
               ) : (
                 <Translation tKey="epl.more-teams" />
               )}
-              <ChevronDown className="size-4" aria-hidden />
-            </button>
+            </PickerTrigger>
           )}
           renderDesktopTrigger={() => (
-            <button
-              className={cn(
-                "inline-flex h-9 cursor-pointer items-center gap-2xs rounded-full px-md text-button-sm whitespace-nowrap transition-colors outline-none",
-                "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
-                isTriggerActive
-                  ? "border border-transparent bg-ink text-on-ink active:bg-ink/90"
-                  : "border border-hairline bg-canvas text-body hover:bg-surface-soft active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
-              )}
-              type="button"
-              aria-label={t("epl.aria-label.team-picker")}
-            >
+            <PickerTrigger isActive={isTriggerActive} aria-label={t("epl.aria-label.team-picker")}>
               {isTriggerActive ? (
                 <Translation tKey={`epl.team.${filter}`} />
               ) : (
                 <Translation tKey="epl.more-teams" />
               )}
-              <ChevronDown className="size-4" aria-hidden />
-            </button>
+            </PickerTrigger>
           )}
           onChange={handleSelect}
         />
@@ -133,7 +115,7 @@ function PillLink({ className, href, isActive, children }: PillLinkProps) {
         "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
         isActive
           ? "border border-transparent bg-ink text-on-ink active:bg-ink/90"
-          : "border border-hairline bg-canvas text-body hover:bg-surface-soft hover:text-ink active:bg-surface-strong dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
+          : "border border-hairline bg-canvas text-body hover:bg-surface-soft hover:text-ink active:bg-surface-strong active:text-ink dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
         className,
       )}
       href={href}
@@ -141,5 +123,40 @@ function PillLink({ className, href, isActive, children }: PillLinkProps) {
     >
       {children}
     </Link>
+  );
+}
+
+type PickerTriggerProps = ComponentProps<"button"> & {
+  isActive: boolean;
+  isOpen?: boolean;
+};
+
+function PickerTrigger({
+  className,
+  isActive,
+  isOpen = false,
+  children,
+  ...props
+}: PickerTriggerProps) {
+  return (
+    <button
+      className={cn(
+        "group inline-flex h-9 items-center gap-2xs rounded-full px-md text-button-sm whitespace-nowrap transition-colors outline-none",
+        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+        isActive
+          ? "border border-transparent bg-ink text-on-ink active:bg-ink/90"
+          : "border border-hairline bg-canvas text-body hover:bg-surface-soft hover:text-ink active:bg-surface-strong active:text-ink dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
+        className,
+      )}
+      type="button"
+      data-state={isOpen ? "open" : "closed"}
+      {...props}
+    >
+      {children}
+      <ChevronDown
+        className="size-4 transition-transform group-data-[state=open]:rotate-180"
+        aria-hidden
+      />
+    </button>
   );
 }
