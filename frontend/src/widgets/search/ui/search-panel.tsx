@@ -65,10 +65,6 @@ export function SearchPanel({
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    const trimmed = query.trim();
-    if (trimmed.length === 0) {
-      return;
-    }
-    onSubmit(trimmed);
+    onSubmit(query);
   }
 }

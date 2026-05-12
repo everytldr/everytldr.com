@@ -41,5 +41,9 @@ export function buildEplTabUrl(tab: EplPageTab): string {
 }
 
 export function buildSearchUrl(query: string): string {
-  return `/search?q=${encodeURIComponent(query)}`;
+  const trimmed = query.trim();
+  if (trimmed.length === 0) {
+    return "/search";
+  }
+  return `/search?q=${encodeURIComponent(trimmed)}`;
 }
