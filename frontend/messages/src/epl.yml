@@ -1,0 +1,113 @@
+aria-label:
+  tabs:
+    en: "EPL section tabs"
+    ko: "EPL 섹션 탭"
+  team-filter:
+    en: "Team filter"
+    ko: "팀 필터"
+  team-picker:
+    en: "Open team picker"
+    ko: "팀 선택 열기"
+
+tab:
+  news:
+    en: "News"
+    ko: "뉴스"
+  record:
+    en: "Record"
+    ko: "기록"
+
+all-teams:
+  en: "All teams"
+  ko: "전체"
+
+more-teams:
+  en: "All 20 teams"
+  ko: "전체 20팀"
+
+picker:
+  title:
+    en: "Pick a team"
+    ko: "팀 선택"
+
+team-short:
+  arsenal:
+    en: "Arsenal"
+    ko: "아스널"
+  chelsea:
+    en: "Chelsea"
+    ko: "첼시"
+  liverpool:
+    en: "Liverpool"
+    ko: "리버풀"
+  manchester-city:
+    en: "Man City"
+    ko: "맨시티"
+  manchester-united:
+    en: "Man Utd"
+    ko: "맨유"
+  tottenham:
+    en: "Spurs"
+    ko: "토트넘"
+
+team:
+  arsenal:
+    en: "Arsenal"
+    ko: "아스널"
+  aston-villa:
+    en: "Aston Villa"
+    ko: "애스턴 빌라"
+  bournemouth:
+    en: "Bournemouth"
+    ko: "본머스"
+  brentford:
+    en: "Brentford"
+    ko: "브렌트포드"
+  brighton:
+    en: "Brighton & Hove Albion"
+    ko: "브라이턴"
+  burnley:
+    en: "Burnley"
+    ko: "번리"
+  chelsea:
+    en: "Chelsea"
+    ko: "첼시"
+  crystal-palace:
+    en: "Crystal Palace"
+    ko: "크리스털 팰리스"
+  everton:
+    en: "Everton"
+    ko: "에버턴"
+  fulham:
+    en: "Fulham"
+    ko: "풀럼"
+  leeds:
+    en: "Leeds United"
+    ko: "리즈"
+  liverpool:
+    en: "Liverpool"
+    ko: "리버풀"
+  manchester-city:
+    en: "Manchester City"
+    ko: "맨체스터 시티"
+  manchester-united:
+    en: "Manchester United"
+    ko: "맨체스터 유나이티드"
+  newcastle:
+    en: "Newcastle United"
+    ko: "뉴캐슬"
+  nottingham-forest:
+    en: "Nottingham Forest"
+    ko: "노팅엄 포레스트"
+  sunderland:
+    en: "Sunderland"
+    ko: "선덜랜드"
+  tottenham:
+    en: "Tottenham Hotspur"
+    ko: "토트넘"
+  west-ham:
+    en: "West Ham United"
+    ko: "웨스트햄"
+  wolves:
+    en: "Wolverhampton Wanderers"
+    ko: "울버햄튼"

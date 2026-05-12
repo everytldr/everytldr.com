@@ -19,6 +19,7 @@ export default withNextIntl({
                     name: "preset-default",
                     params: { overrides: { removeViewBox: false } },
                   },
+                  "prefixIds",
                 ],
               },
             },

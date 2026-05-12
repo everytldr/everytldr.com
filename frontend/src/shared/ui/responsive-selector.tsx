@@ -27,9 +27,13 @@ type ResponsiveSelectorSingleProps<T extends string> = {
   title: string;
   renderMobileTrigger: (state: {
     selected: Optional<SelectorOption<T>>;
+    isOpen: boolean;
     open: () => void;
   }) => ReactNode;
-  renderDesktopTrigger: (state: { selected: Optional<SelectorOption<T>> }) => ReactNode;
+  renderDesktopTrigger: (state: {
+    selected: Optional<SelectorOption<T>>;
+    isOpen: boolean;
+  }) => ReactNode;
   onChange: (value: T) => void;
 };
 
@@ -39,8 +43,12 @@ type ResponsiveSelectorMultiProps<T extends string> = {
   value: T[];
   options: SelectorOption<T>[];
   title: string;
-  renderMobileTrigger: (state: { selected: SelectorOption<T>[]; open: () => void }) => ReactNode;
-  renderDesktopTrigger: (state: { selected: SelectorOption<T>[] }) => ReactNode;
+  renderMobileTrigger: (state: {
+    selected: SelectorOption<T>[];
+    isOpen: boolean;
+    open: () => void;
+  }) => ReactNode;
+  renderDesktopTrigger: (state: { selected: SelectorOption<T>[]; isOpen: boolean }) => ReactNode;
   onChange: (values: T[]) => void;
 };
 
@@ -93,7 +101,7 @@ function MobileSingleSelector<T extends string>({
 
   return (
     <div className={cn(className)}>
-      {renderMobileTrigger({ selected, open: () => setIsOpen(true) })}
+      {renderMobileTrigger({ selected, isOpen, open: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
         <div className="flex flex-col gap-2xs px-md pb-md" role="radiogroup" aria-label={title}>
           {options.map((opt) => {
@@ -138,12 +146,15 @@ function DesktopSingleSelector<T extends string>({
   renderDesktopTrigger,
   onChange,
 }: ResponsiveSelectorSingleProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((opt) => opt.value === value);
 
   return (
     <div className={cn(className)}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>{renderDesktopTrigger({ selected })}</DropdownMenuTrigger>
+      <DropdownMenu onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          {renderDesktopTrigger({ selected, isOpen })}
+        </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-40" align="end">
           <DropdownMenuRadioGroup value={value} onValueChange={handleSelect}>
             {options.map((opt) => (
@@ -178,7 +189,7 @@ function MobileMultiSelector<T extends string>({
 
   return (
     <div className={cn(className)}>
-      {renderMobileTrigger({ selected, open: () => setIsOpen(true) })}
+      {renderMobileTrigger({ selected, isOpen, open: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
         <div className="flex flex-col gap-2xs px-md pb-md" role="group" aria-label={title}>
           {options.map((opt) => {
@@ -216,12 +227,15 @@ function DesktopMultiSelector<T extends string>({
   renderDesktopTrigger,
   onChange,
 }: ResponsiveSelectorMultiProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
   const selected = options.filter((opt) => value.includes(opt.value));
 
   return (
     <div className={cn(className)}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>{renderDesktopTrigger({ selected })}</DropdownMenuTrigger>
+      <DropdownMenu onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          {renderDesktopTrigger({ selected, isOpen })}
+        </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-40" align="end">
           {options.map((opt) => (
             <DropdownMenuCheckboxItem

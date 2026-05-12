@@ -6,12 +6,10 @@ type HomePageProps = {
 
 export function HomePage({ className }: HomePageProps) {
   return (
-    <div className={className}>
-      <main>
-        <Container className="py-2xl">
-          <p>hello world</p>
-        </Container>
-      </main>
-    </div>
+    <main className={className}>
+      <Container className="py-2xl">
+        <p>hello world</p>
+      </Container>
+    </main>
   );
 }

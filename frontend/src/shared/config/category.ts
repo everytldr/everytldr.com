@@ -1,8 +1,4 @@
-import { assert } from "@/shared/lib";
-
-export enum EplTeam {
-  Arsenal = "arsenal",
-}
+import { assert, ensure } from "@/shared/lib";
 
 export enum MainCategorySlug {
   Home = "home",
@@ -35,6 +31,10 @@ export const CATEGORIES: CategoryNode[] = [
   { slug: MainCategorySlug.Politics, subs: [SubCategorySlug.Domestic] },
   { slug: MainCategorySlug.Technology, subs: [SubCategorySlug.Ai] },
 ];
+
+export const HOME_CATEGORY_NODE: CategoryNode = ensure(
+  CATEGORIES.find((c) => c.slug === MainCategorySlug.Home),
+);
 
 export const SUB_CATEGORY_SLUGS: SubCategorySlug[] = CATEGORIES.flatMap((c) => c.subs);
 

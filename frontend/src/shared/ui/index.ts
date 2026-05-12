@@ -1,5 +1,6 @@
 export { BottomSheet } from "./bottom-sheet";
 export { Button } from "./button";
+export { Chip } from "./chip";
 export { ConditionalLink } from "./conditional-link";
 export { Container } from "./container";
 export {
@@ -44,4 +45,5 @@ export { default as Logo } from "./logo.svg";
 export { Modal } from "./modal";
 export { ResponsiveDialog } from "./responsive-dialog";
 export { ResponsiveSelector, type SelectorOption } from "./responsive-selector";
+export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 export { Translation } from "./translation";
