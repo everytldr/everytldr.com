@@ -13,7 +13,7 @@ export function Chip({ className, isActive, asChild, ...props }: ChipProps) {
   return (
     <Comp
       className={cn(
-        "inline-flex h-9 shrink-0 cursor-pointer items-center gap-2xs rounded-full px-md text-button-sm whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex h-9 shrink-0 cursor-pointer items-center gap-xs rounded-full px-md text-button-sm whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-50",
         isActive
           ? "border border-transparent bg-ink text-on-ink active:bg-ink/90"
           : "border border-hairline bg-canvas text-body hover:bg-surface-soft hover:text-ink active:bg-surface-strong active:text-ink dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
