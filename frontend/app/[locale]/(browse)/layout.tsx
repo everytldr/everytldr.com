@@ -5,9 +5,11 @@ import { type PropsWithChildren } from "react";
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
-      <CategoryNav />
       <FloatingSubNav />
-      {children}
+      <div className="mt-xs">
+        <CategoryNav />
+        {children}
+      </div>
     </>
   );
 }

@@ -13,6 +13,11 @@
   kbd {
     @apply rounded-xs bg-surface-strong px-1.5 py-0.5 text-caption-mono text-meta;
   }
+
+  button:not(:disabled):hover,
+  [role="button"]:not(:disabled):hover {
+    cursor: pointer;
+  }
 }
 
 @utility scrollbar-hidden {

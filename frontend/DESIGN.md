@@ -87,7 +87,7 @@ Color tokens live in the `@theme` block of `src/app/styles/theme.css`. Each `--c
 | `primary-pressed`  | #0850cc | `:active` (held-down) on `primary` CTA / link                                                                                              |
 | `primary-disabled` | #cce0ff | Disabled CTA                                                                                                                               |
 | `on-primary`       | #ffffff | Text on Read Blue                                                                                                                          |
-| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `button-pill-filter-active`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                      |
+| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `chip-active`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                                    |
 | `like-active`      | #e11d48 | Filled-heart state ONLY                                                                                                                    |
 | `like-inactive`    | #6a6a6a | Outline-heart state                                                                                                                        |
 | `canvas`           | #ffffff | Page floor (light); see § 3.1.6. for surface-ladder semantics                                                                              |
@@ -292,11 +292,11 @@ Container radius 12px (not Airbnb's 14px) for editorial register; composes again
 
 Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`).
 
-| Level       | Light                                                       | Dark                   | Tailwind                       |
-| ----------- | ----------------------------------------------------------- | ---------------------- | ------------------------------ |
+| Level       | Light                                                       | Dark                            | Tailwind                       |
+| ----------- | ----------------------------------------------------------- | ------------------------------- | ------------------------------ |
 | 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound) | `border border-hairline`       |
-| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | (same)                 | `hover:shadow-hover`           |
-| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity | `bg-scrim/50 dark:bg-scrim/65` |
+| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | (same)                          | `hover:shadow-hover`           |
+| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity          | `bg-scrim/50 dark:bg-scrim/65` |
 
 | Decision                            | Reason                                                                     |
 | ----------------------------------- | -------------------------------------------------------------------------- |
@@ -389,15 +389,15 @@ Components are compositions of Tailwind utilities — no component stylesheets, 
 
 ### 5.1.1. Variant Geometry.
 
-| Variant                     | Background (rest) | Text         | Radius | Padding    | Height | Border                |
-| --------------------------- | ----------------- | ------------ | ------ | ---------- | ------ | --------------------- |
-| `button-primary`            | `primary`         | `on-primary` | `sm`   | 12×16      | 44     | none                  |
-| `button-secondary`          | `canvas`          | `ink`        | `sm`   | 12×16      | 44     | 1px `hairline-strong` |
-| `button-ghost`              | transparent       | `ink`        | `sm`   | 8×16       | auto   | none                  |
-| `button-link`               | transparent       | `primary`    | —      | 0          | auto   | none                  |
-| `button-pill-filter`        | `canvas`          | `body`       | `full` | 8×16       | 36     | 1px `hairline`        |
-| `button-pill-filter-active` | `ink`             | `on-ink`     | `full` | 8×16       | 36     | none                  |
-| `icon-button-circle`        | `surface-soft`    | `ink`        | `full` | 8 (square) | 36×36  | none                  |
+| Variant              | Background (rest) | Text         | Radius | Padding    | Height | Border                |
+| -------------------- | ----------------- | ------------ | ------ | ---------- | ------ | --------------------- |
+| `button-primary`     | `primary`         | `on-primary` | `sm`   | 12×16      | 44     | none                  |
+| `button-secondary`   | `canvas`          | `ink`        | `sm`   | 12×16      | 44     | 1px `hairline-strong` |
+| `button-ghost`       | transparent       | `ink`        | `sm`   | 8×16       | auto   | none                  |
+| `button-link`        | transparent       | `primary`    | —      | 0          | auto   | none                  |
+| `chip`               | `canvas`          | `body`       | `full` | 8×16       | 36     | 1px `hairline`        |
+| `chip-active`        | `ink`             | `on-ink`     | `full` | 8×16       | 36     | none                  |
+| `icon-button-circle` | `surface-soft`    | `ink`        | `full` | 8 (square) | 36×36  | none                  |
 
 Active filter uses `ink`, not `primary` (§ 3.1.1.).
 
@@ -405,18 +405,18 @@ Active filter uses `ink`, not `primary` (§ 3.1.1.).
 
 Pseudo-class mapping is fixed: `pressed` ↔ `:active`; `hover` ↔ `:hover`; `disabled` ↔ `:disabled`; `focus` ↔ `:focus-visible` (keyboard-only — no focus ring on mouse click). Every interactive variant defines all five states. State tokens already encode dark via `.dark` rebind (§ 3.1.2.) — no `dark:` prefix is needed for the **value** swap; `dark:` prefixes appear only when a different **token** is chosen per theme (see § 3.1.6. caveat for `surface-soft` skip on dark).
 
-| Variant                      | `:hover`                                                 | `:active`                        | `:disabled`                                 | `:focus-visible`                                                   |
-| ---------------------------- | -------------------------------------------------------- | -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------ |
-| `button-primary`             | `bg-primary-hover`                                       | `bg-primary-pressed`             | `bg-primary-disabled`, `cursor-not-allowed` | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `button-secondary` (light)   | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `button-secondary` (dark)    | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
-| `button-ghost` (light)       | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `button-ghost` (dark)        | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
-| `button-link`                | `text-primary-hover`, `underline`                        | `text-primary-pressed`           | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2` (offset on text bbox)          |
-| `button-pill-filter` (light) | `bg-surface-soft`, `text-ink`                            | `bg-surface-strong`, `text-ink`  | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `button-pill-filter` (dark)  | `bg-surface-strong`, `text-ink`                          | `bg-surface-pressed`, `text-ink` | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
-| `button-pill-filter-active`  | unchanged (active filter is a state, not a hover target) | `bg-ink/90`                      | n/a                                         | (same)                                                             |
-| `icon-button-circle`         | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary` (no offset — circle bbox is the visual edge) |
+| Variant                    | `:hover`                                                 | `:active`                        | `:disabled`                                 | `:focus-visible`                                                   |
+| -------------------------- | -------------------------------------------------------- | -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------ |
+| `button-primary`           | `bg-primary-hover`                                       | `bg-primary-pressed`             | `bg-primary-disabled`, `cursor-not-allowed` | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `button-secondary` (light) | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `button-secondary` (dark)  | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
+| `button-ghost` (light)     | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `button-ghost` (dark)      | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
+| `button-link`              | `text-primary-hover`, `underline`                        | `text-primary-pressed`           | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2` (offset on text bbox)          |
+| `chip` (light)             | `bg-surface-soft`, `text-ink`                            | `bg-surface-strong`, `text-ink`  | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `chip` (dark)              | `bg-surface-strong`, `text-ink`                          | `bg-surface-pressed`, `text-ink` | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
+| `chip-active`              | unchanged (active filter is a state, not a hover target) | `bg-ink/90`                      | n/a                                         | (same)                                                             |
+| `icon-button-circle`       | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary` (no offset — circle bbox is the visual edge) |
 
 | Decision                                                                                                                   | Reason                                                                                                                                                                                   |
 | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -517,7 +517,7 @@ No size beyond `lg` exists. A surface that needs more horizontal real estate is 
 
 - No serif anywhere — light or dark, Korean or English (§ 3.2.1.).
 - No negative letter-spacing on Korean (§ 3.2.4.).
-- No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `button-pill-filter-active` — § 3.1.1., § 5.1.1.).
+- No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `chip-active` — § 3.1.1., § 5.1.1.).
 - No `like-active` outside its dedicated toggle state (§ 3.1.1.).
 - No second accent colour — extend via category tints first (§ 3.1.3.).
 - No default shadow (§ 3.5.).

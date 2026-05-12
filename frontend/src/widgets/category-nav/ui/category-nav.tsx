@@ -18,8 +18,9 @@ type CategoryNavProps = {
 
 export function CategoryNav({ className }: CategoryNavProps) {
   const t = useTranslations();
-  const { slug } = useParams<{ slug?: SubCategorySlug }>();
-  const categorySlug = slug ?? DEFAULT_SUB_CATEGORY_SLUG;
+  const params = useParams<{ slug?: SubCategorySlug }>();
+
+  const categorySlug = params?.slug ?? DEFAULT_SUB_CATEGORY_SLUG;
   const category = findRootCategory(categorySlug);
 
   return (
@@ -57,20 +58,20 @@ export function CategoryNav({ className }: CategoryNavProps) {
           aria-label={t("header.aria-label.subcategories")}
         >
           <div className="flex h-11 items-center gap-md">
-            {category.subs.map((sub) => {
-              const isActive = sub === categorySlug;
+            {category.subs.map((subCategorySlug) => {
+              const isActive = subCategorySlug === categorySlug;
               return (
                 <Link
-                  key={sub}
+                  key={subCategorySlug}
                   className={cn(
                     "inline-flex items-center text-nav-sm whitespace-nowrap transition-colors outline-none",
                     "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft",
                     isActive ? "text-ink" : "text-meta-soft hover:text-ink",
                   )}
-                  href={buildSubcategoryUrl(category, sub)}
+                  href={buildSubcategoryUrl(category, subCategorySlug)}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  <Translation tKey={`header.subcategory.${sub}`} />
+                  <Translation tKey={`header.subcategory.${subCategorySlug}`} />
                 </Link>
               );
             })}
