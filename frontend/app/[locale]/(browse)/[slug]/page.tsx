@@ -36,7 +36,7 @@ export default async function Page({ params }: PageProps) {
   }
 
   if (slug === SubCategorySlug.EPL || slug === SubCategorySlug.NBA) {
-    return <SportPage categorySlug={slug} />;
+    return <SportPage slug={slug} />;
   }
 
   if (HOME_CATEGORY_NODE.subs.includes(slug)) {
