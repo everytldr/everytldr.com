@@ -121,6 +121,7 @@ Hex values are hand-tuned, not arithmetic inversions. Rationale: § 3.1.5.
 | `primary-hover-dark`    | #5589f4 | `primary-hover`    |
 | `primary-pressed-dark`  | #4d82e8 | `primary-pressed`  |
 | `primary-disabled-dark` | #1f3055 | `primary-disabled` |
+| `on-primary-dark`       | #0b1228 | `on-primary`       |
 | `on-ink-dark`           | #131316 | `on-ink`           |
 | `like-active-dark`      | #fb7185 | `like-active`      |
 | `like-inactive-dark`    | #8a8a92 | `like-inactive`    |
@@ -164,16 +165,17 @@ A finite, hand-balanced set (vs. free-form colour) guarantees that any new categ
 
 ### 3.1.5. Dark-Palette Rationale.
 
-| Decision                                                                                 | Reason                                                                                                                                                                        |
-| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `canvas-dark` = #131316, NOT #000000                                                     | Pure black causes OLED (§ 1.3.) scroll smear and harsh perception. #131316 matches BBC News, NYT, The Guardian, Naver Dark, Daum Dark canon.                                  |
-| `ink-dark` = #f5f5f7, NOT #ffffff                                                        | Pure white on dark vibrates at small sizes (especially Hangul). Apple macOS dark precedent.                                                                                   |
-| `primary-dark` = #5e93ff (lifted from #0a66ff)                                           | #0a66ff on `canvas-dark` is ~4.0:1 — fails WCAG AA (§ 1.3.). Lifted variant is ~5.4:1. Apple `primary-on-dark` (#2997ff) precedent.                                           |
-| `primary-hover-dark` = #5589f4, `primary-pressed-dark` = #4d82e8                         | Hover/active on dark must darken (not lift) — additive light on dark reads as "release" not "press". Two-step darken from #5e93ff matches Material density (8% / 16%).        |
-| `like-active-dark` = #fb7185 (lifted from #e11d48)                                       | #e11d48 on dark over-saturates and reads as alert; softer rose retains affirmation register.                                                                                  |
-| Surface ladder (§ 3.1.6.) roles invert (cards on `surface-soft-dark`, not `canvas-dark`) | Additive light reads "raised" on dark; cards must be lighter than container to feel elevated.                                                                                 |
-| `surface-pressed-dark` = #2f2f35 (lifted from #26262b)                                   | Symmetric to light: extends ladder one tier above hover for `:active` feedback. Stays below `hairline-strong-dark` (#3d3d44) so chip fills never collide with input outlines. |
-| Light tints replaced with deep-bg + bright-text pairs                                    | Light pastel on dark canvas glows as halo. Inverted luminance with same hue identity preserves recognition.                                                                   |
+| Decision                                                                                 | Reason                                                                                                                                                                                                                        |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `canvas-dark` = #131316, NOT #000000                                                     | Pure black causes OLED (§ 1.3.) scroll smear and harsh perception. #131316 matches BBC News, NYT, The Guardian, Naver Dark, Daum Dark canon.                                                                                  |
+| `ink-dark` = #f5f5f7, NOT #ffffff                                                        | Pure white on dark vibrates at small sizes (especially Hangul). Apple macOS dark precedent.                                                                                                                                   |
+| `primary-dark` = #5e93ff (lifted from #0a66ff)                                           | #0a66ff on `canvas-dark` is ~4.0:1 — fails WCAG AA (§ 1.3.). Lifted variant is ~5.4:1. Apple `primary-on-dark` (#2997ff) precedent.                                                                                           |
+| `primary-hover-dark` = #5589f4, `primary-pressed-dark` = #4d82e8                         | Hover/active on dark must darken (not lift) — additive light on dark reads as "release" not "press". Two-step darken from #5e93ff matches Material density (8% / 16%).                                                        |
+| `on-primary-dark` = #0b1228 (rebound from #ffffff)                                       | White on `primary-dark` (#5e93ff) is ~3.0:1 — fails WCAG AA body (4.5:1) and borderline UI (3:1). Deep navy text restores AA at ~6.3:1 while preserving the lifted primary tone. Material 3 "on-primary" dark-mode precedent. |
+| `like-active-dark` = #fb7185 (lifted from #e11d48)                                       | #e11d48 on dark over-saturates and reads as alert; softer rose retains affirmation register.                                                                                                                                  |
+| Surface ladder (§ 3.1.6.) roles invert (cards on `surface-soft-dark`, not `canvas-dark`) | Additive light reads "raised" on dark; cards must be lighter than container to feel elevated.                                                                                                                                 |
+| `surface-pressed-dark` = #2f2f35 (lifted from #26262b)                                   | Symmetric to light: extends ladder one tier above hover for `:active` feedback. Stays below `hairline-strong-dark` (#3d3d44) so chip fills never collide with input outlines.                                                 |
+| Light tints replaced with deep-bg + bright-text pairs                                    | Light pastel on dark canvas glows as halo. Inverted luminance with same hue identity preserves recognition.                                                                                                                   |
 
 ### 3.1.6. Surface Ladder Semantics.
 
