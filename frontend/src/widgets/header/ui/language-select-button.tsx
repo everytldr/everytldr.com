@@ -36,10 +36,10 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
       renderDesktopTrigger={({ isOpen }) => (
         <Chip asChild isSelected={false}>
           <button type="button" aria-label={`${t("language")}: ${locale.toUpperCase()}`}>
-            <Globe className="size-4" />
+            <Globe className="size-md" />
             <span>{locale.toUpperCase()}</span>
             <ChevronDown
-              className={cn("size-4 transition-transform", isOpen && "rotate-180")}
+              className={cn("size-md transition-transform", isOpen && "rotate-180")}
               aria-hidden
             />
           </button>

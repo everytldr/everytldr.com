@@ -40,7 +40,7 @@ export function Input({
         {...props}
       />
       {variant === "search" && (
-        <Search className="pointer-events-none absolute top-1/2 left-md size-4 -translate-y-1/2 text-meta" />
+        <Search className="pointer-events-none absolute top-1/2 left-md size-md -translate-y-1/2 text-meta" />
       )}
       <button
         className="absolute top-1/2 right-sm inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-meta transition-colors outline-none peer-placeholder-shown:invisible hover:text-ink focus-visible:ring-2 focus-visible:ring-primary active:text-ink"
