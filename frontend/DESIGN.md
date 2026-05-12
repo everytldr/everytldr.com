@@ -527,7 +527,7 @@ No size beyond `lg` exists. A surface that needs more horizontal real estate is 
 - No Hangul in `caption-mono` (§ 3.2.4.).
 - No `display-*`, `title-*`, or `body-*` on categorical navigation labels; use `nav-*` (§ 3.2.2.).
 - No second-nav size hierarchy by font weight alone (§ 3.2.2.).
-- No `rounded.xl` (24px) without explicit justification (§ 3.4.).
+- No `rounded-xl` (24px) without explicit justification (§ 3.4.).
 - No background gradients (§ 3.1.).
 - No #000000 canvas-dark; no #ffffff ink-dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
 - No mechanical surface-ladder inversion (§ 3.1.5.).
