@@ -28,13 +28,7 @@ type EplTeamCrestProps = {
 
 export function EplTeamCrest({ className, team }: EplTeamCrestProps) {
   return (
-    <div
-      className={cn(
-        "inline-block size-md dark:drop-shadow-[0_0_1px_#fff] [&>svg]:size-full",
-        className,
-      )}
-      aria-hidden
-    >
+    <div className={cn("inline-block size-md [&>svg]:size-full", className)} aria-hidden>
       {team === EplTeam.Arsenal ? (
         <Arsenal />
       ) : team === EplTeam.AstonVilla ? (
