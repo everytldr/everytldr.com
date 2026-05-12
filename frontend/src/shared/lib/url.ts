@@ -39,3 +39,7 @@ export function buildEplTabUrl(tab: EplPageTab): string {
   }
   return `/${SubCategorySlug.EPL}/${tab}`;
 }
+
+export function buildSearchUrl(query: string): string {
+  return `/search?q=${encodeURIComponent(query)}`;
+}
