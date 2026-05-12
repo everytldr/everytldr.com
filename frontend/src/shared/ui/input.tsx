@@ -2,6 +2,7 @@
 
 import { cn, ensure } from "@/shared/lib";
 import { Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useImperativeHandle, useRef, type ComponentProps, type ReactNode } from "react";
 
 export type InputProps = Omit<ComponentProps<"input">, "placeholder"> & {
@@ -18,6 +19,7 @@ export function Input({
   ...props
 }: InputProps) {
   const innerRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("common.aria-label");
 
   useImperativeHandle(ref, () => ensure(innerRef.current, "Input ref is not set"));
 
@@ -41,9 +43,9 @@ export function Input({
         <Search className="pointer-events-none absolute top-1/2 left-md size-4 -translate-y-1/2 text-meta" />
       )}
       <button
-        className="absolute top-1/2 right-md -translate-y-1/2 text-meta transition-colors peer-placeholder-shown:invisible hover:text-ink"
+        className="absolute top-1/2 right-sm inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-meta transition-colors outline-none peer-placeholder-shown:invisible hover:text-ink focus-visible:ring-2 focus-visible:ring-primary active:text-ink"
         type="button"
-        aria-label="Clear"
+        aria-label={t("clear")}
         onClick={handleClear}
       >
         <X className="size-md" />
