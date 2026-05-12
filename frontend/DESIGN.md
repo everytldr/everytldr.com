@@ -508,6 +508,7 @@ No size beyond `lg` exists. A surface that needs more horizontal real estate is 
 - Use 1px `hairline` (or `-dark`) as default elevation (§ 3.5.).
 - Apply `:lang(ko)` overrides for every display token (§ 3.2.3.).
 - Reference colours via Tailwind utilities (`bg-*`, `text-*`, `border-*`) or `var(--color-*)` directly — never hard-code hex (§ 4.3.).
+- Hex literals are permitted ONLY inside CSS filter functions (`drop-shadow()`, `mask-*`, `backdrop-filter`) where the value is a compositor parameter, not a surface or text color. Comment the literal at its site to mark the intentional waiver.
 - Set the `.dark` class on `<html>` server-side from cookie before first paint (§ 4.3.).
 - Define `-dark` companion for every new colour token; verify ≥ WCAG AA against `canvas-dark` (§ 3.1.2., § 3.1.5.).
 - Start every interactive component's resting fill at `canvas` or `surface-soft` (§ 3.1.6.); never higher.
