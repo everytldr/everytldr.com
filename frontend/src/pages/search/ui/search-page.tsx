@@ -30,7 +30,7 @@ export function SearchPage({ className, query }: SearchPageProps) {
         />
         {hasQuery && (
           <Translation
-            className="rounded-md border border-hairline-soft bg-surface-soft px-2xl py-2xl text-center text-body-md text-meta"
+            className="rounded-md border border-hairline bg-surface-soft px-2xl py-2xl text-center text-body-md text-meta"
             as="p"
             tKey="search.result-placeholder-body"
           />
