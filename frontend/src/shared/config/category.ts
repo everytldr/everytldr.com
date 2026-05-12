@@ -1,9 +1,5 @@
 import { assert, ensure } from "@/shared/lib";
 
-export enum EplTeam {
-  Arsenal = "arsenal",
-}
-
 export enum MainCategorySlug {
   Home = "home",
   Sport = "sport",
