@@ -30,7 +30,10 @@ type ResponsiveSelectorSingleProps<T extends string> = {
     isOpen: boolean;
     open: () => void;
   }) => ReactNode;
-  renderDesktopTrigger: (state: { selected: Optional<SelectorOption<T>> }) => ReactNode;
+  renderDesktopTrigger: (state: {
+    selected: Optional<SelectorOption<T>>;
+    isOpen: boolean;
+  }) => ReactNode;
   onChange: (value: T) => void;
 };
 
@@ -45,7 +48,7 @@ type ResponsiveSelectorMultiProps<T extends string> = {
     isOpen: boolean;
     open: () => void;
   }) => ReactNode;
-  renderDesktopTrigger: (state: { selected: SelectorOption<T>[] }) => ReactNode;
+  renderDesktopTrigger: (state: { selected: SelectorOption<T>[]; isOpen: boolean }) => ReactNode;
   onChange: (values: T[]) => void;
 };
 
@@ -143,12 +146,15 @@ function DesktopSingleSelector<T extends string>({
   renderDesktopTrigger,
   onChange,
 }: ResponsiveSelectorSingleProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((opt) => opt.value === value);
 
   return (
     <div className={cn(className)}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>{renderDesktopTrigger({ selected })}</DropdownMenuTrigger>
+      <DropdownMenu onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          {renderDesktopTrigger({ selected, isOpen })}
+        </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-40" align="end">
           <DropdownMenuRadioGroup value={value} onValueChange={handleSelect}>
             {options.map((opt) => (
@@ -221,12 +227,15 @@ function DesktopMultiSelector<T extends string>({
   renderDesktopTrigger,
   onChange,
 }: ResponsiveSelectorMultiProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
   const selected = options.filter((opt) => value.includes(opt.value));
 
   return (
     <div className={cn(className)}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>{renderDesktopTrigger({ selected })}</DropdownMenuTrigger>
+      <DropdownMenu onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          {renderDesktopTrigger({ selected, isOpen })}
+        </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-40" align="end">
           {options.map((opt) => (
             <DropdownMenuCheckboxItem
