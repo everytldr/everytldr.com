@@ -24,7 +24,7 @@ export function EplStandingsTable({ className, standings }: EplStandingsTablePro
     <Table className={className} aria-label={t("epl.aria-label.standings")}>
       <TableHeader>
         <TableRow>
-          <TableHead className="sticky left-0 z-10 w-2xl border-l-2 border-transparent bg-canvas text-right">
+          <TableHead className="sticky left-0 z-10 w-2xl bg-canvas text-right">
             <Translation tKey="epl.record.column.rank" />
           </TableHead>
           <TableHead className="sticky left-2xl z-10 w-45 border-r border-hairline bg-canvas">
@@ -58,14 +58,14 @@ export function EplStandingsTable({ className, standings }: EplStandingsTablePro
           >
             <TableCell
               className={cn(
-                "sticky left-0 z-10 w-2xl border-l-2 bg-canvas text-right text-caption-mono text-meta tabular-nums group-hover:bg-surface-soft dark:group-hover:bg-surface-strong",
+                "sticky left-0 z-10 w-2xl bg-canvas text-right text-caption-mono text-meta tabular-nums group-hover:bg-surface-soft dark:group-hover:bg-surface-strong",
                 row.rank <= 4
-                  ? "border-tint-sky-fg"
+                  ? "stripe-l-tint-sky-fg"
                   : row.rank === 5
-                    ? "border-tint-peach-fg"
+                    ? "stripe-l-tint-peach-fg"
                     : row.rank >= 18
-                      ? "border-tint-rose-fg"
-                      : "border-transparent",
+                      ? "stripe-l-tint-rose-fg"
+                      : "",
               )}
             >
               {row.rank}
