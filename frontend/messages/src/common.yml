@@ -9,6 +9,12 @@ aria-label:
   clear:
     en: "Clear"
     ko: "지우기"
+  scroll-previous:
+    en: "Scroll to previous"
+    ko: "이전으로 스크롤"
+  scroll-next:
+    en: "Scroll to next"
+    ko: "다음으로 스크롤"
 
 error-content:
   cta-home:
