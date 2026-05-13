@@ -18,11 +18,11 @@ export function EplPage({ className, subSlug }: EplPageProps) {
 
   return (
     <main className={cn("pt-lg", className)}>
-      <Container>
+      <Container className="space-y-sm">
         <EplTabs activeTab={resolved.activeTab} />
 
         {resolved.activeTab === EplPageTab.News ? (
-          <EplTeamFilter className="py-md" filter={resolved.filter} />
+          <EplTeamFilter filter={resolved.filter} />
         ) : (
           <p>Record</p>
         )}
