@@ -26,6 +26,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "category", "id", "publishedAt", "source", "summary", "thumbnailUrl", "title" ],
         "type" : "object"
       },
       "ArticleListResponse" : {

@@ -1,16 +1,17 @@
 package org.tldrtimes.api.article;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import org.tldrtimes.common.domain.article.ArticleListProjection;
 
 public record ArticleListItem(
-    String id,
-    String title,
-    String summary,
-    String thumbnailUrl,
-    Instant publishedAt,
-    String source,
-    String category) {
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String id,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String title,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String summary,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String thumbnailUrl,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Instant publishedAt,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String source,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String category) {
   static ArticleListItem from(ArticleListProjection projection) {
     return new ArticleListItem(
         projection.id().toString(),
