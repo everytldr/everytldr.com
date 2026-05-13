@@ -65,8 +65,8 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
             ...EPL_TEAMS_ALPHABETICAL.map((team) => ({
               value: team,
               content: (
-                <span className="inline-flex items-center gap-2xs">
-                  <EplTeamCrest className="size-xl not-pc:hidden dark:drop-stroke" team={team} />
+                <span className="inline-flex items-center gap-sm">
+                  <EplTeamCrest className="dark:drop-stroke" team={team} />
                   <Translation tKey={`epl.team.${team}`} />
                 </span>
               ),
