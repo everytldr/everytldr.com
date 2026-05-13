@@ -30,7 +30,7 @@ public class ArticleController {
   public ArticleListResponse list(
       @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
       @RequestParam(required = false) String cursor,
-      @RequestParam(required = false) String category,
+      @RequestParam(required = false) String categoryPrefix,
       @RequestParam(required = false) Integer size) {
     int pageSize = Pagination.clampSize(size);
     ArticleListCursor.Decoded decoded = cursor == null ? null : ArticleListCursor.decode(cursor);
@@ -38,7 +38,7 @@ public class ArticleController {
     Pagination.Page<ArticleListProjection> page =
         articleService.listRecent(
             language,
-            category,
+            categoryPrefix,
             decoded == null ? null : decoded.publishedAt(),
             decoded == null ? null : decoded.id(),
             pageSize);

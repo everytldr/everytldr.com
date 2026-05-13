@@ -83,6 +83,26 @@ class ArticleControllerTest {
   }
 
   @Test
+  void filtersByCategoryPrefix() {
+    Category eplLeague =
+        categoryRepository.saveAndFlush(Category.create("sport-football-epl", 10));
+    Category eplArsenal =
+        categoryRepository.saveAndFlush(Category.create("sport-football-epl-arsenal", 11));
+    Category nba = categoryRepository.saveAndFlush(Category.create("sport-basketball-nba", 12));
+
+    Instant base = Instant.parse("2026-04-01T00:00:00Z");
+    Article eplGeneral = saveArticle(base, eplLeague, "ko", "EPL 일반", "본문");
+    Article eplArs =
+        saveArticle(base.minus(1, ChronoUnit.HOURS), eplArsenal, "ko", "아스널 뉴스", "본문");
+    saveArticle(base.minus(2, ChronoUnit.HOURS), nba, "ko", "NBA 뉴스", "본문");
+    flushAndClear();
+
+    assertThat(findRecent("ko", "sport-football-epl", null, null, 10))
+        .extracting(ArticleListProjection::id)
+        .containsExactly(eplGeneral.getId(), eplArs.getId());
+  }
+
+  @Test
   void excludesArticlesMissingJoinsOrSoftDeleted() {
     Instant base = Instant.parse("2026-04-01T00:00:00Z");
     Article noSummaryInKo = saveArticleWithoutSummary(base, football);
