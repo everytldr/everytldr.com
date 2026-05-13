@@ -46,11 +46,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
             <Chip key={team} asChild isSelected={isSelected}>
               <Link href={buildEplFilterUrl(team)} aria-current={isSelected ? "page" : undefined}>
                 <EplTeamCrest
-                  className={cn(
-                    // #fff inside drop-shadow per DESIGN.md § 6.1 waiver — outlines dark logos against dark surfaces.
-                    "hidden md:inline-block dark:drop-shadow-[0_0_1px_#fff]",
-                    isSelected && "drop-shadow-[0_0_1px_#fff]",
-                  )}
+                  className={cn("not-pc:hidden dark:drop-stroke", isSelected && "drop-stroke")}
                   team={team}
                 />
                 <Translation tKey={`epl.team-short.${team}`} />
@@ -70,11 +66,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
               value: team,
               content: (
                 <span className="inline-flex items-center gap-2xs">
-                  {/* #fff inside drop-shadow per DESIGN.md § 6.1 waiver — outlines dark logos against dark canvas. */}
-                  <EplTeamCrest
-                    className="hidden md:inline-block dark:drop-shadow-[0_0_1px_#fff]"
-                    team={team}
-                  />
+                  <EplTeamCrest className="size-xl not-pc:hidden dark:drop-stroke" team={team} />
                   <Translation tKey={`epl.team.${team}`} />
                 </span>
               ),
