@@ -1,8 +1,8 @@
 import { EplPageTab, type EplTeam } from "@/shared/config";
 import { cn } from "@/shared/lib";
 import { Container } from "@/shared/ui";
+import { EplNewsTab } from "./epl-news-tab";
 import { EplTabs } from "./epl-tabs";
-import { EplTeamFilter } from "./epl-team-filter";
 
 type EplPageProps = {
   className?: string;
@@ -22,7 +22,7 @@ export function EplPage({ className, subSlug }: EplPageProps) {
         <EplTabs activeTab={resolved.activeTab} />
 
         {resolved.activeTab === EplPageTab.News ? (
-          <EplTeamFilter filter={resolved.filter} />
+          <EplNewsTab filter={resolved.filter} />
         ) : (
           <p>Record</p>
         )}

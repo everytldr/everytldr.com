@@ -17,6 +17,11 @@ tab:
     en: "Record"
     ko: "기록"
 
+news:
+  empty-state:
+    en: "No EPL news yet"
+    ko: "아직 EPL 뉴스가 없어요"
+
 all-teams:
   en: "All teams"
   ko: "전체"
