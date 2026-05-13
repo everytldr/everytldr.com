@@ -22,7 +22,7 @@ export function TabsList({ className, ...props }: TabsListProps) {
   return (
     <TabsPrimitive.List
       className={cn(
-        "scrollbar-hidden flex h-12 items-stretch gap-xl overflow-x-auto border-b border-hairline",
+        "scrollbar-hidden flex h-12 items-stretch gap-xl overflow-x-auto border-b border-hairline px-md",
         className,
       )}
       data-slot="tabs-list"

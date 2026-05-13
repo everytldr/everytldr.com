@@ -34,18 +34,21 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
       aria-label={t("epl.aria-label.team-filter")}
     >
       <div className="flex h-12 items-center gap-2xs">
-        <Chip asChild isActive={!filter}>
+        <Chip asChild isSelected={!filter}>
           <Link href={buildEplFilterUrl()} aria-current={!filter ? "page" : undefined}>
             <Translation tKey="epl.all-teams" />
           </Link>
         </Chip>
 
         {EPL_BIG_SIX_TEAMS.map((team) => {
-          const isActive = filter === team;
+          const isSelected = filter === team;
           return (
-            <Chip key={team} asChild isActive={isActive}>
-              <Link href={buildEplFilterUrl(team)} aria-current={isActive ? "page" : undefined}>
-                <EplTeamCrest className="hidden md:inline-block" team={team} />
+            <Chip key={team} asChild isSelected={isSelected}>
+              <Link href={buildEplFilterUrl(team)} aria-current={isSelected ? "page" : undefined}>
+                <EplTeamCrest
+                  className={cn("not-pc:hidden dark:drop-stroke", isSelected && "drop-stroke")}
+                  team={team}
+                />
                 <Translation tKey={`epl.team-short.${team}`} />
               </Link>
             </Chip>
@@ -62,8 +65,8 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
             ...EPL_TEAMS_ALPHABETICAL.map((team) => ({
               value: team,
               content: (
-                <span className="inline-flex items-center gap-2xs">
-                  <EplTeamCrest className="hidden md:inline-block" team={team} />
+                <span className="inline-flex items-center gap-sm">
+                  <EplTeamCrest className="dark:drop-stroke" team={team} />
                   <Translation tKey={`epl.team.${team}`} />
                 </span>
               ),
@@ -71,7 +74,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
           ]}
           renderMobileTrigger={({ isOpen, open }) => (
             <Chip
-              isActive={isTriggerActive}
+              isSelected={isTriggerActive}
               type="button"
               aria-haspopup="dialog"
               aria-label={t("epl.aria-label.team-picker")}
@@ -90,7 +93,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
           )}
           renderDesktopTrigger={({ isOpen }) => (
             <Chip
-              isActive={isTriggerActive}
+              isSelected={isTriggerActive}
               type="button"
               aria-label={t("epl.aria-label.team-picker")}
             >

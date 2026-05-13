@@ -1,7 +1,8 @@
 "use client";
 
 import { Locale, usePathname, useRouter } from "@/shared/i18n";
-import { IconButton, ResponsiveSelector } from "@/shared/ui";
+import { cn } from "@/shared/lib";
+import { Chip, IconButton, ResponsiveSelector } from "@/shared/ui";
 import { ChevronDown, Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -32,16 +33,17 @@ export function LanguageSelectButton({ className, locale }: LanguageSelectButton
           onClick={open}
         />
       )}
-      renderDesktopTrigger={() => (
-        <button
-          className="inline-flex h-9 cursor-pointer items-center gap-xs rounded-full border border-hairline bg-canvas px-md text-button-sm text-body transition-colors outline-none hover:bg-surface-soft hover:text-ink focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:bg-surface-strong active:text-ink data-[state=open]:bg-surface-soft data-[state=open]:text-ink dark:hover:bg-surface-strong dark:active:bg-surface-pressed dark:data-[state=open]:bg-surface-strong [&[data-state=open]>svg:last-child]:rotate-180"
-          type="button"
-          aria-label={`${t("language")}: ${locale.toUpperCase()}`}
-        >
-          <Globe className="size-4" />
-          <span>{locale.toUpperCase()}</span>
-          <ChevronDown className="size-4 transition-transform" />
-        </button>
+      renderDesktopTrigger={({ isOpen }) => (
+        <Chip asChild isSelected={false}>
+          <button type="button" aria-label={`${t("language")}: ${locale.toUpperCase()}`}>
+            <Globe className="size-md" />
+            <span>{locale.toUpperCase()}</span>
+            <ChevronDown
+              className={cn("size-md transition-transform", isOpen && "rotate-180")}
+              aria-hidden
+            />
+          </button>
+        </Chip>
       )}
       onChange={handleChange}
     />

@@ -6,3 +6,6 @@ aria-label:
   close:
     en: "Close"
     ko: "닫기"
+  clear:
+    en: "Clear"
+    ko: "지우기"

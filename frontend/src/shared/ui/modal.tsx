@@ -9,6 +9,7 @@ type ModalProps = PropsWithChildren<{
   hideCloseButton?: boolean;
   isOpen: boolean;
   position?: "center" | "top";
+  size?: "sm" | "md" | "lg";
   header: {
     className?: string;
     title: string;
@@ -22,6 +23,7 @@ export function Modal({
   hideCloseButton,
   isOpen,
   position = "center",
+  size = "sm",
   header,
   children,
   onClose,
@@ -29,7 +31,11 @@ export function Modal({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={cn(position === "top" && "top-sm translate-y-0", className)}
+        className={cn(
+          { sm: "w-120", md: "w-140", lg: "w-160" }[size],
+          position === "top" && "top-sm translate-y-0",
+          className,
+        )}
         showCloseButton={!hideCloseButton}
       >
         <DialogHeader className={header.className}>

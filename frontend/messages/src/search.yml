@@ -1,0 +1,46 @@
+input-placeholder:
+  en: "Search topics, sources"
+  ko: "주제, 매체를 검색하세요"
+
+trigger-placeholder:
+  en: "<kbd>/</kbd> to search"
+  ko: "<kbd>/</kbd>를 눌러 검색하세요"
+
+aria-label:
+  search-input:
+    en: "Search"
+    ko: "검색"
+  clear-input:
+    en: "Clear search"
+    ko: "검색어 지우기"
+  remove-recent:
+    en: "Remove from recent"
+    ko: "최근 검색에서 제거"
+
+section:
+  recent:
+    en: "Recent"
+    ko: "최근 검색"
+  popular:
+    en: "Trending"
+    ko: "인기 검색어"
+
+popular-meta:
+  en: "Updated hourly"
+  ko: "매시간 갱신"
+
+result-placeholder-body:
+  en: "We're still wiring this up. For now, browse by topic or pick a trending term."
+  ko: "검색 결과 화면은 곧 공개돼요. 그 전까지는 주제별로 둘러보거나 인기 검색어를 사용해 보세요."
+
+keyboard-hint:
+  enter:
+    en: "open"
+    ko: "열기"
+  escape:
+    en: "close"
+    ko: "닫기"
+  arrows:
+    en: "navigate"
+    ko: "탐색"
+

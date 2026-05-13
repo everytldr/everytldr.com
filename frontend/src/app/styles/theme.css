@@ -35,13 +35,13 @@
   --color-tint-yellow: #fef7d6;
   --color-tint-gray: #f0eeec;
 
-  --color-text-emerald: #15803d;
-  --color-text-sky: #0369a1;
-  --color-text-rose: #be123c;
-  --color-text-peach: #c2410c;
-  --color-text-lavender: #6b21a8;
-  --color-text-yellow: #854d0e;
-  --color-text-gray: #404040;
+  --color-tint-emerald-fg: #15803d;
+  --color-tint-sky-fg: #0369a1;
+  --color-tint-rose-fg: #be123c;
+  --color-tint-peach-fg: #c2410c;
+  --color-tint-lavender-fg: #6b21a8;
+  --color-tint-yellow-fg: #854d0e;
+  --color-tint-gray-fg: #404040;
 
   --color-semantic-success: #15803d;
   --color-semantic-warning: #ea580c;
@@ -159,6 +159,7 @@
   --color-primary-hover: #5589f4;
   --color-primary-pressed: #4d82e8;
   --color-primary-disabled: #1f3055;
+  --color-on-primary: #0b1228;
   --color-on-ink: #131316;
 
   --color-like-active: #fb7185;
@@ -187,13 +188,13 @@
   --color-tint-yellow: #292210;
   --color-tint-gray: #232328;
 
-  --color-text-emerald: #6ee7b7;
-  --color-text-sky: #7dd3fc;
-  --color-text-rose: #fda4af;
-  --color-text-peach: #fdba74;
-  --color-text-lavender: #c4b5fd;
-  --color-text-yellow: #fde047;
-  --color-text-gray: #d4d4d8;
+  --color-tint-emerald-fg: #6ee7b7;
+  --color-tint-sky-fg: #7dd3fc;
+  --color-tint-rose-fg: #fda4af;
+  --color-tint-peach-fg: #fdba74;
+  --color-tint-lavender-fg: #c4b5fd;
+  --color-tint-yellow-fg: #fde047;
+  --color-tint-gray-fg: #d4d4d8;
 
   --color-semantic-success: #34d399;
   --color-semantic-warning: #fb923c;

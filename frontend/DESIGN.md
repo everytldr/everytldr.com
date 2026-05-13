@@ -87,7 +87,7 @@ Color tokens live in the `@theme` block of `src/app/styles/theme.css`. Each `--c
 | `primary-pressed`  | #0850cc | `:active` (held-down) on `primary` CTA / link                                                                                              |
 | `primary-disabled` | #cce0ff | Disabled CTA                                                                                                                               |
 | `on-primary`       | #ffffff | Text on Read Blue                                                                                                                          |
-| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `chip-active`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                       |
+| `on-ink`           | #ffffff | Text on `ink` fill (e.g. `chip-selected`, active `pagination-button` — §§ 5.1.1., 5.3.). Rebinds on dark.                                    |
 | `like-active`      | #e11d48 | Filled-heart state ONLY                                                                                                                    |
 | `like-inactive`    | #6a6a6a | Outline-heart state                                                                                                                        |
 | `canvas`           | #ffffff | Page floor (light); see § 3.1.6. for surface-ladder semantics                                                                              |
@@ -121,6 +121,7 @@ Hex values are hand-tuned, not arithmetic inversions. Rationale: § 3.1.5.
 | `primary-hover-dark`    | #5589f4 | `primary-hover`    |
 | `primary-pressed-dark`  | #4d82e8 | `primary-pressed`  |
 | `primary-disabled-dark` | #1f3055 | `primary-disabled` |
+| `on-primary-dark`       | #0b1228 | `on-primary`       |
 | `on-ink-dark`           | #131316 | `on-ink`           |
 | `like-active-dark`      | #fb7185 | `like-active`      |
 | `like-inactive-dark`    | #8a8a92 | `like-inactive`    |
@@ -138,9 +139,9 @@ Hex values are hand-tuned, not arithmetic inversions. Rationale: § 3.1.5.
 
 ### 3.1.3. Category Tints.
 
-Seven hand-balanced bg/text pairs, exposed as `tint-{hue}` / `text-{hue}` token pairs. Each pair is a closed accessible palette intended for tag/chip/badge surfaces that need a categorical hue beyond `primary` and `like-active`.
+Seven hand-balanced bg/fg pairs, exposed as `tint-{hue}` / `tint-{hue}-fg` token pairs. Each pair is a closed accessible palette intended for tag/chip/badge surfaces that need a categorical hue beyond `primary` and `like-active`.
 
-| Variant  | Light bg / text   | Dark bg / text    |
+| Variant  | Light bg / fg     | Dark bg / fg      |
 | -------- | ----------------- | ----------------- |
 | Emerald  | #d9f3e1 / #15803d | #0e2419 / #6ee7b7 |
 | Sky      | #dcecfa / #0369a1 | #0a1e30 / #7dd3fc |
@@ -164,16 +165,17 @@ A finite, hand-balanced set (vs. free-form colour) guarantees that any new categ
 
 ### 3.1.5. Dark-Palette Rationale.
 
-| Decision                                                                                 | Reason                                                                                                                                                                        |
-| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `canvas-dark` = #131316, NOT #000000                                                     | Pure black causes OLED (§ 1.3.) scroll smear and harsh perception. #131316 matches BBC News, NYT, The Guardian, Naver Dark, Daum Dark canon.                                  |
-| `ink-dark` = #f5f5f7, NOT #ffffff                                                        | Pure white on dark vibrates at small sizes (especially Hangul). Apple macOS dark precedent.                                                                                   |
-| `primary-dark` = #5e93ff (lifted from #0a66ff)                                           | #0a66ff on `canvas-dark` is ~4.0:1 — fails WCAG AA (§ 1.3.). Lifted variant is ~5.4:1. Apple `primary-on-dark` (#2997ff) precedent.                                           |
-| `primary-hover-dark` = #5589f4, `primary-pressed-dark` = #4d82e8                         | Hover/active on dark must darken (not lift) — additive light on dark reads as "release" not "press". Two-step darken from #5e93ff matches Material density (8% / 16%).        |
-| `like-active-dark` = #fb7185 (lifted from #e11d48)                                       | #e11d48 on dark over-saturates and reads as alert; softer rose retains affirmation register.                                                                                  |
-| Surface ladder (§ 3.1.6.) roles invert (cards on `surface-soft-dark`, not `canvas-dark`) | Additive light reads "raised" on dark; cards must be lighter than container to feel elevated.                                                                                 |
-| `surface-pressed-dark` = #2f2f35 (lifted from #26262b)                                   | Symmetric to light: extends ladder one tier above hover for `:active` feedback. Stays below `hairline-strong-dark` (#3d3d44) so chip fills never collide with input outlines. |
-| Light tints replaced with deep-bg + bright-text pairs                                    | Light pastel on dark canvas glows as halo. Inverted luminance with same hue identity preserves recognition.                                                                   |
+| Decision                                                                                 | Reason                                                                                                                                                                                                                        |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `canvas-dark` = #131316, NOT #000000                                                     | Pure black causes OLED (§ 1.3.) scroll smear and harsh perception. #131316 matches BBC News, NYT, The Guardian, Naver Dark, Daum Dark canon.                                                                                  |
+| `ink-dark` = #f5f5f7, NOT #ffffff                                                        | Pure white on dark vibrates at small sizes (especially Hangul). Apple macOS dark precedent.                                                                                                                                   |
+| `primary-dark` = #5e93ff (lifted from #0a66ff)                                           | #0a66ff on `canvas-dark` is ~4.0:1 — fails WCAG AA (§ 1.3.). Lifted variant is ~5.4:1. Apple `primary-on-dark` (#2997ff) precedent.                                                                                           |
+| `primary-hover-dark` = #5589f4, `primary-pressed-dark` = #4d82e8                         | Hover/active on dark must darken (not lift) — additive light on dark reads as "release" not "press". Two-step darken from #5e93ff matches Material density (8% / 16%).                                                        |
+| `on-primary-dark` = #0b1228 (rebound from #ffffff)                                       | White on `primary-dark` (#5e93ff) is ~3.0:1 — fails WCAG AA body (4.5:1) and borderline UI (3:1). Deep navy text restores AA at ~6.3:1 while preserving the lifted primary tone. Material 3 "on-primary" dark-mode precedent. |
+| `like-active-dark` = #fb7185 (lifted from #e11d48)                                       | #e11d48 on dark over-saturates and reads as alert; softer rose retains affirmation register.                                                                                                                                  |
+| Surface ladder (§ 3.1.6.) roles invert (cards on `surface-soft-dark`, not `canvas-dark`) | Additive light reads "raised" on dark; cards must be lighter than container to feel elevated.                                                                                                                                 |
+| `surface-pressed-dark` = #2f2f35 (lifted from #26262b)                                   | Symmetric to light: extends ladder one tier above hover for `:active` feedback. Stays below `hairline-strong-dark` (#3d3d44) so chip fills never collide with input outlines.                                                 |
+| Light tints replaced with deep-bg + bright-text pairs                                    | Light pastel on dark canvas glows as halo. Inverted luminance with same hue identity preserves recognition.                                                                                                                   |
 
 ### 3.1.6. Surface Ladder Semantics.
 
@@ -221,24 +223,24 @@ Mono fallback (timestamps only):
 
 Each `--text-{token}` (with companion `--text-{token}--line-height`, `--text-{token}--letter-spacing`, `--text-{token}--font-weight`) generates one Tailwind utility (`text-display-xl`, `text-body-md`, …) that bundles all four properties at once. English baseline; Korean overrides: § 3.2.3.
 
-| Token          | Size (px) | Weight | Line-height | Letter-spacing (px) | Use                                      |
-| -------------- | --------- | ------ | ----------- | ------------------- | ---------------------------------------- |
-| `hero-display` | 56        | 700    | 1.10        | -1                  | Marketing hero (rare)                    |
-| `display-xl`   | 40        | 700    | 1.15        | -0.5                | Page `<h1>`                              |
-| `display-lg`   | 32        | 700    | 1.20        | -0.5                | Section heading                          |
-| `display-md`   | 24        | 700    | 1.30        | -0.25               | Sub-section / featured heading           |
-| `display-sm`   | 20        | 600    | 1.35        | 0                   | Default heading / card-style title       |
-| `title-md`     | 16        | 600    | 1.40        | 0                   | Strong inline labels (author, publisher) |
-| `title-sm`     | 14        | 600    | 1.40        | 0                   | Tertiary headings, list-section labels   |
-| `body-lg`      | 18        | 400    | 1.65        | 0                   | Long-form reading body                   |
-| `body-md`      | 16        | 400    | 1.60        | 0                   | Default body                             |
-| `body-sm`      | 14        | 400    | 1.55        | 0                   | Secondary copy, summaries                |
-| `caption`      | 13        | 500    | 1.40        | 0                   | Counters and inline metrics              |
-| `caption-mono` | 12        | 500    | 1.40        | 0.2                 | Tabular numerics (timestamps, counts)    |
-| `micro`        | 11        | 600    | 1.30        | 0.4                 | Tag / badge text                         |
-| `button-md`    | 15        | 600    | 1.25        | 0                   | Default button label                     |
-| `button-sm`    | 14        | 500    | 1.25        | 0                   | Pill / chip label                        |
-| `nav-md`       | 18        | 700    | 1.25        | -0.25               | Primary navigation label (tabs, `<nav>`) |
+| Token          | Size (px) | Weight | Line-height | Letter-spacing (px) | Use                                       |
+| -------------- | --------- | ------ | ----------- | ------------------- | ----------------------------------------- |
+| `hero-display` | 56        | 700    | 1.10        | -1                  | Marketing hero (rare)                     |
+| `display-xl`   | 40        | 700    | 1.15        | -0.5                | Page `<h1>`                               |
+| `display-lg`   | 32        | 700    | 1.20        | -0.5                | Section heading                           |
+| `display-md`   | 24        | 700    | 1.30        | -0.25               | Sub-section / featured heading            |
+| `display-sm`   | 20        | 600    | 1.35        | 0                   | Default heading / card-style title        |
+| `title-md`     | 16        | 600    | 1.40        | 0                   | Strong inline labels (author, publisher)  |
+| `title-sm`     | 14        | 600    | 1.40        | 0                   | Tertiary headings, list-section labels    |
+| `body-lg`      | 18        | 400    | 1.65        | 0                   | Long-form reading body                    |
+| `body-md`      | 16        | 400    | 1.60        | 0                   | Default body                              |
+| `body-sm`      | 14        | 400    | 1.55        | 0                   | Secondary copy, summaries                 |
+| `caption`      | 13        | 500    | 1.40        | 0                   | Counters and inline metrics               |
+| `caption-mono` | 12        | 500    | 1.40        | 0.2                 | Tabular numerics (timestamps, counts)     |
+| `micro`        | 11        | 600    | 1.30        | 0.4                 | Tag / badge text                          |
+| `button-md`    | 15        | 600    | 1.25        | 0                   | Default button label                      |
+| `button-sm`    | 14        | 500    | 1.25        | 0                   | Pill / chip label                         |
+| `nav-md`       | 18        | 700    | 1.25        | -0.25               | Primary navigation label (tabs, `<nav>`)  |
 | `nav-sm`       | 12        | 500    | 1.30        | 0                   | Secondary / sub-nav label (tabs, `<nav>`) |
 
 ### 3.2.3. Korean Overrides.
@@ -292,11 +294,11 @@ Container radius 12px (not Airbnb's 14px) for editorial register; composes again
 
 Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`).
 
-| Level       | Light                                                       | Dark                   | Tailwind                       |
-| ----------- | ----------------------------------------------------------- | ---------------------- | ------------------------------ |
-| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound) | `border border-hairline`       |
-| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | (same)                 | `hover:shadow-hover`           |
-| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity | `bg-scrim/50 dark:bg-scrim/65` |
+| Level       | Light                                                       | Dark                                             | Tailwind                       |
+| ----------- | ----------------------------------------------------------- | ------------------------------------------------ | ------------------------------ |
+| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound)                  | `border border-hairline`       |
+| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | `none` (surface tone substitutes — see § 3.1.5.) | `hover:shadow-hover`           |
+| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity                           | `bg-scrim/50 dark:bg-scrim/65` |
 
 | Decision                            | Reason                                                                     |
 | ----------------------------------- | -------------------------------------------------------------------------- |
@@ -389,15 +391,15 @@ Components are compositions of Tailwind utilities — no component stylesheets, 
 
 ### 5.1.1. Variant Geometry.
 
-| Variant                     | Background (rest) | Text         | Radius | Padding    | Height | Border                |
-| --------------------------- | ----------------- | ------------ | ------ | ---------- | ------ | --------------------- |
-| `button-primary`            | `primary`         | `on-primary` | `sm`   | 12×16      | 44     | none                  |
-| `button-secondary`          | `canvas`          | `ink`        | `sm`   | 12×16      | 44     | 1px `hairline-strong` |
-| `button-ghost`              | transparent       | `ink`        | `sm`   | 8×16       | auto   | none                  |
-| `button-link`               | transparent       | `primary`    | —      | 0          | auto   | none                  |
-| `chip`                      | `canvas`          | `body`       | `full` | 8×16       | 36     | 1px `hairline`        |
-| `chip-active`               | `ink`             | `on-ink`     | `full` | 8×16       | 36     | none                  |
-| `icon-button-circle`        | `surface-soft`    | `ink`        | `full` | 8 (square) | 36×36  | none                  |
+| Variant              | Background (rest) | Text         | Radius | Padding    | Height | Border                |
+| -------------------- | ----------------- | ------------ | ------ | ---------- | ------ | --------------------- |
+| `button-primary`     | `primary`         | `on-primary` | `sm`   | 12×16      | 44     | none                  |
+| `button-secondary`   | `canvas`          | `ink`        | `sm`   | 12×16      | 44     | 1px `hairline-strong` |
+| `button-ghost`       | transparent       | `ink`        | `sm`   | 8×16       | auto   | none                  |
+| `button-link`        | transparent       | `primary`    | —      | 0          | auto   | none                  |
+| `chip`               | `canvas`          | `body`       | `full` | 8×16       | 36     | 1px `hairline`        |
+| `chip-selected`        | `ink`             | `on-ink`     | `full` | 8×16       | 36     | none                  |
+| `icon-button-circle` | `surface-soft`    | `ink`        | `full` | 8 (square) | 36×36  | none                  |
 
 Active filter uses `ink`, not `primary` (§ 3.1.1.).
 
@@ -405,18 +407,18 @@ Active filter uses `ink`, not `primary` (§ 3.1.1.).
 
 Pseudo-class mapping is fixed: `pressed` ↔ `:active`; `hover` ↔ `:hover`; `disabled` ↔ `:disabled`; `focus` ↔ `:focus-visible` (keyboard-only — no focus ring on mouse click). Every interactive variant defines all five states. State tokens already encode dark via `.dark` rebind (§ 3.1.2.) — no `dark:` prefix is needed for the **value** swap; `dark:` prefixes appear only when a different **token** is chosen per theme (see § 3.1.6. caveat for `surface-soft` skip on dark).
 
-| Variant                      | `:hover`                                                 | `:active`                        | `:disabled`                                 | `:focus-visible`                                                   |
-| ---------------------------- | -------------------------------------------------------- | -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------ |
-| `button-primary`             | `bg-primary-hover`                                       | `bg-primary-pressed`             | `bg-primary-disabled`, `cursor-not-allowed` | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `button-secondary` (light)   | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `button-secondary` (dark)    | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
-| `button-ghost` (light)       | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `button-ghost` (dark)        | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
-| `button-link`                | `text-primary-hover`, `underline`                        | `text-primary-pressed`           | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2` (offset on text bbox)          |
-| `chip` (light)               | `bg-surface-soft`, `text-ink`                            | `bg-surface-strong`, `text-ink`  | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
-| `chip` (dark)                | `bg-surface-strong`, `text-ink`                          | `bg-surface-pressed`, `text-ink` | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
-| `chip-active`                | unchanged (active filter is a state, not a hover target) | `bg-ink/90`                      | n/a                                         | (same)                                                             |
-| `icon-button-circle`         | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary` (no offset — circle bbox is the visual edge) |
+| Variant                    | `:hover`                                                 | `:active`                        | `:disabled`                                 | `:focus-visible`                                                   |
+| -------------------------- | -------------------------------------------------------- | -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------ |
+| `button-primary`           | `bg-primary-hover`                                       | `bg-primary-pressed`             | `bg-primary-disabled`, `cursor-not-allowed` | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `button-secondary` (light) | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `button-secondary` (dark)  | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
+| `button-ghost` (light)     | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `button-ghost` (dark)      | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
+| `button-link`              | `text-primary-hover`, `underline`                        | `text-primary-pressed`           | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2` (offset on text bbox)          |
+| `chip` (light)             | `bg-surface-soft`, `text-ink`                            | `bg-surface-strong`, `text-ink`  | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `chip` (dark)              | `bg-surface-strong`, `text-ink`                          | `bg-surface-pressed`, `text-ink` | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
+| `chip-selected`              | unchanged (active filter is a state, not a hover target) | `bg-ink/90`                      | n/a                                         | (same)                                                             |
+| `icon-button-circle`       | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary` (no offset — circle bbox is the visual edge) |
 
 | Decision                                                                                                                   | Reason                                                                                                                                                                                   |
 | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -486,7 +488,15 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 
 ## 5.5. Modal.
 
-`canvas` surface, `lg` radius. Scrim per § 3.5. Desktop 480px wide; mobile full-bleed slide-up.
+`canvas` surface, `lg` radius. Scrim per § 3.5. Mobile full-bleed slide-up. Desktop width is selected via the `size` prop:
+
+| Size | Width | Use                                                                                                |
+| ---- | ----- | -------------------------------------------------------------------------------------------------- |
+| `sm` | 480px | Default. Confirmations, single-form dialogs, short choices.                                        |
+| `md` | 560px | Forms with helper copy, single-column lists.                                                       |
+| `lg` | 640px | Information-dense surfaces with multiple sections (e.g. desktop search modal — §§ 5.1.1., 5.2.1.). |
+
+No size beyond `lg` exists. A surface that needs more horizontal real estate is a page, not a modal.
 
 # 6. Rules.
 
@@ -498,6 +508,7 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 - Use 1px `hairline` (or `-dark`) as default elevation (§ 3.5.).
 - Apply `:lang(ko)` overrides for every display token (§ 3.2.3.).
 - Reference colours via Tailwind utilities (`bg-*`, `text-*`, `border-*`) or `var(--color-*)` directly — never hard-code hex (§ 4.3.).
+- Hex literals are permitted ONLY inside CSS filter functions (`drop-shadow()`, `mask-*`, `backdrop-filter`) where the value is a compositor parameter, not a surface or text color. Comment the literal at its site to mark the intentional waiver.
 - Set the `.dark` class on `<html>` server-side from cookie before first paint (§ 4.3.).
 - Define `-dark` companion for every new colour token; verify ≥ WCAG AA against `canvas-dark` (§ 3.1.2., § 3.1.5.).
 - Start every interactive component's resting fill at `canvas` or `surface-soft` (§ 3.1.6.); never higher.
@@ -509,14 +520,14 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 
 - No serif anywhere — light or dark, Korean or English (§ 3.2.1.).
 - No negative letter-spacing on Korean (§ 3.2.4.).
-- No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `chip-active` — § 3.1.1., § 5.1.1.).
+- No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `chip-selected` — § 3.1.1., § 5.1.1.).
 - No `like-active` outside its dedicated toggle state (§ 3.1.1.).
 - No second accent colour — extend via category tints first (§ 3.1.3.).
 - No default shadow (§ 3.5.).
 - No Hangul in `caption-mono` (§ 3.2.4.).
 - No `display-*`, `title-*`, or `body-*` on categorical navigation labels; use `nav-*` (§ 3.2.2.).
 - No second-nav size hierarchy by font weight alone (§ 3.2.2.).
-- No `rounded.xl` (24px) without explicit justification (§ 3.4.).
+- No `rounded-xl` (24px) without explicit justification (§ 3.4.).
 - No background gradients (§ 3.1.).
 - No #000000 canvas-dark; no #ffffff ink-dark; no light tints on dark canvas; no 50% scrim on dark (§ 3.1.5., § 3.5.).
 - No mechanical surface-ladder inversion (§ 3.1.5.).

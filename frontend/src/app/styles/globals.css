@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./theme.css";
-@import "./shadcn.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -10,13 +9,9 @@
     @apply bg-canvas font-sans text-ink antialiased;
   }
 
-  kbd {
-    @apply rounded-xs bg-surface-strong px-1.5 py-0.5 text-caption-mono text-meta;
-  }
-
   button:not(:disabled):hover,
   [role="button"]:not(:disabled):hover {
-    cursor: pointer;
+    @apply cursor-pointer;
   }
 }
 
@@ -26,4 +21,9 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+@utility drop-stroke {
+  filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff)
+    drop-shadow(0 -1px 0 #fff);
 }

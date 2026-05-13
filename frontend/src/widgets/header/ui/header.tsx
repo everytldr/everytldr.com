@@ -1,7 +1,7 @@
 import { Link, type Locale } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { Container, Logo } from "@/shared/ui";
-import { ArticleSearchButton } from "./article-search-button";
+import { SearchTrigger } from "@/widgets/search";
 import { LanguageSelectButton } from "./language-select-button";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -19,7 +19,7 @@ export function Header({ className, locale }: HeaderProps) {
         </Link>
 
         <div className="flex items-center gap-x-xs">
-          <ArticleSearchButton locale={locale} />
+          <SearchTrigger />
           <ThemeToggle />
           <LanguageSelectButton locale={locale} />
         </div>
