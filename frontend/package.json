@@ -11,11 +11,11 @@
     "dev:app": "next dev",
     "dev:messages": "tsx scripts/build-messages.ts --watch",
     "dev:steiger": "steiger . --watch",
-    "build": "pnpm build:messages && pnpm lint:steiger && pnpm build:app",
+    "build": "pnpm build:messages && pnpm lint:steiger && pnpm gen:api && pnpm build:app",
     "build:app": "next build",
     "build:messages": "tsx scripts/build-messages.ts",
     "start": "next start",
-    "api:gen": "orval"
+    "gen:api": "orval"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.9",
