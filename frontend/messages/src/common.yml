@@ -9,3 +9,36 @@ aria-label:
   clear:
     en: "Clear"
     ko: "지우기"
+  scroll-previous:
+    en: "Scroll to previous"
+    ko: "이전으로 스크롤"
+  scroll-next:
+    en: "Scroll to next"
+    ko: "다음으로 스크롤"
+
+error-content:
+  cta-home:
+    en: "Go to home"
+    ko: "홈으로 가기"
+  show-details:
+    en: "Show details"
+    ko: "자세히 보기"
+  hide-details:
+    en: "Hide details"
+    ko: "접기"
+
+error:
+  title:
+    en: "Something went wrong"
+    ko: "문제가 발생했어요"
+  description:
+    en: "Please try again in a moment. If the problem continues, try refreshing the page."
+    ko: "잠시 후 다시 시도해주세요. 문제가 계속되면 새로고침해 주세요."
+
+not-found:
+  title:
+    en: "Page not found"
+    ko: "페이지를 찾을 수 없어요"
+  description:
+    en: "The page might have been moved or no longer exists. Please check the address."
+    ko: "주소가 잘못되었거나 삭제된 페이지일 수 있어요."

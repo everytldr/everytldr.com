@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none" preserveAspectRatio="xMidYMid meet">
+  <line x1="20" y1="20" x2="300" y2="20" stroke="var(--color-ink)" stroke-width="1.5" />
+  <text x="160" y="14" text-anchor="middle" font-size="9" font-weight="600" letter-spacing="4" fill="var(--color-ink)" style="font-family: var(--font-mono);">EVERYTLDR</text>
+
+  <g stroke="var(--color-hairline-strong)" stroke-width="2" stroke-linecap="round">
+    <line x1="32" y1="42" x2="98" y2="42" />
+    <line x1="32" y1="56" x2="98" y2="56" />
+    <line x1="32" y1="70" x2="84" y2="70" />
+    <line x1="32" y1="84" x2="98" y2="84" />
+    <line x1="32" y1="116" x2="92" y2="116" />
+    <line x1="32" y1="130" x2="98" y2="130" />
+    <line x1="32" y1="144" x2="78" y2="144" />
+    <line x1="32" y1="158" x2="98" y2="158" />
+
+    <line x1="118" y1="42" x2="202" y2="42" />
+    <line x1="118" y1="56" x2="186" y2="56" />
+    <line x1="118" y1="70" x2="202" y2="70" />
+    <line x1="118" y1="84" x2="194" y2="84" />
+    <line x1="118" y1="116" x2="202" y2="116" />
+    <line x1="118" y1="130" x2="180" y2="130" />
+    <line x1="118" y1="144" x2="202" y2="144" />
+    <line x1="118" y1="158" x2="198" y2="158" />
+
+    <line x1="222" y1="42" x2="288" y2="42" />
+    <line x1="222" y1="56" x2="288" y2="56" />
+    <line x1="222" y1="70" x2="276" y2="70" />
+    <line x1="222" y1="84" x2="288" y2="84" />
+    <line x1="222" y1="116" x2="270" y2="116" />
+    <line x1="222" y1="130" x2="288" y2="130" />
+    <line x1="222" y1="144" x2="282" y2="144" />
+    <line x1="222" y1="158" x2="276" y2="158" />
+  </g>
+
+  <rect x="32" y="88" width="256" height="24" fill="var(--color-ink)" />
+  <text x="160" y="104" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="8" fill="var(--color-on-ink)" style="font-family: var(--font-mono);">500 / ERR</text>
+
+  <line x1="20" y1="178" x2="300" y2="178" stroke="var(--color-hairline)" stroke-width="1" />
+  <text x="20" y="192" font-size="9" letter-spacing="3" fill="var(--color-meta)" style="font-family: var(--font-mono);">SERVER FAULT</text>
+  <text x="300" y="192" text-anchor="end" font-size="9" letter-spacing="3" fill="var(--color-meta)" style="font-family: var(--font-mono);">500</text>
+</svg>

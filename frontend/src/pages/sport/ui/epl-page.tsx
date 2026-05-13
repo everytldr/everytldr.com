@@ -2,6 +2,7 @@ import { EplPageTab, type EplTeam } from "@/shared/config";
 import { cn } from "@/shared/lib";
 import { Container } from "@/shared/ui";
 import { EplNewsTab } from "./epl-news-tab";
+import { EplStandingsSection } from "./epl-standings-section";
 import { EplTabs } from "./epl-tabs";
 
 type EplPageProps = {
@@ -17,14 +18,14 @@ export function EplPage({ className, subSlug }: EplPageProps) {
   const resolved = resolveSubSlug(subSlug);
 
   return (
-    <main className={cn("pt-lg", className)}>
+    <main className={cn("py-lg", className)}>
       <Container className="space-y-sm">
         <EplTabs activeTab={resolved.activeTab} />
 
         {resolved.activeTab === EplPageTab.News ? (
           <EplNewsTab filter={resolved.filter} />
         ) : (
-          <p>Record</p>
+          <EplStandingsSection />
         )}
       </Container>
     </main>
