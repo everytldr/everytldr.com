@@ -57,7 +57,7 @@ The system composes parts of three external systems with one project-original in
 | Single accent + image-led visual heft            | Airbnb           | News imagery carries weight; type recedes                                                       |
 | Sober rectangles (8px button, 12px container)    | Notion           | Editorial / docs register; not consumer marketplace                                             |
 | Pastel category-tint pairs (7 variants)          | Notion           | Mature, accessible, multi-hue tag system                                                        |
-| Hairline-as-elevation                            | Notion + Verge   | 1px border replaces shadow; pairs with single hover-shadow tier                                 |
+| Hairline-as-elevation                            | Notion + Verge   | 1px border is the default elevation for cards; explicit shadow tiers reserved for designated roles (§ 3.5.) |
 | Inter-metric-compatible UI font                  | Notion           | Pretendard substitutes cleanly without re-laying body text                                      |
 | Mono-numeric numerics                            | The Verge        | Timestamps and metric counters anchor to a tabular mono register                                |
 | Per-locale font scaling                          | Project-original | None of three sources address bilingual KR/EN typography                                        |
@@ -292,18 +292,28 @@ Container radius 12px (not Airbnb's 14px) for editorial register; composes again
 
 ## 3.5. Elevation.
 
-Hover shadow defined as `--shadow-hover` (utility: `shadow-hover`).
+Shadow tokens defined as `--shadow-raised`, `--shadow-hover`, `--shadow-floating` (utilities: `shadow-raised`, `shadow-hover`, `shadow-floating`). Hairline (flat) is the default; explicit shadows are opt-in for the roles below (§ 6.1.).
 
-| Level       | Light                                                       | Dark                                             | Tailwind                       |
-| ----------- | ----------------------------------------------------------- | ------------------------------------------------ | ------------------------------ |
-| 0 (flat)    | 1px `hairline` border                                       | 1px `hairline` border (rebound)                  | `border border-hairline`       |
-| 1 (hover)   | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)` | `none` (surface tone substitutes — see § 3.1.5.) | `hover:shadow-hover`           |
-| Modal scrim | `scrim` at 50% opacity                                      | `scrim` at 65% opacity                           | `bg-scrim/50 dark:bg-scrim/65` |
+| Level              | Light                                                         | Dark                                             | Tailwind                       |
+| ------------------ | ------------------------------------------------------------- | ------------------------------------------------ | ------------------------------ |
+| 0 (flat)           | 1px `hairline` border                                         | 1px `hairline` border (rebound)                  | `border border-hairline`       |
+| 1 (raised, rest)   | `0 1px 2px rgb(0 0 0 / 0.04), 0 2px 6px rgb(0 0 0 / 0.05)`    | `none` (surface tone substitutes — see § 3.1.5.) | `shadow-raised`                |
+| 2 (hover)          | `0 2px 6px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.08)`   | `none` (surface tone substitutes — see § 3.1.5.) | `hover:shadow-hover`           |
+| 3 (floating, rest) | `0 4px 10px rgb(0 0 0 / 0.06), 0 12px 24px rgb(0 0 0 / 0.10)` | `none` (surface tone substitutes — see § 3.1.5.) | `shadow-floating`              |
+| Modal scrim        | `scrim` at 50% opacity                                        | `scrim` at 65% opacity                           | `bg-scrim/50 dark:bg-scrim/65` |
 
-| Decision                            | Reason                                                                     |
-| ----------------------------------- | -------------------------------------------------------------------------- |
-| Scrim opacity bumped 50→65% on dark | 50% reads as content-disappeared because scrim darkens already-dark canvas |
-| Two tiers (not Notion's four)       | No marketing pricing-tier or workspace-mockup surfaces                     |
+| Role              | Use                                                                                                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `shadow-raised`   | Resting fill for cards and content containers that sit visually above `canvas` without overlaying other content.                                                   |
+| `shadow-hover`    | `:hover` escalation on raised or flat interactive surfaces (cards, list rows). Composes additively over rest shadow.                                               |
+| `shadow-floating` | Resting fill for overlay surfaces that sit on top of other content — popovers, dropdowns, edge-anchored overlay buttons (e.g. scrollable-row chevron — § 5.1.3.). |
+
+| Decision                                                        | Reason                                                                                                                                                          |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scrim opacity bumped 50→65% on dark                             | 50% reads as content-disappeared because scrim darkens already-dark canvas                                                                                      |
+| Four resting/transient tiers (not Notion's pricing-card ladder) | Editorial product needs only flat / raised / hover / floating. No marketing pricing-tier or workspace-mockup surfaces.                                          |
+| `raised` < `hover` < `floating` (monotonic depth)               | Hover must read deeper than a raised card's rest or pointer-down feedback is lost; floating must read deeper than hover or overlays merge with hovered cards.   |
+| Dark mode substitutes surface tone for all three shadow tiers   | Additive light on dark canvas reads "raised" — § 3.1.5. The surface ladder (§ 3.1.6.) already carries the elevation signal without compositor shadow cost.      |
 
 # 4. Theming.
 
@@ -506,6 +516,7 @@ No size beyond `lg` exists. A surface that needs more horizontal real estate is 
 - Use one of the seven category tint pairs (§ 3.1.3.) for any tag/chip needing a categorical hue — never invent a tint.
 - Use `caption-mono` for tabular numerics only (§ 3.2.2., § 3.2.4.).
 - Use 1px `hairline` (or `-dark`) as default elevation (§ 3.5.).
+- Use `shadow-raised` for cards needing visible elevation above `canvas`; use `shadow-floating` for overlay surfaces — popovers, dropdowns, edge-anchored overlay buttons (§ 3.5.).
 - Apply `:lang(ko)` overrides for every display token (§ 3.2.3.).
 - Reference colours via Tailwind utilities (`bg-*`, `text-*`, `border-*`) or `var(--color-*)` directly — never hard-code hex (§ 4.3.).
 - Hex literals are permitted ONLY inside CSS filter functions (`drop-shadow()`, `mask-*`, `backdrop-filter`) where the value is a compositor parameter, not a surface or text color. Comment the literal at its site to mark the intentional waiver.
@@ -523,7 +534,7 @@ No size beyond `lg` exists. A surface that needs more horizontal real estate is 
 - No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `chip-selected` — § 3.1.1., § 5.1.1.).
 - No `like-active` outside its dedicated toggle state (§ 3.1.1.).
 - No second accent colour — extend via category tints first (§ 3.1.3.).
-- No default shadow (§ 3.5.).
+- No shadow outside the tiers defined in § 3.5.; no shadow on `canvas`-flat resting surfaces — use hairline (§ 3.5.).
 - No Hangul in `caption-mono` (§ 3.2.4.).
 - No `display-*`, `title-*`, or `body-*` on categorical navigation labels; use `nav-*` (§ 3.2.2.).
 - No second-nav size hierarchy by font weight alone (§ 3.2.2.).
