@@ -23,7 +23,7 @@ export function BottomSheet({ className, isOpen, header, children, onClose }: Bo
           <DrawerTitle>{header.title}</DrawerTitle>
           {header.description && <DrawerDescription>{header.description}</DrawerDescription>}
         </DrawerHeader>
-        {children}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
       </DrawerContent>
     </Drawer>
   );
