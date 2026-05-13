@@ -33,7 +33,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
       className={cn("scrollbar-hidden overflow-x-auto", className)}
       aria-label={t("epl.aria-label.team-filter")}
     >
-      <div className="flex h-12 items-center gap-2xs">
+      <div className="flex h-12 items-center gap-xs">
         <Chip asChild isSelected={!filter}>
           <Link href={buildEplFilterUrl()} aria-current={!filter ? "page" : undefined}>
             <Translation tKey="epl.all-teams" />
