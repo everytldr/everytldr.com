@@ -9,5 +9,6 @@ export { default as Logo } from "./logo.svg";
 export { Modal } from "./modal";
 export { ResponsiveDialog } from "./responsive-dialog";
 export { ResponsiveSelector, type SelectorOption } from "./responsive-selector";
+export { Skeleton } from "./skeleton";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 export { Translation } from "./translation";
