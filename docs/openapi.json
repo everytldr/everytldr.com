@@ -7,8 +7,7 @@
             "type" : "string"
           },
           "id" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           },
           "publishedAt" : {
             "format" : "date-time",
@@ -76,7 +75,7 @@
           }
         }, {
           "in" : "query",
-          "name" : "category",
+          "name" : "categoryPrefix",
           "required" : false,
           "schema" : {
             "type" : "string"

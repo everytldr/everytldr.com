@@ -4,7 +4,7 @@ import java.time.Instant;
 import org.tldrtimes.common.domain.article.ArticleListProjection;
 
 public record ArticleListItem(
-    Long id,
+    String id,
     String title,
     String summary,
     String thumbnailUrl,
@@ -13,7 +13,7 @@ public record ArticleListItem(
     String category) {
   static ArticleListItem from(ArticleListProjection projection) {
     return new ArticleListItem(
-        projection.id(),
+        projection.id().toString(),
         projection.title(),
         projection.summary(),
         projection.thumbnailUrl(),
