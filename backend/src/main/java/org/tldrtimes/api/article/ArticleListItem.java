@@ -1,17 +1,21 @@
 package org.tldrtimes.api.article;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import org.tldrtimes.common.domain.article.ArticleListProjection;
 
 public record ArticleListItem(
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String id,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String title,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String summary,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String thumbnailUrl,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Instant publishedAt,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String source,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String category) {
+    @Schema(requiredMode = RequiredMode.REQUIRED) String id,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String title,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String summary,
+    @Schema(
+            requiredMode = RequiredMode.REQUIRED,
+            types = {"string", "null"}) // TODO: thumbnailUrl 나중에 Nullable 제거해야함
+        String thumbnailUrl,
+    @Schema(requiredMode = RequiredMode.REQUIRED) Instant publishedAt,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String source,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String category) {
   static ArticleListItem from(ArticleListProjection projection) {
     return new ArticleListItem(
         projection.id().toString(),

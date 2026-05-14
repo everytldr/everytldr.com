@@ -7,15 +7,16 @@
     "lint": "pnpm lint:eslint && pnpm lint:steiger",
     "lint:eslint": "eslint",
     "lint:steiger": "steiger .",
-    "dev": "tsx scripts/build-messages.ts && concurrently -n app,messages,steiger -c blue,green,yellow \"pnpm dev:app\" \"pnpm dev:messages\" \"pnpm dev:steiger\"",
+    "dev": "concurrently -n app,messages,steiger,orval -c blue,green,yellow,red \"pnpm dev:app\" \"pnpm dev:messages\" \"pnpm dev:steiger\" \"pnpm dev:orval\"",
     "dev:app": "next dev",
     "dev:messages": "tsx scripts/build-messages.ts --watch",
     "dev:steiger": "steiger . --watch",
-    "build": "pnpm build:messages && pnpm lint:steiger && pnpm gen:api && pnpm build:app",
+    "dev:orval": "orval --watch",
+    "build": "pnpm build:messages && pnpm lint:steiger && pnpm build:orval && pnpm build:app",
     "build:app": "next build",
     "build:messages": "tsx scripts/build-messages.ts",
-    "start": "next start",
-    "gen:api": "orval"
+    "build:orval": "orval",
+    "start": "next start"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.9",

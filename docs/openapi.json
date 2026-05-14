@@ -20,7 +20,7 @@
             "type" : "string"
           },
           "thumbnailUrl" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "title" : {
             "type" : "string"

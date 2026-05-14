@@ -27,15 +27,17 @@ export function ArticleCard({ className, article }: ArticleCardProps) {
           {article.source} · {relativeTime}
         </p>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className="size-24 shrink-0 rounded-md bg-surface-soft object-cover"
-        src={article.thumbnailUrl}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        aria-hidden="true"
-      />
+      {article.thumbnailUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className="size-24 shrink-0 rounded-md bg-surface-soft object-cover"
+          src={article.thumbnailUrl}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          aria-hidden="true"
+        />
+      )}
     </article>
   );
 }
