@@ -1,10 +1,16 @@
+import "server-only";
+
 import { EplTeam } from "@/shared/config";
-import type { Nullable } from "@/shared/lib";
+import { ensure, type Nullable } from "@/shared/lib";
 import { z } from "zod";
 import type { EplStanding } from "../model/epl-standing";
 
 const STANDINGS_URL = "https://api.football-data.org/v4/competitions/PL/standings";
 const REVALIDATE_SECONDS = 3600;
+const FOOTBALL_DATA_API_KEY = ensure(
+  process.env.FOOTBALL_DATA_API_KEY,
+  "Missing FOOTBALL_DATA_API_KEY",
+);
 
 const standingsResponseSchema = z.object({
   standings: z.array(
@@ -27,13 +33,8 @@ const standingsResponseSchema = z.object({
 });
 
 export async function fetchEplStandings(): Promise<EplStanding[]> {
-  const apiKey = process.env.FOOTBALL_DATA_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing FOOTBALL_DATA_API_KEY");
-  }
-
   const response = await fetch(STANDINGS_URL, {
-    headers: { "X-Auth-Token": apiKey },
+    headers: { "X-Auth-Token": FOOTBALL_DATA_API_KEY },
     next: { revalidate: REVALIDATE_SECONDS },
   });
   if (!response.ok) {
