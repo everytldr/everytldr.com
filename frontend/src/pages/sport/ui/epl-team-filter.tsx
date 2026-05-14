@@ -31,7 +31,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
   return (
     <nav className={cn(className)} aria-label={t("epl.aria-label.team-filter")}>
       <ScrollableRow>
-        <div className="flex h-12 items-center gap-2xs">
+        <div className="flex h-12 items-center gap-xs">
           <Chip asChild isSelected={!filter}>
             <Link href={buildEplFilterUrl()} aria-current={!filter ? "page" : undefined}>
               <Translation tKey="epl.all-teams" />

@@ -19,12 +19,12 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       WHERE (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
-        AND (:categorySlug IS NULL OR c.slug = :categorySlug)
+        AND (:categoryPrefix IS NULL OR c.slug LIKE CONCAT(:categoryPrefix, '%'))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
   List<ArticleListProjection> findRecent(
       @Param("language") String language,
-      @Param("categorySlug") String categorySlug,
+      @Param("categoryPrefix") String categoryPrefix,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,
       @Param("cursorId") Long cursorId,
       Pageable pageable);
