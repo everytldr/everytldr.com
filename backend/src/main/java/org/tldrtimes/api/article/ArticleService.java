@@ -24,14 +24,14 @@ public class ArticleService {
   @Transactional(readOnly = true)
   public Pagination.Page<ArticleListProjection> listRecent(
       SupportedLanguage language,
-      String categorySlug,
+      String categoryPrefix,
       Instant cursorPublishedAt,
       Long cursorId,
       int size) {
     List<ArticleListProjection> rows =
         articleRepository.findRecent(
             language.code(),
-            categorySlug,
+            categoryPrefix,
             cursorPublishedAt,
             cursorId,
             PageRequest.of(

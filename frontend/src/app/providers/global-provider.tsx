@@ -1,15 +1,12 @@
 import { ThemeProvider } from "@/shared/theme";
 import { NextIntlClientProvider } from "next-intl";
-import { cookies } from "next/headers";
 import { type PropsWithChildren } from "react";
 import { SyncedStorageProvider } from "synced-storage/react";
 import { QueryProvider } from "./query-provider";
 
-export async function GlobalProvider({ children }: PropsWithChildren) {
-  const cookieStore = await cookies();
-
+export function GlobalProvider({ children }: PropsWithChildren) {
   return (
-    <SyncedStorageProvider ssrCookies={cookieStore.getAll()}>
+    <SyncedStorageProvider>
       <ThemeProvider>
         <NextIntlClientProvider>
           <QueryProvider>{children}</QueryProvider>

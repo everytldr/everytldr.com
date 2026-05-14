@@ -8,6 +8,9 @@ aria-label:
   team-picker:
     en: "Open team picker"
     ko: "팀 선택 열기"
+  standings:
+    en: "Premier League standings"
+    ko: "프리미어리그 순위표"
 
 tab:
   news:
@@ -16,6 +19,38 @@ tab:
   record:
     en: "Record"
     ko: "기록"
+
+news:
+  empty-state:
+    en: "No EPL news yet"
+    ko: "아직 EPL 뉴스가 없어요"
+
+record:
+  column:
+    rank:
+      en: "#"
+      ko: "#"
+    team:
+      en: "Team"
+      ko: "팀"
+    played:
+      en: "P"
+      ko: "경기"
+    win:
+      en: "W"
+      ko: "승"
+    draw:
+      en: "D"
+      ko: "무"
+    loss:
+      en: "L"
+      ko: "패"
+    goal-diff:
+      en: "GD"
+      ko: "득실"
+    points:
+      en: "Pts"
+      ko: "승점"
 
 all-teams:
   en: "All teams"

@@ -1,19 +1,24 @@
 package org.tldrtimes.api.article;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import org.tldrtimes.common.domain.article.ArticleListProjection;
 
 public record ArticleListItem(
-    Long id,
-    String title,
-    String summary,
-    String thumbnailUrl,
-    Instant publishedAt,
-    String source,
-    String category) {
+    @Schema(requiredMode = RequiredMode.REQUIRED) String id,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String title,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String summary,
+    @Schema(
+            requiredMode = RequiredMode.REQUIRED,
+            types = {"string", "null"}) // TODO: thumbnailUrl 나중에 Nullable 제거해야함
+        String thumbnailUrl,
+    @Schema(requiredMode = RequiredMode.REQUIRED) Instant publishedAt,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String source,
+    @Schema(requiredMode = RequiredMode.REQUIRED) String category) {
   static ArticleListItem from(ArticleListProjection projection) {
     return new ArticleListItem(
-        projection.id(),
+        projection.id().toString(),
         projection.title(),
         projection.summary(),
         projection.thumbnailUrl(),

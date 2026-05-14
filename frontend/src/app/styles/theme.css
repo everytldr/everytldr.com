@@ -149,7 +149,9 @@
   --spacing-2xl: 48px;
   --spacing-section: 64px;
 
+  --shadow-raised: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 2px 6px 0 rgb(0 0 0 / 0.05);
   --shadow-hover: 0 2px 6px 0 rgb(0 0 0 / 0.04), 0 4px 12px 0 rgb(0 0 0 / 0.08);
+  --shadow-floating: 0 4px 10px 0 rgb(0 0 0 / 0.06), 0 12px 24px 0 rgb(0 0 0 / 0.1);
 
   --breakpoint-pc: 768px;
 }
@@ -201,7 +203,9 @@
   --color-semantic-error: #f87171;
 
   /* Drop shadow on dark reads as smudge — components lift via surface tone instead. */
+  --shadow-raised: none;
   --shadow-hover: none;
+  --shadow-floating: none;
 }
 
 :lang(ko) {
