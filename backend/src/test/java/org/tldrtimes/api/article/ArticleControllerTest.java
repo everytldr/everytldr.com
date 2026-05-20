@@ -84,9 +84,8 @@ class ArticleControllerTest {
 
   @Test
   void filtersByCategoryPrefix() {
-    Category eplLeague = categoryRepository.saveAndFlush(Category.create("sport-football-epl", 10));
-    Category eplArsenal =
-        categoryRepository.saveAndFlush(Category.create("sport-football-epl-arsenal", 11));
+    Category eplLeague = categoryRepository.findBySlug("sport-football-epl").orElseThrow();
+    Category eplArsenal = categoryRepository.findBySlug("sport-football-epl-arsenal").orElseThrow();
     Category nba = categoryRepository.saveAndFlush(Category.create("sport-basketball-nba", 12));
 
     Instant base = Instant.parse("2026-04-01T00:00:00Z");
