@@ -26,13 +26,13 @@ The backend is a single Gradle project. The five Spring profiles are realized as
 
 | Profile | Package root | Role |
 |---|---|---|
-| `common` | `org.tldrtimes.common` | Shared code: domain entities, repositories, snowflake, base classes |
-| `api` | `org.tldrtimes.api` | HTTP endpoints, DTOs |
-| `ingestor` | `org.tldrtimes.ingestor` | RSS polling, article ingestion |
-| `enricher` | `org.tldrtimes.enricher` | LLM translation and summarization |
+| `common` | `org.everytldr.common` | Shared code: domain entities, repositories, snowflake, base classes |
+| `api` | `org.everytldr.api` | HTTP endpoints, DTOs |
+| `ingestor` | `org.everytldr.ingestor` | RSS polling, article ingestion |
+| `enricher` | `org.everytldr.enricher` | LLM translation and summarization |
 | `monolith` | inherits all | Single-process deployment |
 
-All persistence entities live under `org.tldrtimes.common.domain.<aggregate>`. This is package-by-feature (§ 10.).
+All persistence entities live under `org.everytldr.common.domain.<aggregate>`. This is package-by-feature (§ 10.).
 
 ## 2.3. Domain package layout
 
@@ -166,7 +166,7 @@ JPA constraints (`nullable`, `length`, `unique`) on entity columns. Bean Validat
 
 ## 4.4. Auditing
 
-`@EnableJpaAuditing` is declared on `org.tldrtimes.common.CommonConfig`. `@LastModifiedDate` populates `updatedAt` (§ 4.1.) on both INSERT and UPDATE; therefore at first persist, `updatedAt` equals the persist instant. `@CreatedBy` and `@LastModifiedBy` are not used (anonymous service).
+`@EnableJpaAuditing` is declared on `org.everytldr.common.CommonConfig`. `@LastModifiedDate` populates `updatedAt` (§ 4.1.) on both INSERT and UPDATE; therefore at first persist, `updatedAt` equals the persist instant. `@CreatedBy` and `@LastModifiedBy` are not used (anonymous service).
 
 ## 4.5. Fetch and association rules
 
@@ -264,7 +264,7 @@ Display labels (Korean, English, …) are resolved client-side from `slug` via i
 | `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en`. Articles emitted from this source inherit this value. |
 | `source_type` | `VARCHAR(32)` | `NOT NULL` | Java `SourceType` enum, mapped `EnumType.STRING`; values include `GUARDIAN_API` and `RSS`. |
 
-For `GUARDIAN_API`, `url` is a provider locator, not the final outbound request URL. It must not contain `api-key` or other secrets. The ingestor extracts supported provider parameters such as `section` from this locator, while the actual Guardian API base URL comes from `tldrtimes.ingestor.guardian.base-url`. This keeps credentials and outbound host configuration outside reference data and prevents database rows from controlling the request host.
+For `GUARDIAN_API`, `url` is a provider locator, not the final outbound request URL. It must not contain `api-key` or other secrets. The ingestor extracts supported provider parameters such as `section` from this locator, while the actual Guardian API base URL comes from `everytldr.ingestor.guardian.base-url`. This keeps credentials and outbound host configuration outside reference data and prevents database rows from controlling the request host.
 
 Seed policy: initial `article_source` rows are managed by Flyway versioned SQL migrations. Because SQL migrations do not invoke Hibernate's `@SnowflakeId` generator, seed rows must provide explicit fixed IDs. These IDs are still Snowflake-format values, not arbitrary small integers: use the project epoch and bit layout from § 8, set the timestamp to the migration's chosen UTC reference instant, reserve `workerId = 1023` for Flyway reference data, and increment the sequence from `1` within the same migration. Runtime application processes must not use `workerId = 1023`; assign `APP_WORKER_ID` values from `0..1022` so generated runtime IDs cannot collide with reference-data IDs.
 
@@ -386,7 +386,7 @@ Order from most to least significant: `sign | timestamp | worker | sequence`. ID
 
 | Source | Resolution order |
 |---|---|
-| Spring property `tldrtimes.snowflake.worker-id` | 1 (highest) |
+| Spring property `everytldr.snowflake.worker-id` | 1 (highest) |
 | Environment variable `APP_WORKER_ID` (via property placeholder) | 2 |
 | Default | `0` |
 

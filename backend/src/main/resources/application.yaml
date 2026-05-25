@@ -8,9 +8,9 @@ spring:
         - ingestor
         - enricher
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/tldrtimes?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
-    username: ${DB_USERNAME:tldrtimes}
-    password: ${DB_PASSWORD:tldrtimes}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/everytldr?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:everytldr}
+    password: ${DB_PASSWORD:everytldr}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false
@@ -24,6 +24,6 @@ spring:
   flyway:
     enabled: ${FLYWAY_ENABLED:true}
 
-tldrtimes:
+everytldr:
   snowflake:
     worker-id: ${APP_WORKER_ID:0}
