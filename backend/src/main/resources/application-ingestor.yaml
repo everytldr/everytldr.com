@@ -3,7 +3,7 @@ spring:
     job:
       enabled: false
 
-tldrtimes:
+everytldr:
   ingestor:
     guardian:
       base-url: ${GUARDIAN_BASE_URL:https://content.guardianapis.com}
