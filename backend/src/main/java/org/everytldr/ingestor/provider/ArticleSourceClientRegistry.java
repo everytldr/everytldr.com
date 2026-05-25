@@ -2,8 +2,8 @@ package org.everytldr.ingestor.provider;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.everytldr.common.domain.source.SourceType;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

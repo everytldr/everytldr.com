@@ -7,15 +7,6 @@ import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import org.everytldr.TestcontainersConfig;
 import org.everytldr.common.domain.article.Article;
 import org.everytldr.common.domain.article.ArticleListProjection;
@@ -26,6 +17,15 @@ import org.everytldr.common.domain.category.ArticleCategory;
 import org.everytldr.common.domain.category.ArticleCategoryRepository;
 import org.everytldr.common.domain.category.Category;
 import org.everytldr.common.domain.category.CategoryRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)

@@ -9,13 +9,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.everytldr.TestcontainersConfig;
 import org.everytldr.common.domain.article.Article;
 import org.everytldr.common.domain.article.ArticleRepository;
@@ -23,6 +16,13 @@ import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.common.domain.ingestion.IngestionState;
 import org.everytldr.ingestor.provider.CollectedArticle;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)

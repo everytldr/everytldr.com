@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
-import org.junit.jupiter.api.Test;
 import org.everytldr.common.domain.source.ArticleSource;
 import org.everytldr.common.domain.source.SourceType;
+import org.junit.jupiter.api.Test;
 
 class ArticleSourceClientRegistryTest {
 

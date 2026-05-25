@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 import java.util.Locale;
+import org.everytldr.common.domain.language.SupportedLanguage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.MethodParameter;
-import org.everytldr.common.domain.language.SupportedLanguage;
 
 class ResolvedLanguageArgumentResolverTest {
   private final ResolvedLanguageArgumentResolver resolver = new ResolvedLanguageArgumentResolver();

@@ -5,10 +5,10 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.everytldr.common.domain.source.ArticleSource;
 import org.everytldr.ingestor.provider.CollectedArticle;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @Slf4j

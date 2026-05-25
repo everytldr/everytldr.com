@@ -4,15 +4,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.everytldr.api.support.language.ResolvedLanguage;
+import org.everytldr.api.support.pagination.Pagination;
+import org.everytldr.common.domain.article.ArticleListProjection;
+import org.everytldr.common.domain.language.SupportedLanguage;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.everytldr.api.support.language.ResolvedLanguage;
-import org.everytldr.api.support.pagination.Pagination;
-import org.everytldr.common.domain.article.ArticleListProjection;
-import org.everytldr.common.domain.language.SupportedLanguage;
 
 @RestController
 @RequestMapping("/api/articles")

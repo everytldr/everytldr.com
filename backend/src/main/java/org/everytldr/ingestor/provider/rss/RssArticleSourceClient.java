@@ -10,14 +10,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestClient;
 import org.everytldr.common.domain.source.ArticleSource;
 import org.everytldr.common.domain.source.SourceType;
 import org.everytldr.ingestor.provider.ArticleSourceClient;
 import org.everytldr.ingestor.provider.CollectedArticle;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClient;
 
 @Component
 @Profile("ingestor")

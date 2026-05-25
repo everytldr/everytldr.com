@@ -9,14 +9,14 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import java.time.Instant;
 import java.util.List;
+import org.everytldr.common.domain.source.ArticleSource;
+import org.everytldr.common.domain.source.SourceType;
+import org.everytldr.ingestor.provider.CollectedArticle;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
-import org.everytldr.common.domain.source.ArticleSource;
-import org.everytldr.common.domain.source.SourceType;
-import org.everytldr.ingestor.provider.CollectedArticle;
 
 class RssArticleSourceClientTest {
 

@@ -4,15 +4,15 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.everytldr.common.domain.source.ArticleSource;
+import org.everytldr.common.domain.source.SourceType;
+import org.everytldr.ingestor.provider.ArticleSourceClient;
+import org.everytldr.ingestor.provider.CollectedArticle;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
-import org.everytldr.common.domain.source.ArticleSource;
-import org.everytldr.common.domain.source.SourceType;
-import org.everytldr.ingestor.provider.ArticleSourceClient;
-import org.everytldr.ingestor.provider.CollectedArticle;
 
 @Component
 @Profile("ingestor")

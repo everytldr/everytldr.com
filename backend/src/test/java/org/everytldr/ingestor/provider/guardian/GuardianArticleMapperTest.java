@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.jupiter.api.Test;
 import org.everytldr.common.domain.source.ArticleSource;
 import org.everytldr.common.domain.source.SourceType;
 import org.everytldr.ingestor.provider.CollectedArticle;
+import org.junit.jupiter.api.Test;
 
 class GuardianArticleMapperTest {
 

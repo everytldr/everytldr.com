@@ -3,12 +3,12 @@ package org.everytldr.ingestor.ingestion;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.everytldr.common.domain.source.ArticleSource;
 import org.everytldr.common.domain.source.ArticleSourceRepository;
 import org.everytldr.ingestor.provider.ArticleSourceClient;
 import org.everytldr.ingestor.provider.ArticleSourceClientRegistry;
 import org.everytldr.ingestor.provider.CollectedArticle;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

@@ -3,6 +3,8 @@ package org.everytldr.ingestor.batch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
+import org.everytldr.TestcontainersConfig;
+import org.everytldr.ingestor.ingestion.ArticleIngestionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
@@ -16,8 +18,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.everytldr.TestcontainersConfig;
-import org.everytldr.ingestor.ingestion.ArticleIngestionService;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)

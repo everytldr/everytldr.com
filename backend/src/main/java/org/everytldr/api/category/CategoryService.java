@@ -1,11 +1,11 @@
 package org.everytldr.api.category;
 
 import java.util.List;
+import org.everytldr.common.domain.category.Category;
+import org.everytldr.common.domain.category.CategoryRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.everytldr.common.domain.category.Category;
-import org.everytldr.common.domain.category.CategoryRepository;
 
 @Service
 @Profile("api")

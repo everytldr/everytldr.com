@@ -11,10 +11,10 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.ingestor.provider.CollectedArticle;
+import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 
 class CollectedArticleSaveServiceUnitTest {
 

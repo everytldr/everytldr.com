@@ -1,5 +1,6 @@
 package org.everytldr.ingestor.batch;
 
+import org.everytldr.ingestor.ingestion.ArticleIngestionService;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -9,7 +10,6 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.everytldr.ingestor.ingestion.ArticleIngestionService;
 
 @Configuration
 @Profile("ingestor")

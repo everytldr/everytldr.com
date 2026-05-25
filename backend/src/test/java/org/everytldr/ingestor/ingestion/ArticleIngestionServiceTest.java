@@ -6,13 +6,13 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.jupiter.api.Test;
 import org.everytldr.common.domain.source.ArticleSource;
 import org.everytldr.common.domain.source.ArticleSourceRepository;
 import org.everytldr.common.domain.source.SourceType;
 import org.everytldr.ingestor.provider.ArticleSourceClient;
 import org.everytldr.ingestor.provider.ArticleSourceClientRegistry;
 import org.everytldr.ingestor.provider.CollectedArticle;
+import org.junit.jupiter.api.Test;
 
 class ArticleIngestionServiceTest {
 
