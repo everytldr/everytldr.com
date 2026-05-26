@@ -1,1 +1,1 @@
-rootProject.name = "tldrtimes-backend"
+rootProject.name = "everytldr-backend"
