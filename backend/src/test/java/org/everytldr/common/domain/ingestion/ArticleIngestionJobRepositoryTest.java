@@ -1,4 +1,4 @@
-package org.tldrtimes.common.domain.ingestion;
+package org.everytldr.common.domain.ingestion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -16,9 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.tldrtimes.TestcontainersConfig;
-import org.tldrtimes.common.domain.article.Article;
-import org.tldrtimes.common.domain.article.ArticleRepository;
+import org.everytldr.TestcontainersConfig;
+import org.everytldr.common.domain.article.Article;
+import org.everytldr.common.domain.article.ArticleRepository;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)

@@ -1,4 +1,4 @@
-package org.tldrtimes.common.domain.ingestion;
+package org.everytldr.common.domain.ingestion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
-import org.tldrtimes.common.domain.article.Article;
+import org.everytldr.common.domain.article.Article;
 
 class ArticleIngestionJobTest {
 

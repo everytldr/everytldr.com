@@ -1,4 +1,4 @@
-package org.tldrtimes.enricher.enrichment;
+package org.everytldr.enricher.enrichment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,19 +13,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.tldrtimes.TestcontainersConfig;
-import org.tldrtimes.common.domain.article.Article;
-import org.tldrtimes.common.domain.article.ArticleRepository;
-import org.tldrtimes.common.domain.article.ArticleSummary;
-import org.tldrtimes.common.domain.article.ArticleSummaryRepository;
-import org.tldrtimes.common.domain.category.ArticleCategory;
-import org.tldrtimes.common.domain.category.ArticleCategoryRepository;
-import org.tldrtimes.common.domain.category.Category;
-import org.tldrtimes.common.domain.category.CategoryRepository;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJob;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJobRepository;
-import org.tldrtimes.common.domain.ingestion.IngestionState;
-import org.tldrtimes.common.domain.language.SupportedLanguage;
+import org.everytldr.TestcontainersConfig;
+import org.everytldr.common.domain.article.Article;
+import org.everytldr.common.domain.article.ArticleRepository;
+import org.everytldr.common.domain.article.ArticleSummary;
+import org.everytldr.common.domain.article.ArticleSummaryRepository;
+import org.everytldr.common.domain.category.ArticleCategory;
+import org.everytldr.common.domain.category.ArticleCategoryRepository;
+import org.everytldr.common.domain.category.Category;
+import org.everytldr.common.domain.category.CategoryRepository;
+import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
+import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import org.everytldr.common.domain.ingestion.IngestionState;
+import org.everytldr.common.domain.language.SupportedLanguage;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)

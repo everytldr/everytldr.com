@@ -1,4 +1,4 @@
-package org.tldrtimes.enricher.enrichment;
+package org.everytldr.enricher.enrichment;
 
 public enum ArticleEnrichmentCompletionStatus {
   SUCCEEDED,

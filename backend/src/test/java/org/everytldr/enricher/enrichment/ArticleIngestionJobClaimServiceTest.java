@@ -1,4 +1,4 @@
-package org.tldrtimes.enricher.enrichment;
+package org.everytldr.enricher.enrichment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,12 +14,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import org.tldrtimes.TestcontainersConfig;
-import org.tldrtimes.common.domain.article.Article;
-import org.tldrtimes.common.domain.article.ArticleRepository;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJob;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJobRepository;
-import org.tldrtimes.common.domain.ingestion.IngestionState;
+import org.everytldr.TestcontainersConfig;
+import org.everytldr.common.domain.article.Article;
+import org.everytldr.common.domain.article.ArticleRepository;
+import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
+import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import org.everytldr.common.domain.ingestion.IngestionState;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)

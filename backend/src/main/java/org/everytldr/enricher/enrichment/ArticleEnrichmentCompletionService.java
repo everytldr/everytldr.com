@@ -1,4 +1,4 @@
-package org.tldrtimes.enricher.enrichment;
+package org.everytldr.enricher.enrichment;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -8,17 +8,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tldrtimes.common.domain.article.Article;
-import org.tldrtimes.common.domain.article.ArticleSummary;
-import org.tldrtimes.common.domain.article.ArticleSummaryRepository;
-import org.tldrtimes.common.domain.category.ArticleCategory;
-import org.tldrtimes.common.domain.category.ArticleCategoryRepository;
-import org.tldrtimes.common.domain.category.Category;
-import org.tldrtimes.common.domain.category.CategoryRepository;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJob;
-import org.tldrtimes.common.domain.ingestion.ArticleIngestionJobRepository;
-import org.tldrtimes.common.domain.ingestion.IngestionState;
-import org.tldrtimes.common.domain.language.SupportedLanguage;
+import org.everytldr.common.domain.article.Article;
+import org.everytldr.common.domain.article.ArticleSummary;
+import org.everytldr.common.domain.article.ArticleSummaryRepository;
+import org.everytldr.common.domain.category.ArticleCategory;
+import org.everytldr.common.domain.category.ArticleCategoryRepository;
+import org.everytldr.common.domain.category.Category;
+import org.everytldr.common.domain.category.CategoryRepository;
+import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
+import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import org.everytldr.common.domain.ingestion.IngestionState;
+import org.everytldr.common.domain.language.SupportedLanguage;
 
 @Service
 @RequiredArgsConstructor
