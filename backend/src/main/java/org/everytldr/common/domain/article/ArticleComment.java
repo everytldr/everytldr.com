@@ -38,6 +38,9 @@ public class ArticleComment extends SoftDeletableEntity {
   @Column(columnDefinition = "CHAR(64) NOT NULL")
   private String ipHash;
 
+  @Column(nullable = false, length = 32)
+  private String maskedIp;
+
   @Column(columnDefinition = "TEXT NOT NULL")
   private String content;
 
@@ -47,18 +50,25 @@ public class ArticleComment extends SoftDeletableEntity {
       String nickname,
       String passwordHash,
       String ipHash,
+      String maskedIp,
       String content) {
     this.article = article;
     this.parent = parent;
     this.nickname = nickname;
     this.passwordHash = passwordHash;
     this.ipHash = ipHash;
+    this.maskedIp = maskedIp;
     this.content = content;
   }
 
   public static ArticleComment createTopLevel(
-      Article article, String nickname, String passwordHash, String ipHash, String content) {
-    return new ArticleComment(article, null, nickname, passwordHash, ipHash, content);
+      Article article,
+      String nickname,
+      String passwordHash,
+      String ipHash,
+      String maskedIp,
+      String content) {
+    return new ArticleComment(article, null, nickname, passwordHash, ipHash, maskedIp, content);
   }
 
   public static ArticleComment createReply(
@@ -67,7 +77,8 @@ public class ArticleComment extends SoftDeletableEntity {
       String nickname,
       String passwordHash,
       String ipHash,
+      String maskedIp,
       String content) {
-    return new ArticleComment(article, parent, nickname, passwordHash, ipHash, content);
+    return new ArticleComment(article, parent, nickname, passwordHash, ipHash, maskedIp, content);
   }
 }

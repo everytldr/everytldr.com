@@ -4,3 +4,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: ${SWAGGER_UI_ENABLED:true}
+
+everytldr:
+  client-address:
+    hash-secret: ${CLIENT_ADDRESS_HASH_SECRET:local-development-client-address-secret}

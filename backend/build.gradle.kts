@@ -19,6 +19,8 @@ repositories {
     mavenCentral()
 }
 
+val mockitoAgent = configurations.create("mockitoAgent")
+
 dependencyManagement {
     imports {
         mavenBom("org.testcontainers:testcontainers-bom:2.0.5")
@@ -33,6 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.springframework.security:spring-security-crypto")
     implementation("com.rometools:rome:2.1.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     compileOnly("org.projectlombok:lombok")
@@ -48,6 +51,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-mysql")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    mockitoAgent("org.mockito:mockito-core") {
+        isTransitive = false
+    }
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
@@ -62,6 +68,7 @@ spotless {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("-javaagent:${mockitoAgent.singleFile}")
     testLogging {
         events("passed", "skipped", "failed")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
