@@ -7,6 +7,7 @@ export { IconButton } from "./icon-button";
 export { Input } from "./input";
 export { default as Logo } from "./logo.svg";
 export { Modal } from "./modal";
+export { RelativeTime } from "./relative-time";
 export { ResponsiveDialog } from "./responsive-dialog";
 export { ResponsiveSelector, type SelectorOption } from "./responsive-selector";
 export { ScrollableRow } from "./scrollable-row";

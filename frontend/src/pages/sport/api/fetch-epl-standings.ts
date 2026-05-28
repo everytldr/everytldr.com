@@ -1,7 +1,8 @@
 import "server-only";
 
 import { EplTeam } from "@/shared/config";
-import { ensure, type Nullable } from "@/shared/lib";
+import { A_DAY, A_SECOND, ensure, type Nullable } from "@/shared/lib";
+import { cacheLife, cacheTag } from "next/cache";
 import { z } from "zod";
 import type { EplStanding } from "../model/epl-standing";
 
@@ -33,9 +34,13 @@ const standingsResponseSchema = z.object({
 });
 
 export async function fetchEplStandings(): Promise<EplStanding[]> {
+  "use cache";
+
+  cacheLife({ revalidate: REVALIDATE_SECONDS, expire: A_DAY / A_SECOND });
+  cacheTag("epl-standings");
+
   const response = await fetch(STANDINGS_URL, {
     headers: { "X-Auth-Token": FOOTBALL_DATA_API_KEY },
-    next: { revalidate: REVALIDATE_SECONDS },
   });
   if (!response.ok) {
     throw new Error(`football-data.org responded ${response.status}`);
