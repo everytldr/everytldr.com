@@ -71,7 +71,7 @@ class SoftDeleteTest {
     ArticleComment comment =
         commentRepository.saveAndFlush(
             ArticleComment.createTopLevel(
-                article, "guest", SAMPLE_PASSWORD_HASH, SAMPLE_IP_HASH, "Hello"));
+                article, "guest", SAMPLE_PASSWORD_HASH, SAMPLE_IP_HASH, "203.0", "Hello"));
     Long commentId = comment.getId();
 
     comment.softDelete(Instant.now());

@@ -1,19 +1,16 @@
 package org.everytldr.api.article;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import org.everytldr.TestcontainersConfig;
 import org.everytldr.common.domain.article.Article;
-import org.everytldr.common.domain.article.ArticleComment;
-import org.everytldr.common.domain.article.ArticleCommentRepository;
-import org.everytldr.common.domain.article.ArticleLike;
-import org.everytldr.common.domain.article.ArticleLikeRepository;
 import org.everytldr.common.domain.article.ArticleRepository;
 import org.everytldr.common.domain.article.ArticleSummary;
 import org.everytldr.common.domain.article.ArticleSummaryRepository;
@@ -36,14 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Import(TestcontainersConfig.class)
 @ActiveProfiles({"api", "test"})
 @Transactional
-class ArticleControllerTest {
+class ArticleLikeControllerTest {
   @PersistenceContext private EntityManager entityManager;
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ArticleRepository articleRepository;
   @Autowired private ArticleSummaryRepository summaryRepository;
-  @Autowired private ArticleLikeRepository likeRepository;
-  @Autowired private ArticleCommentRepository commentRepository;
   @Autowired private ArticleCategoryRepository articleCategoryRepository;
   @Autowired private CategoryRepository categoryRepository;
 
@@ -55,57 +50,55 @@ class ArticleControllerTest {
   }
 
   @Test
-  void listReturnsArticlesWithNextCursor() throws Exception {
-    Instant base = Instant.parse("2026-04-01T00:00:00Z");
-    saveArticle(base, football, "ko", "T0", "본문");
-    saveArticle(base.minus(1, ChronoUnit.HOURS), football, "ko", "T1", "본문");
-    saveArticle(base.minus(2, ChronoUnit.HOURS), football, "ko", "T2", "본문");
+  void likeStateIsScopedToCurrentReaderIp() throws Exception {
+    Article article =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "제목", "요약");
     entityManager.flush();
     entityManager.clear();
 
     mockMvc
         .perform(
-            get("/api/articles")
-                .header("Accept-Language", "ko")
-                .param("categoryPrefix", "football")
-                .param("size", "2"))
+            put("/api/articles/{id}/likes/me", article.getId())
+                .header("X-Forwarded-For", "1.1.1.1"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.items[0].title").value("T0"))
-        .andExpect(jsonPath("$.items[1].title").value("T1"))
-        .andExpect(jsonPath("$.nextCursor").isString());
+        .andExpect(jsonPath("$.likedByReader").value(true))
+        .andExpect(jsonPath("$.likeCount").value(1));
+
+    mockMvc
+        .perform(
+            get("/api/articles/{id}/likes/me", article.getId())
+                .header("X-Forwarded-For", "1.1.1.1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.likedByReader").value(true))
+        .andExpect(jsonPath("$.likeCount").value(1));
+
+    mockMvc
+        .perform(
+            get("/api/articles/{id}/likes/me", article.getId())
+                .header("X-Forwarded-For", "2.2.2.2"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.likedByReader").value(false))
+        .andExpect(jsonPath("$.likeCount").value(1));
+
+    mockMvc
+        .perform(
+            delete("/api/articles/{id}/likes/me", article.getId())
+                .header("X-Forwarded-For", "1.1.1.1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.likedByReader").value(false))
+        .andExpect(jsonPath("$.likeCount").value(0));
   }
 
   @Test
-  void detailReturnsPublicArticleDataAndAggregateCounts() throws Exception {
+  void likeStateReturnsServiceUnavailableWhenClientIpIsUnavailable() throws Exception {
     Article article =
         saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "제목", "요약");
-    likeRepository.saveAndFlush(ArticleLike.create(article, "a".repeat(64)));
-    ArticleLike inactive = likeRepository.saveAndFlush(ArticleLike.create(article, "b".repeat(64)));
-    inactive.deactivate();
-    commentRepository.saveAndFlush(
-        ArticleComment.createTopLevel(
-            article, "reader", "p".repeat(60), "c".repeat(64), "203.0", "댓글"));
     entityManager.flush();
     entityManager.clear();
 
     mockMvc
-        .perform(get("/api/articles/{id}", article.getId()).header("Accept-Language", "ko"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(article.getId()))
-        .andExpect(jsonPath("$.title").value("제목"))
-        .andExpect(jsonPath("$.summary").value("요약"))
-        .andExpect(jsonPath("$.sourceUrl").value(article.getSourceUrl()))
-        .andExpect(jsonPath("$.category").value("football"))
-        .andExpect(jsonPath("$.likeCount").value(1))
-        .andExpect(jsonPath("$.commentCount").value(1))
-        .andExpect(jsonPath("$.likedByReader").doesNotExist());
-  }
-
-  @Test
-  void detailReturnsNotFoundWhenArticleDoesNotExist() throws Exception {
-    mockMvc
-        .perform(get("/api/articles/{id}", 9_999_999L).header("Accept-Language", "ko"))
-        .andExpect(status().isNotFound());
+        .perform(get("/api/articles/{id}/likes/me", article.getId()))
+        .andExpect(status().isServiceUnavailable());
   }
 
   private Article saveArticle(
