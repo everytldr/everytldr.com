@@ -38,3 +38,11 @@ Replace `T | null`, `T | undefined`, and `T | null | undefined` with `Nullable<T
 
 ## 4.1. Translation primitive precedence
 For localized text, prefer `Translation` (`@/shared/ui`) over `getTranslations` (the async helper from `next-intl`). Use `getTranslations` only when a plain string is required and JSX cannot be returned — e.g., `generateMetadata`, string-typed HTML attributes.
+
+# 5. Duration Literals
+
+## 5.1. Shared constants precedence
+Do not write bare numeric duration literals in application code. Use the duration constants exported from `@/shared/lib`, such as `A_SECOND`, `A_MINUTE`, `AN_HOUR`, and `A_DAY`.
+
+## 5.2. Unit conversion
+The constants in § 5.1. are millisecond values. When an API expects seconds, convert explicitly at the call site, e.g. `A_DAY / A_SECOND`. Do not pass a millisecond constant to a seconds-based API.

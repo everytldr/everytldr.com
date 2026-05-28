@@ -1,6 +1,7 @@
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { ConditionalLink, Container, Logo, Translation } from "@/shared/ui";
+import { cacheLife } from "next/cache";
 import { type PropsWithChildren } from "react";
 
 const ABOUT_URL = process.env.NEXT_PUBLIC_FOOTER_ABOUT_URL ?? "/about";
@@ -13,8 +14,8 @@ type FooterProps = {
   className?: string;
 };
 
-export function Footer({ className }: FooterProps) {
-  const year = new Date().getFullYear();
+export async function Footer({ className }: FooterProps) {
+  const year = await getFooterYear();
 
   return (
     <footer className={cn("border-t border-hairline bg-canvas", className)}>
@@ -46,6 +47,14 @@ export function Footer({ className }: FooterProps) {
       </Container>
     </footer>
   );
+}
+
+async function getFooterYear(): Promise<number> {
+  "use cache";
+
+  cacheLife("days");
+
+  return new Date().getFullYear();
 }
 
 type FooterLinkProps = PropsWithChildren<{
