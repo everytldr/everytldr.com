@@ -1,10 +1,7 @@
-import { http, HttpResponse } from "msw";
+import { http } from "msw";
+import { getArticle, listArticles } from "./fetchers/article";
 
-const getHealth = () =>
-  HttpResponse.json({
-    status: "ok",
-    mocked: true,
-    timestamp: new Date().toISOString(),
-  });
-
-export const handlers = [http.get("/api/health", getHealth), http.get("*/api/health", getHealth)];
+export const handlers = [
+  http.get("*/api/articles", listArticles),
+  http.get("*/api/articles/:id", getArticle),
+];
