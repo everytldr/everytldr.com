@@ -7,8 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import org.junit.jupiter.api.Test;
 import org.everytldr.common.domain.article.Article;
+import org.junit.jupiter.api.Test;
 
 class ArticleIngestionJobTest {
 
