@@ -1,7 +1,6 @@
 package org.everytldr.enricher.processing;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -27,14 +26,12 @@ import org.springframework.stereotype.Service;
 @Profile("enricher")
 @Slf4j
 public class ArticleEnrichmentJobProcessor {
-  private static final int MAX_ATTEMPTS = 3;
-  private static final Duration RETRY_DELAY = Duration.ofMinutes(10);
-
   private final ArticleIngestionJobClaimService articleIngestionJobClaimService;
   private final ArticleIngestionJobRepository articleIngestionJobRepository;
   private final ArticleEnrichmentCompletionService articleEnrichmentCompletionService;
   private final List<ArticleContentResolver> articleContentResolvers;
   private final List<ArticleEnrichmentClient> articleEnrichmentClients;
+  private final EnricherProcessingProperties properties;
   private final Clock clock;
 
   public List<ArticleEnrichmentProcessingResult> processNextJobs(int limit) {
@@ -113,10 +110,10 @@ public class ArticleEnrichmentJobProcessor {
   private ArticleEnrichmentProcessingResult completeFailure(
       Long jobId, ArticleIngestionJob job, ArticleEnrichmentException exception) {
     ArticleEnrichmentCompletionStatus completionStatus;
-    if (exception.isRetryable() && job.getAttemptCount() < MAX_ATTEMPTS) {
+    if (exception.isRetryable() && job.getAttemptCount() < properties.maxAttempts()) {
       completionStatus =
           articleEnrichmentCompletionService.scheduleRetry(
-              jobId, Instant.now(clock).plus(RETRY_DELAY), exception.getMessage());
+              jobId, Instant.now(clock).plus(properties.retryDelay()), exception.getMessage());
     } else {
       completionStatus =
           articleEnrichmentCompletionService.fail(jobId, failureMessage(job, exception));
@@ -133,7 +130,7 @@ public class ArticleEnrichmentJobProcessor {
   }
 
   private String failureMessage(ArticleIngestionJob job, ArticleEnrichmentException exception) {
-    if (exception.isRetryable() && job.getAttemptCount() >= MAX_ATTEMPTS) {
+    if (exception.isRetryable() && job.getAttemptCount() >= properties.maxAttempts()) {
       return "max attempts exhausted: " + exception.getMessage();
     }
     return exception.getMessage();

@@ -33,6 +33,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ArticleEnrichmentJobProcessorTest {
   private static final Instant NOW = Instant.parse("2026-05-28T01:02:03Z");
   private static final Instant PUBLISHED_AT = Instant.parse("2026-05-04T10:15:30Z");
+  private static final int MAX_ATTEMPTS = 2;
+  private static final Duration RETRY_DELAY = Duration.ofMinutes(7);
 
   @Mock private ArticleIngestionJobClaimService articleIngestionJobClaimService;
 
@@ -55,6 +57,8 @@ class ArticleEnrichmentJobProcessorTest {
             articleEnrichmentCompletionService,
             List.of(articleContentResolver),
             List.of(articleEnrichmentClient),
+            new EnricherProcessingProperties(
+                false, 10, Duration.ofSeconds(30), MAX_ATTEMPTS, RETRY_DELAY),
             Clock.fixed(NOW, ZoneOffset.UTC));
   }
 
@@ -82,7 +86,7 @@ class ArticleEnrichmentJobProcessorTest {
   }
 
   @Test
-  void retryableFailureSchedulesRetryWhenAttemptsRemain() {
+  void retryableFailureSchedulesRetryWithConfiguredDelayWhenAttemptsRemain() {
     Long jobId = 101L;
     ArticleIngestionJob job = processingJob("https://www.theguardian.com/football/retry", 1);
 
@@ -91,7 +95,7 @@ class ArticleEnrichmentJobProcessorTest {
     when(articleContentResolver.resolve(job.getArticle()))
         .thenThrow(ArticleEnrichmentException.retryable("content timeout"));
     when(articleEnrichmentCompletionService.scheduleRetry(
-            jobId, NOW.plus(Duration.ofMinutes(10)), "content timeout"))
+            jobId, NOW.plus(RETRY_DELAY), "content timeout"))
         .thenReturn(ArticleEnrichmentCompletionStatus.RETRY_SCHEDULED);
 
     ArticleEnrichmentProcessingResult result = processor.processClaimedJob(jobId);
@@ -106,7 +110,8 @@ class ArticleEnrichmentJobProcessorTest {
   @Test
   void retryableFailureFailsWhenMaxAttemptsAreExhausted() {
     Long jobId = 102L;
-    ArticleIngestionJob job = processingJob("https://www.theguardian.com/football/max-attempts", 3);
+    ArticleIngestionJob job =
+        processingJob("https://www.theguardian.com/football/max-attempts", MAX_ATTEMPTS);
 
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
     when(articleContentResolver.supports(job.getArticle())).thenReturn(true);

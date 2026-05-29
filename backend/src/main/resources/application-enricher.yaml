@@ -1,0 +1,8 @@
+everytldr:
+  enricher:
+    processing:
+      enabled: ${ENRICHER_PROCESSING_ENABLED:false}
+      batch-size: ${ENRICHER_PROCESSING_BATCH_SIZE:10}
+      fixed-delay: ${ENRICHER_PROCESSING_FIXED_DELAY:30s}
+      max-attempts: ${ENRICHER_PROCESSING_MAX_ATTEMPTS:3}
+      retry-delay: ${ENRICHER_PROCESSING_RETRY_DELAY:10m}
