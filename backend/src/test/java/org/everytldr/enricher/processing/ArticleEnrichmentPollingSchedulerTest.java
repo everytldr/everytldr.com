@@ -52,7 +52,12 @@ class ArticleEnrichmentPollingSchedulerTest {
     return new ArticleEnrichmentPollingScheduler(
         articleEnrichmentJobProcessor,
         new EnricherProcessingProperties(
-            enabled, batchSize, Duration.ofSeconds(30), 3, Duration.ofMinutes(10)));
+            enabled,
+            batchSize,
+            Duration.ofSeconds(30),
+            3,
+            Duration.ofMinutes(10),
+            Duration.ofMinutes(15)));
   }
 
   @Nested
@@ -65,7 +70,8 @@ class ArticleEnrichmentPollingSchedulerTest {
                 "everytldr.enricher.processing.batch-size=3",
                 "everytldr.enricher.processing.fixed-delay=30s",
                 "everytldr.enricher.processing.max-attempts=3",
-                "everytldr.enricher.processing.retry-delay=10m");
+                "everytldr.enricher.processing.retry-delay=10m",
+                "everytldr.enricher.processing.stale-timeout=15m");
 
     @Test
     void registersSchedulerWhenEnabled() {

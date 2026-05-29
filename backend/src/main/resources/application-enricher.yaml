@@ -6,3 +6,4 @@ everytldr:
       fixed-delay: ${ENRICHER_PROCESSING_FIXED_DELAY:30s}
       max-attempts: ${ENRICHER_PROCESSING_MAX_ATTEMPTS:3}
       retry-delay: ${ENRICHER_PROCESSING_RETRY_DELAY:10m}
+      stale-timeout: ${ENRICHER_PROCESSING_STALE_TIMEOUT:15m}

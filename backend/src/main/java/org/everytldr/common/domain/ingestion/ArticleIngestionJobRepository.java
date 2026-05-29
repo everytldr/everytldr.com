@@ -54,4 +54,30 @@ public interface ArticleIngestionJobRepository extends JpaRepository<ArticleInge
       @Param("retryScheduledState") IngestionState retryScheduledState,
       @Param("now") Instant now,
       Limit limit);
+
+  default List<ArticleIngestionJob> findStaleProcessingJobsForUpdate(
+      Instant staleAttemptStartedAtOrBefore, int limit) {
+    Objects.requireNonNull(
+        staleAttemptStartedAtOrBefore, "staleAttemptStartedAtOrBefore must not be null");
+    if (limit < 1) {
+      throw new IllegalArgumentException("limit must be positive");
+    }
+    return findStaleProcessingJobsForUpdate(
+        IngestionState.PROCESSING, staleAttemptStartedAtOrBefore, Limit.of(limit));
+  }
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query(
+      """
+      SELECT j
+      FROM ArticleIngestionJob j
+      WHERE j.state = :processingState
+        AND j.attemptStartedAt IS NOT NULL
+        AND j.attemptStartedAt <= :staleAttemptStartedAtOrBefore
+      ORDER BY j.attemptStartedAt ASC, j.id ASC
+      """)
+  List<ArticleIngestionJob> findStaleProcessingJobsForUpdate(
+      @Param("processingState") IngestionState processingState,
+      @Param("staleAttemptStartedAtOrBefore") Instant staleAttemptStartedAtOrBefore,
+      Limit limit);
 }

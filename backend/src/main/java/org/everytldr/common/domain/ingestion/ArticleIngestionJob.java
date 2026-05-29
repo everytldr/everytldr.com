@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -25,10 +26,14 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-    indexes =
-        @Index(
-            name = "idx_article_ingestion_job_state_next_attempt_at",
-            columnList = "state, next_attempt_at"),
+    indexes = {
+      @Index(
+          name = "idx_article_ingestion_job_state_next_attempt_at",
+          columnList = "state, next_attempt_at"),
+      @Index(
+          name = "idx_article_ingestion_job_state_attempt_started_at",
+          columnList = "state, attempt_started_at")
+    },
     uniqueConstraints = {
       @UniqueConstraint(name = "uk_article_ingestion_job_article", columnNames = "article_id"),
       @UniqueConstraint(name = "uk_article_ingestion_job_url_hash", columnNames = "url_hash")
@@ -94,6 +99,30 @@ public class ArticleIngestionJob extends BaseEntity {
     this.nextAttemptAt = null;
     this.lastErrorMessage = null;
     return true;
+  }
+
+  public boolean reclaimStaleProcessingAttempt(Instant now, Duration staleTimeout) {
+    if (!isStaleProcessing(now, staleTimeout)) {
+      return false;
+    }
+
+    this.attemptCount += 1;
+    this.attemptStartedAt = now;
+    this.nextAttemptAt = null;
+    this.lastErrorMessage = null;
+    return true;
+  }
+
+  public boolean isStaleProcessing(Instant now, Duration staleTimeout) {
+    Objects.requireNonNull(now, "now must not be null");
+    Objects.requireNonNull(staleTimeout, "staleTimeout must not be null");
+    if (staleTimeout.isNegative() || staleTimeout.isZero()) {
+      throw new IllegalArgumentException("staleTimeout must be positive");
+    }
+
+    return this.state.equals(IngestionState.PROCESSING)
+        && this.attemptStartedAt != null
+        && !this.attemptStartedAt.plus(staleTimeout).isAfter(now);
   }
 
   public void markSucceeded() {

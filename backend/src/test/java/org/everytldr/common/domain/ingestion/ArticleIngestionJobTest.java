@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.Instant;
 import org.everytldr.common.domain.article.Article;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 class ArticleIngestionJobTest {
 
   private static final Instant PUBLISHED_AT = Instant.parse("2026-05-04T10:15:30Z");
+  private static final Instant NOW = Instant.parse("2026-05-13T01:00:00Z");
+  private static final Duration STALE_TIMEOUT = Duration.ofMinutes(15);
 
   @Test
   void createsPendingJobWithNoAttempts() {
@@ -43,7 +46,7 @@ class ArticleIngestionJobTest {
   @Test
   void retryScheduledJobCanBeClaimedWhenNextAttemptTimeHasPassed() {
     ArticleIngestionJob job = processingJob();
-    Instant nextAttemptAt = Instant.parse("2026-05-13T01:00:00Z");
+    Instant nextAttemptAt = NOW;
     job.scheduleRetry(nextAttemptAt, "temporary failure");
 
     boolean claimed = job.claimForAttempt(nextAttemptAt.plusSeconds(1));
@@ -59,7 +62,7 @@ class ArticleIngestionJobTest {
   @Test
   void retryScheduledJobCannotBeClaimedBeforeNextAttemptTime() {
     ArticleIngestionJob job = processingJob();
-    Instant nextAttemptAt = Instant.parse("2026-05-13T01:00:00Z");
+    Instant nextAttemptAt = NOW;
     job.scheduleRetry(nextAttemptAt, "temporary failure");
 
     boolean claimed = job.claimForAttempt(nextAttemptAt.minusSeconds(1));
@@ -75,7 +78,7 @@ class ArticleIngestionJobTest {
   @Test
   void retryScheduledJobCanBeClaimedAtNextAttemptTime() {
     ArticleIngestionJob job = processingJob();
-    Instant nextAttemptAt = Instant.parse("2026-05-13T01:00:00Z");
+    Instant nextAttemptAt = NOW;
     job.scheduleRetry(nextAttemptAt, "temporary failure");
 
     boolean claimed = job.claimForAttempt(nextAttemptAt);
@@ -145,6 +148,49 @@ class ArticleIngestionJobTest {
     job.markFailed(errorMessage);
 
     assertThat(job.getLastErrorMessage()).hasSize(1000);
+  }
+
+  @Test
+  void staleProcessingJobCanBeReclaimedForNextAttempt() {
+    ArticleIngestionJob job = newJob("https://www.theguardian.com/football/stale");
+    Instant staleAttemptStartedAt = NOW.minus(STALE_TIMEOUT).minusSeconds(1);
+    boolean claimed = job.claimForAttempt(staleAttemptStartedAt);
+    assertThat(claimed).isTrue();
+
+    boolean reclaimed = job.reclaimStaleProcessingAttempt(NOW, STALE_TIMEOUT);
+
+    assertThat(reclaimed).isTrue();
+    assertThat(job.getState()).isEqualTo(IngestionState.PROCESSING);
+    assertThat(job.getAttemptCount()).isEqualTo(2);
+    assertThat(job.getAttemptStartedAt()).isEqualTo(NOW);
+    assertThat(job.getNextAttemptAt()).isNull();
+    assertThat(job.getLastErrorMessage()).isNull();
+  }
+
+  @Test
+  void freshProcessingJobCannotBeReclaimedAsStale() {
+    ArticleIngestionJob job = newJob("https://www.theguardian.com/football/fresh");
+    Instant freshAttemptStartedAt = NOW.minus(STALE_TIMEOUT).plusSeconds(1);
+    boolean claimed = job.claimForAttempt(freshAttemptStartedAt);
+    assertThat(claimed).isTrue();
+
+    boolean reclaimed = job.reclaimStaleProcessingAttempt(NOW, STALE_TIMEOUT);
+
+    assertThat(reclaimed).isFalse();
+    assertThat(job.getState()).isEqualTo(IngestionState.PROCESSING);
+    assertThat(job.getAttemptCount()).isEqualTo(1);
+    assertThat(job.getAttemptStartedAt()).isEqualTo(freshAttemptStartedAt);
+  }
+
+  @Test
+  void nonProcessingJobCannotBeReclaimedAsStale() {
+    ArticleIngestionJob job = newJob("https://www.theguardian.com/football/pending");
+
+    boolean reclaimed = job.reclaimStaleProcessingAttempt(NOW, STALE_TIMEOUT);
+
+    assertThat(reclaimed).isFalse();
+    assertThat(job.getState()).isEqualTo(IngestionState.PENDING);
+    assertThat(job.getAttemptCount()).isZero();
   }
 
   private ArticleIngestionJob processingJob() {

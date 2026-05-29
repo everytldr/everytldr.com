@@ -58,7 +58,12 @@ class ArticleEnrichmentJobProcessorTest {
             List.of(articleContentResolver),
             List.of(articleEnrichmentClient),
             new EnricherProcessingProperties(
-                false, 10, Duration.ofSeconds(30), MAX_ATTEMPTS, RETRY_DELAY),
+                false,
+                10,
+                Duration.ofSeconds(30),
+                MAX_ATTEMPTS,
+                RETRY_DELAY,
+                Duration.ofMinutes(15)),
             Clock.fixed(NOW, ZoneOffset.UTC));
   }
 

@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import org.everytldr.TestcontainersConfig;
@@ -29,6 +30,7 @@ class ArticleIngestionJobClaimServiceTest {
 
   private static final Instant PUBLISHED_AT = Instant.parse("2026-05-04T10:15:30Z");
   private static final Instant NOW = Instant.parse("2026-05-13T01:00:00Z");
+  private static final Duration STALE_TIMEOUT = Duration.ofMinutes(15);
 
   @Autowired private ArticleIngestionJobClaimService articleIngestionJobClaimService;
 
@@ -75,6 +77,71 @@ class ArticleIngestionJobClaimServiceTest {
     assertThat(claimedJobIds).hasSize(2);
   }
 
+  @Test
+  void recoversStaleProcessingJobsBeforeClaimingPendingJobs() {
+    ArticleIngestionJob staleJob =
+        saveProcessingJob(
+            "https://example.com/enricher/stale-processing",
+            NOW.minus(STALE_TIMEOUT).minusSeconds(1));
+    ArticleIngestionJob firstPendingJob =
+        savePendingJob("https://example.com/enricher/stale-limit-pending-1");
+    ArticleIngestionJob secondPendingJob =
+        savePendingJob("https://example.com/enricher/stale-limit-pending-2");
+    flushAndClear();
+
+    List<Long> claimedJobIds = articleIngestionJobClaimService.claimNextJobs(NOW, 2);
+    flushAndClear();
+
+    assertThat(claimedJobIds).hasSize(2);
+    assertThat(claimedJobIds.getFirst()).isEqualTo(staleJob.getId());
+    assertThat(claimedJobIds).contains(firstPendingJob.getId());
+    assertClaimed(staleJob.getId(), 2);
+    assertClaimed(firstPendingJob.getId(), 1);
+    assertState(secondPendingJob.getId(), IngestionState.PENDING);
+  }
+
+  @Test
+  void staleProcessingJobAtMaxAttemptsFailsWithoutBeingReturnedAsClaimed() {
+    ArticleIngestionJob staleJob =
+        saveProcessingJob(
+            "https://example.com/enricher/stale-max-attempts",
+            NOW.minus(STALE_TIMEOUT).minusSeconds(1),
+            3);
+    flushAndClear();
+
+    List<Long> claimedJobIds = articleIngestionJobClaimService.claimNextJobs(NOW, 1);
+    flushAndClear();
+
+    ArticleIngestionJob reloadedJob =
+        articleIngestionJobRepository.findById(staleJob.getId()).orElseThrow();
+    assertThat(claimedJobIds).isEmpty();
+    assertThat(reloadedJob.getState()).isEqualTo(IngestionState.FAILED);
+    assertThat(reloadedJob.getAttemptCount()).isEqualTo(3);
+    assertThat(reloadedJob.getAttemptStartedAt()).isNull();
+    assertThat(reloadedJob.getLastErrorMessage())
+        .isEqualTo("max attempts exhausted after stale processing timeout");
+  }
+
+  @Test
+  void freshProcessingJobIsNotRecoveredAsStale() {
+    ArticleIngestionJob freshJob =
+        saveProcessingJob(
+            "https://example.com/enricher/fresh-processing",
+            NOW.minus(STALE_TIMEOUT).plusSeconds(1));
+    flushAndClear();
+
+    List<Long> claimedJobIds = articleIngestionJobClaimService.claimNextJobs(NOW, 1);
+    flushAndClear();
+
+    assertThat(claimedJobIds).isEmpty();
+    ArticleIngestionJob reloadedJob =
+        articleIngestionJobRepository.findById(freshJob.getId()).orElseThrow();
+    assertThat(reloadedJob.getState()).isEqualTo(IngestionState.PROCESSING);
+    assertThat(reloadedJob.getAttemptCount()).isEqualTo(1);
+    assertThat(reloadedJob.getAttemptStartedAt())
+        .isEqualTo(NOW.minus(STALE_TIMEOUT).plusSeconds(1));
+  }
+
   private void assertClaimed(Long jobId, int expectedAttemptCount) {
     ArticleIngestionJob job = articleIngestionJobRepository.findById(jobId).orElseThrow();
 
@@ -105,9 +172,25 @@ class ArticleIngestionJobClaimServiceTest {
   }
 
   private ArticleIngestionJob saveProcessingJob(String sourceUrl) {
+    return saveProcessingJob(sourceUrl, NOW.minusSeconds(60));
+  }
+
+  private ArticleIngestionJob saveProcessingJob(String sourceUrl, Instant attemptStartedAt) {
+    return saveProcessingJob(sourceUrl, attemptStartedAt, 1);
+  }
+
+  private ArticleIngestionJob saveProcessingJob(
+      String sourceUrl, Instant finalAttemptStartedAt, int attemptCount) {
     ArticleIngestionJob job = savePendingJob(sourceUrl);
-    boolean claimed = job.claimForAttempt(NOW.minusSeconds(60));
-    assertThat(claimed).isTrue();
+    for (int attempt = 1; attempt <= attemptCount; attempt++) {
+      Instant attemptStartedAt =
+          finalAttemptStartedAt.minusSeconds((long) (attemptCount - attempt) * 60);
+      boolean claimed = job.claimForAttempt(attemptStartedAt);
+      assertThat(claimed).isTrue();
+      if (attempt < attemptCount) {
+        job.scheduleRetry(attemptStartedAt, "temporary failure");
+      }
+    }
     return articleIngestionJobRepository.saveAndFlush(job);
   }
 

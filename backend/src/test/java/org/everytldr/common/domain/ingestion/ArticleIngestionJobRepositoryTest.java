@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import org.everytldr.TestcontainersConfig;
@@ -28,6 +29,7 @@ class ArticleIngestionJobRepositoryTest {
 
   private static final Instant PUBLISHED_AT = Instant.parse("2026-05-04T10:15:30Z");
   private static final Instant NOW = Instant.parse("2026-05-13T01:00:00Z");
+  private static final Duration STALE_TIMEOUT = Duration.ofMinutes(15);
 
   @Autowired private ArticleRepository articleRepository;
 
@@ -70,6 +72,56 @@ class ArticleIngestionJobRepositoryTest {
   }
 
   @Test
+  void findsStaleProcessingJobsForUpdate() {
+    Instant staleAttemptStartedAt = NOW.minus(STALE_TIMEOUT).minusSeconds(1);
+    Instant staleBoundaryAttemptStartedAt = NOW.minus(STALE_TIMEOUT);
+    Instant freshAttemptStartedAt = NOW.minus(STALE_TIMEOUT).plusSeconds(1);
+    ArticleIngestionJob staleJob =
+        saveProcessingJob("https://example.com/stale-processing", staleAttemptStartedAt);
+    ArticleIngestionJob boundaryStaleJob =
+        saveProcessingJob(
+            "https://example.com/boundary-stale-processing", staleBoundaryAttemptStartedAt);
+    ArticleIngestionJob freshJob =
+        saveProcessingJob("https://example.com/fresh-processing", freshAttemptStartedAt);
+    ArticleIngestionJob pendingJob = savePendingJob("https://example.com/pending-not-stale");
+    ArticleIngestionJob dueRetryJob =
+        saveRetryScheduledJob("https://example.com/due-retry-not-stale", NOW);
+    ArticleIngestionJob succeededJob = saveSucceededJob("https://example.com/succeeded-not-stale");
+    ArticleIngestionJob failedJob = saveFailedJob("https://example.com/failed-not-stale");
+    flushAndClear();
+
+    List<ArticleIngestionJob> staleJobs =
+        articleIngestionJobRepository.findStaleProcessingJobsForUpdate(
+            NOW.minus(STALE_TIMEOUT), 10);
+
+    assertThat(staleJobs)
+        .extracting(ArticleIngestionJob::getId)
+        .contains(staleJob.getId(), boundaryStaleJob.getId())
+        .doesNotContain(
+            freshJob.getId(),
+            pendingJob.getId(),
+            dueRetryJob.getId(),
+            succeededJob.getId(),
+            failedJob.getId());
+  }
+
+  @Test
+  void limitsStaleProcessingJobsForUpdate() {
+    saveProcessingJob(
+        "https://example.com/stale-limit-1", NOW.minus(STALE_TIMEOUT).minusSeconds(3));
+    saveProcessingJob(
+        "https://example.com/stale-limit-2", NOW.minus(STALE_TIMEOUT).minusSeconds(2));
+    saveProcessingJob(
+        "https://example.com/stale-limit-3", NOW.minus(STALE_TIMEOUT).minusSeconds(1));
+    flushAndClear();
+
+    List<ArticleIngestionJob> staleJobs =
+        articleIngestionJobRepository.findStaleProcessingJobsForUpdate(NOW.minus(STALE_TIMEOUT), 2);
+
+    assertThat(staleJobs).hasSize(2);
+  }
+
+  @Test
   void claimableJobLookupRequiresNow() {
     assertThatNullPointerException()
         .isThrownBy(() -> articleIngestionJobRepository.findClaimableJobsForUpdate(null, 1))
@@ -79,6 +131,22 @@ class ArticleIngestionJobRepositoryTest {
   @Test
   void claimableJobLookupRequiresPositiveLimit() {
     assertThatThrownBy(() -> articleIngestionJobRepository.findClaimableJobsForUpdate(NOW, 0))
+        .hasMessageContaining("limit must be positive");
+  }
+
+  @Test
+  void staleProcessingLookupRequiresCutoff() {
+    assertThatNullPointerException()
+        .isThrownBy(() -> articleIngestionJobRepository.findStaleProcessingJobsForUpdate(null, 1))
+        .withMessage("staleAttemptStartedAtOrBefore must not be null");
+  }
+
+  @Test
+  void staleProcessingLookupRequiresPositiveLimit() {
+    assertThatThrownBy(
+            () ->
+                articleIngestionJobRepository.findStaleProcessingJobsForUpdate(
+                    NOW.minus(STALE_TIMEOUT), 0))
         .hasMessageContaining("limit must be positive");
   }
 
@@ -97,8 +165,12 @@ class ArticleIngestionJobRepositoryTest {
   }
 
   private ArticleIngestionJob saveProcessingJob(String sourceUrl) {
+    return saveProcessingJob(sourceUrl, NOW.minusSeconds(60));
+  }
+
+  private ArticleIngestionJob saveProcessingJob(String sourceUrl, Instant attemptStartedAt) {
     ArticleIngestionJob job = savePendingJob(sourceUrl);
-    boolean claimed = job.claimForAttempt(NOW.minusSeconds(60));
+    boolean claimed = job.claimForAttempt(attemptStartedAt);
     assertThat(claimed).isTrue();
     return job;
   }
