@@ -10,7 +10,7 @@ public record ArticleEnrichmentResult(
     return validationErrorMessage().isEmpty();
   }
 
-  Optional<String> validationErrorMessage() {
+  public Optional<String> validationErrorMessage() {
     Optional<String> koTitleError = validateTitle("koTitle", koTitle);
     if (koTitleError.isPresent()) {
       return koTitleError;

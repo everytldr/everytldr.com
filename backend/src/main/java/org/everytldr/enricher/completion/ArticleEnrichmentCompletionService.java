@@ -1,13 +1,10 @@
-package org.everytldr.enricher.enrichment;
+package org.everytldr.enricher.completion;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.everytldr.common.domain.article.Article;
 import org.everytldr.common.domain.article.ArticleSummary;
 import org.everytldr.common.domain.article.ArticleSummaryRepository;
@@ -19,6 +16,10 @@ import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.common.domain.ingestion.IngestionState;
 import org.everytldr.common.domain.language.SupportedLanguage;
+import org.everytldr.enricher.enrichment.ArticleEnrichmentResult;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

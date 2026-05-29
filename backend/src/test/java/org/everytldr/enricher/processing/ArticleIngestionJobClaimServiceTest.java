@@ -1,4 +1,4 @@
-package org.everytldr.enricher.enrichment;
+package org.everytldr.enricher.processing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,18 +8,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import org.everytldr.TestcontainersConfig;
 import org.everytldr.common.domain.article.Article;
 import org.everytldr.common.domain.article.ArticleRepository;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.common.domain.ingestion.IngestionState;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Import(TestcontainersConfig.class)
