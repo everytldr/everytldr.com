@@ -1,5 +1,6 @@
 package org.everytldr.enricher.completion;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -36,11 +37,7 @@ public class ArticleEnrichmentCompletionService {
       Long jobId, ArticleEnrichmentResult result) {
     Objects.requireNonNull(jobId, "jobId must not be null");
 
-    ArticleIngestionJob job =
-        articleIngestionJobRepository
-            .findById(jobId)
-            .orElseThrow(
-                () -> new NoSuchElementException("Article ingestion job not found: " + jobId));
+    ArticleIngestionJob job = findJob(jobId);
 
     if (job.getState() != IngestionState.PROCESSING) {
       return ArticleEnrichmentCompletionStatus.SKIPPED_NOT_PROCESSING;
@@ -79,11 +76,45 @@ public class ArticleEnrichmentCompletionService {
     return ArticleEnrichmentCompletionStatus.SUCCEEDED;
   }
 
+  @Transactional
+  public ArticleEnrichmentCompletionStatus scheduleRetry(
+      Long jobId, Instant nextAttemptAt, String errorMessage) {
+    Objects.requireNonNull(jobId, "jobId must not be null");
+    Objects.requireNonNull(nextAttemptAt, "nextAttemptAt must not be null");
+
+    ArticleIngestionJob job = findJob(jobId);
+    if (job.getState() != IngestionState.PROCESSING) {
+      return ArticleEnrichmentCompletionStatus.SKIPPED_NOT_PROCESSING;
+    }
+
+    job.scheduleRetry(nextAttemptAt, errorMessage);
+    return ArticleEnrichmentCompletionStatus.RETRY_SCHEDULED;
+  }
+
+  @Transactional
+  public ArticleEnrichmentCompletionStatus fail(Long jobId, String errorMessage) {
+    Objects.requireNonNull(jobId, "jobId must not be null");
+
+    ArticleIngestionJob job = findJob(jobId);
+    if (job.getState() != IngestionState.PROCESSING) {
+      return ArticleEnrichmentCompletionStatus.SKIPPED_NOT_PROCESSING;
+    }
+
+    job.markFailed(errorMessage);
+    return ArticleEnrichmentCompletionStatus.FAILED;
+  }
+
   private Optional<String> validate(ArticleEnrichmentResult result) {
     if (result == null) {
       return Optional.of("result is null");
     }
     return result.validationErrorMessage();
+  }
+
+  private ArticleIngestionJob findJob(Long jobId) {
+    return articleIngestionJobRepository
+        .findById(jobId)
+        .orElseThrow(() -> new NoSuchElementException("Article ingestion job not found: " + jobId));
   }
 
   private Optional<String> validateExistingCategory(
@@ -96,6 +127,7 @@ public class ArticleEnrichmentCompletionService {
     }
 
     Category existingCategory = existingCategories.getFirst().getCategory();
+    // 기존 different category는 overwrite하지 않고 data conflict로 실패시킨다.
     if (!existingCategory.getId().equals(selectedCategory.getId())) {
       return Optional.of("article already has different category");
     }

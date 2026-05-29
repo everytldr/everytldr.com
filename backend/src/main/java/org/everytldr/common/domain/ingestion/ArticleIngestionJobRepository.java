@@ -15,6 +15,15 @@ import org.springframework.data.repository.query.Param;
 public interface ArticleIngestionJobRepository extends JpaRepository<ArticleIngestionJob, Long> {
   Optional<ArticleIngestionJob> findByUrlHash(byte[] urlHash);
 
+  @Query(
+      """
+          SELECT j
+          FROM ArticleIngestionJob j
+          JOIN FETCH j.article
+          WHERE j.id = :id
+          """)
+  Optional<ArticleIngestionJob> findByIdWithArticle(@Param("id") Long id);
+
   Optional<ArticleIngestionJob> findByArticleId(Long articleId);
 
   boolean existsByUrlHash(byte[] urlHash);
