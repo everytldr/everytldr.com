@@ -47,3 +47,7 @@ export function buildSearchUrl(query: string): string {
   }
   return `/search?q=${encodeURIComponent(trimmed)}`;
 }
+
+export function buildArticleDetailUrl(articleId: string): string {
+  return `/articles/${articleId}`;
+}
