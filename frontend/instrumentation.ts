@@ -1,6 +1,5 @@
 export async function register() {
-  const isMockingEnabled =
-    process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_API_MOCKING !== "false";
+  const isMockingEnabled = process.env.NEXT_PUBLIC_API_MOCKING !== "false";
   const isNodeRuntime = process.env.NEXT_RUNTIME === "nodejs";
 
   if (!isNodeRuntime || !isMockingEnabled) {

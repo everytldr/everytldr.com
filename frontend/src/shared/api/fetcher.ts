@@ -1,6 +1,12 @@
 import { isBrowser } from "@/shared/lib";
 
-const BASE_URL = isBrowser() ? "" : (process.env.BACKEND_URL ?? "http://localhost:8080");
+// NOTE: MSW can't intercept fetches inside `use cache`. Routing them to our own origin lets the next.config rewrite proxy re-issue the request where MSW does intercept.
+const SERVER_BASE_URL =
+  process.env.NEXT_PUBLIC_API_MOCKING !== "false"
+    ? "http://localhost:3000"
+    : (process.env.BACKEND_URL ?? "http://localhost:8080");
+
+const BASE_URL = isBrowser() ? "" : SERVER_BASE_URL;
 
 export class ApiError extends Error {
   status: number;
