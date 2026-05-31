@@ -14,8 +14,7 @@
             "type" : "string"
           },
           "parentId" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           },
           "password" : {
             "maxLength" : 100,
@@ -35,8 +34,7 @@
             "type" : "string"
           },
           "id" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           },
           "maskedIp" : {
             "type" : "string"
@@ -45,8 +43,7 @@
             "type" : "string"
           },
           "parentId" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -103,8 +100,7 @@
       "ArticleLikeStateResponse" : {
         "properties" : {
           "articleId" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           },
           "likeCount" : {
             "format" : "int64",
@@ -237,8 +233,7 @@
           "name" : "articleId",
           "required" : true,
           "schema" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -271,8 +266,7 @@
           "name" : "articleId",
           "required" : true,
           "schema" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           }
         } ],
         "requestBody" : {
@@ -317,8 +311,7 @@
           "name" : "articleId",
           "required" : true,
           "schema" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -351,8 +344,7 @@
           "name" : "articleId",
           "required" : true,
           "schema" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -385,8 +377,7 @@
           "name" : "articleId",
           "required" : true,
           "schema" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -421,8 +412,7 @@
           "name" : "id",
           "required" : true,
           "schema" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           }
         } ],
         "responses" : {

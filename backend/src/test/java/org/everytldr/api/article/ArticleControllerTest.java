@@ -108,6 +108,13 @@ class ArticleControllerTest {
         .andExpect(status().isNotFound());
   }
 
+  @Test
+  void detailReturnsBadRequestWhenArticleIdIsInvalid() throws Exception {
+    mockMvc
+        .perform(get("/api/articles/{id}", "invalid").header("Accept-Language", "ko"))
+        .andExpect(status().isBadRequest());
+  }
+
   private Article saveArticle(
       Instant publishedAt, Category category, String language, String title, String content) {
     Article article =

@@ -34,7 +34,7 @@ public class ArticleController {
   @Operation(operationId = "getArticle")
   public ArticleDetailResponse get(
       @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
-      @PathVariable Long id) {
+      @PathVariable @Schema(type = "string") Long id) {
     DetailProjection detail = articleService.getArticleDetail(id, language);
     return ArticleDetailResponse.from(detail);
   }
