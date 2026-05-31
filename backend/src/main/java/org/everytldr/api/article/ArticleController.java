@@ -67,7 +67,7 @@ public class ArticleController {
   }
 
   public record ArticleDetailResponse(
-      Long id,
+      String id,
       String title,
       String summary,
       String category,
@@ -79,7 +79,7 @@ public class ArticleController {
       long commentCount) {
     public static ArticleDetailResponse from(DetailProjection article) {
       return new ArticleDetailResponse(
-          article.id(),
+          article.id().toString(),
           article.title(),
           article.summary(),
           article.category(),

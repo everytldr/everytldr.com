@@ -91,7 +91,7 @@ class ArticleControllerTest {
     mockMvc
         .perform(get("/api/articles/{id}", article.getId()).header("Accept-Language", "ko"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(article.getId()))
+        .andExpect(jsonPath("$.id").value(article.getId().toString()))
         .andExpect(jsonPath("$.title").value("제목"))
         .andExpect(jsonPath("$.summary").value("요약"))
         .andExpect(jsonPath("$.sourceUrl").value(article.getSourceUrl()))

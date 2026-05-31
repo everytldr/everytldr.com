@@ -72,8 +72,7 @@
             "type" : "integer"
           },
           "id" : {
-            "format" : "int64",
-            "type" : "integer"
+            "type" : "string"
           },
           "likeCount" : {
             "format" : "int64",
