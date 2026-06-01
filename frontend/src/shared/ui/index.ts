@@ -23,4 +23,5 @@ export {
   TableRow,
 } from "./table";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+export { Textarea } from "./textarea";
 export { Translation } from "./translation";
