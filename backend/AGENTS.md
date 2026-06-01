@@ -124,3 +124,13 @@ A controller test verifies the HTTP contract. A service test verifies business b
 Controller tests must stay minimal. A class named `*ControllerTest` must exercise the controller through the HTTP boundary; it must not call repositories or services as the primary assertion target. Do not test repository ordering, cursor internals, or query joins through controller tests unless the HTTP contract directly depends on the exact visible result.
 
 Common test support is allowed only when it removes repeated Spring wiring or fixture setup. Remove it if it hides test intent or accumulates unrelated helpers.
+
+# 11. Method Naming Conventions
+
+A method name describes an action, so it begins with a verb.
+
+| Rule | Required practice |
+| --- | --- |
+| Verb-first | Start method names with a verb, e.g. `findThumbnailUrl`, `extractContentUrl`, `resolvePublishedAt`. Rename noun-led names (`thumbnailUrl`, `firstItem`) to a verb form. |
+| Java idiom exception | Keep idiomatic Java conventions as-is: factory/conversion `from`/`to`/`of`, and boolean accessors `is*`/`has*`/`can*`. |
+| Test fixtures | Test fixture builders may follow an established noun-led pattern in the same test class, e.g. `rssFeed`, `emptyRssFeed`. |
