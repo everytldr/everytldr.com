@@ -8,10 +8,11 @@ import { Suspense } from "react";
 
 type ArticleCardProps = {
   className?: string;
+  titleClassName?: string;
   article: ArticleListItem;
 };
 
-export function ArticleCard({ className, article }: ArticleCardProps) {
+export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
   const locale = useLocale();
   const fallback = formatDate(article.publishedAt, locale);
 
@@ -23,7 +24,9 @@ export function ArticleCard({ className, article }: ArticleCardProps) {
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2xs">
-        <h3 className="line-clamp-2 min-w-0 text-display-sm text-ink">{article.title}</h3>
+        <h3 className={cn("line-clamp-2 min-w-0 text-display-sm text-ink", titleClassName)}>
+          {article.title}
+        </h3>
         <p className="line-clamp-1 text-body-sm text-meta">{article.summary}</p>
         <p className="text-caption text-meta">
           {article.source} ·{" "}
