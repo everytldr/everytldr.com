@@ -17,44 +17,24 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class ArticleSourceRepositoryTest {
 
-  private static final String GUARDIAN_FOOTBALL_URL =
-      "https://content.guardianapis.com/search?section=football";
-  private static final String BBC_SPORT_FOOTBALL_RSS_URL =
-      "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml";
+  private static final String GLOBAL_VOICES_RSS_URL = "https://globalvoices.org/feed/";
 
   @Autowired private ArticleSourceRepository articleSourceRepository;
 
   @Test
-  void findsSeededActiveGuardianFootballSource() {
+  void findsSeededActiveGlobalVoicesRssSource() {
     List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrue();
 
-    ArticleSource guardianFootballSource =
+    ArticleSource globalVoicesSource =
         activeSources.stream()
-            .filter(source -> GUARDIAN_FOOTBALL_URL.equals(source.getUrl()))
+            .filter(source -> GLOBAL_VOICES_RSS_URL.equals(source.getUrl()))
             .findFirst()
             .orElseThrow();
 
-    assertThat(guardianFootballSource.getId()).isEqualTo(45660871069790209L);
-    assertThat(guardianFootballSource.getName()).isEqualTo("The Guardian Football");
-    assertThat(guardianFootballSource.getLanguage()).isEqualTo("en");
-    assertThat(guardianFootballSource.getSourceType()).isEqualTo(SourceType.GUARDIAN_API);
-    assertThat(guardianFootballSource.isActive()).isTrue();
-  }
-
-  @Test
-  void findsSeededActiveBbcSportFootballRssSource() {
-    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrue();
-
-    ArticleSource bbcSportFootballSource =
-        activeSources.stream()
-            .filter(source -> BBC_SPORT_FOOTBALL_RSS_URL.equals(source.getUrl()))
-            .findFirst()
-            .orElseThrow();
-
-    assertThat(bbcSportFootballSource.getId()).isEqualTo(45660871069790210L);
-    assertThat(bbcSportFootballSource.getName()).isEqualTo("BBC Sport");
-    assertThat(bbcSportFootballSource.getLanguage()).isEqualTo("en");
-    assertThat(bbcSportFootballSource.getSourceType()).isEqualTo(SourceType.RSS);
-    assertThat(bbcSportFootballSource.isActive()).isTrue();
+    assertThat(globalVoicesSource.getId()).isEqualTo(45660871069790211L);
+    assertThat(globalVoicesSource.getName()).isEqualTo("Global Voices");
+    assertThat(globalVoicesSource.getLanguage()).isEqualTo("en");
+    assertThat(globalVoicesSource.getSourceType()).isEqualTo(SourceType.RSS);
+    assertThat(globalVoicesSource.isActive()).isTrue();
   }
 }

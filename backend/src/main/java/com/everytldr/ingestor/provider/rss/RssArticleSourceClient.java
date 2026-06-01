@@ -4,12 +4,20 @@ import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourceType;
 import com.everytldr.ingestor.provider.ArticleSourceClient;
 import com.everytldr.ingestor.provider.CollectedArticle;
+import com.rometools.modules.mediarss.MediaEntryModule;
+import com.rometools.modules.mediarss.MediaModule;
+import com.rometools.modules.mediarss.types.Metadata;
+import com.rometools.modules.mediarss.types.Reference;
+import com.rometools.modules.mediarss.types.Thumbnail;
+import com.rometools.modules.mediarss.types.UrlReference;
+import com.rometools.rome.feed.synd.SyndEnclosure;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import java.io.StringReader;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -80,8 +88,81 @@ public class RssArticleSourceClient implements ArticleSourceClient {
       return Optional.empty();
     }
 
+    String thumbnailUrl = resolveThumbnailUrl(entry);
     return Optional.of(
-        new CollectedArticle(link, source.getName(), null, source.getLanguage(), publishedAt));
+        new CollectedArticle(
+            link, source.getName(), thumbnailUrl, source.getLanguage(), publishedAt));
+  }
+
+  private String resolveThumbnailUrl(SyndEntry entry) {
+    MediaEntryModule media = (MediaEntryModule) entry.getModule(MediaModule.URI);
+
+    String thumbnailUrl = findThumbnailUrl(media);
+    if (thumbnailUrl != null) {
+      return thumbnailUrl;
+    }
+
+    String imageContentUrl = findImageContentUrl(media);
+    if (imageContentUrl != null) {
+      return imageContentUrl;
+    }
+
+    return findImageEnclosureUrl(entry);
+  }
+
+  private String findThumbnailUrl(MediaEntryModule media) {
+    Metadata metadata = media == null ? null : media.getMetadata();
+    if (metadata == null || metadata.getThumbnail() == null) {
+      return null;
+    }
+    return Arrays.stream(metadata.getThumbnail())
+        .map(Thumbnail::getUrl)
+        .filter(url -> url != null)
+        .map(Object::toString)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private String findImageContentUrl(MediaEntryModule media) {
+    if (media == null || media.getMediaContents() == null) {
+      return null;
+    }
+    return Arrays.stream(media.getMediaContents())
+        .filter(
+            content -> {
+              String type = content.getType();
+              boolean isImage =
+                  "image".equalsIgnoreCase(content.getMedium())
+                      || (type != null && type.toLowerCase().startsWith("image/"));
+              return isImage;
+            })
+        .map(
+            content -> {
+              Reference reference = content.getReference();
+              if (!(reference instanceof UrlReference urlReference)
+                  || urlReference.getUrl() == null) {
+                return null;
+              }
+              String contentUrl = urlReference.getUrl().toString();
+              return contentUrl;
+            })
+        .filter(StringUtils::hasText)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private String findImageEnclosureUrl(SyndEntry entry) {
+    return entry.getEnclosures().stream()
+        .filter(
+            enclosure -> {
+              String type = enclosure.getType();
+              boolean isImage = type != null && type.toLowerCase().startsWith("image/");
+              return isImage;
+            })
+        .map(SyndEnclosure::getUrl)
+        .filter(StringUtils::hasText)
+        .findFirst()
+        .orElse(null);
   }
 
   private Instant resolvePublishedAt(SyndEntry entry) {
