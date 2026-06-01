@@ -34,7 +34,7 @@ public class ArticleController {
   @Operation(operationId = "getArticle")
   public ArticleDetailResponse get(
       @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
-      @PathVariable Long id) {
+      @PathVariable @Schema(type = "string") Long id) {
     DetailProjection detail = articleService.getArticleDetail(id, language);
     return ArticleDetailResponse.from(detail);
   }
@@ -67,7 +67,7 @@ public class ArticleController {
   }
 
   public record ArticleDetailResponse(
-      Long id,
+      String id,
       String title,
       String summary,
       String category,
@@ -79,7 +79,7 @@ public class ArticleController {
       long commentCount) {
     public static ArticleDetailResponse from(DetailProjection article) {
       return new ArticleDetailResponse(
-          article.id(),
+          article.id().toString(),
           article.title(),
           article.summary(),
           article.category(),

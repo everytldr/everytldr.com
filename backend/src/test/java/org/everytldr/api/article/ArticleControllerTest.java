@@ -91,7 +91,7 @@ class ArticleControllerTest {
     mockMvc
         .perform(get("/api/articles/{id}", article.getId()).header("Accept-Language", "ko"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(article.getId()))
+        .andExpect(jsonPath("$.id").value(article.getId().toString()))
         .andExpect(jsonPath("$.title").value("제목"))
         .andExpect(jsonPath("$.summary").value("요약"))
         .andExpect(jsonPath("$.sourceUrl").value(article.getSourceUrl()))
@@ -106,6 +106,13 @@ class ArticleControllerTest {
     mockMvc
         .perform(get("/api/articles/{id}", 9_999_999L).header("Accept-Language", "ko"))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void detailReturnsBadRequestWhenArticleIdIsInvalid() throws Exception {
+    mockMvc
+        .perform(get("/api/articles/{id}", "invalid").header("Accept-Language", "ko"))
+        .andExpect(status().isBadRequest());
   }
 
   private Article saveArticle(

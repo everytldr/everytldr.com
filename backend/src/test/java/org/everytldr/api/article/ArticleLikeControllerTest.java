@@ -61,6 +61,7 @@ class ArticleLikeControllerTest {
             put("/api/articles/{id}/likes/me", article.getId())
                 .header("X-Forwarded-For", "1.1.1.1"))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.articleId").value(article.getId().toString()))
         .andExpect(jsonPath("$.likedByReader").value(true))
         .andExpect(jsonPath("$.likeCount").value(1));
 
@@ -69,6 +70,7 @@ class ArticleLikeControllerTest {
             get("/api/articles/{id}/likes/me", article.getId())
                 .header("X-Forwarded-For", "1.1.1.1"))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.articleId").value(article.getId().toString()))
         .andExpect(jsonPath("$.likedByReader").value(true))
         .andExpect(jsonPath("$.likeCount").value(1));
 
@@ -77,6 +79,7 @@ class ArticleLikeControllerTest {
             get("/api/articles/{id}/likes/me", article.getId())
                 .header("X-Forwarded-For", "2.2.2.2"))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.articleId").value(article.getId().toString()))
         .andExpect(jsonPath("$.likedByReader").value(false))
         .andExpect(jsonPath("$.likeCount").value(1));
 
@@ -85,6 +88,7 @@ class ArticleLikeControllerTest {
             delete("/api/articles/{id}/likes/me", article.getId())
                 .header("X-Forwarded-For", "1.1.1.1"))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.articleId").value(article.getId().toString()))
         .andExpect(jsonPath("$.likedByReader").value(false))
         .andExpect(jsonPath("$.likeCount").value(0));
   }
@@ -99,6 +103,13 @@ class ArticleLikeControllerTest {
     mockMvc
         .perform(get("/api/articles/{id}/likes/me", article.getId()))
         .andExpect(status().isServiceUnavailable());
+  }
+
+  @Test
+  void likeStateReturnsBadRequestWhenArticleIdIsInvalid() throws Exception {
+    mockMvc
+        .perform(get("/api/articles/{id}/likes/me", "invalid").header("X-Forwarded-For", "1.1.1.1"))
+        .andExpect(status().isBadRequest());
   }
 
   private Article saveArticle(

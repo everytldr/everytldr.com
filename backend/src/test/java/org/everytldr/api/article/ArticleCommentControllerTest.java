@@ -82,14 +82,15 @@ class ArticleCommentControllerTest {
             .andReturn()
             .getResponse()
             .getContentAsString();
-    long parentId = Long.parseLong(parentResponse.replaceAll(".*\"id\":(\\d+).*", "$1"));
+    String parentIdValue = parentResponse.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+    long parentId = Long.parseLong(parentIdValue);
     ArticleComment parentComment = commentRepository.findById(parentId).orElseThrow();
     assertThat(parentComment.getPasswordHash()).hasSize(60);
     assertThat(BCrypt.checkpw("secret1234", parentComment.getPasswordHash())).isTrue();
 
     String replyJson =
         """
-        {"parentId":%d,"nickname":"reply","password":"secret1234","content":"second"}
+        {"parentId":"%d","nickname":"reply","password":"secret1234","content":"second"}
         """
             .formatted(parentId);
     mockMvc
@@ -99,7 +100,7 @@ class ArticleCommentControllerTest {
                 .header("X-Forwarded-For", "1.1.1.1")
                 .content(replyJson))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.parentId").value(parentId))
+        .andExpect(jsonPath("$.parentId").value(parentIdValue))
         .andExpect(jsonPath("$.maskedIp").value("1.1"))
         .andExpect(jsonPath("$.content").value("second"));
 
@@ -107,10 +108,10 @@ class ArticleCommentControllerTest {
         .perform(get("/api/articles/{id}/comments", article.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items", hasSize(2)))
-        .andExpect(jsonPath("$.items[0].id").value(parentId))
+        .andExpect(jsonPath("$.items[0].id").value(parentIdValue))
         .andExpect(jsonPath("$.items[0].parentId").value(nullValue()))
         .andExpect(jsonPath("$.items[0].maskedIp").value("1.1"))
-        .andExpect(jsonPath("$.items[1].parentId").value(parentId));
+        .andExpect(jsonPath("$.items[1].parentId").value(parentIdValue));
   }
 
   @Test
@@ -128,9 +129,37 @@ class ArticleCommentControllerTest {
 
     String body =
         """
-        {"parentId":%d,"nickname":"reply","password":"secret1234","content":"second"}
+        {"parentId":"%d","nickname":"reply","password":"secret1234","content":"second"}
         """
             .formatted(otherComment.getId());
+
+    mockMvc
+        .perform(
+            post("/api/articles/{id}/comments", article.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Forwarded-For", "1.1.1.1")
+                .content(body))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void commentsReturnsBadRequestWhenArticleIdIsInvalid() throws Exception {
+    mockMvc
+        .perform(get("/api/articles/{id}/comments", "invalid"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void createCommentReturnsBadRequestWhenParentIdIsInvalid() throws Exception {
+    Article article =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "제목", "요약");
+    entityManager.flush();
+    entityManager.clear();
+
+    String body =
+        """
+        {"parentId":"invalid","nickname":"reply","password":"secret1234","content":"second"}
+        """;
 
     mockMvc
         .perform(
