@@ -56,6 +56,29 @@ class RssArticleSourceClientTest {
   }
 
   @Test
+  void extractsThumbnailFromMediaContentImage() {
+    assertThat(findArticle("https://example.com/media-content").thumbnailUrl())
+        .isEqualTo("https://cdn.example.com/content.webp");
+  }
+
+  @Test
+  void prefersMediaThumbnailOverMediaContent() {
+    assertThat(findArticle("https://example.com/media-thumbnail").thumbnailUrl())
+        .isEqualTo("https://cdn.example.com/thumb.jpg");
+  }
+
+  @Test
+  void ignoresNonImageMediaContent() {
+    assertThat(findArticle("https://example.com/video").thumbnailUrl()).isNull();
+  }
+
+  @Test
+  void extractsThumbnailFromImageEnclosure() {
+    assertThat(findArticle("https://example.com/enclosure").thumbnailUrl())
+        .isEqualTo("https://cdn.example.com/enclosure.jpg");
+  }
+
+  @Test
   void skipsEntriesWithoutLinkOrPublishedDate() {
     RestClient.Builder restClientBuilder = RestClient.builder();
     MockRestServiceServer server = MockRestServiceServer.bindTo(restClientBuilder).build();
@@ -141,6 +164,54 @@ class RssArticleSourceClientTest {
               <title>Example football news</title>
               <link>https://www.bbc.com/sport/football/example</link>
               <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+          </channel>
+        </rss>
+        """;
+  }
+
+  private CollectedArticle findArticle(String link) {
+    String feedUrl = "https://feed.example.com/rss";
+    RestClient.Builder restClientBuilder = RestClient.builder();
+    MockRestServiceServer.bindTo(restClientBuilder)
+        .build()
+        .expect(requestTo(startsWith(feedUrl)))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess(rssFeedWithImages(), MediaType.APPLICATION_XML));
+
+    ArticleSource source = ArticleSource.create("Example", feedUrl, "en", SourceType.RSS);
+    return newClient(restClientBuilder).collect(source).stream()
+        .filter(article -> article.sourceUrl().equals(link))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  private String rssFeedWithImages() {
+    return """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+          <channel>
+            <title>Example Feed</title>
+            <item>
+              <link>https://example.com/media-content</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+              <media:content url="https://cdn.example.com/content.webp" medium="image"/>
+            </item>
+            <item>
+              <link>https://example.com/media-thumbnail</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+              <media:thumbnail url="https://cdn.example.com/thumb.jpg"/>
+              <media:content url="https://cdn.example.com/other.webp" medium="image"/>
+            </item>
+            <item>
+              <link>https://example.com/enclosure</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+              <enclosure url="https://cdn.example.com/enclosure.jpg" type="image/jpeg"/>
+            </item>
+            <item>
+              <link>https://example.com/video</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+              <media:content url="https://cdn.example.com/clip.mp4" medium="video" type="video/mp4"/>
             </item>
           </channel>
         </rss>

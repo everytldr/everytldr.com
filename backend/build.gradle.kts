@@ -37,6 +37,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.springframework.security:spring-security-crypto")
     implementation("com.rometools:rome:2.1.0")
+    implementation("com.rometools:rome-modules:2.1.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
