@@ -43,7 +43,7 @@ export async function ArticleDetailPage({ className, articleId }: ArticleDetailP
             )}
           </div>
 
-          <AdSlot slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
+          <AdSlot className="w-full" slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
 
           <ErrorBoundary fallback={<ArticleCommentsError />}>
             <Suspense fallback={<ArticleCommentsSkeleton />}>

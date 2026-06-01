@@ -28,7 +28,7 @@ export function AdSlot({ className, slot }: AdSlotProps) {
 
   return (
     <ins
-      className={cn("adsbygoogle block min-h-24 w-full", className)}
+      className={cn("adsbygoogle block min-h-24", className)}
       data-ad-client={ADSENSE_CLIENT_ID}
       data-ad-slot={slot}
       data-ad-format="auto"
