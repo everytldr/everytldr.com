@@ -3,9 +3,9 @@ package com.everytldr.ingestor.provider;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourceType;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ArticleSourceClientRegistryTest {

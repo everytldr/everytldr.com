@@ -1,5 +1,10 @@
 package com.everytldr.api.article;
 
+import com.everytldr.api.support.language.ResolvedLanguage;
+import com.everytldr.api.support.pagination.Pagination;
+import com.everytldr.common.domain.article.ArticleRepository.DetailProjection;
+import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
+import com.everytldr.common.domain.language.SupportedLanguage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,11 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import java.util.List;
-import com.everytldr.api.support.language.ResolvedLanguage;
-import com.everytldr.api.support.pagination.Pagination;
-import com.everytldr.common.domain.article.ArticleRepository.DetailProjection;
-import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
-import com.everytldr.common.domain.language.SupportedLanguage;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

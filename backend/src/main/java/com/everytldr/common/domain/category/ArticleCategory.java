@@ -1,5 +1,7 @@
 package com.everytldr.common.domain.category;
 
+import com.everytldr.common.domain.article.Article;
+import com.everytldr.common.domain.support.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -10,8 +12,6 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.everytldr.common.domain.article.Article;
-import com.everytldr.common.domain.support.BaseEntity;
 
 @Entity
 @Getter

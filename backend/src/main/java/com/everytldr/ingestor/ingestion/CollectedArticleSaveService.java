@@ -1,5 +1,7 @@
 package com.everytldr.ingestor.ingestion;
 
+import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import com.everytldr.ingestor.provider.CollectedArticle;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -9,8 +11,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
-import com.everytldr.ingestor.provider.CollectedArticle;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 

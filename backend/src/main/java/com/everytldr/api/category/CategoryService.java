@@ -1,8 +1,8 @@
 package com.everytldr.api.category;
 
-import java.util.List;
 import com.everytldr.common.domain.category.Category;
 import com.everytldr.common.domain.category.CategoryRepository;
+import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

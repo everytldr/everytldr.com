@@ -1,7 +1,5 @@
 package com.everytldr.common.domain.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static com.everytldr.common.domain.support.SnowflakeIdGenerator.EPOCH_MS;
 import static com.everytldr.common.domain.support.SnowflakeIdGenerator.MAX_BACKWARD_TOLERANCE_MS;
 import static com.everytldr.common.domain.support.SnowflakeIdGenerator.MAX_SEQUENCE;
@@ -9,6 +7,8 @@ import static com.everytldr.common.domain.support.SnowflakeIdGenerator.MAX_WORKE
 import static com.everytldr.common.domain.support.SnowflakeIdGenerator.TIMESTAMP_SHIFT;
 import static com.everytldr.common.domain.support.SnowflakeIdGenerator.WORKER_BITS;
 import static com.everytldr.common.domain.support.SnowflakeIdGenerator.WORKER_SHIFT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Clock;
 import java.time.Instant;

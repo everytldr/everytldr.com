@@ -2,11 +2,11 @@ package com.everytldr.ingestor.provider.guardian;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Instant;
-import java.util.List;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourceType;
 import com.everytldr.ingestor.provider.CollectedArticle;
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class GuardianArticleMapperTest {

@@ -1,5 +1,7 @@
 package com.everytldr.common.domain.ingestion;
 
+import com.everytldr.common.domain.article.Article;
+import com.everytldr.common.domain.support.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,8 +15,6 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.everytldr.common.domain.article.Article;
-import com.everytldr.common.domain.support.BaseEntity;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 

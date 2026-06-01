@@ -8,9 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import java.time.Instant;
 import com.everytldr.TestcontainersConfig;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleComment;
@@ -22,6 +19,9 @@ import com.everytldr.common.domain.category.ArticleCategory;
 import com.everytldr.common.domain.category.ArticleCategoryRepository;
 import com.everytldr.common.domain.category.Category;
 import com.everytldr.common.domain.category.CategoryRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

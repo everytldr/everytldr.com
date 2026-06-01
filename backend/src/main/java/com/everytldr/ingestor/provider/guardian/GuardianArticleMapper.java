@@ -1,12 +1,12 @@
 package com.everytldr.ingestor.provider.guardian;
 
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.ingestor.provider.CollectedArticle;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import com.everytldr.common.domain.source.ArticleSource;
-import com.everytldr.ingestor.provider.CollectedArticle;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

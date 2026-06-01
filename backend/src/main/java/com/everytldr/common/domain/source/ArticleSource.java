@@ -1,10 +1,10 @@
 package com.everytldr.common.domain.source;
 
+import com.everytldr.common.domain.support.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.everytldr.common.domain.support.BaseEntity;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 

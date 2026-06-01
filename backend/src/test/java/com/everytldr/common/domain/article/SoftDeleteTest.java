@@ -2,10 +2,10 @@ package com.everytldr.common.domain.article;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.everytldr.TestcontainersConfig;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
-import com.everytldr.TestcontainersConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

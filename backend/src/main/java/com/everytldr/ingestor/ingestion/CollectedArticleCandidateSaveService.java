@@ -1,11 +1,11 @@
 package com.everytldr.ingestor.ingestion;
 
-import lombok.RequiredArgsConstructor;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.ingestor.provider.CollectedArticle;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

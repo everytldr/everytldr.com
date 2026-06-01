@@ -1,5 +1,6 @@
 package com.everytldr.common.domain.article;
 
+import com.everytldr.common.domain.support.SoftDeletableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,7 +12,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.everytldr.common.domain.support.SoftDeletableEntity;
 
 @Entity
 @Getter

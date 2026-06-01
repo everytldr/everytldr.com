@@ -1,11 +1,11 @@
 package com.everytldr.api.article;
 
+import com.everytldr.api.support.client.ClientAddress;
+import com.everytldr.api.support.client.ResolvedClientAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.everytldr.api.support.client.ClientAddress;
-import com.everytldr.api.support.client.ResolvedClientAddress;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

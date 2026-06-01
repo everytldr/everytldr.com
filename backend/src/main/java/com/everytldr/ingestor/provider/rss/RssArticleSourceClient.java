@@ -1,5 +1,9 @@
 package com.everytldr.ingestor.provider.rss;
 
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.SourceType;
+import com.everytldr.ingestor.provider.ArticleSourceClient;
+import com.everytldr.ingestor.provider.CollectedArticle;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
@@ -10,10 +14,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import com.everytldr.common.domain.source.ArticleSource;
-import com.everytldr.common.domain.source.SourceType;
-import com.everytldr.ingestor.provider.ArticleSourceClient;
-import com.everytldr.ingestor.provider.CollectedArticle;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

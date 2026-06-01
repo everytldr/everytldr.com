@@ -4,14 +4,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
-import java.util.List;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
 import com.everytldr.common.domain.source.SourceType;
 import com.everytldr.ingestor.provider.ArticleSourceClient;
 import com.everytldr.ingestor.provider.ArticleSourceClientRegistry;
 import com.everytldr.ingestor.provider.CollectedArticle;
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ArticleIngestionServiceTest {

@@ -1,9 +1,9 @@
 package com.everytldr.ingestor.scheduler;
 
+import com.everytldr.ingestor.batch.ArticleIngestionBatchConfig;
 import java.time.Clock;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
-import com.everytldr.ingestor.batch.ArticleIngestionBatchConfig;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;

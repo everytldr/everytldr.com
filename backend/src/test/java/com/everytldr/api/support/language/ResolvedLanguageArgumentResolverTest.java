@@ -2,9 +2,9 @@ package com.everytldr.api.support.language;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.everytldr.common.domain.language.SupportedLanguage;
 import java.lang.reflect.Method;
 import java.util.Locale;
-import com.everytldr.common.domain.language.SupportedLanguage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.i18n.LocaleContextHolder;

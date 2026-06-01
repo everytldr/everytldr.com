@@ -1,5 +1,8 @@
 package com.everytldr.api.article;
 
+import com.everytldr.api.support.client.ClientAddress;
+import com.everytldr.api.support.client.ResolvedClientAddress;
+import com.everytldr.common.domain.article.ArticleComment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,9 +14,6 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import com.everytldr.api.support.client.ClientAddress;
-import com.everytldr.api.support.client.ResolvedClientAddress;
-import com.everytldr.common.domain.article.ArticleComment;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
