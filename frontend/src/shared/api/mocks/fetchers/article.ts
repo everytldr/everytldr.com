@@ -1,4 +1,5 @@
 import type {
+  ArticleCommentCreateRequest,
   ArticleCommentListItem,
   ArticleCommentListResponse,
   ArticleDetailResponse,
@@ -9,7 +10,7 @@ import type {
 import { EplTeam } from "@/shared/config";
 import { AN_HOUR, type Optional } from "@/shared/lib";
 import { drop, take, times } from "lodash-es";
-import { HttpResponse } from "msw";
+import { HttpResponse, type HttpResponseResolver } from "msw";
 
 const EPL_TEAMS = Object.values(EplTeam);
 const DEFAULT_LIKE_COUNT = 42;
@@ -42,6 +43,7 @@ const COMMENTS_BY_ARTICLE_ID = new Map<string, ArticleCommentListItem[]>(
           createdAt: new Date(Date.now() - AN_HOUR).toISOString(),
           maskedIp: "203.0.113.*",
           nickname: "Reader One",
+          parentId: null,
         },
         {
           id: secondCommentId,
@@ -120,6 +122,30 @@ export const listArticleComments = ({
   const responseData: ArticleCommentListResponse = { items };
 
   return HttpResponse.json(responseData);
+};
+
+export const createArticleComment: HttpResponseResolver<
+  { articleId: string },
+  ArticleCommentCreateRequest
+> = async ({ request, params: { articleId } }) => {
+  if (!findArticle(articleId)) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  const body = await request.json();
+  const comments = getArticleComments(articleId);
+
+  const newComment: ArticleCommentListItem = {
+    ...body,
+    id: (BigInt(articleId) + BigInt(1000 + comments.length)).toString(),
+    createdAt: new Date().toISOString(),
+    maskedIp: "192.0.2.*",
+  };
+
+  comments.push(newComment);
+  COMMENTS_BY_ARTICLE_ID.set(articleId, comments);
+
+  return HttpResponse.json(newComment, { status: 201 });
 };
 
 export const getMyArticleLike = ({ params: { articleId } }: { params: { articleId: string } }) => {
