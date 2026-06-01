@@ -3,6 +3,7 @@ package org.everytldr.api.article;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -66,20 +67,27 @@ public class ArticleCommentController {
   }
 
   public record ArticleCommentCreateRequest(
-      String parentId,
-      @NotBlank @Size(max = 50) String nickname,
-      @NotBlank @Size(min = 4, max = 100) String password,
-      @NotBlank @Size(max = 5000) String content) {}
+      @Schema(
+              requiredMode = RequiredMode.REQUIRED,
+              types = {"string", "null"})
+          String parentId,
+      @Schema(requiredMode = RequiredMode.REQUIRED) @NotBlank @Size(max = 50) String nickname,
+      @Schema(requiredMode = RequiredMode.REQUIRED) @NotBlank @Size(min = 4, max = 100)
+          String password,
+      @Schema(requiredMode = RequiredMode.REQUIRED) @NotBlank @Size(max = 5000) String content) {}
 
   public record ArticleCommentListResponse(List<Item> items) {
     @Schema(name = "ArticleCommentListItem")
     public record Item(
-        String id,
-        String parentId,
-        String nickname,
-        String maskedIp,
-        String content,
-        Instant createdAt) {
+        @Schema(requiredMode = RequiredMode.REQUIRED) String id,
+        @Schema(
+                requiredMode = RequiredMode.REQUIRED,
+                types = {"string", "null"})
+            String parentId,
+        @Schema(requiredMode = RequiredMode.REQUIRED) String nickname,
+        @Schema(requiredMode = RequiredMode.REQUIRED) String maskedIp,
+        @Schema(requiredMode = RequiredMode.REQUIRED) String content,
+        @Schema(requiredMode = RequiredMode.REQUIRED) Instant createdAt) {
       public static Item from(ArticleComment comment) {
         Long parentId = comment.getParent() == null ? null : comment.getParent().getId();
         return new Item(
