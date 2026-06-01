@@ -1,6 +1,7 @@
 import { type ArticleDetailResponse } from "@/shared/api";
+import { ADSENSE_SLOT_ARTICLE_DETAIL } from "@/shared/config";
 import { cn, formatDate } from "@/shared/lib";
-import { Button, Container, Translation } from "@/shared/ui";
+import { AdSlot, Button, Container, Translation } from "@/shared/ui";
 import { ExternalLink } from "lucide-react";
 import { getLocale } from "next-intl/server";
 import { Suspense } from "react";
@@ -41,6 +42,8 @@ export async function ArticleDetailPage({ className, articleId }: ArticleDetailP
               </Button>
             )}
           </div>
+
+          <AdSlot slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
 
           <ErrorBoundary fallback={<ArticleCommentsError />}>
             <Suspense fallback={<ArticleCommentsSkeleton />}>
