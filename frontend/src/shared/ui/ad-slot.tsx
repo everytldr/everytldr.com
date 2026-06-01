@@ -27,14 +27,12 @@ export function AdSlot({ className, slot }: AdSlotProps) {
   }, []);
 
   return (
-    <div className={cn("min-h-24", className)}>
-      <ins
-        className="adsbygoogle block w-full"
-        data-ad-client={ADSENSE_CLIENT_ID}
-        data-ad-slot={slot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
-    </div>
+    <ins
+      className={cn("adsbygoogle block min-h-24 w-full", className)}
+      data-ad-client={ADSENSE_CLIENT_ID}
+      data-ad-slot={slot}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    />
   );
 }
