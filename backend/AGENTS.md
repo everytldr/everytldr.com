@@ -16,14 +16,14 @@ Headers consumed inside argument resolvers (e.g. `Accept-Language`) are intentio
 
 # 2. API Package Structure
 
-An API package is a package under `org.everytldr.api` that owns Spring MVC controllers and API-use-case services for one externally visible resource.
+An API package is a package under `com.everytldr.api` that owns Spring MVC controllers and API-use-case services for one externally visible resource.
 
 | Rule | Required practice |
 | --- | --- |
-| Resource package | Put resource-specific controllers, services, and API exceptions under `org.everytldr.api.<resource>`. |
+| Resource package | Put resource-specific controllers, services, and API exceptions under `com.everytldr.api.<resource>`. |
 | Controller split | Split controllers by HTTP resource when one resource gains meaningful sub-resources. |
 | Service split | Split services by use-case responsibility, not only by entity name. |
-| Shared support | Put cross-cutting API infrastructure under `org.everytldr.api.support.<capability>`. |
+| Shared support | Put cross-cutting API infrastructure under `com.everytldr.api.support.<capability>`. |
 
 Current article split: `ArticleController` owns article list/detail; `ArticleCommentController` owns `/api/articles/{articleId}/comments`; `ArticleLikeController` owns `/api/articles/{articleId}/likes/me`.
 

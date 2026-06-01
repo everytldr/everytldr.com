@@ -5,7 +5,7 @@ plugins {
     id("com.diffplug.spotless") version "7.0.4"
 }
 
-group = "org.everytldr"
+group = "com.everytldr"
 version = "0.0.1-SNAPSHOT"
 description = "everytldr backend"
 
@@ -84,7 +84,7 @@ tasks.register<Test>("exportOpenApi") {
     classpath = sourceSets["test"].runtimeClasspath
     useJUnitPlatform()
     filter {
-        includeTestsMatching("org.everytldr.api.support.openapi.OpenApiSpecExporter")
+        includeTestsMatching("com.everytldr.api.support.openapi.OpenApiSpecExporter")
     }
     systemProperty("openapi.export", "true")
     outputs.upToDateWhen { false }
