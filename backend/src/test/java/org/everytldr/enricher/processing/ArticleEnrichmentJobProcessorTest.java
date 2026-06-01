@@ -14,14 +14,18 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.everytldr.common.domain.article.Article;
+import org.everytldr.common.domain.category.Category;
+import org.everytldr.common.domain.category.CategoryRepository;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.enricher.completion.ArticleEnrichmentCompletionService;
 import org.everytldr.enricher.completion.ArticleEnrichmentCompletionStatus;
 import org.everytldr.enricher.enrichment.ArticleContent;
 import org.everytldr.enricher.enrichment.ArticleContentResolver;
+import org.everytldr.enricher.enrichment.ArticleEnrichmentCategoryOption;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentClient;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentException;
+import org.everytldr.enricher.enrichment.ArticleEnrichmentRequest;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +44,8 @@ class ArticleEnrichmentJobProcessorTest {
 
   @Mock private ArticleIngestionJobRepository articleIngestionJobRepository;
 
+  @Mock private CategoryRepository categoryRepository;
+
   @Mock private ArticleEnrichmentCompletionService articleEnrichmentCompletionService;
 
   @Mock private ArticleContentResolver articleContentResolver;
@@ -54,6 +60,7 @@ class ArticleEnrichmentJobProcessorTest {
         new ArticleEnrichmentJobProcessor(
             articleIngestionJobClaimService,
             articleIngestionJobRepository,
+            categoryRepository,
             articleEnrichmentCompletionService,
             List.of(articleContentResolver),
             List.of(articleEnrichmentClient),
@@ -72,13 +79,16 @@ class ArticleEnrichmentJobProcessorTest {
     Long jobId = 100L;
     ArticleIngestionJob job = processingJob("https://www.theguardian.com/football/example", 1);
     ArticleContent content = content(job.getArticle());
+    ArticleEnrichmentRequest enrichmentRequest =
+        new ArticleEnrichmentRequest(content, categoryOptions());
     ArticleEnrichmentResult enrichmentResult = validResult();
 
     when(articleIngestionJobClaimService.claimNextJobs(NOW, 2)).thenReturn(List.of(jobId));
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
     when(articleContentResolver.supports(job.getArticle())).thenReturn(true);
     when(articleContentResolver.resolve(job.getArticle())).thenReturn(content);
-    when(articleEnrichmentClient.enrich(content)).thenReturn(enrichmentResult);
+    when(categoryRepository.findAllByOrderBySortOrderAscIdAsc()).thenReturn(categories());
+    when(articleEnrichmentClient.enrich(enrichmentRequest)).thenReturn(enrichmentResult);
     when(articleEnrichmentCompletionService.completeWithResult(jobId, enrichmentResult))
         .thenReturn(ArticleEnrichmentCompletionStatus.SUCCEEDED);
 
@@ -208,6 +218,16 @@ class ArticleEnrichmentJobProcessorTest {
   private ArticleEnrichmentResult validResult() {
     return new ArticleEnrichmentResult(
         "KO title", "KO summary", "EN title", "EN summary", "sport-football-epl");
+  }
+
+  private List<Category> categories() {
+    return List.of(Category.create("sport-football", 0), Category.create("sport-football-epl", 10));
+  }
+
+  private List<ArticleEnrichmentCategoryOption> categoryOptions() {
+    return categories().stream()
+        .map(category -> new ArticleEnrichmentCategoryOption(category.getSlug()))
+        .toList();
   }
 
   private byte[] sha256(String value) {

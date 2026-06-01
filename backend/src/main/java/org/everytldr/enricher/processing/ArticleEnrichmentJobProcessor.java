@@ -7,6 +7,7 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everytldr.common.domain.article.Article;
+import org.everytldr.common.domain.category.CategoryRepository;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.common.domain.ingestion.IngestionState;
@@ -14,8 +15,10 @@ import org.everytldr.enricher.completion.ArticleEnrichmentCompletionService;
 import org.everytldr.enricher.completion.ArticleEnrichmentCompletionStatus;
 import org.everytldr.enricher.enrichment.ArticleContent;
 import org.everytldr.enricher.enrichment.ArticleContentResolver;
+import org.everytldr.enricher.enrichment.ArticleEnrichmentCategoryOption;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentClient;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentException;
+import org.everytldr.enricher.enrichment.ArticleEnrichmentRequest;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentResult;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class ArticleEnrichmentJobProcessor {
   private final ArticleIngestionJobClaimService articleIngestionJobClaimService;
   private final ArticleIngestionJobRepository articleIngestionJobRepository;
+  private final CategoryRepository categoryRepository;
   private final ArticleEnrichmentCompletionService articleEnrichmentCompletionService;
   private final List<ArticleContentResolver> articleContentResolvers;
   private final List<ArticleEnrichmentClient> articleEnrichmentClients;
@@ -62,7 +66,7 @@ public class ArticleEnrichmentJobProcessor {
 
     try {
       ArticleContent content = resolveContent(job.getArticle());
-      ArticleEnrichmentResult enrichmentResult = selectClient().enrich(content);
+      ArticleEnrichmentResult enrichmentResult = selectClient().enrich(enrichmentRequest(content));
       ArticleEnrichmentCompletionStatus completionStatus =
           articleEnrichmentCompletionService.completeWithResult(jobId, enrichmentResult);
       return new ArticleEnrichmentProcessingResult(jobId, map(completionStatus));
@@ -79,6 +83,14 @@ public class ArticleEnrichmentJobProcessor {
   private ArticleContent resolveContent(Article article) {
     ArticleContentResolver resolver = selectResolver(article);
     return resolver.resolve(article);
+  }
+
+  private ArticleEnrichmentRequest enrichmentRequest(ArticleContent content) {
+    List<ArticleEnrichmentCategoryOption> categories =
+        categoryRepository.findAllByOrderBySortOrderAscIdAsc().stream()
+            .map(category -> new ArticleEnrichmentCategoryOption(category.getSlug()))
+            .toList();
+    return new ArticleEnrichmentRequest(content, categories);
   }
 
   private ArticleContentResolver selectResolver(Article article) {
