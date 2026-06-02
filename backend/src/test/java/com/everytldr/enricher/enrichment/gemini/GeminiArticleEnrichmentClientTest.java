@@ -54,7 +54,7 @@ class GeminiArticleEnrichmentClientTest {
 
     ArticleEnrichmentResult result = client.enrich(request());
 
-    assertThat(result.categorySlug()).isEqualTo("sport-football-epl-arsenal");
+    assertThat(result.categorySlug()).isEqualTo("global-voices-rights");
     CapturedRequest request = capturedRequest.get();
     assertThat(request.path()).isEqualTo("/v1beta/models/gemini-3.1-flash-lite:generateContent");
     assertThat(request.apiKey()).isEqualTo("test-key");
@@ -66,15 +66,15 @@ class GeminiArticleEnrichmentClientTest {
     JsonNode userPayload = objectMapper.readTree(body.at("/contents/0/parts/0/text").asString());
     assertThat(userPayload.at("/article/sourceUrl").asString())
         .isEqualTo("https://globalvoices.org/example");
-    assertThat(userPayload.at("/allowedCategories/0/slug").asString()).isEqualTo("sport-football");
+    assertThat(userPayload.at("/allowedCategories/0/slug").asString()).isEqualTo("global-voices");
     assertThat(userPayload.at("/allowedCategories/1/slug").asString())
-        .isEqualTo("sport-football-epl-arsenal");
+        .isEqualTo("global-voices-rights");
 
     JsonNode generationConfig = body.path("generationConfig");
     assertThat(generationConfig.path("responseMimeType").asString()).isEqualTo("application/json");
     JsonNode responseJsonSchema = generationConfig.path("responseJsonSchema");
     assertThat(strings(responseJsonSchema.at("/properties/categorySlug/enum")))
-        .containsExactly("sport-football", "sport-football-epl-arsenal");
+        .containsExactly("global-voices", "global-voices-rights");
     assertThat(strings(responseJsonSchema.at("/required")))
         .containsExactly("koTitle", "koSummary", "enTitle", "enSummary", "categorySlug");
     assertThat(responseJsonSchema.at("/additionalProperties").asBoolean()).isFalse();
@@ -90,11 +90,11 @@ class GeminiArticleEnrichmentClientTest {
     assertThat(result)
         .isEqualTo(
             new ArticleEnrichmentResult(
-                "Korean Arsenal match summary",
-                "Korean summary describing Arsenal pressure and important league points.",
-                "Arsenal Match Summary",
-                "Arsenal increased pressure after the interval and secured important league points.",
-                "sport-football-epl-arsenal"));
+                "Korean civic rights summary",
+                "Korean summary describing civic rights advocacy and government response.",
+                "Civic Rights Summary",
+                "The article describes civic rights advocacy and the government response.",
+                "global-voices-rights"));
   }
 
   @Test
@@ -197,11 +197,11 @@ class GeminiArticleEnrichmentClientTest {
         geminiResponse(
             """
             {
-              "koTitle": "Korean Arsenal match summary",
-              "koSummary": "Korean summary describing Arsenal's key match points.",
-              "enTitle": "Arsenal Match Summary",
-              "enSummary": "Arsenal secured important league points.",
-              "categorySlug": "sport-football-epl-arsenal",
+              "koTitle": "Korean civic rights summary",
+              "koSummary": "Korean summary describing civic rights advocacy.",
+              "enTitle": "Civic Rights Summary",
+              "enSummary": "The article describes civic rights advocacy.",
+              "categorySlug": "global-voices-rights",
               "extra": "unexpected"
             }
             """));
@@ -220,10 +220,10 @@ class GeminiArticleEnrichmentClientTest {
         geminiResponse(
             """
             {
-              "koTitle": "Korean Arsenal match summary",
-              "koSummary": "Korean summary describing Arsenal's key match points.",
-              "enTitle": "Arsenal Match Summary",
-              "enSummary": "Arsenal secured important league points.",
+              "koTitle": "Korean civic rights summary",
+              "koSummary": "Korean summary describing civic rights advocacy.",
+              "enTitle": "Civic Rights Summary",
+              "enSummary": "The article describes civic rights advocacy.",
               "categorySlug": "unknown-category"
             }
             """));
@@ -262,20 +262,20 @@ class GeminiArticleEnrichmentClientTest {
             "https://globalvoices.org/example",
             "Global Voices",
             "en",
-            "Arsenal controlled the second half and created several late chances. ".repeat(20)),
+            "Local civic rights advocates described new community organizing efforts. ".repeat(20)),
         List.of(
-            new ArticleEnrichmentCategoryOption("sport-football"),
-            new ArticleEnrichmentCategoryOption("sport-football-epl-arsenal")));
+            new ArticleEnrichmentCategoryOption("global-voices"),
+            new ArticleEnrichmentCategoryOption("global-voices-rights")));
   }
 
   private String successfulOutput() {
     return """
     {
-      "koTitle": "Korean Arsenal match summary",
-      "koSummary": "Korean summary describing Arsenal pressure and important league points.",
-      "enTitle": "Arsenal Match Summary",
-      "enSummary": "Arsenal increased pressure after the interval and secured important league points.",
-      "categorySlug": "sport-football-epl-arsenal"
+      "koTitle": "Korean civic rights summary",
+      "koSummary": "Korean summary describing civic rights advocacy and government response.",
+      "enTitle": "Civic Rights Summary",
+      "enSummary": "The article describes civic rights advocacy and the government response.",
+      "categorySlug": "global-voices-rights"
     }
     """;
   }

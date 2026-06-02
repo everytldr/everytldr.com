@@ -23,13 +23,13 @@ class ArticleEnrichmentRequestTest {
   void requestDefensivelyCopiesCategoryOptions() {
     ArticleContent content = content();
     List<ArticleEnrichmentCategoryOption> categories = new ArrayList<>();
-    categories.add(new ArticleEnrichmentCategoryOption("sport-football"));
+    categories.add(new ArticleEnrichmentCategoryOption("global-voices"));
 
     ArticleEnrichmentRequest request = new ArticleEnrichmentRequest(content, categories);
-    categories.add(new ArticleEnrichmentCategoryOption("sport-football-epl"));
+    categories.add(new ArticleEnrichmentCategoryOption("global-voices-politics"));
 
     assertThat(request.categories())
-        .containsExactly(new ArticleEnrichmentCategoryOption("sport-football"));
+        .containsExactly(new ArticleEnrichmentCategoryOption("global-voices"));
   }
 
   @Test
@@ -41,11 +41,11 @@ class ArticleEnrichmentRequestTest {
 
   @Test
   void categoryOptionCanBeCreatedFromCategory() {
-    Category category = Category.create("sport-football-epl", 10);
+    Category category = Category.create("global-voices-politics", 10);
 
     ArticleEnrichmentCategoryOption option = ArticleEnrichmentCategoryOption.from(category);
 
-    assertThat(option).isEqualTo(new ArticleEnrichmentCategoryOption("sport-football-epl"));
+    assertThat(option).isEqualTo(new ArticleEnrichmentCategoryOption("global-voices-politics"));
   }
 
   private ArticleContent content() {

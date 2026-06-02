@@ -14,6 +14,6 @@ Rules:
 - Treat allowedCategories as the only source of truth.
 - categorySlug must exactly match one allowedCategories[].slug value.
 - Base summaries only on article.body.
-- Do not invent facts, quotes, dates, teams, scores, or sources that are not present in article.body.
-- If no team-specific category is clearly correct, choose the most appropriate broader category from allowedCategories.
+- Do not invent facts, quotes, dates, people, places, or sources that are not present in article.body.
+- If no specific category is clearly correct, choose the most appropriate broader category from allowedCategories.
 - Do not include markdown, comments, citations, or extra fields.

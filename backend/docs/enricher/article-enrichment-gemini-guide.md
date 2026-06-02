@@ -71,7 +71,7 @@ Accept: application/json
       "role": "user",
       "parts": [
         {
-          "text": "{\"article\":{\"sourceUrl\":\"https://globalvoices.org/example\",\"source\":\"Global Voices\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategories\":[{\"slug\":\"sport-football\"},{\"slug\":\"sport-football-epl-arsenal\"}]}"
+          "text": "{\"article\":{\"sourceUrl\":\"https://globalvoices.org/example\",\"source\":\"Global Voices\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategories\":[{\"slug\":\"global-voices\"},{\"slug\":\"global-voices-rights\"},{\"slug\":\"global-voices-culture\"}]}"
         }
       ]
     }
@@ -88,7 +88,7 @@ Accept: application/json
         "enSummary": {"type": "string"},
         "categorySlug": {
           "type": "string",
-          "enum": ["sport-football", "sport-football-epl-arsenal"]
+          "enum": ["global-voices", "global-voices-rights", "global-voices-culture"]
         }
       },
       "required": ["koTitle", "koSummary", "enTitle", "enSummary", "categorySlug"]
@@ -108,7 +108,7 @@ Gemini의 구조화 출력은 `candidates[0].content.parts[].text` 안에 JSON �
       "content": {
         "parts": [
           {
-            "text": "{\"koTitle\":\"아스널 경기 요약\",\"koSummary\":\"아스널은 후반 압박을 높이며 리그 경쟁에서 중요한 승점을 확보했다.\",\"enTitle\":\"Arsenal Match Summary\",\"enSummary\":\"Arsenal increased pressure after the interval and secured important league points.\",\"categorySlug\":\"sport-football-epl-arsenal\"}"
+            "text": "{\"koTitle\":\"시민권 운동가 인터뷰 요약\",\"koSummary\":\"이 기사는 지역 시민권 운동가들의 활동과 정부 대응을 다룬다.\",\"enTitle\":\"Civil Rights Activists Interview Summary\",\"enSummary\":\"The article covers local civil rights activists and the government response.\",\"categorySlug\":\"global-voices-rights\"}"
           }
         ],
         "role": "model"

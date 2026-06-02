@@ -69,7 +69,7 @@ class ArticleEnrichmentCompletionServiceTest {
     assertThat(articleCategoryRepository.findAllByArticleId(articleId))
         .singleElement()
         .extracting(articleCategory -> articleCategory.getCategory().getSlug())
-        .isEqualTo("sport-football-epl");
+        .isEqualTo("global-voices-politics");
   }
 
   @Test
@@ -107,9 +107,9 @@ class ArticleEnrichmentCompletionServiceTest {
 
   @Test
   void completeWithResultDoesNotDuplicateExistingCategory() {
-    Category epl = eplCategory();
+    Category politics = politicsCategory();
     ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/existing-category");
-    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), epl));
+    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), politics));
     Long articleId = job.getArticle().getId();
     flushAndClear();
 
@@ -153,7 +153,7 @@ class ArticleEnrichmentCompletionServiceTest {
         articleEnrichmentCompletionService.completeWithResult(
             job.getId(),
             new ArticleEnrichmentResult(
-                "", "KO summary", "EN title", "EN summary", "sport-football-epl"));
+                "", "KO summary", "EN title", "EN summary", "global-voices-politics"));
     flushAndClear();
 
     ArticleIngestionJob reloadedJob =
@@ -233,11 +233,11 @@ class ArticleEnrichmentCompletionServiceTest {
 
   private ArticleEnrichmentResult validResult() {
     return new ArticleEnrichmentResult(
-        "KO title", "KO summary", "EN title", "EN summary", "sport-football-epl");
+        "KO title", "KO summary", "EN title", "EN summary", "global-voices-politics");
   }
 
-  private Category eplCategory() {
-    return categoryRepository.findBySlug("sport-football-epl").orElseThrow();
+  private Category politicsCategory() {
+    return categoryRepository.findBySlug("global-voices-politics").orElseThrow();
   }
 
   private ArticleIngestionJob saveProcessingJob(String sourceUrl) {

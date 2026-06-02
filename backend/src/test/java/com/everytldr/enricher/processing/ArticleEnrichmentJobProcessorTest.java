@@ -237,13 +237,13 @@ class ArticleEnrichmentJobProcessorTest {
 
   private ArticleEnrichmentResult validResult() {
     return new ArticleEnrichmentResult(
-        "KO title", "KO summary", "EN title", "EN summary", "sport-football-epl");
+        "KO title", "KO summary", "EN title", "EN summary", "global-voices-politics");
   }
 
   private List<ArticleEnrichmentCategoryOption> categoryOptions() {
     return List.of(
-        new ArticleEnrichmentCategoryOption("sport-football"),
-        new ArticleEnrichmentCategoryOption("sport-football-epl"));
+        new ArticleEnrichmentCategoryOption("global-voices"),
+        new ArticleEnrichmentCategoryOption("global-voices-politics"));
   }
 
   private byte[] sha256(String value) {
