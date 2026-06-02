@@ -14,8 +14,6 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.everytldr.common.domain.article.Article;
-import org.everytldr.common.domain.category.Category;
-import org.everytldr.common.domain.category.CategoryRepository;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.enricher.completion.ArticleEnrichmentCompletionService;
@@ -23,6 +21,7 @@ import org.everytldr.enricher.completion.ArticleEnrichmentCompletionStatus;
 import org.everytldr.enricher.enrichment.ArticleContent;
 import org.everytldr.enricher.enrichment.ArticleContentResolver;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentCategoryOption;
+import org.everytldr.enricher.enrichment.ArticleEnrichmentCategoryOptionProvider;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentClient;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentException;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentRequest;
@@ -44,7 +43,7 @@ class ArticleEnrichmentJobProcessorTest {
 
   @Mock private ArticleIngestionJobRepository articleIngestionJobRepository;
 
-  @Mock private CategoryRepository categoryRepository;
+  @Mock private ArticleEnrichmentCategoryOptionProvider categoryOptionProvider;
 
   @Mock private ArticleEnrichmentCompletionService articleEnrichmentCompletionService;
 
@@ -60,7 +59,7 @@ class ArticleEnrichmentJobProcessorTest {
         new ArticleEnrichmentJobProcessor(
             articleIngestionJobClaimService,
             articleIngestionJobRepository,
-            categoryRepository,
+            categoryOptionProvider,
             articleEnrichmentCompletionService,
             List.of(articleContentResolver),
             List.of(articleEnrichmentClient),
@@ -87,7 +86,7 @@ class ArticleEnrichmentJobProcessorTest {
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
     when(articleContentResolver.supports(job.getArticle())).thenReturn(true);
     when(articleContentResolver.resolve(job.getArticle())).thenReturn(content);
-    when(categoryRepository.findAllByOrderBySortOrderAscIdAsc()).thenReturn(categories());
+    when(categoryOptionProvider.getCategoryOptions()).thenReturn(categoryOptions());
     when(articleEnrichmentClient.enrich(enrichmentRequest)).thenReturn(enrichmentResult);
     when(articleEnrichmentCompletionService.completeWithResult(jobId, enrichmentResult))
         .thenReturn(ArticleEnrichmentCompletionStatus.SUCCEEDED);
@@ -163,8 +162,30 @@ class ArticleEnrichmentJobProcessorTest {
   }
 
   @Test
-  void nonProcessingJobIsSkipped() {
+  void categoryProviderPermanentFailureFailsWithoutCallingEnrichmentClient() {
     Long jobId = 104L;
+    ArticleIngestionJob job = processingJob("https://www.theguardian.com/football/categories", 1);
+    ArticleContent content = content(job.getArticle());
+
+    when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
+    when(articleContentResolver.supports(job.getArticle())).thenReturn(true);
+    when(articleContentResolver.resolve(job.getArticle())).thenReturn(content);
+    when(categoryOptionProvider.getCategoryOptions())
+        .thenThrow(ArticleEnrichmentException.permanent("no categories configured for enrichment"));
+    when(articleEnrichmentCompletionService.fail(jobId, "no categories configured for enrichment"))
+        .thenReturn(ArticleEnrichmentCompletionStatus.FAILED);
+
+    ArticleEnrichmentProcessingResult result = processor.processClaimedJob(jobId);
+
+    assertThat(result)
+        .isEqualTo(
+            new ArticleEnrichmentProcessingResult(jobId, ArticleEnrichmentProcessingStatus.FAILED));
+    verifyNoInteractions(articleEnrichmentClient);
+  }
+
+  @Test
+  void nonProcessingJobIsSkipped() {
+    Long jobId = 105L;
     ArticleIngestionJob job = pendingJob("https://www.theguardian.com/football/pending");
 
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
@@ -181,7 +202,7 @@ class ArticleEnrichmentJobProcessorTest {
 
   @Test
   void missingJobIsSkipped() {
-    Long jobId = 105L;
+    Long jobId = 106L;
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.empty());
 
     ArticleEnrichmentProcessingResult result = processor.processClaimedJob(jobId);
@@ -220,12 +241,10 @@ class ArticleEnrichmentJobProcessorTest {
         "KO title", "KO summary", "EN title", "EN summary", "sport-football-epl");
   }
 
-  private List<Category> categories() {
-    return List.of(Category.create("sport-football", 0), Category.create("sport-football-epl", 10));
-  }
-
   private List<ArticleEnrichmentCategoryOption> categoryOptions() {
-    return categories().stream().map(ArticleEnrichmentCategoryOption::from).toList();
+    return List.of(
+        new ArticleEnrichmentCategoryOption("sport-football"),
+        new ArticleEnrichmentCategoryOption("sport-football-epl"));
   }
 
   private byte[] sha256(String value) {

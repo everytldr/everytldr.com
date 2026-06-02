@@ -34,7 +34,12 @@ GEMINI_API_KEY=
 ENRICHER_AI_GEMINI_MODEL=gemini-3.1-flash-lite
 ENRICHER_AI_GEMINI_REQUEST_TIMEOUT=30s
 ENRICHER_AI_GEMINI_PROMPT_RESOURCE=classpath:prompts/article-enrichment-system-prompt.txt
+ENRICHER_CACHE_CATEGORY_OPTIONS_TTL=5m
 ```
+
+카테고리 목록은 `Category` DB row를 source of truth로 사용한다. Enricher는 `ArticleEnrichmentCategoryOptionProvider`를 통해
+카테고리 slug 목록을 읽고, provider-local Caffeine TTL cache에 보관한 뒤 Gemini 요청 payload와 `categorySlug.enum`
+schema에 넣는다. 따라서 Redis 없이도 반복 요청마다 같은 카테고리 목록을 매번 DB에서 다시 읽지 않는다.
 
 기본 모델은 `gemini-3.1-flash-lite`다. 무료 티어와 비용 절감을 우선한 선택이며, Gemini 2.0 Flash-Lite는
 2026-06-01 종료 공지가 있으므로 기본값으로 쓰지 않는다.

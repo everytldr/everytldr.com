@@ -7,7 +7,6 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.everytldr.common.domain.article.Article;
-import org.everytldr.common.domain.category.CategoryRepository;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import org.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import org.everytldr.common.domain.ingestion.IngestionState;
@@ -16,6 +15,7 @@ import org.everytldr.enricher.completion.ArticleEnrichmentCompletionStatus;
 import org.everytldr.enricher.enrichment.ArticleContent;
 import org.everytldr.enricher.enrichment.ArticleContentResolver;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentCategoryOption;
+import org.everytldr.enricher.enrichment.ArticleEnrichmentCategoryOptionProvider;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentClient;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentException;
 import org.everytldr.enricher.enrichment.ArticleEnrichmentRequest;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 public class ArticleEnrichmentJobProcessor {
   private final ArticleIngestionJobClaimService articleIngestionJobClaimService;
   private final ArticleIngestionJobRepository articleIngestionJobRepository;
-  private final CategoryRepository categoryRepository;
+  private final ArticleEnrichmentCategoryOptionProvider categoryOptionProvider;
   private final ArticleEnrichmentCompletionService articleEnrichmentCompletionService;
   private final List<ArticleContentResolver> articleContentResolvers;
   private final List<ArticleEnrichmentClient> articleEnrichmentClients;
@@ -86,11 +86,9 @@ public class ArticleEnrichmentJobProcessor {
   }
 
   private ArticleEnrichmentRequest enrichmentRequest(ArticleContent content) {
-    List<ArticleEnrichmentCategoryOption> categories =
-        categoryRepository.findAllByOrderBySortOrderAscIdAsc().stream()
-            .map(ArticleEnrichmentCategoryOption::from)
-            .toList();
-    return new ArticleEnrichmentRequest(content, categories);
+    List<ArticleEnrichmentCategoryOption> categoryOptions =
+        categoryOptionProvider.getCategoryOptions();
+    return new ArticleEnrichmentRequest(content, categoryOptions);
   }
 
   private ArticleContentResolver selectResolver(Article article) {

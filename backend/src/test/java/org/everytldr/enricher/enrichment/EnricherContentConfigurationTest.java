@@ -22,7 +22,8 @@ class EnricherContentConfigurationTest {
               "everytldr.enricher.content.request-timeout=5s",
               "everytldr.enricher.content.max-redirects=3",
               "everytldr.enricher.content.max-body-bytes=1048576",
-              "everytldr.enricher.content.min-body-chars=200");
+              "everytldr.enricher.content.min-body-chars=200",
+              "everytldr.enricher.cache.category-options.ttl=5m");
 
   @Test
   void registersContentResolverAndPropertiesInEnricherProfile() {
