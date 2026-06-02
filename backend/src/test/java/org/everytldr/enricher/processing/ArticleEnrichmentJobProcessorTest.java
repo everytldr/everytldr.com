@@ -225,9 +225,7 @@ class ArticleEnrichmentJobProcessorTest {
   }
 
   private List<ArticleEnrichmentCategoryOption> categoryOptions() {
-    return categories().stream()
-        .map(category -> new ArticleEnrichmentCategoryOption(category.getSlug()))
-        .toList();
+    return categories().stream().map(ArticleEnrichmentCategoryOption::from).toList();
   }
 
   private byte[] sha256(String value) {

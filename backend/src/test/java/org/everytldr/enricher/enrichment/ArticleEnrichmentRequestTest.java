@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.everytldr.common.domain.category.Category;
 import org.junit.jupiter.api.Test;
 
 class ArticleEnrichmentRequestTest {
@@ -36,6 +37,15 @@ class ArticleEnrichmentRequestTest {
     assertThatThrownBy(() -> new ArticleEnrichmentCategoryOption(" "))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("slug must not be blank");
+  }
+
+  @Test
+  void categoryOptionCanBeCreatedFromCategory() {
+    Category category = Category.create("sport-football-epl", 10);
+
+    ArticleEnrichmentCategoryOption option = ArticleEnrichmentCategoryOption.from(category);
+
+    assertThat(option).isEqualTo(new ArticleEnrichmentCategoryOption("sport-football-epl"));
   }
 
   private ArticleContent content() {

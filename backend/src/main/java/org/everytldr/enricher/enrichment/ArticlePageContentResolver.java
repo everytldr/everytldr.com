@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+/** 허용된 HTTP(S) 기사 페이지를 가져와 HTML 본문을 ArticleContent로 변환한다. */
 @Component
 @Profile("enricher")
 @Slf4j

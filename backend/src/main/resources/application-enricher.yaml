@@ -13,3 +13,11 @@ everytldr:
       max-redirects: ${ENRICHER_CONTENT_MAX_REDIRECTS:3}
       max-body-bytes: ${ENRICHER_CONTENT_MAX_BODY_BYTES:1048576}
       min-body-chars: ${ENRICHER_CONTENT_MIN_BODY_CHARS:200}
+    ai:
+      gemini:
+        enabled: ${ENRICHER_AI_GEMINI_ENABLED:false}
+        base-url: ${ENRICHER_AI_GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+        api-key: ${GEMINI_API_KEY:}
+        model: ${ENRICHER_AI_GEMINI_MODEL:gemini-3.1-flash-lite}
+        request-timeout: ${ENRICHER_AI_GEMINI_REQUEST_TIMEOUT:30s}
+        prompt-resource: ${ENRICHER_AI_GEMINI_PROMPT_RESOURCE:classpath:prompts/article-enrichment-system-prompt.txt}

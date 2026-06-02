@@ -88,7 +88,7 @@ public class ArticleEnrichmentJobProcessor {
   private ArticleEnrichmentRequest enrichmentRequest(ArticleContent content) {
     List<ArticleEnrichmentCategoryOption> categories =
         categoryRepository.findAllByOrderBySortOrderAscIdAsc().stream()
-            .map(category -> new ArticleEnrichmentCategoryOption(category.getSlug()))
+            .map(ArticleEnrichmentCategoryOption::from)
             .toList();
     return new ArticleEnrichmentRequest(content, categories);
   }
