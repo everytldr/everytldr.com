@@ -18,7 +18,7 @@ class EnricherContentConfigurationTest {
               "everytldr.enricher.processing.max-attempts=3",
               "everytldr.enricher.processing.retry-delay=10m",
               "everytldr.enricher.processing.stale-timeout=15m",
-              "everytldr.enricher.content.allowed-hosts=localhost,www.theguardian.com",
+              "everytldr.enricher.content.allowed-hosts=localhost,globalvoices.org",
               "everytldr.enricher.content.request-timeout=5s",
               "everytldr.enricher.content.max-redirects=3",
               "everytldr.enricher.content.max-body-bytes=1048576",
@@ -33,7 +33,7 @@ class EnricherContentConfigurationTest {
           assertThat(context).hasSingleBean(EnricherContentProperties.class);
           assertThat(context).doesNotHaveBean(ArticleEnrichmentClient.class);
           assertThat(context.getBean(EnricherContentProperties.class).allowedHosts())
-              .containsExactly("localhost", "www.theguardian.com");
+              .containsExactly("localhost", "globalvoices.org");
         });
   }
 }

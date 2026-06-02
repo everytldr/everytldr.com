@@ -65,7 +65,7 @@ class GeminiArticleEnrichmentClientTest {
 
     JsonNode userPayload = objectMapper.readTree(body.at("/contents/0/parts/0/text").asString());
     assertThat(userPayload.at("/article/sourceUrl").asString())
-        .isEqualTo("https://www.bbc.com/sport/football/example");
+        .isEqualTo("https://globalvoices.org/example");
     assertThat(userPayload.at("/allowedCategories/0/slug").asString()).isEqualTo("sport-football");
     assertThat(userPayload.at("/allowedCategories/1/slug").asString())
         .isEqualTo("sport-football-epl-arsenal");
@@ -259,8 +259,8 @@ class GeminiArticleEnrichmentClientTest {
   private ArticleEnrichmentRequest request() {
     return new ArticleEnrichmentRequest(
         new ArticleContent(
-            "https://www.bbc.com/sport/football/example",
-            "BBC Sport",
+            "https://globalvoices.org/example",
+            "Global Voices",
             "en",
             "Arsenal controlled the second half and created several late chances. ".repeat(20)),
         List.of(

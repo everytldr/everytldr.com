@@ -71,7 +71,7 @@ Accept: application/json
       "role": "user",
       "parts": [
         {
-          "text": "{\"article\":{\"sourceUrl\":\"https://www.bbc.com/sport/football/example\",\"source\":\"BBC Sport\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategories\":[{\"slug\":\"sport-football\"},{\"slug\":\"sport-football-epl-arsenal\"}]}"
+          "text": "{\"article\":{\"sourceUrl\":\"https://globalvoices.org/example\",\"source\":\"Global Voices\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategories\":[{\"slug\":\"sport-football\"},{\"slug\":\"sport-football-epl-arsenal\"}]}"
         }
       ]
     }

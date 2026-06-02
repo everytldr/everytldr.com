@@ -38,12 +38,11 @@ class ArticlePageContentResolverTest {
   @Test
   void supportsAllowlistedHttpAndHttpsUrlsOnly() {
     ArticlePageContentResolver resolver =
-        newResolver(List.of("www.theguardian.com", "bbc.com"), 3, 1024, 20);
+        newResolver(List.of("globalvoices.org", "www.globalvoices.org"), 3, 1024, 20);
 
-    assertThat(resolver.supports(article("https://www.theguardian.com/football/example"))).isTrue();
-    assertThat(resolver.supports(article("http://bbc.com/sport/football/example"))).isTrue();
-    assertThat(resolver.supports(article("https://unsupported.example.com/football/example")))
-        .isFalse();
+    assertThat(resolver.supports(article("https://globalvoices.org/example"))).isTrue();
+    assertThat(resolver.supports(article("http://www.globalvoices.org/example"))).isTrue();
+    assertThat(resolver.supports(article("https://unsupported.example.com/example"))).isFalse();
     assertThat(resolver.supports(article("file:///etc/passwd"))).isFalse();
     assertThat(resolver.supports(article("not a url"))).isFalse();
   }
@@ -80,7 +79,7 @@ class ArticlePageContentResolverTest {
     ArticleContent content = resolver.resolve(article(sourceUrl));
 
     assertThat(content.sourceUrl()).isEqualTo(sourceUrl);
-    assertThat(content.source()).isEqualTo("BBC Sport");
+    assertThat(content.source()).isEqualTo("Global Voices");
     assertThat(content.language()).isEqualTo("en");
     assertThat(content.body()).contains("Match report").contains("Tottenham controlled");
     assertThat(content.body()).doesNotContain("tracking").doesNotContain("Main fallback");
@@ -218,7 +217,7 @@ class ArticlePageContentResolverTest {
   }
 
   private Article article(String sourceUrl) {
-    return Article.create(sourceUrl, "BBC Sport", null, "en", PUBLISHED_AT);
+    return Article.create(sourceUrl, "Global Voices", null, "en", PUBLISHED_AT);
   }
 
   private String serverUrl(String path) {

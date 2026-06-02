@@ -76,7 +76,7 @@ class ArticleEnrichmentJobProcessorTest {
   @Test
   void processNextJobsClaimsAndCompletesClaimedJobs() {
     Long jobId = 100L;
-    ArticleIngestionJob job = processingJob("https://www.theguardian.com/football/example", 1);
+    ArticleIngestionJob job = processingJob("https://globalvoices.org/example", 1);
     ArticleContent content = content(job.getArticle());
     ArticleEnrichmentRequest enrichmentRequest =
         new ArticleEnrichmentRequest(content, categoryOptions());
@@ -102,7 +102,7 @@ class ArticleEnrichmentJobProcessorTest {
   @Test
   void retryableFailureSchedulesRetryWithConfiguredDelayWhenAttemptsRemain() {
     Long jobId = 101L;
-    ArticleIngestionJob job = processingJob("https://www.theguardian.com/football/retry", 1);
+    ArticleIngestionJob job = processingJob("https://globalvoices.org/retry", 1);
 
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
     when(articleContentResolver.supports(job.getArticle())).thenReturn(true);
@@ -124,8 +124,7 @@ class ArticleEnrichmentJobProcessorTest {
   @Test
   void retryableFailureFailsWhenMaxAttemptsAreExhausted() {
     Long jobId = 102L;
-    ArticleIngestionJob job =
-        processingJob("https://www.theguardian.com/football/max-attempts", MAX_ATTEMPTS);
+    ArticleIngestionJob job = processingJob("https://globalvoices.org/max-attempts", MAX_ATTEMPTS);
 
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
     when(articleContentResolver.supports(job.getArticle())).thenReturn(true);
@@ -164,7 +163,7 @@ class ArticleEnrichmentJobProcessorTest {
   @Test
   void categoryProviderPermanentFailureFailsWithoutCallingEnrichmentClient() {
     Long jobId = 104L;
-    ArticleIngestionJob job = processingJob("https://www.theguardian.com/football/categories", 1);
+    ArticleIngestionJob job = processingJob("https://globalvoices.org/categories", 1);
     ArticleContent content = content(job.getArticle());
 
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
@@ -186,7 +185,7 @@ class ArticleEnrichmentJobProcessorTest {
   @Test
   void nonProcessingJobIsSkipped() {
     Long jobId = 105L;
-    ArticleIngestionJob job = pendingJob("https://www.theguardian.com/football/pending");
+    ArticleIngestionJob job = pendingJob("https://globalvoices.org/pending");
 
     when(articleIngestionJobRepository.findByIdWithArticle(jobId)).thenReturn(Optional.of(job));
 
@@ -227,7 +226,7 @@ class ArticleEnrichmentJobProcessorTest {
   }
 
   private ArticleIngestionJob pendingJob(String sourceUrl) {
-    Article article = Article.create(sourceUrl, "The Guardian Football", null, "en", PUBLISHED_AT);
+    Article article = Article.create(sourceUrl, "Global Voices", null, "en", PUBLISHED_AT);
     return ArticleIngestionJob.create(article, sha256(sourceUrl));
   }
 

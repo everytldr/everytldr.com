@@ -50,9 +50,6 @@ class ArticleEnrichmentRequestTest {
 
   private ArticleContent content() {
     return new ArticleContent(
-        "https://www.theguardian.com/football/example",
-        "The Guardian Football",
-        "en",
-        "Full article body");
+        "https://globalvoices.org/example", "Global Voices", "en", "Full article body");
   }
 }

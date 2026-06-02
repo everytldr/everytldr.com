@@ -8,7 +8,7 @@ everytldr:
       retry-delay: ${ENRICHER_PROCESSING_RETRY_DELAY:10m}
       stale-timeout: ${ENRICHER_PROCESSING_STALE_TIMEOUT:15m}
     content:
-      allowed-hosts: ${ENRICHER_CONTENT_ALLOWED_HOSTS:globalvoices.org,www.globalvoices.org,www.theguardian.com,www.bbc.com,bbc.com}
+      allowed-hosts: ${ENRICHER_CONTENT_ALLOWED_HOSTS:globalvoices.org,www.globalvoices.org}
       request-timeout: ${ENRICHER_CONTENT_REQUEST_TIMEOUT:5s}
       max-redirects: ${ENRICHER_CONTENT_MAX_REDIRECTS:3}
       max-body-bytes: ${ENRICHER_CONTENT_MAX_BODY_BYTES:1048576}

@@ -71,7 +71,7 @@ class EnricherGeminiConfigurationTest {
       "everytldr.enricher.processing.max-attempts=3",
       "everytldr.enricher.processing.retry-delay=10m",
       "everytldr.enricher.processing.stale-timeout=15m",
-      "everytldr.enricher.content.allowed-hosts=localhost,www.theguardian.com",
+      "everytldr.enricher.content.allowed-hosts=localhost,globalvoices.org",
       "everytldr.enricher.content.request-timeout=5s",
       "everytldr.enricher.content.max-redirects=3",
       "everytldr.enricher.content.max-body-bytes=1048576",
