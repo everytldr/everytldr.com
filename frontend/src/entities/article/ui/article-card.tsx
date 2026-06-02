@@ -1,17 +1,20 @@
 "use client";
 
 import type { ArticleListItem } from "@/shared/api";
-import { cn } from "@/shared/lib";
-import { useFormatter } from "next-intl";
+import { cn, formatDate } from "@/shared/lib";
+import { RelativeTime } from "@/shared/ui";
+import { useLocale } from "next-intl";
+import { Suspense } from "react";
 
 type ArticleCardProps = {
   className?: string;
+  titleClassName?: string;
   article: ArticleListItem;
 };
 
-export function ArticleCard({ className, article }: ArticleCardProps) {
-  const format = useFormatter();
-  const relativeTime = format.relativeTime(new Date(article.publishedAt));
+export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
+  const locale = useLocale();
+  const fallback = formatDate(article.publishedAt, locale);
 
   return (
     <article
@@ -21,10 +24,17 @@ export function ArticleCard({ className, article }: ArticleCardProps) {
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2xs">
-        <h3 className="line-clamp-2 min-w-0 text-display-sm text-ink">{article.title}</h3>
+        <h3 className={cn("line-clamp-2 min-w-0 text-display-sm text-ink", titleClassName)}>
+          {article.title}
+        </h3>
         <p className="line-clamp-1 text-body-sm text-meta">{article.summary}</p>
         <p className="text-caption text-meta">
-          {article.source} · {relativeTime}
+          {article.source} ·{" "}
+          <time dateTime={article.publishedAt}>
+            <Suspense fallback={fallback}>
+              <RelativeTime date={article.publishedAt} />
+            </Suspense>
+          </time>
         </p>
       </div>
       {article.thumbnailUrl && (

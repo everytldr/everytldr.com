@@ -19,7 +19,7 @@ export function SearchPage({ className, query }: SearchPageProps) {
   return (
     // TODO: Implement this page
     <main className={className}>
-      <Container className="flex max-w-[720px] flex-col gap-2xl py-xl">
+      <Container className="flex flex-col gap-2xl py-xl" size="sm">
         <SearchPanel
           initialQuery={query}
           recentTerms={terms}

@@ -5,7 +5,7 @@ plugins {
     id("com.diffplug.spotless") version "7.0.4"
 }
 
-group = "org.everytldr"
+group = "com.everytldr"
 version = "0.0.1-SNAPSHOT"
 description = "everytldr backend"
 
@@ -18,6 +18,8 @@ java {
 repositories {
     mavenCentral()
 }
+
+val mockitoAgent = configurations.create("mockitoAgent")
 
 dependencyManagement {
     imports {
@@ -36,6 +38,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("com.rometools:rome:2.1.0")
+    implementation("org.springframework.security:spring-security-crypto")
+    implementation("com.rometools:rome-modules:2.1.0")
     implementation("org.jsoup:jsoup:1.22.2")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     compileOnly("org.projectlombok:lombok")
@@ -51,6 +55,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-mysql")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    mockitoAgent("org.mockito:mockito-core") {
+        isTransitive = false
+    }
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
@@ -65,6 +72,7 @@ spotless {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("-javaagent:${mockitoAgent.singleFile}")
     testLogging {
         events("passed", "skipped", "failed")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
@@ -79,7 +87,7 @@ tasks.register<Test>("exportOpenApi") {
     classpath = sourceSets["test"].runtimeClasspath
     useJUnitPlatform()
     filter {
-        includeTestsMatching("org.everytldr.api.support.openapi.OpenApiSpecExporter")
+        includeTestsMatching("com.everytldr.api.support.openapi.OpenApiSpecExporter")
     }
     systemProperty("openapi.export", "true")
     outputs.upToDateWhen { false }

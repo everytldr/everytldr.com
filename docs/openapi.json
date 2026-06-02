@@ -1,6 +1,119 @@
 {
   "components" : {
     "schemas" : {
+      "ArticleCommentCreateRequest" : {
+        "properties" : {
+          "content" : {
+            "maxLength" : 5000,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "nickname" : {
+            "maxLength" : 50,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "parentId" : {
+            "type" : [ "string", "null" ]
+          },
+          "password" : {
+            "maxLength" : 100,
+            "minLength" : 4,
+            "type" : "string"
+          }
+        },
+        "required" : [ "content", "nickname", "parentId", "password" ],
+        "type" : "object"
+      },
+      "ArticleCommentListItem" : {
+        "properties" : {
+          "content" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "maskedIp" : {
+            "type" : "string"
+          },
+          "nickname" : {
+            "type" : "string"
+          },
+          "parentId" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "content", "createdAt", "id", "maskedIp", "nickname", "parentId" ],
+        "type" : "object"
+      },
+      "ArticleCommentListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ArticleCommentListItem"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "ArticleDetailResponse" : {
+        "properties" : {
+          "category" : {
+            "type" : "string"
+          },
+          "commentCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "likeCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "sourceUrl" : {
+            "type" : "string"
+          },
+          "summary" : {
+            "type" : "string"
+          },
+          "thumbnailUrl" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ArticleLikeStateResponse" : {
+        "properties" : {
+          "articleId" : {
+            "type" : "string"
+          },
+          "likeCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "likedByReader" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
       "ArticleListItem" : {
         "properties" : {
           "category" : {
@@ -100,6 +213,229 @@
               }
             },
             "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{articleId}/comments" : {
+      "get" : {
+        "operationId" : "listArticleComments",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleCommentListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      },
+      "post" : {
+        "operationId" : "createArticleComment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ArticleCommentCreateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleCommentListItem"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{articleId}/likes/me" : {
+      "delete" : {
+        "operationId" : "unlikeArticle",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleLikeStateResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      },
+      "get" : {
+        "operationId" : "getMyArticleLike",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleLikeStateResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      },
+      "put" : {
+        "operationId" : "likeArticle",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleLikeStateResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{id}" : {
+      "get" : {
+        "operationId" : "getArticle",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
           }
         },
         "tags" : [ "Articles" ]
@@ -121,6 +457,15 @@
               }
             },
             "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
           }
         },
         "tags" : [ "Categories" ]

@@ -10,8 +10,8 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { range } from "lodash-es";
 import { useEffect, type ReactNode } from "react";
 import { useInView } from "react-intersection-observer";
-import { ArticleCard } from "./article-card";
 import { ArticleCardSkeleton } from "./article-card-skeleton";
+import { ArticleList } from "./article-list";
 
 type ArticleListInfiniteProps = {
   className?: string;
@@ -27,7 +27,7 @@ export function ArticleListInfinite({
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } = useSuspenseInfiniteQuery({
     ...getListArticlesSuspenseInfiniteQueryOptions({ categoryPrefix }),
     getNextPageParam: (lastPage: listArticlesResponse): Optional<string> =>
-      lastPage.data.nextCursor,
+      lastPage.status === 200 ? lastPage.data.nextCursor : undefined,
   });
   const { ref: sentinelRef, inView } = useInView({ rootMargin: "200px" });
 
@@ -37,30 +37,21 @@ export function ArticleListInfinite({
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const items: ArticleListItem[] = data.pages.flatMap((page) => page.data.items ?? []);
+  const items: ArticleListItem[] = data.pages.flatMap((page) =>
+    page.status === 200 ? (page.data.items ?? []) : [],
+  );
 
   return (
     <div className={className}>
-      {items.length === 0 ? (
-        empty
-      ) : (
-        <>
-          <ul>
-            {items.map((article) => (
-              <li key={article.id}>
-                <ArticleCard article={article} />
-              </li>
-            ))}
-            {isFetchingNextPage &&
-              range(2).map((i) => (
-                <li key={i}>
-                  <ArticleCardSkeleton />
-                </li>
-              ))}
-          </ul>
-          {hasNextPage && <div ref={sentinelRef} aria-hidden="true" />}
-        </>
-      )}
+      <ArticleList articles={items} empty={empty}>
+        {isFetchingNextPage &&
+          range(2).map((i) => (
+            <li key={i}>
+              <ArticleCardSkeleton />
+            </li>
+          ))}
+      </ArticleList>
+      {hasNextPage && <div ref={sentinelRef} aria-hidden="true" />}
     </div>
   );
 }
