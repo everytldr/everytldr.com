@@ -38,13 +38,14 @@ class ArticlePageContentResolverTest {
   @Test
   void supportsAllowlistedHttpAndHttpsUrlsOnly() {
     ArticlePageContentResolver resolver =
-        newResolver(List.of("globalvoices.org", "www.globalvoices.org"), 3, 1024, 20);
+        createResolver(List.of("globalvoices.org", "www.globalvoices.org"), 3, 1024, 20);
 
-    assertThat(resolver.supports(article("https://globalvoices.org/example"))).isTrue();
-    assertThat(resolver.supports(article("http://www.globalvoices.org/example"))).isTrue();
-    assertThat(resolver.supports(article("https://unsupported.example.com/example"))).isFalse();
-    assertThat(resolver.supports(article("file:///etc/passwd"))).isFalse();
-    assertThat(resolver.supports(article("not a url"))).isFalse();
+    assertThat(resolver.supports(createArticle("https://globalvoices.org/example"))).isTrue();
+    assertThat(resolver.supports(createArticle("http://www.globalvoices.org/example"))).isTrue();
+    assertThat(resolver.supports(createArticle("https://unsupported.example.com/example")))
+        .isFalse();
+    assertThat(resolver.supports(createArticle("file:///etc/passwd"))).isFalse();
+    assertThat(resolver.supports(createArticle("not a url"))).isFalse();
   }
 
   @Test
@@ -74,9 +75,9 @@ class ArticlePageContentResolverTest {
         """
             .formatted(bodyText));
     String sourceUrl = serverUrl("/article");
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 4096, 40);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 40);
 
-    ArticleContent content = resolver.resolve(article(sourceUrl));
+    ArticleContent content = resolver.resolve(createArticle(sourceUrl));
 
     assertThat(content.sourceUrl()).isEqualTo(sourceUrl);
     assertThat(content.source()).isEqualTo("Global Voices");
@@ -94,9 +95,9 @@ class ArticlePageContentResolverTest {
         Map.of("Content-Type", "text/html"),
         "<html><body><article>%s</article></body></html>"
             .formatted("Final article text. ".repeat(20)));
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 4096, 40);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 40);
 
-    ArticleContent content = resolver.resolve(article(serverUrl("/start")));
+    ArticleContent content = resolver.resolve(createArticle(serverUrl("/start")));
 
     assertThat(content.body()).contains("Final article text");
   }
@@ -104,11 +105,12 @@ class ArticlePageContentResolverTest {
   @Test
   void rejectsDisallowedRedirectTargetAsPermanentFailure() {
     route("/start", 302, Map.of("Location", "https://evil.example.com/final"), "");
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 4096, 40);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 40);
 
     ArticleEnrichmentException exception =
         catchThrowableOfType(
-            () -> resolver.resolve(article(serverUrl("/start"))), ArticleEnrichmentException.class);
+            () -> resolver.resolve(createArticle(serverUrl("/start"))),
+            ArticleEnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("redirect target is not allowed");
     assertThat(exception.isRetryable()).isFalse();
@@ -123,11 +125,12 @@ class ArticlePageContentResolverTest {
         200,
         Map.of("Content-Type", "text/html"),
         "<html><body><article>%s</article></body></html>".formatted("Too late. ".repeat(20)));
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 1, 4096, 40);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 1, 4096, 40);
 
     ArticleEnrichmentException exception =
         catchThrowableOfType(
-            () -> resolver.resolve(article(serverUrl("/one"))), ArticleEnrichmentException.class);
+            () -> resolver.resolve(createArticle(serverUrl("/one"))),
+            ArticleEnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("redirect limit exceeded");
     assertThat(exception.isRetryable()).isFalse();
@@ -136,11 +139,11 @@ class ArticlePageContentResolverTest {
   @Test
   void treatsServerFailureAsRetryable() {
     route("/unavailable", 503, Map.of("Content-Type", "text/html"), "temporarily unavailable");
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 4096, 40);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 40);
 
     ArticleEnrichmentException exception =
         catchThrowableOfType(
-            () -> resolver.resolve(article(serverUrl("/unavailable"))),
+            () -> resolver.resolve(createArticle(serverUrl("/unavailable"))),
             ArticleEnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("retryable article content response status: 503");
@@ -150,11 +153,11 @@ class ArticlePageContentResolverTest {
   @Test
   void rejectsClientFailureAsPermanentFailure() {
     route("/missing", 404, Map.of("Content-Type", "text/html"), "missing");
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 4096, 40);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 40);
 
     ArticleEnrichmentException exception =
         catchThrowableOfType(
-            () -> resolver.resolve(article(serverUrl("/missing"))),
+            () -> resolver.resolve(createArticle(serverUrl("/missing"))),
             ArticleEnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("non-success article content response status: 404");
@@ -168,11 +171,11 @@ class ArticlePageContentResolverTest {
         200,
         Map.of("Content-Type", "text/html"),
         "<html><body><article>%s</article></body></html>".formatted("large body ".repeat(30)));
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 64, 20);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 64, 20);
 
     ArticleEnrichmentException exception =
         catchThrowableOfType(
-            () -> resolver.resolve(article(serverUrl("/too-large"))),
+            () -> resolver.resolve(createArticle(serverUrl("/too-large"))),
             ArticleEnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("article content response is too large");
@@ -182,11 +185,12 @@ class ArticlePageContentResolverTest {
   @Test
   void rejectsNonHtmlBodyAsPermanentFailure() {
     route("/json", 200, Map.of("Content-Type", "application/json"), "{}");
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 4096, 20);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 20);
 
     ArticleEnrichmentException exception =
         catchThrowableOfType(
-            () -> resolver.resolve(article(serverUrl("/json"))), ArticleEnrichmentException.class);
+            () -> resolver.resolve(createArticle(serverUrl("/json"))),
+            ArticleEnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("non-HTML article content response");
     assertThat(exception.isRetryable()).isFalse();
@@ -199,24 +203,25 @@ class ArticlePageContentResolverTest {
         200,
         Map.of("Content-Type", "text/html"),
         "<html><body><article>short</article></body></html>");
-    ArticlePageContentResolver resolver = newResolver(List.of("localhost"), 3, 4096, 20);
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 20);
 
     ArticleEnrichmentException exception =
         catchThrowableOfType(
-            () -> resolver.resolve(article(serverUrl("/short"))), ArticleEnrichmentException.class);
+            () -> resolver.resolve(createArticle(serverUrl("/short"))),
+            ArticleEnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("extracted article body is too short");
     assertThat(exception.isRetryable()).isFalse();
   }
 
-  private ArticlePageContentResolver newResolver(
+  private ArticlePageContentResolver createResolver(
       List<String> allowedHosts, int maxRedirects, int maxBodyBytes, int minBodyChars) {
     return new ArticlePageContentResolver(
         new EnricherContentProperties(
             allowedHosts, Duration.ofSeconds(2), maxRedirects, maxBodyBytes, minBodyChars));
   }
 
-  private Article article(String sourceUrl) {
+  private Article createArticle(String sourceUrl) {
     return Article.create(sourceUrl, "Global Voices", null, "en", PUBLISHED_AT);
   }
 

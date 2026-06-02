@@ -51,7 +51,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     this.restClient =
         restClientBuilder
             .baseUrl(properties.baseUrl())
-            .requestFactory(requestFactory(properties))
+            .requestFactory(createRequestFactory(properties))
             .build();
   }
 
@@ -59,7 +59,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
   public ArticleEnrichmentResult enrich(ArticleEnrichmentRequest request) {
     List<String> allowedCategorySlugs =
         request.categories().stream().map(ArticleEnrichmentCategoryOption::slug).toList();
-    String userPayload = userPayload(request);
+    String userPayload = serializeUserPayload(request);
     GeminiHttpResponse response = callGemini(request, userPayload);
     return parseResult(response, allowedCategorySlugs);
   }
@@ -76,7 +76,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
                 "responseMimeType",
                 "application/json",
                 "responseJsonSchema",
-                responseSchema(request.categories())));
+                buildResponseSchema(request.categories())));
 
     try {
       return restClient
@@ -121,7 +121,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
 
     JsonNode firstCandidate = candidates.get(0);
     validateFinishReason(firstCandidate.path("finishReason"));
-    String outputText = outputText(firstCandidate);
+    String outputText = extractOutputText(firstCandidate);
     JsonNode output = parseJson(outputText, "Gemini output text is invalid JSON");
     validateOutputShape(output);
 
@@ -151,7 +151,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     throw ArticleEnrichmentException.permanent("Gemini finishReason is not STOP: " + finishReason);
   }
 
-  private String outputText(JsonNode candidate) {
+  private String extractOutputText(JsonNode candidate) {
     JsonNode parts = candidate.at("/content/parts");
     if (!parts.isArray()) {
       throw ArticleEnrichmentException.permanent("Gemini response has no output parts");
@@ -198,7 +198,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     }
   }
 
-  private String userPayload(ArticleEnrichmentRequest request) {
+  private String serializeUserPayload(ArticleEnrichmentRequest request) {
     try {
       return objectMapper.writeValueAsString(GeminiArticleEnrichmentUserPayload.from(request));
     } catch (JacksonException e) {
@@ -206,7 +206,8 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     }
   }
 
-  private Map<String, Object> responseSchema(List<ArticleEnrichmentCategoryOption> categories) {
+  private Map<String, Object> buildResponseSchema(
+      List<ArticleEnrichmentCategoryOption> categories) {
     return Map.of(
         "type",
         "object",
@@ -252,7 +253,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     }
   }
 
-  private SimpleClientHttpRequestFactory requestFactory(EnricherGeminiProperties properties) {
+  private SimpleClientHttpRequestFactory createRequestFactory(EnricherGeminiProperties properties) {
     SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
     requestFactory.setConnectTimeout(properties.requestTimeout());
     requestFactory.setReadTimeout(properties.requestTimeout());

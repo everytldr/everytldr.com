@@ -105,7 +105,7 @@ public class ArticlePageContentResolver implements ArticleContentResolver {
                 .formatted(statusCode, currentUri));
       }
 
-      String contentType = contentType(response);
+      String contentType = resolveContentType(response);
       if (!isHtmlContent(contentType)) {
         closeQuietly(response.body());
         throw ArticleEnrichmentException.permanent(
@@ -180,7 +180,7 @@ public class ArticlePageContentResolver implements ArticleContentResolver {
         throw ArticleEnrichmentException.permanent(
             "article content response is too large: sourceUrl=%s".formatted(sourceUri));
       }
-      return new String(bytes, charset(contentType));
+      return new String(bytes, resolveCharset(contentType));
     } catch (IOException e) {
       throw ArticleEnrichmentException.retryable(
           "failed to read article content response: " + sourceUri, e);
@@ -191,12 +191,12 @@ public class ArticlePageContentResolver implements ArticleContentResolver {
     Document document = Jsoup.parse(html, sourceUri.toString());
     document.select("script, style, noscript").remove();
 
-    Element bodyElement = firstNonEmpty(document.selectFirst("article"));
+    Element bodyElement = findFirstNonEmpty(document.selectFirst("article"));
     if (bodyElement == null) {
-      bodyElement = firstNonEmpty(document.selectFirst("main"));
+      bodyElement = findFirstNonEmpty(document.selectFirst("main"));
     }
     if (bodyElement == null) {
-      bodyElement = firstNonEmpty(document.body());
+      bodyElement = findFirstNonEmpty(document.body());
     }
     if (bodyElement == null) {
       return "";
@@ -204,7 +204,7 @@ public class ArticlePageContentResolver implements ArticleContentResolver {
     return bodyElement.text().replaceAll("\\s+", " ").trim();
   }
 
-  private Element firstNonEmpty(Element element) {
+  private Element findFirstNonEmpty(Element element) {
     if (element == null || !StringUtils.hasText(element.text())) {
       return null;
     }
@@ -243,7 +243,7 @@ public class ArticlePageContentResolver implements ArticleContentResolver {
     return statusCode == 408 || statusCode == 429 || statusCode >= 500;
   }
 
-  private String contentType(HttpResponse<?> response) {
+  private String resolveContentType(HttpResponse<?> response) {
     return response.headers().firstValue("content-type").orElse("");
   }
 
@@ -252,7 +252,7 @@ public class ArticlePageContentResolver implements ArticleContentResolver {
     return "text/html".equals(mediaType) || "application/xhtml+xml".equals(mediaType);
   }
 
-  private Charset charset(String contentType) {
+  private Charset resolveCharset(String contentType) {
     for (String part : contentType.split(";")) {
       String trimmed = part.trim();
       int separator = trimmed.indexOf('=');

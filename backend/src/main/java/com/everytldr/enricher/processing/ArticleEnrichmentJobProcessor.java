@@ -69,7 +69,8 @@ public class ArticleEnrichmentJobProcessor {
 
     try {
       ArticleContent content = resolveContent(job.getArticle());
-      ArticleEnrichmentResult enrichmentResult = selectClient().enrich(enrichmentRequest(content));
+      ArticleEnrichmentResult enrichmentResult =
+          selectClient().enrich(buildEnrichmentRequest(content));
       ArticleEnrichmentCompletionStatus completionStatus =
           articleEnrichmentCompletionService.completeWithResult(jobId, enrichmentResult);
       return new ArticleEnrichmentProcessingResult(jobId, map(completionStatus));
@@ -88,7 +89,7 @@ public class ArticleEnrichmentJobProcessor {
     return resolver.resolve(article);
   }
 
-  private ArticleEnrichmentRequest enrichmentRequest(ArticleContent content) {
+  private ArticleEnrichmentRequest buildEnrichmentRequest(ArticleContent content) {
     List<ArticleEnrichmentCategoryOption> categoryOptions =
         categoryOptionProvider.getCategoryOptions();
     return new ArticleEnrichmentRequest(content, categoryOptions);
@@ -129,7 +130,7 @@ public class ArticleEnrichmentJobProcessor {
               jobId, Instant.now(clock).plus(properties.retryDelay()), exception.getMessage());
     } else {
       completionStatus =
-          articleEnrichmentCompletionService.fail(jobId, failureMessage(job, exception));
+          articleEnrichmentCompletionService.fail(jobId, buildFailureMessage(job, exception));
     }
 
     log.warn(
@@ -142,7 +143,8 @@ public class ArticleEnrichmentJobProcessor {
     return new ArticleEnrichmentProcessingResult(jobId, map(completionStatus));
   }
 
-  private String failureMessage(ArticleIngestionJob job, ArticleEnrichmentException exception) {
+  private String buildFailureMessage(
+      ArticleIngestionJob job, ArticleEnrichmentException exception) {
     if (exception.isRetryable() && job.getAttemptCount() >= properties.maxAttempts()) {
       return "max attempts exhausted: " + exception.getMessage();
     }
