@@ -87,6 +87,40 @@ class ArticlePageContentResolverTest {
   }
 
   @Test
+  void resolvesGlobalVoicesEntryBodyBeforePromoArticleCards() {
+    String bodyText =
+        "Global Voices article paragraphs should be extracted from the WordPress entry container. "
+            .repeat(5);
+    route(
+        "/global-voices",
+        200,
+        Map.of("Content-Type", "text/html; charset=UTF-8"),
+        """
+        <html>
+          <body>
+            <div class="full-article main-column">
+              <div class="post">
+                <div class="entry-container">
+                  <div class="entry">
+                    <p>%s</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <article class="gv-promo-card">Related story card should not be used.</article>
+          </body>
+        </html>
+        """
+            .formatted(bodyText));
+    ArticlePageContentResolver resolver = createResolver(List.of("localhost"), 3, 4096, 40);
+
+    ArticleContent content = resolver.resolve(createArticle(serverUrl("/global-voices")));
+
+    assertThat(content.body()).contains("Global Voices article paragraphs");
+    assertThat(content.body()).doesNotContain("Related story card");
+  }
+
+  @Test
   void followsAllowedRedirects() {
     route("/start", 302, Map.of("Location", "/final"), "");
     route(

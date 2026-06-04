@@ -10,6 +10,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,17 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class ArticlePageContentResolver implements ArticleContentResolver {
   private static final String USER_AGENT = "everytldr-enricher/0.1";
+  private static final List<String> ARTICLE_BODY_SELECTORS =
+      List.of(
+          ".full-article .entry",
+          ".post .entry",
+          ".entry-container .entry",
+          "[itemprop=articleBody]",
+          ".entry-content",
+          ".post-content",
+          "article",
+          "main",
+          "body");
 
   private final EnricherContentProperties properties;
   private final HttpClient httpClient;
@@ -191,24 +203,24 @@ public class ArticlePageContentResolver implements ArticleContentResolver {
     Document document = Jsoup.parse(html, sourceUri.toString());
     document.select("script, style, noscript").remove();
 
-    Element bodyElement = findFirstNonEmpty(document.selectFirst("article"));
-    if (bodyElement == null) {
-      bodyElement = findFirstNonEmpty(document.selectFirst("main"));
+    for (String selector : ARTICLE_BODY_SELECTORS) {
+      Optional<String> body = extractLongestText(document, selector);
+      if (body.isPresent()) {
+        return body.get();
+      }
     }
-    if (bodyElement == null) {
-      bodyElement = findFirstNonEmpty(document.body());
-    }
-    if (bodyElement == null) {
-      return "";
-    }
-    return bodyElement.text().replaceAll("\\s+", " ").trim();
+    return "";
   }
 
-  private Element findFirstNonEmpty(Element element) {
-    if (element == null || !StringUtils.hasText(element.text())) {
-      return null;
-    }
-    return element;
+  private Optional<String> extractLongestText(Document document, String selector) {
+    return document.select(selector).stream()
+        .map(this::normalizeText)
+        .filter(StringUtils::hasText)
+        .max((left, right) -> Integer.compare(left.length(), right.length()));
+  }
+
+  private String normalizeText(Element element) {
+    return element.text().replaceAll("\\s+", " ").trim();
   }
 
   private boolean isSupportedUri(URI uri) {
