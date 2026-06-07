@@ -166,6 +166,25 @@ class ArticleEnrichmentCompletionServiceTest {
   }
 
   @Test
+  void nullResultFailsWithoutPartialWrites() {
+    ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/null-result");
+    Long articleId = job.getArticle().getId();
+    flushAndClear();
+
+    ArticleEnrichmentCompletionStatus status =
+        articleEnrichmentCompletionService.completeWithResult(job.getId(), null);
+    flushAndClear();
+
+    ArticleIngestionJob reloadedJob =
+        articleIngestionJobRepository.findById(job.getId()).orElseThrow();
+    assertThat(status).isEqualTo(ArticleEnrichmentCompletionStatus.FAILED);
+    assertThat(reloadedJob.getState()).isEqualTo(IngestionState.FAILED);
+    assertThat(reloadedJob.getLastErrorMessage())
+        .isEqualTo("invalid enrichment result: result is null");
+    assertNoSummariesOrCategories(articleId);
+  }
+
+  @Test
   void nonProcessingJobIsSkippedWithoutChangingState() {
     ArticleIngestionJob job = savePendingJob("https://example.com/enricher/skipped-pending");
     Long articleId = job.getArticle().getId();
@@ -179,6 +198,30 @@ class ArticleEnrichmentCompletionServiceTest {
     assertThat(articleIngestionJobRepository.findById(job.getId()).orElseThrow().getState())
         .isEqualTo(IngestionState.PENDING);
     assertNoSummariesOrCategories(articleId);
+  }
+
+  @Test
+  void multipleExistingCategoriesFailWithoutPartialWrites() {
+    Category politics = politicsCategory();
+    Category otherCategory =
+        categoryRepository.saveAndFlush(Category.create("enricher-test-extra", 2));
+    ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/multiple-categories");
+    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), politics));
+    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), otherCategory));
+    Long articleId = job.getArticle().getId();
+    flushAndClear();
+
+    ArticleEnrichmentCompletionStatus status =
+        articleEnrichmentCompletionService.completeWithResult(job.getId(), validResult());
+    flushAndClear();
+
+    ArticleIngestionJob reloadedJob =
+        articleIngestionJobRepository.findById(job.getId()).orElseThrow();
+    assertThat(status).isEqualTo(ArticleEnrichmentCompletionStatus.FAILED);
+    assertThat(reloadedJob.getState()).isEqualTo(IngestionState.FAILED);
+    assertThat(reloadedJob.getLastErrorMessage()).isEqualTo("article has multiple categories");
+    assertThat(articleCategoryRepository.findAllByArticleId(articleId)).hasSize(2);
+    assertNoSummaries(articleId);
   }
 
   @Test

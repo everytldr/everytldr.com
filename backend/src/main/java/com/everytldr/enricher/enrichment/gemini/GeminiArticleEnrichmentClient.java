@@ -120,14 +120,14 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     }
 
     JsonNode firstCandidate = candidates.get(0);
-    validateFinishReason(firstCandidate.path("finishReason"));
+    assertFinishReasonIsStop(firstCandidate.path("finishReason"));
     String outputText = extractOutputText(firstCandidate);
     JsonNode output = parseJson(outputText, "Gemini output text is invalid JSON");
-    validateOutputShape(output);
+    assertExpectedOutputShape(output);
 
     ArticleEnrichmentResult result = toResult(output);
     result
-        .validationErrorMessage()
+        .findValidationErrorMessage()
         .ifPresent(
             message -> {
               throw ArticleEnrichmentException.permanent("Gemini output is invalid: " + message);
@@ -139,7 +139,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     return result;
   }
 
-  private void validateFinishReason(JsonNode finishReasonNode) {
+  private void assertFinishReasonIsStop(JsonNode finishReasonNode) {
     if (!finishReasonNode.isString()) {
       throw ArticleEnrichmentException.permanent("Gemini response is missing finishReason");
     }
@@ -178,7 +178,7 @@ public class GeminiArticleEnrichmentClient implements ArticleEnrichmentClient {
     }
   }
 
-  private void validateOutputShape(JsonNode output) {
+  private void assertExpectedOutputShape(JsonNode output) {
     if (!output.isObject()) {
       throw ArticleEnrichmentException.permanent("Gemini output is not a JSON object");
     }

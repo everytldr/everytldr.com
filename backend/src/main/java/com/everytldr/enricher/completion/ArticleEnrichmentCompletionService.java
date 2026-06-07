@@ -16,7 +16,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -43,25 +42,16 @@ public class ArticleEnrichmentCompletionService {
       return ArticleEnrichmentCompletionStatus.SKIPPED_NOT_PROCESSING;
     }
 
-    Optional<String> validationErrorMessage = validate(result);
-    if (validationErrorMessage.isPresent()) {
-      job.markFailed("invalid enrichment result: " + validationErrorMessage.get());
-      return ArticleEnrichmentCompletionStatus.FAILED;
-    }
-
-    Optional<Category> category = categoryRepository.findBySlug(result.categorySlug());
-    if (category.isEmpty()) {
-      job.markFailed("unknown category slug: %s".formatted(result.categorySlug()));
-      return ArticleEnrichmentCompletionStatus.FAILED;
-    }
-
     Article article = job.getArticle();
-    List<ArticleCategory> existingCategories =
-        articleCategoryRepository.findAllByArticleId(article.getId());
-    Optional<String> categoryConflict =
-        validateExistingCategory(existingCategories, category.get());
-    if (categoryConflict.isPresent()) {
-      job.markFailed(categoryConflict.get());
+    Category category;
+    List<ArticleCategory> existingCategories;
+    try {
+      assertValidResult(result);
+      category = findCategory(result.categorySlug());
+      existingCategories = articleCategoryRepository.findAllByArticleId(article.getId());
+      assertExistingCategoryCanBeApplied(existingCategories, category);
+    } catch (CompletionFailure e) {
+      job.markFailed(e.getMessage());
       return ArticleEnrichmentCompletionStatus.FAILED;
     }
 
@@ -69,7 +59,7 @@ public class ArticleEnrichmentCompletionService {
     saveSummary(article, SupportedLanguage.ENGLISH.code(), result.enTitle(), result.enSummary());
 
     if (existingCategories.isEmpty()) {
-      articleCategoryRepository.save(ArticleCategory.create(article, category.get()));
+      articleCategoryRepository.save(ArticleCategory.create(article, category));
     }
 
     job.markSucceeded();
@@ -104,11 +94,16 @@ public class ArticleEnrichmentCompletionService {
     return ArticleEnrichmentCompletionStatus.FAILED;
   }
 
-  private Optional<String> validate(ArticleEnrichmentResult result) {
+  private void assertValidResult(ArticleEnrichmentResult result) {
     if (result == null) {
-      return Optional.of("result is null");
+      throw new CompletionFailure("invalid enrichment result: result is null");
     }
-    return result.validationErrorMessage();
+    result
+        .findValidationErrorMessage()
+        .ifPresent(
+            message -> {
+              throw new CompletionFailure("invalid enrichment result: " + message);
+            });
   }
 
   private ArticleIngestionJob findJob(Long jobId) {
@@ -117,21 +112,27 @@ public class ArticleEnrichmentCompletionService {
         .orElseThrow(() -> new NoSuchElementException("Article ingestion job not found: " + jobId));
   }
 
-  private Optional<String> validateExistingCategory(
+  private Category findCategory(String categorySlug) {
+    return categoryRepository
+        .findBySlug(categorySlug)
+        .orElseThrow(
+            () -> new CompletionFailure("unknown category slug: %s".formatted(categorySlug)));
+  }
+
+  private void assertExistingCategoryCanBeApplied(
       List<ArticleCategory> existingCategories, Category selectedCategory) {
     if (existingCategories.size() > 1) {
-      return Optional.of("article has multiple categories");
+      throw new CompletionFailure("article has multiple categories");
     }
     if (existingCategories.isEmpty()) {
-      return Optional.empty();
+      return;
     }
 
     Category existingCategory = existingCategories.getFirst().getCategory();
     boolean hasConflictingCategory = !existingCategory.getId().equals(selectedCategory.getId());
     if (hasConflictingCategory) {
-      return Optional.of("article already has different category");
+      throw new CompletionFailure("article already has different category");
     }
-    return Optional.empty();
   }
 
   private void saveSummary(Article article, String language, String title, String content) {
@@ -142,5 +143,11 @@ public class ArticleEnrichmentCompletionService {
             () ->
                 articleSummaryRepository.save(
                     ArticleSummary.create(article, language, title, content)));
+  }
+
+  private static final class CompletionFailure extends RuntimeException {
+    private CompletionFailure(String message) {
+      super(message);
+    }
   }
 }
