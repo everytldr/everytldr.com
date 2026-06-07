@@ -127,8 +127,8 @@ public class ArticleEnrichmentCompletionService {
     }
 
     Category existingCategory = existingCategories.getFirst().getCategory();
-    // Keep existing category conflicts explicit instead of silently overwriting them.
-    if (!existingCategory.getId().equals(selectedCategory.getId())) {
+    boolean hasConflictingCategory = !existingCategory.getId().equals(selectedCategory.getId());
+    if (hasConflictingCategory) {
       return Optional.of("article already has different category");
     }
     return Optional.empty();

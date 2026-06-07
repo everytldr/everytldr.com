@@ -23,10 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-/**
- * Orchestrates a DB-claimed enrichment job through content resolution, AI enrichment, and
- * completion.
- */
 @Service
 @RequiredArgsConstructor
 @Profile("enricher")
@@ -77,10 +73,9 @@ public class ArticleEnrichmentJobProcessor {
     } catch (ArticleEnrichmentException e) {
       return completeFailure(jobId, job, e);
     } catch (RuntimeException e) {
-      // Treat unknown bugs or configuration errors as terminal to avoid an endless retry loop.
-      ArticleEnrichmentException enrichmentException =
+      ArticleEnrichmentException permanentException =
           ArticleEnrichmentException.permanent("unexpected enrichment error: " + e.getMessage(), e);
-      return completeFailure(jobId, job, enrichmentException);
+      return completeFailure(jobId, job, permanentException);
     }
   }
 
@@ -99,11 +94,13 @@ public class ArticleEnrichmentJobProcessor {
     List<ArticleContentResolver> resolvers =
         articleContentResolvers.stream().filter(resolver -> resolver.supports(article)).toList();
 
-    // Resolver ownership must be exclusive because multiple matches make source handling ambiguous.
-    if (resolvers.size() == 1) {
+    boolean hasSingleResolver = resolvers.size() == 1;
+    if (hasSingleResolver) {
       return resolvers.getFirst();
     }
-    if (resolvers.size() > 1) {
+
+    boolean hasMultipleResolvers = resolvers.size() > 1;
+    if (hasMultipleResolvers) {
       throw ArticleEnrichmentException.permanent(
           "multiple content resolvers support sourceUrl: %s".formatted(article.getSourceUrl()));
     }
