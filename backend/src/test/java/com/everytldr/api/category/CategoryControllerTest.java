@@ -27,17 +27,17 @@ class CategoryControllerTest {
 
   @Test
   void listReturnsCategoriesOrderedBySortOrderThenId() throws Exception {
-    categoryRepository.saveAndFlush(Category.create("tech", 2));
-    categoryRepository.saveAndFlush(Category.create("football", 0));
-    categoryRepository.saveAndFlush(Category.create("tie-a", 1));
-    categoryRepository.saveAndFlush(Category.create("tie-b", 1));
+    categoryRepository.saveAndFlush(Category.create("test-tech", -1));
+    categoryRepository.saveAndFlush(Category.create("test-football", -3));
+    categoryRepository.saveAndFlush(Category.create("test-tie-a", -2));
+    categoryRepository.saveAndFlush(Category.create("test-tie-b", -2));
 
     mockMvc
         .perform(get("/api/categories"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].slug").value("football"))
-        .andExpect(jsonPath("$[1].slug").value("tie-a"))
-        .andExpect(jsonPath("$[2].slug").value("tie-b"))
-        .andExpect(jsonPath("$[3].slug").value("tech"));
+        .andExpect(jsonPath("$[0].slug").value("test-football"))
+        .andExpect(jsonPath("$[1].slug").value("test-tie-a"))
+        .andExpect(jsonPath("$[2].slug").value("test-tie-b"))
+        .andExpect(jsonPath("$[3].slug").value("test-tech"));
   }
 }

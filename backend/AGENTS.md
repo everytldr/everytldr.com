@@ -134,3 +134,27 @@ A method name describes an action, so it begins with a verb.
 | Verb-first | Start method names with a verb, e.g. `findThumbnailUrl`, `extractContentUrl`, `resolvePublishedAt`. Rename noun-led names (`thumbnailUrl`, `firstItem`) to a verb form. |
 | Java idiom exception | Keep idiomatic Java conventions as-is: factory/conversion `from`/`to`/`of`, and boolean accessors `is*`/`has*`/`can*`. |
 | Test fixtures | Test fixture builders may follow an established noun-led pattern in the same test class, e.g. `rssFeed`, `emptyRssFeed`. |
+
+# 12. Guard And Validation Conventions
+
+A guard is code that rejects invalid input or invalid state before the main operation runs.
+
+| Rule | Required practice |
+| --- | --- |
+| Required argument | Use `Objects.requireNonNull(...)` near the method entry when a required argument must not be `null`. |
+| Value object validity | In record constructors and configuration property constructors, reject values that make the object unusable, such as `null`, blank strings, empty collections, zero durations, or negative numbers. |
+| Guard method naming | Use `assert*` for void guard methods that throw when a condition is invalid, e.g. `assertExpectedOutputShape(...)`. |
+| Error lookup naming | Use `find*ErrorMessage` for methods that inspect a value and return an optional error message. Do not use `validate*` for message-returning methods. |
+| Boolean result naming | Use Java boolean naming for boolean checks: `is*`, `has*`, or `can*`. |
+| Write ordering | Run validation, required lookups, and conflict checks before writes when a failure should not leave partial state behind. |
+
+# 13. Intent And Comment Conventions
+
+Code should carry routine intent through names and structure. Comments should explain policy, not repeat nearby identifiers.
+
+| Rule | Required practice |
+| --- | --- |
+| Condition intent | Prefer named booleans or small predicate methods when a condition would otherwise need an explanatory comment, e.g. `hasConflictingCategory`, `hasSingleResolver`, or `canRetry`. |
+| Redundant comments | Remove comments and Javadocs that repeat class, enum, method, or constant names without adding policy or context. |
+| Policy comments | Keep comments or Javadocs when they explain non-obvious policy, such as retry semantics, security boundaries, allowlists, timeouts, idempotency, or transaction behavior. |
+| Strategy selection | When code expects exactly one bean, resolver, client, or strategy, fail explicitly for none or multiple matches instead of silently selecting one. |
