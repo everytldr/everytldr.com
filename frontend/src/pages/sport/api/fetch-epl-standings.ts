@@ -8,10 +8,6 @@ import type { EplStanding } from "../model/epl-standing";
 
 const STANDINGS_URL = "https://api.football-data.org/v4/competitions/PL/standings";
 const REVALIDATE_SECONDS = 3600;
-const FOOTBALL_DATA_API_KEY = ensure(
-  process.env.FOOTBALL_DATA_API_KEY,
-  "Missing FOOTBALL_DATA_API_KEY",
-);
 
 const standingsResponseSchema = z.object({
   standings: z.array(
@@ -39,8 +35,9 @@ export async function fetchEplStandings(): Promise<EplStanding[]> {
   cacheLife({ revalidate: REVALIDATE_SECONDS, expire: A_DAY / A_SECOND });
   cacheTag("epl-standings");
 
+  const apiKey = ensure(process.env.FOOTBALL_DATA_API_KEY, "Missing FOOTBALL_DATA_API_KEY");
   const response = await fetch(STANDINGS_URL, {
-    headers: { "X-Auth-Token": FOOTBALL_DATA_API_KEY },
+    headers: { "X-Auth-Token": apiKey },
   });
   if (!response.ok) {
     throw new Error(`football-data.org responded ${response.status}`);
