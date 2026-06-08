@@ -60,11 +60,11 @@ jobs:
           secrets: |
             football_key=${{ secrets.FOOTBALL_DATA_API_KEY }}
           build-args: |
-            NEXT_PUBLIC_API_MOCKING=${{ vars.NEXT_PUBLIC_API_MOCKING }}
+            NEXT_PUBLIC_API_MOCKING=${{ vars.NEXT_PUBLIC_API_MOCKING || 'false' }}
             NEXT_PUBLIC_ADSENSE_CLIENT_ID=${{ vars.NEXT_PUBLIC_ADSENSE_CLIENT_ID }}
             NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_DETAIL=${{ vars.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_DETAIL }}
             NEXT_PUBLIC_FOOTER_ABOUT_URL=${{ vars.NEXT_PUBLIC_FOOTER_ABOUT_URL }}
             NEXT_PUBLIC_FOOTER_PRIVACY_URL=${{ vars.NEXT_PUBLIC_FOOTER_PRIVACY_URL }}
             NEXT_PUBLIC_FOOTER_TERMS_URL=${{ vars.NEXT_PUBLIC_FOOTER_TERMS_URL }}
             NEXT_PUBLIC_FOOTER_GITHUB_URL=${{ vars.NEXT_PUBLIC_FOOTER_GITHUB_URL }}
-            BACKEND_URL=${{ vars.BACKEND_URL }}
+            BACKEND_URL=${{ vars.BACKEND_URL || 'https://everytldr.com' }}
