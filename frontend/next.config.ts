@@ -6,6 +6,7 @@ const withNextIntl = createNextIntlPlugin("./src/shared/i18n/request.ts");
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8080";
 
 export default withNextIntl({
+  output: "standalone",
   cacheComponents: true,
   turbopack: {
     rules: {

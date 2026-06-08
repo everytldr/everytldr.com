@@ -1,0 +1,14 @@
+**/node_modules
+**/.next
+**/.git
+**/.DS_Store
+**/.idea
+**/.vscode
+**/coverage
+frontend/.env*
+!frontend/.env.example
+**/*.gen.ts
+**/*.gen.schemas.ts
+frontend/messages/*.json
+**/npm-debug.log*
+**/.pnpm-debug.log*
