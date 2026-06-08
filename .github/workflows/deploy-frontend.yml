@@ -1,11 +1,11 @@
 name: Frontend image build
 
-# Build and publish the frontend Docker image to GHCR on every version tag.
+# Build and publish the frontend Docker image to GHCR on every push to main.
 # Deployment (SSH pull + restart on the VPS) is handled separately.
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
   workflow_dispatch:
 
 env:
@@ -36,15 +36,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Derive image tags from the pushed git tag (e.g. v1.2.3 -> 1.2.3, latest).
+      # Tag the image as latest plus the commit SHA (e.g. sha-1c3845f) for rollback.
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}}
             type=raw,value=latest
+            type=sha
 
       # Build from the repo root so orval can read docs/openapi.json, then push.
       - name: Build and push
