@@ -60,4 +60,3 @@ jobs:
             NEXT_PUBLIC_FOOTER_PRIVACY_URL=${{ vars.NEXT_PUBLIC_FOOTER_PRIVACY_URL }}
             NEXT_PUBLIC_FOOTER_TERMS_URL=${{ vars.NEXT_PUBLIC_FOOTER_TERMS_URL }}
             NEXT_PUBLIC_FOOTER_GITHUB_URL=${{ vars.NEXT_PUBLIC_FOOTER_GITHUB_URL }}
-            BACKEND_URL=${{ vars.BACKEND_URL || 'https://everytldr.com' }}
