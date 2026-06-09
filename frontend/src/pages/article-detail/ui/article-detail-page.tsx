@@ -1,7 +1,7 @@
 import { type ArticleDetailResponse } from "@/shared/api";
 import { ADSENSE_SLOT_ARTICLE_DETAIL } from "@/shared/config";
 import { cn, formatDate } from "@/shared/lib";
-import { AdSlot, Button, Container, Translation } from "@/shared/ui";
+import { AdSlot, Button, Translation } from "@/shared/ui";
 import { ExternalLink } from "lucide-react";
 import { getLocale } from "next-intl/server";
 import { Suspense } from "react";
@@ -19,40 +19,36 @@ export async function ArticleDetailPage({ className, articleId }: ArticleDetailP
   const article = await fetchArticleDetail(articleId);
 
   return (
-    <main className={cn("py-xl", className)}>
-      <Container size="sm">
-        <article className="space-y-xl">
-          <ArticleDetailContent article={article} />
+    <article className={cn("space-y-xl", className)}>
+      <ArticleDetailContent article={article} />
 
-          <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">
-            <ErrorBoundary fallback={null}>
-              <Suspense fallback={<ArticleLikeButtonSkeleton />}>
-                <ArticleLikeButton articleId={articleId} />
-              </Suspense>
-            </ErrorBoundary>
-            {article.sourceUrl && (
-              <Button variant="link" asChild>
-                <a href={article.sourceUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="size-md" aria-hidden="true" />
-                  <Translation
-                    tKey="article-detail.source-link"
-                    values={{ source: article.source ?? "source" }}
-                  />
-                </a>
-              </Button>
-            )}
-          </div>
+      <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={<ArticleLikeButtonSkeleton />}>
+            <ArticleLikeButton articleId={articleId} />
+          </Suspense>
+        </ErrorBoundary>
+        {article.sourceUrl && (
+          <Button variant="link" asChild>
+            <a href={article.sourceUrl} target="_blank" rel="noreferrer">
+              <ExternalLink className="size-md" aria-hidden="true" />
+              <Translation
+                tKey="article-detail.source-link"
+                values={{ source: article.source ?? "source" }}
+              />
+            </a>
+          </Button>
+        )}
+      </div>
 
-          <AdSlot className="w-full" slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
+      <AdSlot className="w-full" slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
 
-          <ErrorBoundary fallback={<ArticleCommentsError />}>
-            <Suspense fallback={<ArticleCommentsSkeleton />}>
-              <ArticleComments articleId={articleId} />
-            </Suspense>
-          </ErrorBoundary>
-        </article>
-      </Container>
-    </main>
+      <ErrorBoundary fallback={<ArticleCommentsError />}>
+        <Suspense fallback={<ArticleCommentsSkeleton />}>
+          <ArticleComments articleId={articleId} />
+        </Suspense>
+      </ErrorBoundary>
+    </article>
   );
 }
 
