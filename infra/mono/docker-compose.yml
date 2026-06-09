@@ -1,0 +1,64 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: everytldr-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+      - backend
+
+  frontend:
+    image: ghcr.io/everytldr/everytldr.com-frontend:latest
+    restart: always
+    environment:
+      BACKEND_URL: http://backend:8080
+    env_file:
+      - .env.frontend
+    depends_on:
+      - backend
+
+  backend:
+    image: ghcr.io/everytldr/everytldr.com/backend:latest
+    restart: always
+    env_file:
+      - .env.backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.4
+    container_name: everytldr-mysql
+    restart: always
+    env_file:
+      - .env.db
+    environment:
+      TZ: Etc/UTC
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+00:00
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mysql-data:
+    name: everytldr-mysql-data
+  caddy-data:
+    name: everytldr-caddy-mono-data
+  caddy-config:
+    name: everytldr-caddy-mono-config

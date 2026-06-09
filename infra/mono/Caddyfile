@@ -1,0 +1,9 @@
+everytldr.com {
+	@api path /api/*
+	reverse_proxy @api backend:8080
+	reverse_proxy frontend:3000
+}
+
+www.everytldr.com {
+	redir https://everytldr.com{uri} permanent
+}
