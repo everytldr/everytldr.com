@@ -1,7 +1,7 @@
 "use client";
 
-import { buildSearchUrl } from "@/shared/lib";
-import { Container, Translation } from "@/shared/ui";
+import { buildSearchUrl, cn } from "@/shared/lib";
+import { Translation } from "@/shared/ui";
 import { SearchPanel, useRecentSearches } from "@/widgets/search";
 import { useRouter } from "next/navigation";
 
@@ -18,25 +18,23 @@ export function SearchPage({ className, query }: SearchPageProps) {
 
   return (
     // TODO: Implement this page
-    <main className={className}>
-      <Container className="flex flex-col gap-2xl py-xl" size="sm">
-        <SearchPanel
-          initialQuery={query}
-          recentTerms={terms}
-          showExploreSections={!hasQuery}
-          onItemSelect={handleSearch}
-          onRemoveRecent={removeTerm}
-          onSubmit={handleSearch}
+    <div className={cn("flex flex-col gap-2xl", className)}>
+      <SearchPanel
+        initialQuery={query}
+        recentTerms={terms}
+        showExploreSections={!hasQuery}
+        onItemSelect={handleSearch}
+        onRemoveRecent={removeTerm}
+        onSubmit={handleSearch}
+      />
+      {hasQuery && (
+        <Translation
+          className="rounded-md border border-hairline bg-surface-soft px-2xl py-2xl text-center text-body-md text-meta"
+          as="p"
+          tKey="search.result-placeholder-body"
         />
-        {hasQuery && (
-          <Translation
-            className="rounded-md border border-hairline bg-surface-soft px-2xl py-2xl text-center text-body-md text-meta"
-            as="p"
-            tKey="search.result-placeholder-body"
-          />
-        )}
-      </Container>
-    </main>
+      )}
+    </div>
   );
 
   function handleSearch(term: string) {
