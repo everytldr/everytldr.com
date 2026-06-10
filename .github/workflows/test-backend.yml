@@ -1,0 +1,57 @@
+name: Backend tests
+
+# PR validation for backend changes. Gradle build includes compile, test, Spotless, and packaging.
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/test-backend.yml'
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/test-backend.yml'
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      TESTCONTAINERS_REUSE_ENABLE: 'false'
+
+    steps:
+      # Fetch repository contents.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install the Java toolchain used by the backend.
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      # Restore and save Gradle dependency caches.
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Run compile, tests, Spotless checks, and packaging.
+      - name: Build and test
+        run: ./gradlew build
+
+      # Keep the test HTML report when the build fails.
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: backend/build/reports/tests/test/
+          retention-days: 7
