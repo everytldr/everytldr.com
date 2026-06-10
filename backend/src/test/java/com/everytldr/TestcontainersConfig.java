@@ -13,7 +13,7 @@ public class TestcontainersConfig {
     return new MySQLContainer<>("mysql:8.4")
         .withUrlParam("useSSL", "false")
         .withUrlParam("allowPublicKeyRetrieval", "true")
-        .withUrlParam("serverTimezone", "Asia/Seoul")
+        .withUrlParam("serverTimezone", "UTC")
         .withUrlParam("characterEncoding", "UTF-8")
         .withReuse(true);
   }
