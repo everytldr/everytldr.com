@@ -1,5 +1,10 @@
 {
   "java.compile.nullAnalysis.mode": "automatic",
   "java.configuration.updateBuildConfiguration": "interactive",
+  "java.format.settings.google.version": "1.27.0",
+  "[java]": {
+    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code",
+    "editor.formatOnSave": true
+  },
   "tailwindCSS.classFunctions": ["cva"]
 }
