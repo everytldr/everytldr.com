@@ -4,7 +4,10 @@ everytldr.com {
 	}
 
 	handle {
-		reverse_proxy frontend:3000
+		reverse_proxy frontend:3000 {
+			header_up X-Forwarded-Host {host}
+			header_up X-Forwarded-Port "443"
+		}
 	}
 }
 
