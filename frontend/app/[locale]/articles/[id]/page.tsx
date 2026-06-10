@@ -1,12 +1,24 @@
 import { ArticleDetailPage, fetchArticleDetail } from "@/pages/article-detail";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
+const ARTICLE_ID_PLACEHOLDER = "__placeholder__";
+
+export function generateStaticParams() {
+  return [{ id: ARTICLE_ID_PLACEHOLDER }];
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
+
+  if (id === ARTICLE_ID_PLACEHOLDER) {
+    return {};
+  }
+
   const article = await fetchArticleDetail(id);
 
   return {
@@ -22,6 +34,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
+
+  if (id === ARTICLE_ID_PLACEHOLDER) {
+    notFound();
+  }
 
   return <ArticleDetailPage articleId={id} />;
 }
