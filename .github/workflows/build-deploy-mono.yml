@@ -143,18 +143,18 @@ jobs:
 
       - uses: appleboy/scp-action@v1
         with:
-          host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ secrets.HETZNER_USER }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
+          host: ${{ secrets.INFRA_MONO_HOST }}
+          username: ${{ secrets.INFRA_MONO_USER }}
+          key: ${{ secrets.INFRA_MONO_SSH_KEY }}
           source: infra/mono/docker-compose.yml,infra/mono/Caddyfile
           target: /opt/everytldr
           strip_components: 2
 
       - uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ secrets.HETZNER_USER }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
+          host: ${{ secrets.INFRA_MONO_HOST }}
+          username: ${{ secrets.INFRA_MONO_USER }}
+          key: ${{ secrets.INFRA_MONO_SSH_KEY }}
           script: |
             cd /opt/everytldr
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
