@@ -32,7 +32,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
     <nav className={cn(className)} aria-label={t("epl.aria-label.team-filter")}>
       <ScrollableRow>
         <div className="flex h-12 items-center gap-xs">
-          <Chip asChild isSelected={!filter}>
+          <Chip className="order-first" asChild isSelected={!filter}>
             <Link href={buildEplFilterUrl()} aria-current={!filter ? "page" : undefined}>
               <Translation tKey="epl.all-teams" />
             </Link>
@@ -41,7 +41,12 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
           {EPL_BIG_SIX_TEAMS.map((team) => {
             const isSelected = filter === team;
             return (
-              <Chip key={team} asChild isSelected={isSelected}>
+              <Chip
+                key={team}
+                className={cn(isSelected && "-order-1")}
+                asChild
+                isSelected={isSelected}
+              >
                 <Link href={buildEplFilterUrl(team)} aria-current={isSelected ? "page" : undefined}>
                   <EplTeamCrest
                     className={cn("not-pc:hidden dark:drop-stroke", isSelected && "drop-stroke")}
@@ -52,6 +57,15 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
               </Chip>
             );
           })}
+
+          {filter && !isBigSixTeam(filter) && (
+            <Chip className="-order-1" asChild isSelected>
+              <Link href={buildEplFilterUrl()}>
+                <EplTeamCrest className="drop-stroke not-pc:hidden" team={filter} />
+                <Translation tKey={`epl.team.${filter}`} />
+              </Link>
+            </Chip>
+          )}
 
           <ResponsiveSelector
             className="contents"
