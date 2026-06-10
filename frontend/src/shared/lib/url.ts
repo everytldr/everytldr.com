@@ -1,0 +1,53 @@
+import {
+  type CategoryNode,
+  DEFAULT_SUB_CATEGORY_SLUG,
+  EplPageTab,
+  type EplTeam,
+  MainCategorySlug,
+  SubCategorySlug,
+} from "@/shared/config";
+
+function buildCategoryUrl(main: MainCategorySlug, sub: SubCategorySlug): string {
+  if (main === MainCategorySlug.Home && sub === DEFAULT_SUB_CATEGORY_SLUG) {
+    return "/";
+  }
+  return `/${sub}`;
+}
+
+export function buildMainCategoryUrl(node: CategoryNode): string {
+  const firstSub = node.subs?.[0];
+  if (firstSub) {
+    return buildCategoryUrl(node.slug, firstSub);
+  }
+  return "/";
+}
+
+export function buildSubcategoryUrl(parent: CategoryNode, sub: SubCategorySlug): string {
+  return buildCategoryUrl(parent.slug, sub);
+}
+
+export function buildEplFilterUrl(team?: EplTeam): string {
+  if (!team) {
+    return `/${SubCategorySlug.EPL}`;
+  }
+  return `/${SubCategorySlug.EPL}/${team}`;
+}
+
+export function buildEplTabUrl(tab: EplPageTab): string {
+  if (tab === EplPageTab.News) {
+    return `/${SubCategorySlug.EPL}`;
+  }
+  return `/${SubCategorySlug.EPL}/${tab}`;
+}
+
+export function buildSearchUrl(query: string): string {
+  const trimmed = query.trim();
+  if (trimmed.length === 0) {
+    return "/search";
+  }
+  return `/search?q=${encodeURIComponent(trimmed)}`;
+}
+
+export function buildArticleDetailUrl(articleId: string): string {
+  return `/articles/${articleId}`;
+}

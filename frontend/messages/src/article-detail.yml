@@ -1,0 +1,83 @@
+like:
+  en: "Like article"
+  ko: "기사 좋아요"
+
+unlike:
+  en: "Unlike article"
+  ko: "좋아요 취소"
+
+source-link:
+  en: "Read original at {source}"
+  ko: "{source} 원문 보기"
+
+comments:
+  en: "Comments"
+  ko: "댓글"
+
+comment-count:
+  en: "{count} comments"
+  ko: "댓글 {count}개"
+
+comments-empty:
+  en: "No comments yet"
+  ko: "아직 댓글이 없어요"
+
+comments-error:
+  en: "Couldn't load comments"
+  ko: "댓글을 불러오지 못했어요"
+
+comment-placeholder:
+  en: "Write a comment"
+  ko: "댓글을 입력하세요"
+
+comment-reply-placeholder:
+  en: "Write a reply"
+  ko: "답글을 입력하세요"
+
+comment-nickname:
+  en: "Nickname"
+  ko: "닉네임"
+
+comment-password:
+  en: "Password"
+  ko: "비밀번호"
+
+comment-submit:
+  en: "Comment"
+  ko: "댓글 작성"
+
+comment-submitting:
+  en: "Commenting…"
+  ko: "댓글 작성 중…"
+
+comment-reply-submitting:
+  en: "Replying…"
+  ko: "답글 작성 중…"
+
+comment-reply-submit:
+  en: "Reply"
+  ko: "답글 작성"
+
+comment-reply:
+  en: "Reply"
+  ko: "답글"
+
+comment-reply-cancel:
+  en: "Cancel"
+  ko: "취소"
+
+comment-char-count:
+  en: "{count}/5000"
+  ko: "{count}/5000"
+
+comment-error-required:
+  en: "Nickname, password, and content are all required"
+  ko: "닉네임, 비밀번호, 내용을 모두 입력하세요"
+
+comment-error-password-min:
+  en: "Password must be at least 4 characters"
+  ko: "비밀번호는 4자 이상이어야 해요"
+
+comment-submit-error:
+  en: "Couldn't post your comment. Please try again"
+  ko: "댓글을 등록하지 못했어요. 다시 시도해 주세요"

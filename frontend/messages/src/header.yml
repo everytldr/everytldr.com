@@ -1,0 +1,84 @@
+search-placeholder:
+  en: "Search articles"
+  ko: "기사 검색"
+
+settings:
+  en: "Settings"
+  ko: "설정"
+
+language:
+  en: "Language"
+  ko: "언어"
+
+language-menu-header:
+  en: "Summary language"
+  ko: "요약 언어"
+
+language-menu-foot:
+  en: "More languages coming soon"
+  ko: "곧 더 많은 언어가 추가됩니다"
+
+soon-suffix:
+  en: "soon"
+  ko: "곧"
+
+theme:
+  en: "Theme"
+  ko: "테마"
+
+theme-system:
+  en: "System"
+  ko: "시스템"
+
+theme-light:
+  en: "Light"
+  ko: "라이트"
+
+theme-dark:
+  en: "Dark"
+  ko: "다크"
+
+aria-label:
+  categories:
+    en: "Categories"
+    ko: "카테고리"
+  subcategories:
+    en: "Subcategories"
+    ko: "하위 카테고리"
+
+category:
+  home:
+    en: "Home"
+    ko: "홈"
+  sport:
+    en: "Sport"
+    ko: "스포츠"
+  politics:
+    en: "Politics"
+    ko: "정치"
+  technology:
+    en: "Technology"
+    ko: "IT/과학"
+
+subcategory:
+  discover:
+    en: "Discover"
+    ko: "추천"
+  latest:
+    en: "Latest"
+    ko: "최신"
+  trending:
+    en: "Trending"
+    ko: "트렌딩"
+  epl:
+    en: "EPL"
+    ko: "EPL"
+  nba:
+    en: "NBA"
+    ko: "NBA"
+  domestic:
+    en: "Domestic"
+    ko: "국내"
+  ai:
+    en: "AI"
+    ko: "AI"

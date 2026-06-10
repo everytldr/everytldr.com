@@ -1,7 +1,39 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   profiles:
     group:
       monolith:
         - api
         - ingestor
         - enricher
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/everytldr?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:everytldr}
+    password: ${DB_PASSWORD:everytldr}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+everytldr:
+  snowflake:
+    worker-id: ${APP_WORKER_ID:0}
