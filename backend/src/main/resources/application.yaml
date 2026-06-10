@@ -24,6 +24,16 @@ spring:
   flyway:
     enabled: ${FLYWAY_ENABLED:true}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 everytldr:
   snowflake:
     worker-id: ${APP_WORKER_ID:0}
