@@ -1,4 +1,4 @@
-name: Backend CI
+name: Backend tests
 
 # PR validation for backend changes. Gradle build includes compile, test, Spotless, and packaging.
 on:
@@ -6,12 +6,12 @@ on:
     branches: [develop, main]
     paths:
       - 'backend/**'
-      - '.github/workflows/ci-backend.yml'
+      - '.github/workflows/test-backend.yml'
   pull_request:
     branches: [develop, main]
     paths:
       - 'backend/**'
-      - '.github/workflows/ci-backend.yml'
+      - '.github/workflows/test-backend.yml'
 
 permissions:
   contents: read
