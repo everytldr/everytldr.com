@@ -8,7 +8,7 @@ spring:
         - ingestor
         - enricher
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/everytldr?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/everytldr?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8}
     username: ${DB_USERNAME:everytldr}
     password: ${DB_PASSWORD:everytldr}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -23,6 +23,16 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
   flyway:
     enabled: ${FLYWAY_ENABLED:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
 
 everytldr:
   snowflake:
