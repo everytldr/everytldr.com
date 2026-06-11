@@ -23,13 +23,12 @@ class ArticleEnrichmentRequestTest {
   void requestDefensivelyCopiesCategoryOptions() {
     ArticleContent content = content();
     List<ArticleEnrichmentCategoryOption> categories = new ArrayList<>();
-    categories.add(new ArticleEnrichmentCategoryOption("citizen_media"));
+    categories.add(new ArticleEnrichmentCategoryOption("media"));
 
     ArticleEnrichmentRequest request = new ArticleEnrichmentRequest(content, categories);
     categories.add(new ArticleEnrichmentCategoryOption("politics"));
 
-    assertThat(request.categories())
-        .containsExactly(new ArticleEnrichmentCategoryOption("citizen_media"));
+    assertThat(request.categories()).containsExactly(new ArticleEnrichmentCategoryOption("media"));
   }
 
   @Test

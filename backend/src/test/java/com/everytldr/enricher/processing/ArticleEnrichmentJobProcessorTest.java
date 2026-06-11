@@ -242,7 +242,7 @@ class ArticleEnrichmentJobProcessorTest {
 
   private List<ArticleEnrichmentCategoryOption> categoryOptions() {
     return List.of(
-        new ArticleEnrichmentCategoryOption("citizen_media"),
+        new ArticleEnrichmentCategoryOption("media"),
         new ArticleEnrichmentCategoryOption("politics"));
   }
 

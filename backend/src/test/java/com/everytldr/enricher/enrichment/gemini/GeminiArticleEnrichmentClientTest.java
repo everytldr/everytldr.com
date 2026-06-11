@@ -72,14 +72,14 @@ class GeminiArticleEnrichmentClientTest {
     JsonNode userPayload = objectMapper.readTree(body.at("/contents/0/parts/0/text").asString());
     assertThat(userPayload.at("/article/sourceUrl").asString())
         .isEqualTo("https://globalvoices.org/example");
-    assertThat(userPayload.at("/allowedCategories/0/slug").asString()).isEqualTo("citizen_media");
+    assertThat(userPayload.at("/allowedCategories/0/slug").asString()).isEqualTo("media");
     assertThat(userPayload.at("/allowedCategories/1/slug").asString()).isEqualTo("rights");
 
     JsonNode generationConfig = body.path("generationConfig");
     assertThat(generationConfig.path("responseMimeType").asString()).isEqualTo("application/json");
     JsonNode responseJsonSchema = generationConfig.path("responseJsonSchema");
     assertThat(strings(responseJsonSchema.at("/properties/categorySlug/enum")))
-        .containsExactly("citizen_media", "rights");
+        .containsExactly("media", "rights");
     assertThat(strings(responseJsonSchema.at("/required")))
         .containsExactly("koTitle", "koSummary", "enTitle", "enSummary", "categorySlug");
     assertThat(responseJsonSchema.at("/additionalProperties").asBoolean()).isFalse();
@@ -269,7 +269,7 @@ class GeminiArticleEnrichmentClientTest {
             "en",
             "Local civic rights advocates described new community organizing efforts. ".repeat(20)),
         List.of(
-            new ArticleEnrichmentCategoryOption("citizen_media"),
+            new ArticleEnrichmentCategoryOption("media"),
             new ArticleEnrichmentCategoryOption("rights")));
   }
 

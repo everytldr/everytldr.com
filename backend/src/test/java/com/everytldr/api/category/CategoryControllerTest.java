@@ -30,7 +30,7 @@ class CategoryControllerTest {
     mockMvc
         .perform(get("/api/categories"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(147))
+        .andExpect(jsonPath("$.length()").value(146))
         .andExpect(jsonPath("$[0].slug").value("world"))
         .andExpect(jsonPath("$[1].slug").value("world-geopolitics"))
         .andExpect(jsonPath("$[2].slug").value("world-geopolitics-diplomacy"))
@@ -40,19 +40,18 @@ class CategoryControllerTest {
         .andExpect(jsonPath("$[25].slug").value("rights"))
         .andExpect(jsonPath("$[26].slug").value("rights-human_rights"))
         .andExpect(jsonPath("$[32].slug").value("rights-censorship"))
-        .andExpect(jsonPath("$[35].slug").value("citizen_media"))
-        .andExpect(jsonPath("$[36].slug").value("media"))
-        .andExpect(jsonPath("$[37].slug").value("media-journalism"))
-        .andExpect(jsonPath("$[66].slug").value("environment"))
-        .andExpect(jsonPath("$[67].slug").value("environment-climate"))
-        .andExpect(jsonPath("$[78].slug").value("environment-water"))
-        .andExpect(jsonPath("$[79].slug").value("technology"))
-        .andExpect(jsonPath("$[84].slug").value("technology-internet"))
-        .andExpect(jsonPath("$[87].slug").value("science"))
-        .andExpect(jsonPath("$[105].slug").value("culture"))
-        .andExpect(jsonPath("$[112].slug").value("culture-arts-photography"))
-        .andExpect(jsonPath("$[124].slug").value("sport-football-epl-arsenal"))
-        .andExpect(jsonPath("$[146].slug").value("sport-global"));
+        .andExpect(jsonPath("$[44].slug").value("media"))
+        .andExpect(jsonPath("$[45].slug").value("media-journalism"))
+        .andExpect(jsonPath("$[65].slug").value("environment"))
+        .andExpect(jsonPath("$[66].slug").value("environment-climate"))
+        .andExpect(jsonPath("$[77].slug").value("environment-water"))
+        .andExpect(jsonPath("$[78].slug").value("technology"))
+        .andExpect(jsonPath("$[83].slug").value("technology-internet"))
+        .andExpect(jsonPath("$[86].slug").value("science"))
+        .andExpect(jsonPath("$[104].slug").value("culture"))
+        .andExpect(jsonPath("$[111].slug").value("culture-arts-photography"))
+        .andExpect(jsonPath("$[123].slug").value("sport-football-epl-arsenal"))
+        .andExpect(jsonPath("$[145].slug").value("sport-global"));
   }
 
   @Test

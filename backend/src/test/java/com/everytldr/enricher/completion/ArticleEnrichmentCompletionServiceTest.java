@@ -69,7 +69,7 @@ class ArticleEnrichmentCompletionServiceTest {
     assertThat(articleCategoryRepository.findAllByArticleId(articleId))
         .singleElement()
         .extracting(articleCategory -> articleCategory.getCategory().getSlug())
-        .isEqualTo("citizen_media");
+        .isEqualTo("media");
   }
 
   @Test
@@ -107,9 +107,9 @@ class ArticleEnrichmentCompletionServiceTest {
 
   @Test
   void completeWithResultDoesNotDuplicateExistingCategory() {
-    Category citizenMedia = citizenMediaCategory();
+    Category media = mediaCategory();
     ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/existing-category");
-    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), citizenMedia));
+    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), media));
     Long articleId = job.getArticle().getId();
     flushAndClear();
 
@@ -201,11 +201,11 @@ class ArticleEnrichmentCompletionServiceTest {
 
   @Test
   void multipleExistingCategoriesFailWithoutPartialWrites() {
-    Category citizenMedia = citizenMediaCategory();
+    Category media = mediaCategory();
     Category otherCategory =
         categoryRepository.saveAndFlush(Category.create("enricher-test-extra", 2));
     ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/multiple-categories");
-    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), citizenMedia));
+    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), media));
     articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), otherCategory));
     Long articleId = job.getArticle().getId();
     flushAndClear();
@@ -275,11 +275,11 @@ class ArticleEnrichmentCompletionServiceTest {
 
   private ArticleEnrichmentResult validResult() {
     return new ArticleEnrichmentResult(
-        "KO title", "KO summary", "EN title", "EN summary", "citizen_media");
+        "KO title", "KO summary", "EN title", "EN summary", "media");
   }
 
-  private Category citizenMediaCategory() {
-    return categoryRepository.findBySlug("citizen_media").orElseThrow();
+  private Category mediaCategory() {
+    return categoryRepository.findBySlug("media").orElseThrow();
   }
 
   private ArticleIngestionJob saveProcessingJob(String sourceUrl) {

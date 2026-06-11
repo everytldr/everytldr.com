@@ -4,7 +4,6 @@
 UPDATE `category`
 SET `updated_at` = '2026-06-11 00:00:00.000000',
     `sort_order` = CASE `slug`
-        WHEN 'global-voices' THEN 3220
         WHEN 'global-voices-politics' THEN 2000
         WHEN 'global-voices-rights' THEN 3100
         WHEN 'global-voices-culture' THEN 9000
@@ -12,10 +11,9 @@ SET `updated_at` = '2026-06-11 00:00:00.000000',
         WHEN 'global-voices-environment' THEN 5000
         WHEN 'global-voices-economy' THEN 4000
         WHEN 'global-voices-health' THEN 7000
-        WHEN 'global-voices-media' THEN 3230
+        WHEN 'global-voices-media' THEN 3500
     END,
     `slug` = CASE `slug`
-        WHEN 'global-voices' THEN 'citizen_media'
         WHEN 'global-voices-politics' THEN 'politics'
         WHEN 'global-voices-rights' THEN 'rights'
         WHEN 'global-voices-culture' THEN 'culture'
@@ -26,7 +24,6 @@ SET `updated_at` = '2026-06-11 00:00:00.000000',
         WHEN 'global-voices-media' THEN 'media'
     END
 WHERE `slug` IN (
-    'global-voices',
     'global-voices-politics',
     'global-voices-rights',
     'global-voices-culture',
@@ -36,6 +33,9 @@ WHERE `slug` IN (
     'global-voices-health',
     'global-voices-media'
 );
+
+DELETE FROM `category`
+WHERE `slug` = 'global-voices';
 
 INSERT INTO `category` (`id`, `updated_at`, `slug`, `sort_order`)
 VALUES (58344446365790208, '2026-06-11 00:00:00.000000', 'world', 1000),
@@ -63,19 +63,9 @@ VALUES (58344446365790208, '2026-06-11 00:00:00.000000', 'world', 1000),
        (58344446365790229, '2026-06-11 00:00:00.000000', 'politics-law-courts', 2310),
        (58344446365790230, '2026-06-11 00:00:00.000000', 'politics-law-justice', 2320),
        (58344446365790231, '2026-06-11 00:00:00.000000', 'society', 3000),
-       (58344446365790232, '2026-06-11 00:00:00.000000', 'rights', 3100),
-       (58344446365790233, '2026-06-11 00:00:00.000000', 'rights-human_rights', 3110),
-       (58344446365790234, '2026-06-11 00:00:00.000000', 'rights-free_speech', 3120),
-       (58344446365790235, '2026-06-11 00:00:00.000000', 'rights-gender', 3130),
-       (58344446365790236, '2026-06-11 00:00:00.000000', 'rights-lgbtq', 3140),
-       (58344446365790237, '2026-06-11 00:00:00.000000', 'rights-race_indigenous', 3150),
-       (58344446365790238, '2026-06-11 00:00:00.000000', 'rights-animal_rights', 3160),
-       (58344446365790347, '2026-06-11 00:00:00.000000', 'rights-censorship', 3170),
        (58344446365790239, '2026-06-11 00:00:00.000000', 'society-civic', 3200),
        (58344446365790240, '2026-06-11 00:00:00.000000', 'society-civic-protest', 3210),
-       (58344446365790242, '2026-06-11 00:00:00.000000', 'media-journalism', 3231),
        (58344446365790243, '2026-06-11 00:00:00.000000', 'society-civic-digital_activism', 3240),
-       (58344446365790348, '2026-06-11 00:00:00.000000', 'media-disinformation', 3232),
        (58344446365790244, '2026-06-11 00:00:00.000000', 'society-people', 3300),
        (58344446365790245, '2026-06-11 00:00:00.000000', 'society-people-migration', 3310),
        (58344446365790246, '2026-06-11 00:00:00.000000', 'society-people-population', 3320),
@@ -84,6 +74,17 @@ VALUES (58344446365790208, '2026-06-11 00:00:00.000000', 'world', 1000),
        (58344446365790249, '2026-06-11 00:00:00.000000', 'society-safety', 3400),
        (58344446365790250, '2026-06-11 00:00:00.000000', 'society-safety-crime', 3410),
        (58344446365790251, '2026-06-11 00:00:00.000000', 'society-safety-disaster', 3420),
+       (58344446365790232, '2026-06-11 00:00:00.000000', 'rights', 3100),
+       (58344446365790233, '2026-06-11 00:00:00.000000', 'rights-human_rights', 3110),
+       (58344446365790234, '2026-06-11 00:00:00.000000', 'rights-free_speech', 3120),
+       (58344446365790235, '2026-06-11 00:00:00.000000', 'rights-gender', 3130),
+       (58344446365790236, '2026-06-11 00:00:00.000000', 'rights-lgbtq', 3140),
+       (58344446365790237, '2026-06-11 00:00:00.000000', 'rights-race_indigenous', 3150),
+       (58344446365790238, '2026-06-11 00:00:00.000000', 'rights-animal_rights', 3160),
+       (58344446365790347, '2026-06-11 00:00:00.000000', 'rights-censorship', 3170),
+       (58344446365790241, '2026-06-11 00:00:00.000000', 'media', 3500),
+       (58344446365790242, '2026-06-11 00:00:00.000000', 'media-journalism', 3510),
+       (58344446365790348, '2026-06-11 00:00:00.000000', 'media-disinformation', 3520),
        (58344446365790252, '2026-06-11 00:00:00.000000', 'economy', 4000),
        (58344446365790253, '2026-06-11 00:00:00.000000', 'economy-policy', 4100),
        (58344446365790254, '2026-06-11 00:00:00.000000', 'economy-policy-macro', 4110),
@@ -115,6 +116,7 @@ VALUES (58344446365790208, '2026-06-11 00:00:00.000000', 'world', 1000),
        (58344446365790279, '2026-06-11 00:00:00.000000', 'environment-energy-renewables', 5310),
        (58344446365790280, '2026-06-11 00:00:00.000000', 'environment-energy-resources', 5320),
        (58344446365790354, '2026-06-11 00:00:00.000000', 'environment-water', 5500),
+       (58344446365790281, '2026-06-11 00:00:00.000000', 'technology', 6000),
        (58344446365790282, '2026-06-11 00:00:00.000000', 'technology-ai', 6100),
        (58344446365790284, '2026-06-11 00:00:00.000000', 'technology-platforms', 6210),
        (58344446365790285, '2026-06-11 00:00:00.000000', 'technology-cybersecurity', 6220),
@@ -140,6 +142,7 @@ VALUES (58344446365790208, '2026-06-11 00:00:00.000000', 'world', 1000),
        (58344446365790303, '2026-06-11 00:00:00.000000', 'education-higher_education', 8200),
        (58344446365790304, '2026-06-11 00:00:00.000000', 'education-learning', 8300),
        (58344446365790357, '2026-06-11 00:00:00.000000', 'education-policy', 8400),
+       (58344446365790305, '2026-06-11 00:00:00.000000', 'culture', 9000),
        (58344446365790306, '2026-06-11 00:00:00.000000', 'culture-arts', 9100),
        (58344446365790307, '2026-06-11 00:00:00.000000', 'culture-arts-books', 9110),
        (58344446365790308, '2026-06-11 00:00:00.000000', 'culture-arts-film', 9120),

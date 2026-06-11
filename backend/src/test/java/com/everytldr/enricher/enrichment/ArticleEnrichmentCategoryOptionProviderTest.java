@@ -34,13 +34,13 @@ class ArticleEnrichmentCategoryOptionProviderTest {
         new ArticleEnrichmentCategoryOptionProvider(categoryRepository);
 
     when(categoryRepository.findAllByOrderBySortOrderAscIdAsc())
-        .thenReturn(List.of(Category.create("citizen_media", 0), Category.create("politics", 10)));
+        .thenReturn(List.of(Category.create("media", 0), Category.create("politics", 10)));
 
     List<ArticleEnrichmentCategoryOption> categoryOptions = provider.getCategoryOptions();
 
     assertThat(categoryOptions)
         .containsExactly(
-            new ArticleEnrichmentCategoryOption("citizen_media"),
+            new ArticleEnrichmentCategoryOption("media"),
             new ArticleEnrichmentCategoryOption("politics"));
   }
 
@@ -69,7 +69,7 @@ class ArticleEnrichmentCategoryOptionProviderTest {
 
           CategoryRepository categoryRepository = context.getBean(CategoryRepository.class);
           when(categoryRepository.findAllByOrderBySortOrderAscIdAsc())
-              .thenReturn(List.of(Category.create("citizen_media", 0)));
+              .thenReturn(List.of(Category.create("media", 0)));
 
           ArticleEnrichmentCategoryOptionProvider provider =
               context.getBean(ArticleEnrichmentCategoryOptionProvider.class);
@@ -77,8 +77,7 @@ class ArticleEnrichmentCategoryOptionProviderTest {
           List<ArticleEnrichmentCategoryOption> firstCall = provider.getCategoryOptions();
           List<ArticleEnrichmentCategoryOption> secondCall = provider.getCategoryOptions();
 
-          assertThat(firstCall)
-              .containsExactly(new ArticleEnrichmentCategoryOption("citizen_media"));
+          assertThat(firstCall).containsExactly(new ArticleEnrichmentCategoryOption("media"));
           assertThat(secondCall).isEqualTo(firstCall);
           verify(categoryRepository, times(1)).findAllByOrderBySortOrderAscIdAsc();
         });
