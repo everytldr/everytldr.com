@@ -34,10 +34,7 @@ class ArticleEnrichmentCategoryOptionProviderTest {
         new ArticleEnrichmentCategoryOptionProvider(categoryRepository);
 
     when(categoryRepository.findAllByOrderBySortOrderAscIdAsc())
-        .thenReturn(
-            List.of(
-                Category.create("citizen_media", 0),
-                Category.create("politics", 10)));
+        .thenReturn(List.of(Category.create("citizen_media", 0), Category.create("politics", 10)));
 
     List<ArticleEnrichmentCategoryOption> categoryOptions = provider.getCategoryOptions();
 

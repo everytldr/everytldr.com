@@ -152,8 +152,7 @@ class ArticleEnrichmentCompletionServiceTest {
     ArticleEnrichmentCompletionStatus status =
         articleEnrichmentCompletionService.completeWithResult(
             job.getId(),
-            new ArticleEnrichmentResult(
-                "", "KO summary", "EN title", "EN summary", "politics"));
+            new ArticleEnrichmentResult("", "KO summary", "EN title", "EN summary", "politics"));
     flushAndClear();
 
     ArticleIngestionJob reloadedJob =

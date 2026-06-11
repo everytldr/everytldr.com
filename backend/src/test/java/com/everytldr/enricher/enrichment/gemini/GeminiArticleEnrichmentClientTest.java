@@ -72,10 +72,8 @@ class GeminiArticleEnrichmentClientTest {
     JsonNode userPayload = objectMapper.readTree(body.at("/contents/0/parts/0/text").asString());
     assertThat(userPayload.at("/article/sourceUrl").asString())
         .isEqualTo("https://globalvoices.org/example");
-    assertThat(userPayload.at("/allowedCategories/0/slug").asString())
-        .isEqualTo("citizen_media");
-    assertThat(userPayload.at("/allowedCategories/1/slug").asString())
-        .isEqualTo("rights");
+    assertThat(userPayload.at("/allowedCategories/0/slug").asString()).isEqualTo("citizen_media");
+    assertThat(userPayload.at("/allowedCategories/1/slug").asString()).isEqualTo("rights");
 
     JsonNode generationConfig = body.path("generationConfig");
     assertThat(generationConfig.path("responseMimeType").asString()).isEqualTo("application/json");

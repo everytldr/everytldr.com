@@ -53,7 +53,8 @@ public class ArticleService {
             Sort.unsorted());
     List<ListItemProjection> rows =
         categoryPrefix == null
-            ? articleRepository.findRecent(language.code(), cursorPublishedAt, cursorId, pageRequest)
+            ? articleRepository.findRecent(
+                language.code(), cursorPublishedAt, cursorId, pageRequest)
             : articleRepository.findRecentByCategoryPrefix(
                 language.code(), categoryPrefix, cursorPublishedAt, cursorId, pageRequest);
     return Pagination.Page.from(rows, size);
