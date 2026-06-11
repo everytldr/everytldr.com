@@ -274,8 +274,7 @@ class ArticleEnrichmentCompletionServiceTest {
   }
 
   private ArticleEnrichmentResult validResult() {
-    return new ArticleEnrichmentResult(
-        "KO title", "KO summary", "EN title", "EN summary", "media");
+    return new ArticleEnrichmentResult("KO title", "KO summary", "EN title", "EN summary", "media");
   }
 
   private Category mediaCategory() {
