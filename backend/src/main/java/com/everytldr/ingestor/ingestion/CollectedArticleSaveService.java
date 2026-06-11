@@ -1,7 +1,7 @@
 package com.everytldr.ingestor.ingestion;
 
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
-import com.everytldr.ingestor.provider.CollectedArticle;
+import com.everytldr.ingestor.source.CollectedArticle;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +48,7 @@ public class CollectedArticleSaveService {
         invalidSkippedCount++;
         continue;
       }
-      if (seenUrls.add(article.sourceUrl())) {
+      if (seenUrls.add(article.contentUrl())) {
         validArticles.add(article);
       } else {
         duplicateInBatchSkippedCount++;
@@ -66,7 +66,7 @@ public class CollectedArticleSaveService {
 
     List<ArticleCandidate> candidates = new ArrayList<>();
     for (CollectedArticle article : validArticles) {
-      byte[] urlHash = sha256(article.sourceUrl());
+      byte[] urlHash = sha256(article.contentUrl());
       candidates.add(new ArticleCandidate(article, urlHash, toHex(urlHash)));
     }
 
@@ -110,7 +110,7 @@ public class CollectedArticleSaveService {
 
   private boolean isValid(CollectedArticle article) {
     return article != null
-        && isRequiredHttpUrl(article.sourceUrl())
+        && isRequiredHttpUrl(article.contentUrl())
         && hasRequiredText(article.sourceName(), MAX_SOURCE_NAME_LENGTH)
         && hasRequiredText(article.language(), MAX_LANGUAGE_LENGTH)
         && article.publishedAt() != null

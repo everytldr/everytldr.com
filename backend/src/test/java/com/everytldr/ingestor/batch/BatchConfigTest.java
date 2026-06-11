@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.everytldr.TestcontainersConfig;
-import com.everytldr.ingestor.ingestion.ArticleIngestionService;
+import com.everytldr.ingestor.ingestion.IngestionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
@@ -23,24 +23,24 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @Import(TestcontainersConfig.class)
 @ActiveProfiles({"test", "ingestor"})
 @TestPropertySource(properties = "spring.batch.job.enabled=false")
-class ArticleIngestionBatchConfigTest {
+class BatchConfigTest {
 
   @Autowired private JobOperator jobOperator;
 
   @Autowired
-  @Qualifier(ArticleIngestionBatchConfig.JOB_NAME)
-  private Job articleIngestionBatchJob;
+  @Qualifier(BatchConfig.JOB_NAME)
+  private Job ingestionBatchJob;
 
-  @MockitoBean private ArticleIngestionService articleIngestionService;
+  @MockitoBean private IngestionService ingestionService;
 
   @Test
-  void articleIngestionBatchJobRunsIngestionService() throws Exception {
+  void ingestionBatchJobRunsIngestionService() throws Exception {
     JobExecution jobExecution =
         jobOperator.start(
-            articleIngestionBatchJob,
+            ingestionBatchJob,
             new JobParametersBuilder().addLong("run.id", System.nanoTime()).toJobParameters());
 
     assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
-    verify(articleIngestionService).ingestActiveSources();
+    verify(ingestionService).ingestActiveSources();
   }
 }

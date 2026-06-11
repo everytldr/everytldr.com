@@ -1,9 +1,9 @@
-package com.everytldr.ingestor.provider.rss;
+package com.everytldr.ingestor.source.rss;
 
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourceType;
-import com.everytldr.ingestor.provider.ArticleSourceClient;
-import com.everytldr.ingestor.provider.CollectedArticle;
+import com.everytldr.ingestor.source.CollectedArticle;
+import com.everytldr.ingestor.source.SourceClient;
 import com.rometools.modules.mediarss.MediaEntryModule;
 import com.rometools.modules.mediarss.MediaModule;
 import com.rometools.modules.mediarss.types.Metadata;
@@ -30,11 +30,11 @@ import org.springframework.web.client.RestClient;
 @Component
 @Profile("ingestor")
 @Slf4j
-public class RssArticleSourceClient implements ArticleSourceClient {
+public class RssSourceClient implements SourceClient {
 
   private final RestClient restClient;
 
-  public RssArticleSourceClient(RestClient.Builder restClientBuilder) {
+  public RssSourceClient(RestClient.Builder restClientBuilder) {
     this.restClient = restClientBuilder.build();
   }
 

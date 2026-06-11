@@ -1,6 +1,6 @@
 package com.everytldr.ingestor.scheduler;
 
-import com.everytldr.ingestor.batch.ArticleIngestionBatchConfig;
+import com.everytldr.ingestor.batch.BatchConfig;
 import java.time.Clock;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
@@ -15,19 +15,19 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("ingestorPollingScheduler")
 @Profile("ingestor")
 @ConditionalOnProperty(name = "everytldr.ingestor.ingestion.enabled", havingValue = "true")
 @Slf4j
-public class ArticleIngestionScheduler {
+public class PollingScheduler {
 
   private final JobOperator jobOperator;
   private final Job articleIngestionBatchJob;
   private final Clock clock;
 
-  public ArticleIngestionScheduler(
+  public PollingScheduler(
       JobOperator jobOperator,
-      @Qualifier(ArticleIngestionBatchConfig.JOB_NAME) Job articleIngestionBatchJob,
+      @Qualifier(BatchConfig.JOB_NAME) Job articleIngestionBatchJob,
       Clock clock) {
     this.jobOperator = jobOperator;
     this.articleIngestionBatchJob = articleIngestionBatchJob;
@@ -35,7 +35,7 @@ public class ArticleIngestionScheduler {
   }
 
   @Scheduled(fixedDelayString = "${everytldr.ingestor.ingestion.fixed-delay}")
-  void runArticleIngestionJob() {
+  void runIngestionJob() {
     Instant scheduledAt = Instant.now(clock);
     JobParameters jobParameters =
         new JobParametersBuilder()

@@ -1,9 +1,9 @@
-package com.everytldr.ingestor.provider;
+package com.everytldr.ingestor.source;
 
 import java.time.Instant;
 
 public record CollectedArticle(
-    String sourceUrl,
+    String contentUrl,
     String sourceName,
     String thumbnailUrl,
     String language,

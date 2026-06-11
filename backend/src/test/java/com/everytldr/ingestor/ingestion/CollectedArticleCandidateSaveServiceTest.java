@@ -9,13 +9,19 @@ import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
-import com.everytldr.ingestor.provider.CollectedArticle;
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.ArticleSourceRepository;
+import com.everytldr.common.domain.source.SourcePolicy;
+import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourceType;
+import com.everytldr.ingestor.source.CollectedArticle;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +44,8 @@ class CollectedArticleCandidateSaveServiceTest {
 
   @Autowired private ArticleIngestionJobRepository articleIngestionJobRepository;
 
+  @Autowired private ArticleSourceRepository sourceRepository;
+
   @BeforeEach
   @AfterEach
   void cleanDatabase() {
@@ -46,22 +54,27 @@ class CollectedArticleCandidateSaveServiceTest {
     entityManager.clear();
   }
 
+  @BeforeEach
+  void seedSource() {
+    source();
+  }
+
   @Test
   void savesArticleAndPendingJobInNewTransaction() {
     CollectedArticle collectedArticle =
         collectedArticle("https://www.theguardian.com/football/candidate");
 
     collectedArticleCandidateSaveService.saveNewArticleCandidate(
-        collectedArticle, sha256(collectedArticle.sourceUrl()));
+        collectedArticle, sha256(collectedArticle.contentUrl()));
     entityManager.clear();
 
     Article article = articleRepository.findAll().getFirst();
-    assertThat(article.getSourceUrl()).isEqualTo(collectedArticle.sourceUrl());
+    assertThat(article.getContentUrl()).isEqualTo(collectedArticle.contentUrl());
 
     ArticleIngestionJob job =
         articleIngestionJobRepository.findByArticleId(article.getId()).orElseThrow();
     assertThat(job.getState()).isEqualTo(IngestionState.PENDING);
-    assertThat(job.getUrlHash()).containsExactly(sha256(collectedArticle.sourceUrl()));
+    assertThat(job.getUrlHash()).containsExactly(sha256(collectedArticle.contentUrl()));
   }
 
   @Test
@@ -89,7 +102,7 @@ class CollectedArticleCandidateSaveServiceTest {
     entityManager.clear();
 
     assertThat(articleRepository.findAll())
-        .extracting(Article::getSourceUrl)
+        .extracting(Article::getContentUrl)
         .containsOnly(existingUrl);
     assertThat(articleIngestionJobRepository.findAll()).hasSize(1);
   }
@@ -101,6 +114,21 @@ class CollectedArticleCandidateSaveServiceTest {
         "https://media.guim.co.uk/example-thumbnail.jpg",
         "en",
         Instant.parse("2026-05-04T10:15:30Z"));
+  }
+
+  private ArticleSource source() {
+    return sourceRepository
+        .findByName("The Guardian Football")
+        .orElseGet(
+            () ->
+                sourceRepository.saveAndFlush(
+                    ArticleSource.create(
+                        "The Guardian Football",
+                        "https://example.com/rss.xml",
+                        new SourcePolicy(
+                            new CrawlingPolicy(List.of("theguardian.com"), List.of("article"))),
+                        "en",
+                        SourceType.RSS)));
   }
 
   private byte[] sha256(String value) {

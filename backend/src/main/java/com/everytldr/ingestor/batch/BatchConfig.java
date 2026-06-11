@@ -1,6 +1,6 @@
 package com.everytldr.ingestor.batch;
 
-import com.everytldr.ingestor.ingestion.ArticleIngestionService;
+import com.everytldr.ingestor.ingestion.IngestionService;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("ingestor")
-public class ArticleIngestionBatchConfig {
+public class BatchConfig {
 
   public static final String JOB_NAME = "articleIngestionBatchJob";
   public static final String STEP_NAME = "ingestActiveSourcesStep";
@@ -24,12 +24,11 @@ public class ArticleIngestionBatchConfig {
   }
 
   @Bean
-  Step ingestActiveSourcesStep(
-      JobRepository jobRepository, ArticleIngestionService articleIngestionService) {
+  Step ingestActiveSourcesStep(JobRepository jobRepository, IngestionService ingestionService) {
     return new StepBuilder(STEP_NAME, jobRepository)
         .tasklet(
             (contribution, chunkContext) -> {
-              articleIngestionService.ingestActiveSources();
+              ingestionService.ingestActiveSources();
               return RepeatStatus.FINISHED;
             })
         .build();

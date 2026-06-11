@@ -2,9 +2,9 @@ package com.everytldr.ingestor.ingestion;
 
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
-import com.everytldr.ingestor.provider.ArticleSourceClient;
-import com.everytldr.ingestor.provider.ArticleSourceClientRegistry;
-import com.everytldr.ingestor.provider.CollectedArticle;
+import com.everytldr.ingestor.source.CollectedArticle;
+import com.everytldr.ingestor.source.SourceClient;
+import com.everytldr.ingestor.source.SourceClientRegistry;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ArticleIngestionService {
+public class IngestionService {
 
   private final ArticleSourceRepository articleSourceRepository;
 
-  private final ArticleSourceClientRegistry articleSourceClientRegistry;
+  private final SourceClientRegistry sourceClientRegistry;
 
   private final CollectedArticleSaveService collectedArticleSaveService;
 
@@ -26,7 +26,7 @@ public class ArticleIngestionService {
 
     for (ArticleSource source : sources) {
       try {
-        ArticleSourceClient client = articleSourceClientRegistry.getClient(source.getSourceType());
+        SourceClient client = sourceClientRegistry.getClient(source.getSourceType());
         List<CollectedArticle> collectedArticles = client.collect(source);
         log.info(
             "Collected articles from source. sourceId={}, sourceName={}, sourceType={}, collected={}",

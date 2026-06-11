@@ -17,25 +17,24 @@ import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.launch.JobOperator;
 
-class ArticleIngestionSchedulerTest {
+class PollingSchedulerTest {
 
   @Test
-  void startsArticleIngestionBatchJobWithScheduledAtParameter() throws Exception {
+  void startsBatchJobWithScheduledAtParameter() throws Exception {
     JobOperator jobOperator = mock(JobOperator.class);
-    Job articleIngestionBatchJob = mock(Job.class);
+    Job ingestionBatchJob = mock(Job.class);
     JobExecution jobExecution = mock(JobExecution.class);
     Clock clock = Clock.fixed(Instant.parse("2026-05-08T01:02:03Z"), ZoneOffset.UTC);
-    ArticleIngestionScheduler scheduler =
-        new ArticleIngestionScheduler(jobOperator, articleIngestionBatchJob, clock);
+    PollingScheduler scheduler = new PollingScheduler(jobOperator, ingestionBatchJob, clock);
 
-    when(jobOperator.start(same(articleIngestionBatchJob), org.mockito.ArgumentMatchers.any()))
+    when(jobOperator.start(same(ingestionBatchJob), org.mockito.ArgumentMatchers.any()))
         .thenReturn(jobExecution);
 
-    scheduler.runArticleIngestionJob();
+    scheduler.runIngestionJob();
 
     ArgumentCaptor<JobParameters> jobParametersCaptor =
         ArgumentCaptor.forClass(JobParameters.class);
-    verify(jobOperator).start(same(articleIngestionBatchJob), jobParametersCaptor.capture());
+    verify(jobOperator).start(same(ingestionBatchJob), jobParametersCaptor.capture());
     assertThat(jobParametersCaptor.getValue().getString("scheduledAt"))
         .isEqualTo("2026-05-08T01:02:03Z");
   }
@@ -43,14 +42,13 @@ class ArticleIngestionSchedulerTest {
   @Test
   void doesNotPropagateBatchStartFailure() throws Exception {
     JobOperator jobOperator = mock(JobOperator.class);
-    Job articleIngestionBatchJob = mock(Job.class);
+    Job ingestionBatchJob = mock(Job.class);
     Clock clock = Clock.fixed(Instant.parse("2026-05-08T01:02:03Z"), ZoneOffset.UTC);
-    ArticleIngestionScheduler scheduler =
-        new ArticleIngestionScheduler(jobOperator, articleIngestionBatchJob, clock);
+    PollingScheduler scheduler = new PollingScheduler(jobOperator, ingestionBatchJob, clock);
 
-    when(jobOperator.start(same(articleIngestionBatchJob), org.mockito.ArgumentMatchers.any()))
+    when(jobOperator.start(same(ingestionBatchJob), org.mockito.ArgumentMatchers.any()))
         .thenThrow(new IllegalStateException("batch is already running"));
 
-    assertThatCode(scheduler::runArticleIngestionJob).doesNotThrowAnyException();
+    assertThatCode(scheduler::runIngestionJob).doesNotThrowAnyException();
   }
 }
