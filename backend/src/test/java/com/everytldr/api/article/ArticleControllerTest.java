@@ -76,6 +76,49 @@ class ArticleControllerTest {
   }
 
   @Test
+  void listCategoryPrefixMatchesExactSlugAndHyphenDescendantsOnly() throws Exception {
+    Category world = categoryRepository.findBySlug("world").orElseThrow();
+    Category war = categoryRepository.findBySlug("world-conflict-war").orElseThrow();
+    Category worldview = categoryRepository.saveAndFlush(Category.create("worldview", 0));
+    Instant base = Instant.parse("2026-04-01T00:00:00Z");
+    saveArticle(base, worldview, "ko", "Worldview", "본문");
+    saveArticle(base.minus(1, ChronoUnit.HOURS), world, "ko", "World", "본문");
+    saveArticle(base.minus(2, ChronoUnit.HOURS), war, "ko", "War", "본문");
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(
+            get("/api/articles")
+                .header("Accept-Language", "ko")
+                .param("categoryPrefix", "world")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(2))
+        .andExpect(jsonPath("$.items[0].title").value("World"))
+        .andExpect(jsonPath("$.items[1].title").value("War"));
+  }
+
+  @Test
+  void listSupportsExistingEplTeamCategoryPrefix() throws Exception {
+    Category arsenal = categoryRepository.findBySlug("sport-football-epl-arsenal").orElseThrow();
+    saveArticle(Instant.parse("2026-04-01T00:00:00Z"), arsenal, "ko", "EPL", "본문");
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(
+            get("/api/articles")
+                .header("Accept-Language", "ko")
+                .param("categoryPrefix", "sport-football-epl-arsenal")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(1))
+        .andExpect(jsonPath("$.items[0].title").value("EPL"))
+        .andExpect(jsonPath("$.items[0].category").value("sport-football-epl-arsenal"));
+  }
+
+  @Test
   void detailReturnsPublicArticleDataAndAggregateCounts() throws Exception {
     Article article =
         saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "제목", "요약");

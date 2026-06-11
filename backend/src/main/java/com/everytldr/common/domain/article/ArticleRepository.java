@@ -47,10 +47,29 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       WHERE (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
-        AND (:categoryPrefix IS NULL OR c.slug LIKE CONCAT(:categoryPrefix, '%'))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
   List<ListItemProjection> findRecent(
+      @Param("language") String language,
+      @Param("cursorPublishedAt") Instant cursorPublishedAt,
+      @Param("cursorId") Long cursorId,
+      Pageable pageable);
+
+  @Query(
+      """
+      SELECT new com.everytldr.common.domain.article.ArticleRepository$ListItemProjection(
+          a.id, s.title, s.content, a.thumbnailUrl, a.publishedAt, a.source, c.slug)
+      FROM Article a
+        JOIN ArticleSummary s ON s.article = a AND s.language = :language
+        JOIN ArticleCategory ac ON ac.article = a
+        JOIN ac.category c
+      WHERE (:cursorPublishedAt IS NULL
+          OR a.publishedAt < :cursorPublishedAt
+          OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
+        AND (c.slug = :categoryPrefix OR c.slug LIKE CONCAT(:categoryPrefix, '-%'))
+      ORDER BY a.publishedAt DESC, a.id DESC
+      """)
+  List<ListItemProjection> findRecentByCategoryPrefix(
       @Param("language") String language,
       @Param("categoryPrefix") String categoryPrefix,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,

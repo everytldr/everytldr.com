@@ -69,7 +69,7 @@ class ArticleEnrichmentCompletionServiceTest {
     assertThat(articleCategoryRepository.findAllByArticleId(articleId))
         .singleElement()
         .extracting(articleCategory -> articleCategory.getCategory().getSlug())
-        .isEqualTo("global-voices-politics");
+        .isEqualTo("citizen_media");
   }
 
   @Test
@@ -107,9 +107,9 @@ class ArticleEnrichmentCompletionServiceTest {
 
   @Test
   void completeWithResultDoesNotDuplicateExistingCategory() {
-    Category politics = politicsCategory();
+    Category citizenMedia = citizenMediaCategory();
     ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/existing-category");
-    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), politics));
+    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), citizenMedia));
     Long articleId = job.getArticle().getId();
     flushAndClear();
 
@@ -153,7 +153,7 @@ class ArticleEnrichmentCompletionServiceTest {
         articleEnrichmentCompletionService.completeWithResult(
             job.getId(),
             new ArticleEnrichmentResult(
-                "", "KO summary", "EN title", "EN summary", "global-voices-politics"));
+                "", "KO summary", "EN title", "EN summary", "politics"));
     flushAndClear();
 
     ArticleIngestionJob reloadedJob =
@@ -202,11 +202,11 @@ class ArticleEnrichmentCompletionServiceTest {
 
   @Test
   void multipleExistingCategoriesFailWithoutPartialWrites() {
-    Category politics = politicsCategory();
+    Category citizenMedia = citizenMediaCategory();
     Category otherCategory =
         categoryRepository.saveAndFlush(Category.create("enricher-test-extra", 2));
     ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/multiple-categories");
-    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), politics));
+    articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), citizenMedia));
     articleCategoryRepository.saveAndFlush(ArticleCategory.create(job.getArticle(), otherCategory));
     Long articleId = job.getArticle().getId();
     flushAndClear();
@@ -276,11 +276,11 @@ class ArticleEnrichmentCompletionServiceTest {
 
   private ArticleEnrichmentResult validResult() {
     return new ArticleEnrichmentResult(
-        "KO title", "KO summary", "EN title", "EN summary", "global-voices-politics");
+        "KO title", "KO summary", "EN title", "EN summary", "citizen_media");
   }
 
-  private Category politicsCategory() {
-    return categoryRepository.findBySlug("global-voices-politics").orElseThrow();
+  private Category citizenMediaCategory() {
+    return categoryRepository.findBySlug("citizen_media").orElseThrow();
   }
 
   private ArticleIngestionJob saveProcessingJob(String sourceUrl) {

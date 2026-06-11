@@ -54,27 +54,34 @@ class GeminiArticleEnrichmentClientTest {
 
     ArticleEnrichmentResult result = client.enrich(request());
 
-    assertThat(result.categorySlug()).isEqualTo("global-voices-rights");
+    assertThat(result.categorySlug()).isEqualTo("rights");
     CapturedRequest request = capturedRequest.get();
     assertThat(request.path()).isEqualTo("/v1beta/models/gemini-3.1-flash-lite:generateContent");
     assertThat(request.apiKey()).isEqualTo("test-key");
 
     JsonNode body = objectMapper.readTree(request.body());
     assertThat(body.at("/systemInstruction/parts/0/text").asString())
-        .contains("article enrichment engine");
+        .contains(
+            "article enrichment engine",
+            "article.sourceUrl, article.source, article.language, article.body",
+            "source-agnostic topics",
+            "Do not invent or rewrite category slugs",
+            "do not over-specialize from a passing mention",
+            "named-entity-specific slugs");
 
     JsonNode userPayload = objectMapper.readTree(body.at("/contents/0/parts/0/text").asString());
     assertThat(userPayload.at("/article/sourceUrl").asString())
         .isEqualTo("https://globalvoices.org/example");
-    assertThat(userPayload.at("/allowedCategories/0/slug").asString()).isEqualTo("global-voices");
+    assertThat(userPayload.at("/allowedCategories/0/slug").asString())
+        .isEqualTo("citizen_media");
     assertThat(userPayload.at("/allowedCategories/1/slug").asString())
-        .isEqualTo("global-voices-rights");
+        .isEqualTo("rights");
 
     JsonNode generationConfig = body.path("generationConfig");
     assertThat(generationConfig.path("responseMimeType").asString()).isEqualTo("application/json");
     JsonNode responseJsonSchema = generationConfig.path("responseJsonSchema");
     assertThat(strings(responseJsonSchema.at("/properties/categorySlug/enum")))
-        .containsExactly("global-voices", "global-voices-rights");
+        .containsExactly("citizen_media", "rights");
     assertThat(strings(responseJsonSchema.at("/required")))
         .containsExactly("koTitle", "koSummary", "enTitle", "enSummary", "categorySlug");
     assertThat(responseJsonSchema.at("/additionalProperties").asBoolean()).isFalse();
@@ -94,7 +101,7 @@ class GeminiArticleEnrichmentClientTest {
                 "Korean summary describing civic rights advocacy and government response.",
                 "Civic Rights Summary",
                 "The article describes civic rights advocacy and the government response.",
-                "global-voices-rights"));
+                "rights"));
   }
 
   @Test
@@ -201,7 +208,7 @@ class GeminiArticleEnrichmentClientTest {
               "koSummary": "Korean summary describing civic rights advocacy.",
               "enTitle": "Civic Rights Summary",
               "enSummary": "The article describes civic rights advocacy.",
-              "categorySlug": "global-voices-rights",
+              "categorySlug": "rights",
               "extra": "unexpected"
             }
             """));
@@ -264,8 +271,8 @@ class GeminiArticleEnrichmentClientTest {
             "en",
             "Local civic rights advocates described new community organizing efforts. ".repeat(20)),
         List.of(
-            new ArticleEnrichmentCategoryOption("global-voices"),
-            new ArticleEnrichmentCategoryOption("global-voices-rights")));
+            new ArticleEnrichmentCategoryOption("citizen_media"),
+            new ArticleEnrichmentCategoryOption("rights")));
   }
 
   private String successfulOutput() {
@@ -275,7 +282,7 @@ class GeminiArticleEnrichmentClientTest {
       "koSummary": "Korean summary describing civic rights advocacy and government response.",
       "enTitle": "Civic Rights Summary",
       "enSummary": "The article describes civic rights advocacy and the government response.",
-      "categorySlug": "global-voices-rights"
+      "categorySlug": "rights"
     }
     """;
   }

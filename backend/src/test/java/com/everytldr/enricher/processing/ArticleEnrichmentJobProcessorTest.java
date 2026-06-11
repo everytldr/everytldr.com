@@ -237,13 +237,13 @@ class ArticleEnrichmentJobProcessorTest {
 
   private ArticleEnrichmentResult validResult() {
     return new ArticleEnrichmentResult(
-        "KO title", "KO summary", "EN title", "EN summary", "global-voices-politics");
+        "KO title", "KO summary", "EN title", "EN summary", "politics");
   }
 
   private List<ArticleEnrichmentCategoryOption> categoryOptions() {
     return List.of(
-        new ArticleEnrichmentCategoryOption("global-voices"),
-        new ArticleEnrichmentCategoryOption("global-voices-politics"));
+        new ArticleEnrichmentCategoryOption("citizen_media"),
+        new ArticleEnrichmentCategoryOption("politics"));
   }
 
   private byte[] sha256(String value) {
