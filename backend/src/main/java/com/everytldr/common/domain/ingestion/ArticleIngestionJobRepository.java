@@ -56,14 +56,13 @@ public interface ArticleIngestionJobRepository extends JpaRepository<ArticleInge
       Limit limit);
 
   default List<ArticleIngestionJob> findStaleProcessingJobsForUpdate(
-      Instant staleAttemptStartedAtOrBefore, int limit) {
-    Objects.requireNonNull(
-        staleAttemptStartedAtOrBefore, "staleAttemptStartedAtOrBefore must not be null");
+      Instant staleThreshold, int limit) {
+    Objects.requireNonNull(staleThreshold, "staleThreshold must not be null");
     if (limit < 1) {
       throw new IllegalArgumentException("limit must be positive");
     }
     return findStaleProcessingJobsForUpdate(
-        IngestionState.PROCESSING, staleAttemptStartedAtOrBefore, Limit.of(limit));
+        IngestionState.PROCESSING, staleThreshold, Limit.of(limit));
   }
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -73,11 +72,11 @@ public interface ArticleIngestionJobRepository extends JpaRepository<ArticleInge
       FROM ArticleIngestionJob j
       WHERE j.state = :processingState
         AND j.attemptStartedAt IS NOT NULL
-        AND j.attemptStartedAt <= :staleAttemptStartedAtOrBefore
+        AND j.attemptStartedAt <= :staleThreshold
       ORDER BY j.attemptStartedAt ASC, j.id ASC
       """)
   List<ArticleIngestionJob> findStaleProcessingJobsForUpdate(
       @Param("processingState") IngestionState processingState,
-      @Param("staleAttemptStartedAtOrBefore") Instant staleAttemptStartedAtOrBefore,
+      @Param("staleThreshold") Instant staleThreshold,
       Limit limit);
 }

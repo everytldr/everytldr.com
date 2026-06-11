@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(indexes = @Index(name = "idx_article_published_at", columnList = "published_at"))
 public class Article extends SoftDeletableEntity {
   @Column(nullable = false, length = 1000)
-  private String sourceUrl;
+  private String contentUrl;
 
   @Column(nullable = false, length = 100)
   private String source;
@@ -31,8 +31,8 @@ public class Article extends SoftDeletableEntity {
   private Instant publishedAt;
 
   private Article(
-      String sourceUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
-    this.sourceUrl = sourceUrl;
+      String contentUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
+    this.contentUrl = contentUrl;
     this.source = source;
     this.thumbnailUrl = thumbnailUrl;
     this.language = language;
@@ -40,7 +40,7 @@ public class Article extends SoftDeletableEntity {
   }
 
   public static Article create(
-      String sourceUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
-    return new Article(sourceUrl, source, thumbnailUrl, language, publishedAt);
+      String contentUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
+    return new Article(contentUrl, source, thumbnailUrl, language, publishedAt);
   }
 }

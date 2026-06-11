@@ -73,7 +73,7 @@ public class ArticleController {
       String category,
       Instant publishedAt,
       String source,
-      String sourceUrl,
+      String contentUrl,
       String thumbnailUrl,
       long likeCount,
       long commentCount) {
@@ -85,7 +85,7 @@ public class ArticleController {
           article.category(),
           article.publishedAt(),
           article.source(),
-          article.sourceUrl(),
+          article.contentUrl(),
           article.thumbnailUrl(),
           article.likeCount(),
           article.commentCount());
