@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +33,8 @@ public class CompletionService {
   private final CategoryRepository categoryRepository;
 
   @Transactional
-  public CompletionStatus completeWithResult(Long jobId, List<EnrichmentResult> results) {
+  public CompletionStatus completeWithResult(
+      Long jobId, String thumbnailUrl, List<EnrichmentResult> results) {
     Objects.requireNonNull(jobId, "jobId must not be null");
 
     ArticleIngestionJob job = findJob(jobId);
@@ -52,6 +54,12 @@ public class CompletionService {
     } catch (CompletionFailure | EnrichmentException e) {
       job.markFailed(e.getMessage());
       return CompletionStatus.FAILED;
+    }
+
+    boolean canBackfillThumbnailUrl =
+        StringUtils.hasText(thumbnailUrl) && !StringUtils.hasText(article.getThumbnailUrl());
+    if (canBackfillThumbnailUrl) {
+      article.updateThumbnailUrl(thumbnailUrl);
     }
 
     for (EnrichmentResult result : results) {
