@@ -8,19 +8,17 @@ everytldr:
       retry-delay: ${ENRICHER_PROCESSING_RETRY_DELAY:10m}
       stale-timeout: ${ENRICHER_PROCESSING_STALE_TIMEOUT:15m}
     content:
-      allowed-hosts: ${ENRICHER_CONTENT_ALLOWED_HOSTS:globalvoices.org,www.globalvoices.org}
-      request-timeout: ${ENRICHER_CONTENT_REQUEST_TIMEOUT:5s}
-      max-redirects: ${ENRICHER_CONTENT_MAX_REDIRECTS:3}
+      timeout: ${ENRICHER_CONTENT_TIMEOUT:5s}
       max-body-bytes: ${ENRICHER_CONTENT_MAX_BODY_BYTES:1048576}
       min-body-chars: ${ENRICHER_CONTENT_MIN_BODY_CHARS:200}
     cache:
-      category-options:
-        ttl: ${ENRICHER_CACHE_CATEGORY_OPTIONS_TTL:5m}
+      category-slugs-ttl: ${ENRICHER_CACHE_CATEGORY_SLUGS_TTL:5m}
+      article-sources-ttl: ${ENRICHER_CACHE_ARTICLE_SOURCES_TTL:5m}
     ai:
       gemini:
         enabled: ${ENRICHER_AI_GEMINI_ENABLED:false}
         base-url: ${ENRICHER_AI_GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
         api-key: ${GEMINI_API_KEY:}
         model: ${ENRICHER_AI_GEMINI_MODEL:gemini-3.1-flash-lite}
-        request-timeout: ${ENRICHER_AI_GEMINI_REQUEST_TIMEOUT:30s}
-        prompt-resource: ${ENRICHER_AI_GEMINI_PROMPT_RESOURCE:classpath:prompts/article-enrichment-system-prompt.txt}
+        timeout: ${ENRICHER_AI_GEMINI_TIMEOUT:30s}
+        prompt-path: ${ENRICHER_AI_GEMINI_PROMPT_PATH:classpath:prompts/article-enrichment-system-prompt.txt}

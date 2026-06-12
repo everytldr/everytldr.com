@@ -70,6 +70,9 @@
             "format" : "int64",
             "type" : "integer"
           },
+          "contentUrl" : {
+            "type" : "string"
+          },
           "id" : {
             "type" : "string"
           },
@@ -82,9 +85,6 @@
             "type" : "string"
           },
           "source" : {
-            "type" : "string"
-          },
-          "sourceUrl" : {
             "type" : "string"
           },
           "summary" : {

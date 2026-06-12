@@ -96,14 +96,14 @@ export const getArticle = ({ params: { id } }: { params: { id: string } }) => {
 
   const commentCount = getArticleComments(id).length;
   const likeCount = getArticleLikeCount(id);
-  const sourceUrl = "https://example.com";
+  const contentUrl = "https://example.com";
 
   const responseData: ArticleDetailResponse = {
     ...article,
     thumbnailUrl: article.thumbnailUrl ?? undefined,
     commentCount,
     likeCount,
-    sourceUrl,
+    contentUrl,
   };
 
   return HttpResponse.json(responseData);

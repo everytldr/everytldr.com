@@ -7,6 +7,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.everytldr.TestcontainersConfig;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleRepository;
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.ArticleSourceRepository;
+import com.everytldr.common.domain.source.SourcePolicy;
+import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourceType;
 import jakarta.persistence.EntityManager;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -34,6 +39,8 @@ class ArticleIngestionJobRepositoryTest {
   @Autowired private ArticleRepository articleRepository;
 
   @Autowired private ArticleIngestionJobRepository articleIngestionJobRepository;
+
+  @Autowired private ArticleSourceRepository articleSourceRepository;
 
   @Autowired private EntityManager entityManager;
 
@@ -138,7 +145,7 @@ class ArticleIngestionJobRepositoryTest {
   void staleProcessingLookupRequiresCutoff() {
     assertThatNullPointerException()
         .isThrownBy(() -> articleIngestionJobRepository.findStaleProcessingJobsForUpdate(null, 1))
-        .withMessage("staleAttemptStartedAtOrBefore must not be null");
+        .withMessage("staleThreshold must not be null");
   }
 
   @Test
@@ -151,6 +158,7 @@ class ArticleIngestionJobRepositoryTest {
   }
 
   private ArticleIngestionJob savePendingJob(String sourceUrl) {
+    source();
     Article article =
         articleRepository.save(
             Article.create(sourceUrl, "Example Source", null, "en", PUBLISHED_AT));
@@ -190,6 +198,21 @@ class ArticleIngestionJobRepositoryTest {
   private void flushAndClear() {
     entityManager.flush();
     entityManager.clear();
+  }
+
+  private ArticleSource source() {
+    return articleSourceRepository
+        .findByName("Example Source")
+        .orElseGet(
+            () ->
+                articleSourceRepository.saveAndFlush(
+                    ArticleSource.create(
+                        "Example Source",
+                        "https://example.com/feed.xml",
+                        new SourcePolicy(
+                            new CrawlingPolicy(List.of("example.com"), List.of("article"))),
+                        "en",
+                        SourceType.RSS)));
   }
 
   private byte[] sha256(String value) {

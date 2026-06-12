@@ -1,0 +1,173 @@
+package com.everytldr.enricher.content;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.everytldr.common.domain.article.Article;
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.SourcePolicy;
+import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourceType;
+import com.everytldr.enricher.enrichment.EnrichmentException;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class CrawlingContentResolverTest {
+  private static final Instant PUBLISHED_AT = Instant.parse("2026-05-04T10:15:30Z");
+
+  private HttpServer server;
+
+  @BeforeEach
+  void startServer() throws IOException {
+    server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
+    server.start();
+  }
+
+  @AfterEach
+  void stopServer() {
+    if (server != null) {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void supportsOnlyArticlesFromAllowedSourceHosts() {
+    CrawlingContentResolver resolver = resolver(List.of("globalvoices.org"), List.of("article"));
+
+    assertThat(resolver.supports(article("https://globalvoices.org/story"))).isTrue();
+    assertThat(resolver.supports(article("https://example.com/story"))).isFalse();
+    assertThat(resolver.supports(article("not a url"))).isFalse();
+  }
+
+  @Test
+  void extractsArticleBodyWithConfiguredSelectors() {
+    route(
+        "/story",
+        200,
+        Map.of("Content-Type", "text/html; charset=UTF-8"),
+        """
+        <html>
+          <body>
+            <main>Main fallback should not be used.</main>
+            <article>
+              <h1>Match report</h1>
+              <p>%s</p>
+              <script>tracking()</script>
+            </article>
+          </body>
+        </html>
+        """
+            .formatted("Tottenham controlled the first half. ".repeat(5)));
+
+    String content =
+        resolver(List.of("localhost"), List.of("article")).resolve(article(serverUrl("/story")));
+
+    assertThat(content).contains("Match report").contains("Tottenham controlled");
+    assertThat(content).doesNotContain("tracking").doesNotContain("Main fallback");
+  }
+
+  @Test
+  void rejectsDisallowedResponseHostAsPermanentFailure() {
+    route(
+        "/story",
+        200,
+        Map.of("Content-Type", "text/html"),
+        "<html><body><article>%s</article></body></html>".formatted("content ".repeat(10)));
+
+    EnrichmentException exception =
+        catchThrowableOfType(
+            () ->
+                resolver(List.of("globalvoices.org"), List.of("article"))
+                    .resolve(article(serverUrl("/story"))),
+            EnrichmentException.class);
+
+    assertThat(exception).hasMessageContaining("crawled response URI is not allowed");
+    assertThat(exception.isRetryable()).isFalse();
+  }
+
+  @Test
+  void treatsTemporaryHttpFailuresAsRetryable() {
+    route("/unavailable", 503, Map.of("Content-Type", "text/html"), "temporarily unavailable");
+
+    EnrichmentException exception =
+        catchThrowableOfType(
+            () ->
+                resolver(List.of("localhost"), List.of("article"))
+                    .resolve(article(serverUrl("/unavailable"))),
+            EnrichmentException.class);
+
+    assertThat(exception).hasMessageContaining("retryable article content response status: 503");
+    assertThat(exception.isRetryable()).isTrue();
+  }
+
+  @Test
+  void rejectsUnusableExtractedBodyAsPermanentFailure() {
+    route(
+        "/short",
+        200,
+        Map.of("Content-Type", "text/html"),
+        "<html><body><article>short</article></body></html>");
+
+    EnrichmentException exception =
+        catchThrowableOfType(
+            () ->
+                resolver(List.of("localhost"), List.of("article"))
+                    .resolve(article(serverUrl("/short"))),
+            EnrichmentException.class);
+
+    assertThat(exception).hasMessageContaining("extracted article body is too short");
+    assertThat(exception.isRetryable()).isFalse();
+  }
+
+  private CrawlingContentResolver resolver(List<String> hosts, List<String> selectors) {
+    ArticleSourceProvider sourceProvider = mock(ArticleSourceProvider.class);
+    when(sourceProvider.findByName("Global Voices"))
+        .thenReturn(Optional.of(source(hosts, selectors)));
+
+    return new CrawlingContentResolver(
+        sourceProvider, new ContentCrawler(Duration.ofSeconds(2), 4096), 20);
+  }
+
+  private ArticleSource source(List<String> hosts, List<String> selectors) {
+    return ArticleSource.create(
+        "Global Voices",
+        "https://globalvoices.org/feed/",
+        new SourcePolicy(new CrawlingPolicy(hosts, selectors)),
+        "en",
+        SourceType.RSS);
+  }
+
+  private Article article(String contentUrl) {
+    return Article.create(contentUrl, "Global Voices", null, "en", PUBLISHED_AT);
+  }
+
+  private String serverUrl(String path) {
+    return "http://localhost:%d%s".formatted(server.getAddress().getPort(), path);
+  }
+
+  private void route(String path, int status, Map<String, String> headers, String body) {
+    server.createContext(
+        path,
+        exchange -> {
+          headers.forEach((name, value) -> exchange.getResponseHeaders().add(name, value));
+          byte[] responseBody = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+          exchange.sendResponseHeaders(status, responseBody.length);
+          try (OutputStream outputStream = exchange.getResponseBody()) {
+            outputStream.write(responseBody);
+          }
+        });
+  }
+}

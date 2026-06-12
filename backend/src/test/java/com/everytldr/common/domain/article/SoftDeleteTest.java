@@ -3,9 +3,16 @@ package com.everytldr.common.domain.article;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.everytldr.TestcontainersConfig;
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.ArticleSourceRepository;
+import com.everytldr.common.domain.source.SourcePolicy;
+import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourceType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +33,13 @@ class SoftDeleteTest {
   @Autowired private ArticleRepository articleRepository;
 
   @Autowired private ArticleCommentRepository commentRepository;
+
+  @Autowired private ArticleSourceRepository sourceRepository;
+
+  @BeforeEach
+  void seedSource() {
+    sourceRepository.saveAndFlush(source());
+  }
 
   @Test
   void softDeletedArticleIsHiddenFromFindById() {
@@ -79,5 +93,14 @@ class SoftDeleteTest {
     entityManager.clear();
 
     assertThat(commentRepository.findById(commentId)).isEmpty();
+  }
+
+  private ArticleSource source() {
+    return ArticleSource.create(
+        "Example",
+        "https://example.com/feed.xml",
+        new SourcePolicy(new CrawlingPolicy(List.of("example.com"), List.of("article"))),
+        "en",
+        SourceType.RSS);
   }
 }

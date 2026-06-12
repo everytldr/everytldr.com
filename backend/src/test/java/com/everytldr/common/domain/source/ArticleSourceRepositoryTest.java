@@ -35,6 +35,31 @@ class ArticleSourceRepositoryTest {
     assertThat(globalVoicesSource.getName()).isEqualTo("Global Voices");
     assertThat(globalVoicesSource.getLanguage()).isEqualTo("en");
     assertThat(globalVoicesSource.getSourceType()).isEqualTo(SourceType.RSS);
+    assertThat(globalVoicesSource.getPolicy().crawling().hosts())
+        .containsExactly("globalvoices.org", "www.globalvoices.org");
+    assertThat(globalVoicesSource.getPolicy().crawling().selectors())
+        .containsExactly(".full-article .entry", ".post .entry", ".entry-container .entry");
     assertThat(globalVoicesSource.isActive()).isTrue();
+  }
+
+  @Test
+  void findsSeeded360infoRssSource() {
+    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrue();
+
+    ArticleSource threeSixtyInfoSource =
+        activeSources.stream()
+            .filter(source -> "https://360info.org/feed/".equals(source.getUrl()))
+            .findFirst()
+            .orElseThrow();
+
+    assertThat(threeSixtyInfoSource.getId()).isEqualTo(45660871069790212L);
+    assertThat(threeSixtyInfoSource.getName()).isEqualTo("360info");
+    assertThat(threeSixtyInfoSource.getLanguage()).isEqualTo("en");
+    assertThat(threeSixtyInfoSource.getSourceType()).isEqualTo(SourceType.RSS);
+    assertThat(threeSixtyInfoSource.getPolicy().crawling().hosts())
+        .containsExactly("360info.org", "www.360info.org");
+    assertThat(threeSixtyInfoSource.getPolicy().crawling().selectors())
+        .containsExactly("article.article .content-wrapper", "article.article");
+    assertThat(threeSixtyInfoSource.isActive()).isTrue();
   }
 }

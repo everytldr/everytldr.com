@@ -17,10 +17,16 @@ import com.everytldr.common.domain.category.ArticleCategory;
 import com.everytldr.common.domain.category.ArticleCategoryRepository;
 import com.everytldr.common.domain.category.Category;
 import com.everytldr.common.domain.category.CategoryRepository;
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.ArticleSourceRepository;
+import com.everytldr.common.domain.source.SourcePolicy;
+import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourceType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +52,13 @@ class ArticleControllerTest {
   @Autowired private ArticleCommentRepository commentRepository;
   @Autowired private ArticleCategoryRepository articleCategoryRepository;
   @Autowired private CategoryRepository categoryRepository;
+  @Autowired private ArticleSourceRepository sourceRepository;
 
   private Category football;
 
   @BeforeEach
-  void seedCategories() {
+  void seedFixtures() {
+    sourceRepository.saveAndFlush(source());
     football = categoryRepository.saveAndFlush(Category.create("football", 0));
   }
 
@@ -94,7 +102,7 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.id").value(article.getId().toString()))
         .andExpect(jsonPath("$.title").value("제목"))
         .andExpect(jsonPath("$.summary").value("요약"))
-        .andExpect(jsonPath("$.sourceUrl").value(article.getSourceUrl()))
+        .andExpect(jsonPath("$.contentUrl").value(article.getContentUrl()))
         .andExpect(jsonPath("$.category").value("football"))
         .andExpect(jsonPath("$.likeCount").value(1))
         .andExpect(jsonPath("$.commentCount").value(1))
@@ -124,5 +132,14 @@ class ArticleControllerTest {
     articleCategoryRepository.saveAndFlush(ArticleCategory.create(article, category));
     summaryRepository.saveAndFlush(ArticleSummary.create(article, language, title, content));
     return article;
+  }
+
+  private ArticleSource source() {
+    return ArticleSource.create(
+        "Example",
+        "https://example.com/feed.xml",
+        new SourcePolicy(new CrawlingPolicy(List.of("example.com"), List.of("article"))),
+        "en",
+        SourceType.RSS);
   }
 }

@@ -28,9 +28,9 @@ export async function ArticleDetailPage({ className, articleId }: ArticleDetailP
             <ArticleLikeButton articleId={articleId} />
           </Suspense>
         </ErrorBoundary>
-        {article.sourceUrl && (
+        {article.contentUrl && (
           <Button variant="link" asChild>
-            <a href={article.sourceUrl} target="_blank" rel="noreferrer">
+            <a href={article.contentUrl} target="_blank" rel="noreferrer">
               <ExternalLink className="size-md" aria-hidden="true" />
               <Translation
                 tKey="article-detail.source-link"
