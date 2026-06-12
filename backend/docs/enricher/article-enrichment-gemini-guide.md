@@ -1,25 +1,25 @@
 # Gemini 기사 enrichment 호출 가이드
 
 이 문서는 MVP Enricher가 Gemini Developer API로 기사 요약과 카테고리 추천을 요청하는 방식을 설명한다.
-실제 저장 흐름은 기존 `ArticleEnrichmentJobProcessor`와 `ArticleEnrichmentCompletionService`가 담당하고,
-Gemini 구현은 `ArticleEnrichmentClient`의 provider adapter 역할만 한다.
+실제 저장 흐름은 `JobProcessor`와 `CompletionService`가 담당하고,
+Gemini 구현은 `EnrichmentClient`의 provider adapter 역할만 한다.
 
 ## 실행 흐름
 
 ```text
 DB polling이 job claim
--> ArticleContentResolver가 원문 HTML에서 article body 생성
--> DB category slug 목록을 ArticleEnrichmentRequest.categories로 전달
--> GeminiArticleEnrichmentClient가 runtime system prompt 로드
+-> ContentResolver가 원문 HTML에서 article body 생성
+-> DB category slug 목록을 EnrichmentRequest.categorySlugs로 전달
+-> GeminiEnrichmentClient가 runtime system prompt 로드
 -> user payload JSON과 categorySlug enum schema 생성
 -> Gemini generateContent 호출
 -> candidates[0].content.parts[].text JSON 파싱
--> ArticleEnrichmentResult 검증
--> completion service가 article_enrichments 저장 및 job 완료
+-> EnrichmentResult 검증
+-> completion service가 article_summary와 article_category 저장 후 job 완료
 ```
 
 DB category가 유일한 카테고리 source of truth다. 프롬프트나 코드에 카테고리 목록을 하드코딩하지 않고,
-호출 시점의 `ArticleEnrichmentRequest.categories`만 Gemini 요청 payload와 schema enum에 넣는다.
+호출 시점의 `EnrichmentRequest.categorySlugs`만 Gemini 요청 payload와 schema enum에 넣는다.
 
 ## 설정
 
@@ -32,12 +32,13 @@ ENRICHER_AI_GEMINI_ENABLED=false
 ENRICHER_AI_GEMINI_BASE_URL=https://generativelanguage.googleapis.com
 GEMINI_API_KEY=
 ENRICHER_AI_GEMINI_MODEL=gemini-3.1-flash-lite
-ENRICHER_AI_GEMINI_REQUEST_TIMEOUT=30s
-ENRICHER_AI_GEMINI_PROMPT_RESOURCE=classpath:prompts/article-enrichment-system-prompt.txt
-ENRICHER_CACHE_CATEGORY_OPTIONS_TTL=5m
+ENRICHER_AI_GEMINI_TIMEOUT=30s
+ENRICHER_AI_GEMINI_PROMPT_PATH=classpath:prompts/article-enrichment-system-prompt.txt
+ENRICHER_CACHE_CATEGORY_SLUGS_TTL=5m
+ENRICHER_CACHE_ARTICLE_SOURCES_TTL=5m
 ```
 
-카테고리 목록은 `Category` DB row를 source of truth로 사용한다. Enricher는 `ArticleEnrichmentCategoryOptionProvider`를 통해
+카테고리 목록은 `Category` DB row를 source of truth로 사용한다. Enricher는 `CategorySlugProvider`를 통해
 카테고리 slug 목록을 읽고, provider-local Caffeine TTL cache에 보관한 뒤 Gemini 요청 payload와 `categorySlug.enum`
 schema에 넣는다. 따라서 Redis 없이도 반복 요청마다 같은 카테고리 목록을 매번 DB에서 다시 읽지 않는다.
 
@@ -71,7 +72,7 @@ Accept: application/json
       "role": "user",
       "parts": [
         {
-          "text": "{\"article\":{\"sourceUrl\":\"https://globalvoices.org/example\",\"source\":\"Global Voices\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategories\":[{\"slug\":\"global-voices\"},{\"slug\":\"global-voices-rights\"},{\"slug\":\"global-voices-culture\"}]}"
+          "text": "{\"article\":{\"contentUrl\":\"https://globalvoices.org/example\",\"source\":\"Global Voices\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategorySlugs\":[\"global-voices\",\"global-voices-rights\",\"global-voices-culture\"]}"
         }
       ]
     }
@@ -79,19 +80,26 @@ Accept: application/json
   "generationConfig": {
     "responseMimeType": "application/json",
     "responseJsonSchema": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "koTitle": {"type": "string"},
-        "koSummary": {"type": "string"},
-        "enTitle": {"type": "string"},
-        "enSummary": {"type": "string"},
-        "categorySlug": {
-          "type": "string",
-          "enum": ["global-voices", "global-voices-rights", "global-voices-culture"]
-        }
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": ["ko", "en"]
+          },
+          "title": {"type": "string"},
+          "summary": {"type": "string"},
+          "categorySlug": {
+            "type": "string",
+            "enum": ["global-voices", "global-voices-rights", "global-voices-culture"]
+          }
+        },
+        "required": ["language", "title", "summary", "categorySlug"]
       },
-      "required": ["koTitle", "koSummary", "enTitle", "enSummary", "categorySlug"]
+      "minItems": 2,
+      "maxItems": 2
     }
   }
 }
@@ -108,7 +116,7 @@ Gemini의 구조화 출력은 `candidates[0].content.parts[].text` 안에 JSON �
       "content": {
         "parts": [
           {
-            "text": "{\"koTitle\":\"시민권 운동가 인터뷰 요약\",\"koSummary\":\"이 기사는 지역 시민권 운동가들의 활동과 정부 대응을 다룬다.\",\"enTitle\":\"Civil Rights Activists Interview Summary\",\"enSummary\":\"The article covers local civil rights activists and the government response.\",\"categorySlug\":\"global-voices-rights\"}"
+            "text": "[{\"language\":\"ko\",\"title\":\"시민권 운동가 인터뷰 요약\",\"summary\":\"이 기사는 지역 시민권 운동가들의 활동과 정부 대응을 다룬다.\",\"categorySlug\":\"global-voices-rights\"},{\"language\":\"en\",\"title\":\"Civil Rights Activists Interview Summary\",\"summary\":\"The article covers local civil rights activists and the government response.\",\"categorySlug\":\"global-voices-rights\"}]"
           }
         ],
         "role": "model"
@@ -126,8 +134,9 @@ Gemini의 구조화 출력은 `candidates[0].content.parts[].text` 안에 JSON �
 
 저장 직전에는 다음을 다시 검증한다.
 
-- JSON object에 `koTitle`, `koSummary`, `enTitle`, `enSummary`, `categorySlug`만 있는지
-- `ArticleEnrichmentResult`의 필수 문자열과 title 길이 제약을 만족하는지
+- JSON array item에 `language`, `title`, `summary`, `categorySlug`만 있는지
+- `EnrichmentResult`의 필수 문자열과 title 길이 제약을 만족하는지
+- 결과가 지원 언어 전체를 한 번씩 포함하고 모든 item의 `categorySlug`가 같은지
 - `categorySlug`가 요청에 포함된 DB category slug인지
 
 ## 실패 분류

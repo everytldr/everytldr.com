@@ -4,7 +4,7 @@ import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
-import com.everytldr.ingestor.provider.CollectedArticle;
+import com.everytldr.ingestor.source.CollectedArticle;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,7 +22,7 @@ public class CollectedArticleCandidateSaveService {
   public void saveNewArticleCandidate(CollectedArticle collectedArticle, byte[] urlHash) {
     Article article =
         Article.create(
-            collectedArticle.sourceUrl(),
+            collectedArticle.contentUrl(),
             collectedArticle.sourceName(),
             collectedArticle.thumbnailUrl(),
             collectedArticle.language(),

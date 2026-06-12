@@ -19,7 +19,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
           a.thumbnailUrl,
           a.publishedAt,
           a.source,
-          a.sourceUrl,
+          a.contentUrl,
           c.slug,
           (SELECT COUNT(l.id)
            FROM ArticleLike l
@@ -83,7 +83,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       String thumbnailUrl,
       Instant publishedAt,
       String source,
-      String sourceUrl,
+      String contentUrl,
       String category,
       long likeCount,
       long commentCount) {}

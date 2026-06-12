@@ -21,6 +21,10 @@ public class ArticleSource extends BaseEntity {
   @Column(nullable = false, length = 500)
   private String url;
 
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(nullable = false)
+  private SourcePolicy policy;
+
   @Column(columnDefinition = "BOOLEAN NOT NULL DEFAULT TRUE")
   private boolean isActive;
 
@@ -33,17 +37,23 @@ public class ArticleSource extends BaseEntity {
   private SourceType sourceType;
 
   private ArticleSource(
-      String name, String url, String language, SourceType sourceType, boolean isActive) {
+      String name,
+      String url,
+      SourcePolicy policy,
+      String language,
+      SourceType sourceType,
+      boolean isActive) {
     this.name = name;
     this.url = url;
+    this.policy = policy;
     this.language = language;
     this.sourceType = sourceType;
     this.isActive = isActive;
   }
 
   public static ArticleSource create(
-      String name, String url, String language, SourceType sourceType) {
-    return new ArticleSource(name, url, language, sourceType, true);
+      String name, String url, SourcePolicy policy, String language, SourceType sourceType) {
+    return new ArticleSource(name, url, policy, language, sourceType, true);
   }
 
   public void activate() {
