@@ -72,7 +72,7 @@ Accept: application/json
       "role": "user",
       "parts": [
         {
-          "text": "{\"article\":{\"contentUrl\":\"https://globalvoices.org/example\",\"source\":\"Global Voices\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategorySlugs\":[\"global-voices\",\"global-voices-rights\",\"global-voices-culture\"]}"
+          "text": "{\"article\":{\"contentUrl\":\"https://globalvoices.org/example\",\"source\":\"Global Voices\",\"language\":\"en\",\"body\":\"...\"},\"allowedCategorySlugs\":[\"media\",\"rights\",\"culture\"]}"
         }
       ]
     }
@@ -93,7 +93,7 @@ Accept: application/json
           "summary": {"type": "string"},
           "categorySlug": {
             "type": "string",
-            "enum": ["global-voices", "global-voices-rights", "global-voices-culture"]
+            "enum": ["media", "rights", "culture"]
           }
         },
         "required": ["language", "title", "summary", "categorySlug"]
@@ -116,7 +116,7 @@ Gemini의 구조화 출력은 `candidates[0].content.parts[].text` 안에 JSON �
       "content": {
         "parts": [
           {
-            "text": "[{\"language\":\"ko\",\"title\":\"시민권 운동가 인터뷰 요약\",\"summary\":\"이 기사는 지역 시민권 운동가들의 활동과 정부 대응을 다룬다.\",\"categorySlug\":\"global-voices-rights\"},{\"language\":\"en\",\"title\":\"Civil Rights Activists Interview Summary\",\"summary\":\"The article covers local civil rights activists and the government response.\",\"categorySlug\":\"global-voices-rights\"}]"
+            "text": "[{\"language\":\"ko\",\"title\":\"시민권 운동가 인터뷰 요약\",\"summary\":\"이 기사는 지역 시민권 운동가들의 활동과 정부 대응을 다룬다.\",\"categorySlug\":\"rights\"},{\"language\":\"en\",\"title\":\"Civil Rights Activists Interview Summary\",\"summary\":\"The article covers local civil rights activists and the government response.\",\"categorySlug\":\"rights\"}]"
           }
         ],
         "role": "model"
