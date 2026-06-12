@@ -57,12 +57,12 @@ class GeminiEnrichmentClientTest {
                 "ko",
                 "Korean civic rights summary",
                 "Korean summary describing civic rights advocacy.",
-                "global-voices-rights"),
+                "rights"),
             new EnrichmentResult(
                 "en",
                 "Civic Rights Summary",
                 "The article describes civic rights advocacy.",
-                "global-voices-rights"));
+                "rights"));
 
     CapturedRequest request = capturedRequest.get();
     assertThat(request.path()).isEqualTo("/v1beta/models/gemini-3.1-flash-lite:generateContent");
@@ -70,17 +70,23 @@ class GeminiEnrichmentClientTest {
 
     JsonNode body = objectMapper.readTree(request.body());
     assertThat(body.at("/systemInstruction/parts/0/text").asString())
-        .contains("article enrichment engine");
+        .contains(
+            "article enrichment engine",
+            "article.contentUrl, article.source, article.language, article.body",
+            "source-agnostic topics",
+            "Do not invent or rewrite category slugs",
+            "do not over-specialize from a passing mention",
+            "named-entity-specific slugs");
 
     JsonNode userPayload = objectMapper.readTree(body.at("/contents/0/parts/0/text").asString());
     assertThat(userPayload.at("/article/contentUrl").asString())
         .isEqualTo("https://globalvoices.org/example");
     assertThat(strings(userPayload.path("allowedCategorySlugs")))
-        .containsExactly("global-voices", "global-voices-rights");
+        .containsExactly("media", "rights");
 
     JsonNode categoryEnum =
         body.at("/generationConfig/responseJsonSchema/items/properties/categorySlug/enum");
-    assertThat(strings(categoryEnum)).containsExactly("global-voices", "global-voices-rights");
+    assertThat(strings(categoryEnum)).containsExactly("media", "rights");
   }
 
   @Test
@@ -153,13 +159,13 @@ class GeminiEnrichmentClientTest {
                 "language": "ko",
                 "title": "Korean civic rights summary",
                 "summary": "Korean summary describing civic rights advocacy.",
-                "categorySlug": "global-voices"
+                "categorySlug": "media"
               },
               {
                 "language": "en",
                 "title": "Civic Rights Summary",
                 "summary": "The article describes civic rights advocacy.",
-                "categorySlug": "global-voices-rights"
+                "categorySlug": "rights"
               }
             ]
             """));
@@ -196,7 +202,7 @@ class GeminiEnrichmentClientTest {
         "Global Voices",
         "en",
         "Local civic rights advocates described new community organizing efforts. ".repeat(20),
-        List.of("global-voices", "global-voices-rights"));
+        List.of("media", "rights"));
   }
 
   private String successfulOutput() {
@@ -206,13 +212,13 @@ class GeminiEnrichmentClientTest {
             "language": "ko",
             "title": "Korean civic rights summary",
             "summary": "Korean summary describing civic rights advocacy.",
-            "categorySlug": "global-voices-rights"
+            "categorySlug": "rights"
           },
           {
             "language": "en",
             "title": "Civic Rights Summary",
             "summary": "The article describes civic rights advocacy.",
-            "categorySlug": "global-voices-rights"
+            "categorySlug": "rights"
           }
         ]
         """;
