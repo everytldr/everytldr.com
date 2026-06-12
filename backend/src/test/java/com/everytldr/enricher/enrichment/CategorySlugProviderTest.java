@@ -18,9 +18,9 @@ class CategorySlugProviderTest {
   @Test
   void returnsCategorySlugsInRepositoryOrder() {
     when(categoryRepository.findAllByOrderBySortOrderAscIdAsc())
-        .thenReturn(List.of(Category.create("global-voices", 0), Category.create("sports", 10)));
+        .thenReturn(List.of(Category.create("media", 0), Category.create("sport", 10)));
 
-    assertThat(provider.getCategorySlugs()).containsExactly("global-voices", "sports");
+    assertThat(provider.getCategorySlugs()).containsExactly("media", "sport");
   }
 
   @Test

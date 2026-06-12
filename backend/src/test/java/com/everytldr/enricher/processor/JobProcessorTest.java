@@ -203,12 +203,12 @@ class JobProcessorTest {
 
   private List<EnrichmentResult> validResults() {
     return List.of(
-        new EnrichmentResult("ko", "KO title", "KO summary", "global-voices-politics"),
-        new EnrichmentResult("en", "EN title", "EN summary", "global-voices-politics"));
+        new EnrichmentResult("ko", "KO title", "KO summary", "politics"),
+        new EnrichmentResult("en", "EN title", "EN summary", "politics"));
   }
 
   private List<String> categorySlugs() {
-    return List.of("global-voices", "global-voices-politics");
+    return List.of("media", "politics");
   }
 
   private byte[] sha256(String value) {

@@ -20,7 +20,7 @@ class EnrichmentRequestTest {
   void requestRequiresNonBlankContent() {
     assertThatThrownBy(
             () -> {
-              List<String> categorySlugs = List.of("global-voices");
+              List<String> categorySlugs = List.of("media");
               new EnrichmentRequest(
                   "https://globalvoices.org/example", "Global Voices", "en", " ", categorySlugs);
             })
@@ -31,12 +31,12 @@ class EnrichmentRequestTest {
   @Test
   void requestDefensivelyCopiesCategorySlugs() {
     List<String> categorySlugs = new ArrayList<>();
-    categorySlugs.add("global-voices");
+    categorySlugs.add("media");
 
     EnrichmentRequest request = request(categorySlugs);
-    categorySlugs.add("global-voices-politics");
+    categorySlugs.add("politics");
 
-    assertThat(request.categorySlugs()).containsExactly("global-voices");
+    assertThat(request.categorySlugs()).containsExactly("media");
   }
 
   @Test

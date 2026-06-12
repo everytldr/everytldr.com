@@ -70,7 +70,7 @@ class CompletionServiceTest {
     assertThat(articleCategoryRepository.findAllByArticleId(articleId))
         .singleElement()
         .extracting(articleCategory -> articleCategory.getCategory().getSlug())
-        .isEqualTo("global-voices-politics");
+        .isEqualTo("politics");
   }
 
   @Test
@@ -130,9 +130,7 @@ class CompletionServiceTest {
 
     CompletionStatus status =
         completionService.completeWithResult(
-            job.getId(),
-            null,
-            List.of(new EnrichmentResult("ko", "", "KO summary", "global-voices")));
+            job.getId(), null, List.of(new EnrichmentResult("ko", "", "KO summary", "media")));
     flushAndClear();
 
     ArticleIngestionJob reloadedJob = jobRepository.findById(job.getId()).orElseThrow();
@@ -181,8 +179,8 @@ class CompletionServiceTest {
 
   private List<EnrichmentResult> validResults() {
     return List.of(
-        new EnrichmentResult("ko", "KO title", "KO summary", "global-voices-politics"),
-        new EnrichmentResult("en", "EN title", "EN summary", "global-voices-politics"));
+        new EnrichmentResult("ko", "KO title", "KO summary", "politics"),
+        new EnrichmentResult("en", "EN title", "EN summary", "politics"));
   }
 
   private ArticleIngestionJob saveProcessingJob(String sourceUrl) {

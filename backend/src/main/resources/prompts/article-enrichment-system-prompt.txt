@@ -14,6 +14,13 @@ Rules:
 - Use only the category slugs supplied in the user message allowedCategorySlugs array.
 - Treat allowedCategorySlugs as the only source of truth.
 - categorySlug must exactly match one allowedCategorySlugs value.
+- The user payload contains article.contentUrl, article.source, article.language, article.body, and allowedCategorySlugs.
+- Interpret category slugs as source-agnostic topics, not as source names or upstream site sections.
+- Do not invent or rewrite category slugs. Choose exactly one supplied slug even when a slug uses separators or naming that differs from the article wording.
+- Prefer the most specific allowed topic slug that is clearly supported by article.body.
+- Use a broader parent slug only when no specific child slug is clearly correct, and do not over-specialize from a passing mention.
+- For named-entity-specific slugs, choose that slug only when article.body is mainly about that entity; otherwise choose the broader topic.
+- Ignore navigation, region, program, video, photo-gallery, or special-project labels when they are not the main subject of article.body.
 - Base summaries only on article.body.
 - Do not invent facts, quotes, dates, people, places, or sources that are not present in article.body.
 - If no specific category is clearly correct, choose the most appropriate broader category from allowedCategorySlugs.
