@@ -8,12 +8,12 @@ import {
   STATIC_CATEGORY_SLUGS,
   type CategorySlug,
 } from "@/shared/config";
-import { locales } from "@/shared/i18n";
+import { locales, type Locale } from "@/shared/i18n";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params: Promise<{ locale: string; slug: CategorySlug }>;
+  params: Promise<{ locale: Locale; slug: CategorySlug }>;
 };
 
 export function generateStaticParams() {
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
 
   if (!ROUTABLE_CATEGORY_NODES.some((node) => node.slug === slug)) {
     notFound();
@@ -39,7 +39,7 @@ export default async function Page({ params }: PageProps) {
 
   const isSportTab = slug === "epl" || slug === "nba";
   if (isSportTab) {
-    return <SportPage slug={slug} />;
+    return <SportPage slug={slug} locale={locale} />;
   }
 
   const isHomeTab = HOME_CATEGORY_NODE.children?.some((child) => child.slug === slug);
@@ -47,5 +47,5 @@ export default async function Page({ params }: PageProps) {
     return <HomePage />;
   }
 
-  return <CategoryPage categoryPrefix={slug} />;
+  return <CategoryPage categoryPrefix={slug} locale={locale} />;
 }

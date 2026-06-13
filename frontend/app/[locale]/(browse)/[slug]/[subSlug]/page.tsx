@@ -1,11 +1,11 @@
 import { SportPage } from "@/pages/sport";
 import { EplTabSlug, EplTeam } from "@/shared/config";
-import { locales } from "@/shared/i18n";
+import { type Locale, locales } from "@/shared/i18n";
 import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<
-    { locale: string } & (
+    { locale: Locale } & (
       | { slug: "nba"; subSlug?: unknown } // TODO: MVP 이후에 구현 예정
       | { slug: "epl"; subSlug?: EplTabSlug | EplTeam }
     )
@@ -31,5 +31,5 @@ export default async function Page({ params: _params }: PageProps) {
     notFound();
   }
 
-  return <SportPage slug={params.slug} subSlug={params.subSlug} />;
+  return <SportPage {...params} />;
 }

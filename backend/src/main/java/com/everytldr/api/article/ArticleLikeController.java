@@ -5,6 +5,7 @@ import com.everytldr.api.support.client.ResolvedClientAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,7 +55,10 @@ public class ArticleLikeController {
     return ArticleLikeStateResponse.from(state);
   }
 
-  public record ArticleLikeStateResponse(String articleId, boolean likedByReader, long likeCount) {
+  public record ArticleLikeStateResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) String articleId,
+      @Schema(requiredMode = RequiredMode.REQUIRED) boolean likedByReader,
+      @Schema(requiredMode = RequiredMode.REQUIRED) long likeCount) {
     public static ArticleLikeStateResponse from(ArticleLikeService.LikeState state) {
       return new ArticleLikeStateResponse(
           state.articleId().toString(), state.likedByReader(), state.likeCount());

@@ -45,7 +45,7 @@ function PopularRow({ className, rank, topic, onSelect }: PopularRowProps) {
   return (
     <button
       className={cn(
-        "group flex w-full cursor-pointer items-center gap-md rounded-sm px-sm py-2xs text-left transition-colors outline-none hover:bg-surface-soft focus-visible:bg-surface-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:bg-surface-strong dark:hover:bg-surface-strong dark:focus-visible:bg-surface-strong dark:active:bg-surface-pressed",
+        "group flex w-full cursor-pointer items-center gap-md rounded-sm border-2 border-transparent px-sm py-2xs text-left transition-colors outline-none hover:bg-surface-soft focus-visible:border-primary focus-visible:bg-surface-soft active:bg-surface-strong dark:hover:bg-surface-strong dark:focus-visible:bg-surface-strong dark:active:bg-surface-pressed",
         className,
       )}
       type="button"

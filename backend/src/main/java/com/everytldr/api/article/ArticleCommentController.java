@@ -76,7 +76,8 @@ public class ArticleCommentController {
           String password,
       @Schema(requiredMode = RequiredMode.REQUIRED) @NotBlank @Size(max = 5000) String content) {}
 
-  public record ArticleCommentListResponse(List<Item> items) {
+  public record ArticleCommentListResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<Item> items) {
     @Schema(name = "ArticleCommentListItem")
     public record Item(
         @Schema(requiredMode = RequiredMode.REQUIRED) String id,

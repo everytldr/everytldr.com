@@ -67,16 +67,19 @@ public class ArticleController {
   }
 
   public record ArticleDetailResponse(
-      String id,
-      String title,
-      String summary,
-      String category,
-      Instant publishedAt,
-      String source,
-      String contentUrl,
-      String thumbnailUrl,
-      long likeCount,
-      long commentCount) {
+      @Schema(requiredMode = RequiredMode.REQUIRED) String id,
+      @Schema(requiredMode = RequiredMode.REQUIRED) String title,
+      @Schema(requiredMode = RequiredMode.REQUIRED) String summary,
+      @Schema(requiredMode = RequiredMode.REQUIRED) String category,
+      @Schema(requiredMode = RequiredMode.REQUIRED) Instant publishedAt,
+      @Schema(requiredMode = RequiredMode.REQUIRED) String source,
+      @Schema(requiredMode = RequiredMode.REQUIRED) String contentUrl,
+      @Schema(
+              requiredMode = RequiredMode.REQUIRED,
+              types = {"string", "null"}) // TODO: thumbnailUrl 나중에 Nullable 제거해야함
+          String thumbnailUrl,
+      @Schema(requiredMode = RequiredMode.REQUIRED) long likeCount,
+      @Schema(requiredMode = RequiredMode.REQUIRED) long commentCount) {
     public static ArticleDetailResponse from(DetailProjection article) {
       return new ArticleDetailResponse(
           article.id().toString(),
@@ -92,7 +95,12 @@ public class ArticleController {
     }
   }
 
-  public record ArticleListResponse(List<Item> items, String nextCursor) {
+  public record ArticleListResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<Item> items,
+      @Schema(
+              requiredMode = RequiredMode.REQUIRED,
+              types = {"string", "null"})
+          String nextCursor) {
     @Schema(name = "ArticleListItem")
     public record Item(
         @Schema(requiredMode = RequiredMode.REQUIRED) String id,

@@ -11,7 +11,7 @@ export function SearchKeyboardHints({ className }: SearchKeyboardHintsProps) {
   return (
     <footer
       className={cn(
-        "flex items-center justify-end gap-md border-t border-hairline-soft pt-md text-caption text-meta",
+        "flex items-center justify-end gap-md border-t border-hairline-soft pt-md",
         className,
       )}
     >
@@ -33,7 +33,7 @@ export function SearchKeyboardHints({ className }: SearchKeyboardHintsProps) {
         <Translation tKey="search.keyboard-hint.arrows" />
       </span>
       <span className="inline-flex items-center gap-2xs">
-        <Kbd className="font-medium">esc</Kbd>
+        <Kbd className="px-2xs text-micro">esc</Kbd>
         <Translation tKey="search.keyboard-hint.escape" />
       </span>
     </footer>
