@@ -24,9 +24,9 @@ export function EplPage({ className, subSlug }: EplPageProps) {
 
         {resolved.activeTab === EplTabSlug.News ? (
           <EplNewsTab filter={resolved.filter} />
-        ) : (
+        ) : resolved.activeTab === EplTabSlug.Record ? (
           <EplStandingsSection />
-        )}
+        ) : null}
       </Container>
     </main>
   );

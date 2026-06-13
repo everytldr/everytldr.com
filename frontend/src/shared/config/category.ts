@@ -77,7 +77,7 @@ export const CATEGORY_GRAPH = processGraph([
     slug: "sport",
     routable: false,
     redirectPath: "/epl",
-    children: [{ slug: "epl" }, { slug: "nba" }],
+    children: [{ slug: "epl" }, { slug: "nba", routable: false }],
   },
   {
     slug: "health",
@@ -101,7 +101,7 @@ export const CATEGORY_GRAPH = processGraph([
 
 export const CATEGORY_NODES = CATEGORY_GRAPH.flatMap((node) => [node, ...(node.children ?? [])]);
 export const ROUTABLE_CATEGORY_NODES = CATEGORY_NODES.filter(
-  (node) => "routable" in node && node.routable,
+  (node) => !("routable" in node) || node.routable,
 );
 export const LEAF_CATEGORY_SLUGS = CATEGORY_GRAPH.flatMap(
   (node) => node.children?.map((node) => node.slug) ?? [],
