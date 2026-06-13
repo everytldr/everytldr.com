@@ -1,28 +1,28 @@
-export enum EplPageTab {
+export enum EplTabSlug {
   News = "news",
   Record = "record",
 }
 
 export enum EplTeam {
   Arsenal = "arsenal",
-  AstonVilla = "aston-villa",
+  AstonVilla = "aston_villa",
   Bournemouth = "bournemouth",
   Brentford = "brentford",
   Brighton = "brighton",
   Burnley = "burnley",
   Chelsea = "chelsea",
-  CrystalPalace = "crystal-palace",
+  CrystalPalace = "crystal_palace",
   Everton = "everton",
   Fulham = "fulham",
   Leeds = "leeds",
   Liverpool = "liverpool",
-  ManchesterCity = "manchester-city",
-  ManchesterUnited = "manchester-united",
+  ManchesterCity = "manchester_city",
+  ManchesterUnited = "manchester_united",
   Newcastle = "newcastle",
-  NottinghamForest = "nottingham-forest",
+  NottinghamForest = "nottingham_forest",
   Sunderland = "sunderland",
   Tottenham = "tottenham",
-  WestHam = "west-ham",
+  WestHam = "west_ham",
   Wolves = "wolves",
 }
 
