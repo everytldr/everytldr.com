@@ -1,28 +1,30 @@
+import { CategoryPage } from "@/pages/category";
 import { HomePage } from "@/pages/home";
 import { SportPage } from "@/pages/sport";
 import {
-  DEFAULT_SUB_CATEGORY_SLUG,
+  DEFAULT_CATEGORY_NODE,
   HOME_CATEGORY_NODE,
-  SUB_CATEGORY_SLUGS,
-  SubCategorySlug,
+  ROUTABLE_CATEGORY_NODES,
+  STATIC_CATEGORY_SLUGS,
+  type CategorySlug,
 } from "@/shared/config";
 import { locales } from "@/shared/i18n";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params: Promise<{ locale: string; slug: SubCategorySlug }>;
+  params: Promise<{ locale: string; slug: CategorySlug }>;
 };
 
 export function generateStaticParams() {
   return locales.flatMap((locale) => {
-    return SUB_CATEGORY_SLUGS.map((slug) => ({ locale, slug }));
+    return STATIC_CATEGORY_SLUGS.map((slug) => ({ locale, slug }));
   });
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  if (slug === DEFAULT_SUB_CATEGORY_SLUG) {
+  if (slug === DEFAULT_CATEGORY_NODE.slug) {
     return { alternates: { canonical: `/${locale}` } };
   }
   return {};
@@ -31,17 +33,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
 
-  if (!SUB_CATEGORY_SLUGS.includes(slug)) {
+  if (!ROUTABLE_CATEGORY_NODES.some((node) => node.slug === slug)) {
     notFound();
   }
 
-  if (slug === SubCategorySlug.EPL || slug === SubCategorySlug.NBA) {
+  const isSportTab = slug === "epl" || slug === "nba";
+  if (isSportTab) {
     return <SportPage slug={slug} />;
   }
 
-  if (HOME_CATEGORY_NODE.subs.includes(slug)) {
+  const isHomeTab = HOME_CATEGORY_NODE.children?.some((child) => child.slug === slug);
+  if (isHomeTab) {
     return <HomePage />;
   }
 
-  notFound();
+  return <CategoryPage categoryPrefix={slug} />;
 }
