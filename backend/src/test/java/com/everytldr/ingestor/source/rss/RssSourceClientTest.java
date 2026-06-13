@@ -96,7 +96,8 @@ class RssSourceClientTest {
     return ArticleSource.create(
         "Example News",
         RSS_URL,
-        new SourcePolicy(new CrawlingPolicy(List.of("news.example.com"), List.of("article"))),
+        new SourcePolicy(
+            new CrawlingPolicy(List.of("news.example.com"), List.of("article"), List.of())),
         "en",
         SourceType.RSS);
   }

@@ -37,8 +37,9 @@ class ArticleSourceRepositoryTest {
     assertThat(globalVoicesSource.getSourceType()).isEqualTo(SourceType.RSS);
     assertThat(globalVoicesSource.getPolicy().crawling().hosts())
         .containsExactly("globalvoices.org", "www.globalvoices.org");
-    assertThat(globalVoicesSource.getPolicy().crawling().selectors())
+    assertThat(globalVoicesSource.getPolicy().crawling().contentSelectors())
         .containsExactly(".full-article .entry", ".post .entry", ".entry-container .entry");
+    assertThat(globalVoicesSource.getPolicy().crawling().thumbnailSelectors()).isEmpty();
     assertThat(globalVoicesSource.isActive()).isTrue();
   }
 
@@ -58,8 +59,10 @@ class ArticleSourceRepositoryTest {
     assertThat(threeSixtyInfoSource.getSourceType()).isEqualTo(SourceType.RSS);
     assertThat(threeSixtyInfoSource.getPolicy().crawling().hosts())
         .containsExactly("360info.org", "www.360info.org");
-    assertThat(threeSixtyInfoSource.getPolicy().crawling().selectors())
+    assertThat(threeSixtyInfoSource.getPolicy().crawling().contentSelectors())
         .containsExactly("article.article .content-wrapper", "article.article");
+    assertThat(threeSixtyInfoSource.getPolicy().crawling().thumbnailSelectors())
+        .containsExactly(".feat-image > img");
     assertThat(threeSixtyInfoSource.isActive()).isTrue();
   }
 }

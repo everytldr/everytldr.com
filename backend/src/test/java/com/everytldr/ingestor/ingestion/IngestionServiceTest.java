@@ -33,7 +33,9 @@ class IngestionServiceTest {
             "https://content.guardianapis.com/search?section=football",
             new SourcePolicy(
                 new CrawlingPolicy(
-                    List.of("theguardian.com", "www.theguardian.com"), List.of("article"))),
+                    List.of("theguardian.com", "www.theguardian.com"),
+                    List.of("article"),
+                    List.of())),
             "en",
             SourceType.RSS);
     ArticleSource secondSource =
@@ -42,7 +44,9 @@ class IngestionServiceTest {
             "https://content.guardianapis.com/search?section=football",
             new SourcePolicy(
                 new CrawlingPolicy(
-                    List.of("theguardian.com", "www.theguardian.com"), List.of("article"))),
+                    List.of("theguardian.com", "www.theguardian.com"),
+                    List.of("article"),
+                    List.of())),
             "en",
             SourceType.RSS);
     SourceClient failingClient = mock(SourceClient.class);

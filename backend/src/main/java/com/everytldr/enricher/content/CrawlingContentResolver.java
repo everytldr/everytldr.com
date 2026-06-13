@@ -75,7 +75,7 @@ public class CrawlingContentResolver implements ContentResolver {
       return new ResolvedArticle(content, null);
     }
 
-    String thumbnailUrl = extractThumbnailUrl(document).orElse(null);
+    String thumbnailUrl = extractThumbnailUrl(document, policy).orElse(null);
     return new ResolvedArticle(content, thumbnailUrl);
   }
 
@@ -88,7 +88,17 @@ public class CrawlingContentResolver implements ContentResolver {
     }
   }
 
-  private Optional<String> extractThumbnailUrl(Document document) {
+  private Optional<String> extractThumbnailUrl(Document document, CrawlingPolicy policy) {
+    for (String selector : policy.thumbnailSelectors()) {
+      Element image = document.selectFirst(selector);
+      if (image != null) {
+        String imageUrl = image.absUrl("src");
+        if (StringUtils.hasText(imageUrl)) {
+          return Optional.of(imageUrl);
+        }
+      }
+    }
+
     Element ogImage = document.selectFirst("meta[property=\"og:image\"]");
     if (ogImage != null) {
       String ogImageUrl = ogImage.absUrl("content");
@@ -97,19 +107,11 @@ public class CrawlingContentResolver implements ContentResolver {
       }
     }
 
-    Element firstImage = document.selectFirst("img[src]");
-    if (firstImage != null) {
-      String firstImageUrl = firstImage.absUrl("src");
-      if (StringUtils.hasText(firstImageUrl)) {
-        return Optional.of(firstImageUrl);
-      }
-    }
-
     return Optional.empty();
   }
 
   private Optional<String> extractContent(Document document, ArticleSource source) {
-    for (String selector : source.getPolicy().crawling().selectors()) {
+    for (String selector : source.getPolicy().crawling().contentSelectors()) {
       Optional<String> content =
           document.select(selector).stream()
               .map(element -> element.text().replaceAll("\\s+", " ").trim())
