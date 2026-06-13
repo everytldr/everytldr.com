@@ -17,15 +17,11 @@ public class Category extends BaseEntity {
   @Column(nullable = false, length = 50)
   private String slug;
 
-  @Column(columnDefinition = "INT NOT NULL DEFAULT 0")
-  private int sortOrder;
-
-  private Category(String slug, int sortOrder) {
+  private Category(String slug) {
     this.slug = slug;
-    this.sortOrder = sortOrder;
   }
 
-  public static Category create(String slug, int sortOrder) {
-    return new Category(slug, sortOrder);
+  public static Category create(String slug) {
+    return new Category(slug);
   }
 }

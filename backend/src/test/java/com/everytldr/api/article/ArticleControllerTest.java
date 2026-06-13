@@ -59,7 +59,7 @@ class ArticleControllerTest {
   @BeforeEach
   void seedFixtures() {
     sourceRepository.saveAndFlush(source());
-    football = categoryRepository.saveAndFlush(Category.create("football", 0));
+    football = categoryRepository.saveAndFlush(Category.create("football"));
   }
 
   @Test
@@ -87,7 +87,7 @@ class ArticleControllerTest {
   void listCategoryPrefixMatchesExactSlugAndHyphenDescendantsOnly() throws Exception {
     Category world = categoryRepository.findBySlug("world").orElseThrow();
     Category war = categoryRepository.findBySlug("world-conflict-war").orElseThrow();
-    Category worldview = categoryRepository.saveAndFlush(Category.create("worldview", 0));
+    Category worldview = categoryRepository.saveAndFlush(Category.create("worldview"));
     Instant base = Instant.parse("2026-04-01T00:00:00Z");
     saveArticle(base, worldview, "ko", "Worldview", "본문");
     saveArticle(base.minus(1, ChronoUnit.HOURS), world, "ko", "World", "본문");

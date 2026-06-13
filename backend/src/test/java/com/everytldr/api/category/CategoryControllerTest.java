@@ -26,47 +26,32 @@ class CategoryControllerTest {
   @Autowired private CategoryRepository categoryRepository;
 
   @Test
-  void listReturnsSeededCategoriesWithHierarchicalSlugs() throws Exception {
+  void listReturnsSeededCategoriesWithMergedHierarchicalSlugs() throws Exception {
     mockMvc
         .perform(get("/api/categories"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(146))
-        .andExpect(jsonPath("$[0].slug").value("world"))
-        .andExpect(jsonPath("$[1].slug").value("world-geopolitics"))
-        .andExpect(jsonPath("$[2].slug").value("world-geopolitics-diplomacy"))
-        .andExpect(jsonPath("$[11].slug").value("world-humanitarian-refugees"))
-        .andExpect(jsonPath("$[12].slug").value("world-humanitarian-aid"))
-        .andExpect(jsonPath("$[13].slug").value("politics"))
-        .andExpect(jsonPath("$[25].slug").value("rights"))
-        .andExpect(jsonPath("$[26].slug").value("rights-human_rights"))
-        .andExpect(jsonPath("$[32].slug").value("rights-censorship"))
-        .andExpect(jsonPath("$[44].slug").value("media"))
-        .andExpect(jsonPath("$[45].slug").value("media-journalism"))
-        .andExpect(jsonPath("$[65].slug").value("environment"))
-        .andExpect(jsonPath("$[66].slug").value("environment-climate"))
-        .andExpect(jsonPath("$[77].slug").value("environment-water"))
-        .andExpect(jsonPath("$[78].slug").value("technology"))
-        .andExpect(jsonPath("$[83].slug").value("technology-internet"))
-        .andExpect(jsonPath("$[86].slug").value("science"))
-        .andExpect(jsonPath("$[104].slug").value("culture"))
-        .andExpect(jsonPath("$[111].slug").value("culture-arts-photography"))
-        .andExpect(jsonPath("$[123].slug").value("sport-football-epl-arsenal"))
-        .andExpect(jsonPath("$[145].slug").value("sport-global"));
+        .andExpect(jsonPath("$[0].slug").value("culture"))
+        .andExpect(jsonPath("$[145].slug").value("world-humanitarian-refugees"))
+        .andExpect(jsonPath("$[?(@.slug == 'society-rights')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-media')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-education')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'technology-science')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'rights')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'media')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'education')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'science')]").isEmpty());
   }
 
   @Test
-  void listReturnsCategoriesOrderedBySortOrderThenId() throws Exception {
-    categoryRepository.saveAndFlush(Category.create("test-tech", -1));
-    categoryRepository.saveAndFlush(Category.create("test-football", -3));
-    categoryRepository.saveAndFlush(Category.create("test-tie-a", -2));
-    categoryRepository.saveAndFlush(Category.create("test-tie-b", -2));
+  void listReturnsCategoriesOrderedBySlug() throws Exception {
+    categoryRepository.saveAndFlush(Category.create("zzz-test-b"));
+    categoryRepository.saveAndFlush(Category.create("zzz-test-a"));
 
     mockMvc
         .perform(get("/api/categories"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].slug").value("test-football"))
-        .andExpect(jsonPath("$[1].slug").value("test-tie-a"))
-        .andExpect(jsonPath("$[2].slug").value("test-tie-b"))
-        .andExpect(jsonPath("$[3].slug").value("test-tech"));
+        .andExpect(jsonPath("$[146].slug").value("zzz-test-a"))
+        .andExpect(jsonPath("$[147].slug").value("zzz-test-b"));
   }
 }

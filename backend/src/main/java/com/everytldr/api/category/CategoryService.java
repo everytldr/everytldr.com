@@ -18,6 +18,6 @@ public class CategoryService {
 
   @Transactional(readOnly = true)
   public List<Category> listAll() {
-    return categoryRepository.findAllByOrderBySortOrderAscIdAsc();
+    return categoryRepository.findAllByOrderBySlugAsc();
   }
 }
