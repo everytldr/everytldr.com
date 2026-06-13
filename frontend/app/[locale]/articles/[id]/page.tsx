@@ -1,6 +1,6 @@
 import { ArticleDetailPage, fetchArticleDetail } from "@/pages/article-detail";
 import type { Locale } from "@/shared/i18n";
-import { buildOgImageUrl } from "@/shared/lib";
+import { buildOgImageUrl, buildPageMetadata, markdownToPlainText } from "@/shared/lib";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -23,15 +23,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const article = await fetchArticleDetail(id, locale);
 
-  return {
+  return buildPageMetadata({
     title: article.title,
-    description: article.summary,
-    openGraph: {
-      title: article.title,
-      description: article.summary,
-      images: article.thumbnailUrl ? [buildOgImageUrl(article.thumbnailUrl)] : undefined,
-    },
-  };
+    description: markdownToPlainText(article.summary),
+    locale,
+    path: `/articles/${id}`,
+    images: article.thumbnailUrl
+      ? [{ url: buildOgImageUrl(article.thumbnailUrl), alt: article.title }]
+      : undefined,
+    article: { publishedTime: article.publishedAt },
+  });
 }
 
 export default async function Page({ params }: PageProps) {
