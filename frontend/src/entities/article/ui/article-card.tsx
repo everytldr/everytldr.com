@@ -1,10 +1,9 @@
 "use client";
 
 import type { ArticleListItem } from "@/shared/api";
-import { cn, formatDate, markdownToPlainText } from "@/shared/lib";
+import { cn, formatDate, markdownToPlainText, useHydrated } from "@/shared/lib";
 import { RelativeTime } from "@/shared/ui";
 import { useLocale } from "next-intl";
-import { Suspense } from "react";
 
 type ArticleCardProps = {
   className?: string;
@@ -14,7 +13,7 @@ type ArticleCardProps = {
 
 export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
   const locale = useLocale();
-  const fallback = formatDate(article.publishedAt, locale);
+  const hydrated = useHydrated();
   const summary = markdownToPlainText(article.summary);
 
   return (
@@ -32,9 +31,11 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
         <p className="text-caption text-meta">
           {article.source} ·{" "}
           <time dateTime={article.publishedAt}>
-            <Suspense fallback={fallback}>
+            {hydrated ? (
               <RelativeTime date={article.publishedAt} />
-            </Suspense>
+            ) : (
+              formatDate(article.publishedAt, locale)
+            )}
           </time>
         </p>
       </div>

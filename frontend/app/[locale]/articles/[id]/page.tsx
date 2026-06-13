@@ -1,5 +1,6 @@
 import { ArticleDetailPage, fetchArticleDetail } from "@/pages/article-detail";
 import type { Locale } from "@/shared/i18n";
+import { buildOgImageUrl } from "@/shared/lib";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: article.title,
       description: article.summary,
-      images: article.thumbnailUrl ? [article.thumbnailUrl] : undefined,
+      images: article.thumbnailUrl ? [buildOgImageUrl(article.thumbnailUrl)] : undefined,
     },
   };
 }
