@@ -131,6 +131,10 @@ export function findRootCategory(slug: string) {
   return category;
 }
 
+export function isHiddenNode(node: CategoryNode) {
+  return !("routable" in node) || (!node.routable && !node.redirectPath);
+}
+
 function processGraph<T extends CategoryNode>(graph: ReadonlyArray<T>): ReadonlyArray<T> {
   const BLOCKED_SLUG_SET = new Set(process.env.NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS?.split(","));
 

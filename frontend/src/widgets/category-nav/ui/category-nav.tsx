@@ -4,6 +4,7 @@ import {
   CATEGORY_GRAPH,
   DEFAULT_CATEGORY_NODE,
   findRootCategory,
+  isHiddenNode,
   type CategorySlug,
 } from "@/shared/config";
 import { Link } from "@/shared/i18n";
@@ -31,27 +32,25 @@ export function CategoryNav({ className }: CategoryNavProps) {
           aria-label={t("header.aria-label.categories")}
         >
           <div className="flex h-12 items-stretch gap-2xs">
-            {CATEGORY_GRAPH.filter((child) => !("routable" in child) || child.routable).map(
-              (node) => {
-                const isActive = node.slug === category.slug;
-                return (
-                  <Link
-                    key={node.slug}
-                    className={cn(
-                      "inline-flex items-center border-b-2 px-md text-nav-md whitespace-nowrap transition-colors outline-none",
-                      "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                      isActive
-                        ? "border-ink text-ink"
-                        : "border-transparent text-meta hover:text-ink",
-                    )}
-                    href={buildCategoryUrl(node)}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    <Translation tKey={`header.category.${node.slug}`} />
-                  </Link>
-                );
-              },
-            )}
+            {CATEGORY_GRAPH.filter((node) => !isHiddenNode(node)).map((node) => {
+              const isActive = node.slug === category.slug;
+              return (
+                <Link
+                  key={node.slug}
+                  className={cn(
+                    "inline-flex items-center border-b-2 px-md text-nav-md whitespace-nowrap transition-colors outline-none",
+                    "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+                    isActive
+                      ? "border-ink text-ink"
+                      : "border-transparent text-meta hover:text-ink",
+                  )}
+                  href={buildCategoryUrl(node)}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <Translation tKey={`header.category.${node.slug}`} />
+                </Link>
+              );
+            })}
           </div>
         </nav>
 
@@ -62,7 +61,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
           <div className="flex h-11 items-center gap-md">
             {category.children &&
               category.children
-                .filter((child) => !("routable" in child) || child.routable)
+                .filter((node) => !isHiddenNode(node))
                 .map((child) => {
                   const isActive = child.slug === categorySlug;
                   return (

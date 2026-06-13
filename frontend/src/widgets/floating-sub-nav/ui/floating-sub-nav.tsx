@@ -1,6 +1,11 @@
 "use client";
 
-import { DEFAULT_CATEGORY_NODE, findRootCategory, type CategorySlug } from "@/shared/config";
+import {
+  DEFAULT_CATEGORY_NODE,
+  findRootCategory,
+  isHiddenNode,
+  type CategorySlug,
+} from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
@@ -63,7 +68,7 @@ export function FloatingSubNav({ className }: FloatingSubNavProps) {
           <ul className="flex items-stretch gap-xl">
             {category.children &&
               category.children
-                .filter((child) => !("routable" in child) || child.routable)
+                .filter((node) => !isHiddenNode(node))
                 .map((child) => {
                   const isActive = child.slug === categorySlug;
                   return (

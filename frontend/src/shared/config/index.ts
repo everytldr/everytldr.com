@@ -7,6 +7,7 @@ export {
   ROUTABLE_CATEGORY_NODES,
   STATIC_CATEGORY_SLUGS,
   findRootCategory,
+  isHiddenNode,
   type CategorySlug,
   type LeafCategorySlug,
   type MainCategorySlug,
