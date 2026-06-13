@@ -59,7 +59,7 @@ class ArticleControllerTest {
   @BeforeEach
   void seedFixtures() {
     sourceRepository.saveAndFlush(source());
-    football = categoryRepository.saveAndFlush(Category.create("football", 0));
+    football = categoryRepository.saveAndFlush(Category.create("football"));
   }
 
   @Test
@@ -85,12 +85,12 @@ class ArticleControllerTest {
 
   @Test
   void listCategoryPrefixMatchesExactSlugAndHyphenDescendantsOnly() throws Exception {
-    Category world = categoryRepository.findBySlug("world").orElseThrow();
+    Category worldConflict = categoryRepository.saveAndFlush(Category.create("world-conflict"));
     Category war = categoryRepository.findBySlug("world-conflict-war").orElseThrow();
-    Category worldview = categoryRepository.saveAndFlush(Category.create("worldview", 0));
+    Category worldConflicted = categoryRepository.saveAndFlush(Category.create("world-conflicted"));
     Instant base = Instant.parse("2026-04-01T00:00:00Z");
-    saveArticle(base, worldview, "ko", "Worldview", "본문");
-    saveArticle(base.minus(1, ChronoUnit.HOURS), world, "ko", "World", "본문");
+    saveArticle(base, worldConflicted, "ko", "World Conflicted", "본문");
+    saveArticle(base.minus(1, ChronoUnit.HOURS), worldConflict, "ko", "World Conflict", "본문");
     saveArticle(base.minus(2, ChronoUnit.HOURS), war, "ko", "War", "본문");
     entityManager.flush();
     entityManager.clear();
@@ -99,17 +99,17 @@ class ArticleControllerTest {
         .perform(
             get("/api/articles")
                 .header("Accept-Language", "ko")
-                .param("categoryPrefix", "world")
+                .param("categoryPrefix", "world-conflict")
                 .param("size", "10"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items.length()").value(2))
-        .andExpect(jsonPath("$.items[0].title").value("World"))
+        .andExpect(jsonPath("$.items[0].title").value("World Conflict"))
         .andExpect(jsonPath("$.items[1].title").value("War"));
   }
 
   @Test
-  void listSupportsExistingEplTeamCategoryPrefix() throws Exception {
-    Category arsenal = categoryRepository.findBySlug("sport-football-epl-arsenal").orElseThrow();
+  void listSupportsExistingFootballTeamCategoryPrefix() throws Exception {
+    Category arsenal = categoryRepository.findBySlug("sport-football-arsenal").orElseThrow();
     saveArticle(Instant.parse("2026-04-01T00:00:00Z"), arsenal, "ko", "EPL", "본문");
     entityManager.flush();
     entityManager.clear();
@@ -118,12 +118,12 @@ class ArticleControllerTest {
         .perform(
             get("/api/articles")
                 .header("Accept-Language", "ko")
-                .param("categoryPrefix", "sport-football-epl-arsenal")
+                .param("categoryPrefix", "sport-football-arsenal")
                 .param("size", "10"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items.length()").value(1))
         .andExpect(jsonPath("$.items[0].title").value("EPL"))
-        .andExpect(jsonPath("$.items[0].category").value("sport-football-epl-arsenal"));
+        .andExpect(jsonPath("$.items[0].category").value("sport-football-arsenal"));
   }
 
   @Test

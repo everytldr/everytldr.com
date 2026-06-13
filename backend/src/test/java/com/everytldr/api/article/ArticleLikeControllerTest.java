@@ -54,7 +54,7 @@ class ArticleLikeControllerTest {
   @BeforeEach
   void seedFixtures() {
     sourceRepository.saveAndFlush(source());
-    football = categoryRepository.saveAndFlush(Category.create("football", 0));
+    football = categoryRepository.saveAndFlush(Category.create("football"));
   }
 
   @Test

@@ -17,15 +17,15 @@ class CategorySlugProviderTest {
 
   @Test
   void returnsCategorySlugsInRepositoryOrder() {
-    when(categoryRepository.findAllByOrderBySortOrderAscIdAsc())
-        .thenReturn(List.of(Category.create("media", 0), Category.create("sport", 10)));
+    when(categoryRepository.findAllByOrderBySlugAsc())
+        .thenReturn(List.of(Category.create("media"), Category.create("sport")));
 
     assertThat(provider.getCategorySlugs()).containsExactly("media", "sport");
   }
 
   @Test
   void failsWhenNoCategoriesAreConfigured() {
-    when(categoryRepository.findAllByOrderBySortOrderAscIdAsc()).thenReturn(List.of());
+    when(categoryRepository.findAllByOrderBySlugAsc()).thenReturn(List.of());
 
     assertThatThrownBy(provider::getCategorySlugs)
         .isInstanceOf(EnrichmentException.class)
