@@ -1,16 +1,16 @@
 import { listArticleComments } from "@/shared/api";
+import type { Locale } from "@/shared/i18n";
 import { assert, cn } from "@/shared/lib";
 import { Skeleton, Translation } from "@/shared/ui";
-import { getLocale } from "next-intl/server";
 import { CommentList } from "./comment-list";
 
 type ArticleCommentsProps = {
   className?: string;
   articleId: string;
+  locale: Locale;
 };
 
-export async function ArticleComments({ className, articleId }: ArticleCommentsProps) {
-  const locale = await getLocale();
+export async function ArticleComments({ className, articleId, locale }: ArticleCommentsProps) {
   const response = await listArticleComments(articleId);
   assert(response.status === 200, "Failed to load article comments");
 
