@@ -8,6 +8,7 @@ export {
   STATIC_CATEGORY_SLUGS,
   findRootCategory,
   isHiddenNode,
+  isMainCategorySlug,
   type CategorySlug,
   type LeafCategorySlug,
   type MainCategorySlug,
@@ -21,3 +22,4 @@ export {
   isBigSixTeam,
 } from "./epl";
 export type { BigSixTeam } from "./epl";
+export { OG_IMAGE, SITE_NAME, SITE_URL } from "./seo";
