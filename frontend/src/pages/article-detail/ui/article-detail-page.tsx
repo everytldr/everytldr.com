@@ -2,7 +2,7 @@ import { type ArticleDetailResponse } from "@/shared/api";
 import { ADSENSE_SLOT_ARTICLE_DETAIL } from "@/shared/config";
 import type { Locale } from "@/shared/i18n";
 import { cn, formatDate } from "@/shared/lib";
-import { AdSlot, Button, Translation } from "@/shared/ui";
+import { AdSlot, Button, MarkdownContent, Translation } from "@/shared/ui";
 import { ExternalLink } from "lucide-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -83,7 +83,7 @@ function ArticleDetailContent({ className, article, locale }: ArticleDetailConte
         />
       )}
 
-      <p className="text-body-lg whitespace-pre-wrap text-body">{article.summary}</p>
+      <MarkdownContent markdown={article.summary} />
     </div>
   );
 }
