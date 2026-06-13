@@ -1,8 +1,8 @@
 "use client";
 
-import { DEFAULT_SUB_CATEGORY_SLUG, type SubCategorySlug, findRootCategory } from "@/shared/config";
+import { DEFAULT_CATEGORY_NODE, findRootCategory, type CategorySlug } from "@/shared/config";
 import { Link } from "@/shared/i18n";
-import { buildSubcategoryUrl, cn } from "@/shared/lib";
+import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -14,8 +14,8 @@ type FloatingSubNavProps = {
 };
 
 export function FloatingSubNav({ className }: FloatingSubNavProps) {
-  const params = useParams<{ slug?: SubCategorySlug }>();
-  const categorySlug = params?.slug ?? DEFAULT_SUB_CATEGORY_SLUG;
+  const params = useParams<{ slug?: CategorySlug }>();
+  const categorySlug = params?.slug ?? DEFAULT_CATEGORY_NODE.slug;
   const t = useTranslations();
   const [visible, setVisible] = useRafState(false);
 
@@ -61,31 +61,32 @@ export function FloatingSubNav({ className }: FloatingSubNavProps) {
       <Container className="flex h-14 items-stretch justify-center pc:h-16">
         <nav className="flex" aria-label={t("header.aria-label.subcategories")}>
           <ul className="flex items-stretch gap-xl">
-            {category.subs.map((sub) => {
-              const isActive = sub === categorySlug;
-              return (
-                <li key={sub} className="flex">
-                  <Link
-                    className={cn(
-                      "inline-flex items-stretch text-nav-md whitespace-nowrap transition-colors outline-none",
-                      "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                      isActive ? "text-ink" : "text-meta hover:text-ink",
-                    )}
-                    href={buildSubcategoryUrl(category, sub)}
-                    tabIndex={visible ? 0 : -1}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    <Translation
+            {category.children &&
+              category.children.map((child) => {
+                const isActive = child.slug === categorySlug;
+                return (
+                  <li key={child.slug} className="flex">
+                    <Link
                       className={cn(
-                        "flex items-center border-b-2 transition-colors",
-                        isActive ? "border-ink" : "border-transparent",
+                        "inline-flex items-stretch text-nav-md whitespace-nowrap transition-colors outline-none",
+                        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+                        isActive ? "text-ink" : "text-meta hover:text-ink",
                       )}
-                      tKey={`header.subcategory.${sub}`}
-                    />
-                  </Link>
-                </li>
-              );
-            })}
+                      href={buildCategoryUrl(child)}
+                      tabIndex={visible ? 0 : -1}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      <Translation
+                        className={cn(
+                          "flex items-center border-b-2 transition-colors",
+                          isActive ? "border-ink" : "border-transparent",
+                        )}
+                        tKey={`header.subcategory.${child.slug}`}
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
           </ul>
         </nav>
       </Container>

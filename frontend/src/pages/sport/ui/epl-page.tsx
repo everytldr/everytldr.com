@@ -1,4 +1,4 @@
-import { EplPageTab, type EplTeam } from "@/shared/config";
+import { EplTabSlug, type EplTeam } from "@/shared/config";
 import { cn } from "@/shared/lib";
 import { Container } from "@/shared/ui";
 import { EplNewsTab } from "./epl-news-tab";
@@ -7,12 +7,12 @@ import { EplTabs } from "./epl-tabs";
 
 type EplPageProps = {
   className?: string;
-  subSlug?: EplPageTab | EplTeam;
+  subSlug?: EplTabSlug | EplTeam;
 };
 
 type ResolvedSubSlug =
-  | { activeTab: EplPageTab.News; filter?: EplTeam }
-  | { activeTab: EplPageTab.Record };
+  | { activeTab: EplTabSlug.News; filter?: EplTeam }
+  | { activeTab: EplTabSlug.Record };
 
 export function EplPage({ className, subSlug }: EplPageProps) {
   const resolved = resolveSubSlug(subSlug);
@@ -22,7 +22,7 @@ export function EplPage({ className, subSlug }: EplPageProps) {
       <Container className="space-y-sm">
         <EplTabs activeTab={resolved.activeTab} />
 
-        {resolved.activeTab === EplPageTab.News ? (
+        {resolved.activeTab === EplTabSlug.News ? (
           <EplNewsTab filter={resolved.filter} />
         ) : (
           <EplStandingsSection />
@@ -32,13 +32,13 @@ export function EplPage({ className, subSlug }: EplPageProps) {
   );
 }
 
-function resolveSubSlug(subSlug?: EplPageTab | EplTeam): ResolvedSubSlug {
-  if (subSlug === EplPageTab.Record) {
-    return { activeTab: EplPageTab.Record };
+function resolveSubSlug(subSlug?: EplTabSlug | EplTeam): ResolvedSubSlug {
+  if (subSlug === EplTabSlug.Record) {
+    return { activeTab: EplTabSlug.Record };
   }
-  if (subSlug === EplPageTab.News) {
-    return { activeTab: EplPageTab.News };
+  if (subSlug === EplTabSlug.News) {
+    return { activeTab: EplTabSlug.News };
   }
 
-  return { activeTab: EplPageTab.News, filter: subSlug };
+  return { activeTab: EplTabSlug.News, filter: subSlug };
 }
