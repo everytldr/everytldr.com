@@ -9,6 +9,7 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.util.StringUtils;
 
 @Slf4j
@@ -44,7 +45,7 @@ public class CrawlingContentResolver implements ContentResolver {
   }
 
   @Override
-  public String resolve(Article article) {
+  public ResolvedArticle resolve(Article article) {
     URI contentUri = URI.create(article.getContentUrl());
 
     ArticleSource source = articleSourceProvider.findByName(article.getSource()).orElseThrow();
@@ -58,10 +59,24 @@ public class CrawlingContentResolver implements ContentResolver {
         contentCrawler.crawl(
             contentUri, responseUri -> policy.isAllowedHost(responseUri.getHost()));
 
-    String content = extractContent(html, contentUri, source);
+    Document document = Jsoup.parse(html, contentUri.toString());
+    document.select("script, style, noscript").remove();
+
+    Optional<String> extracted = extractContent(document, source);
+    if (extracted.isEmpty()) {
+      throw EnrichmentException.permanent(
+          "failed to extract article body: contentUrl=%s".formatted(contentUri));
+    }
+    String content = extracted.get();
     assertMinBodyChars(content, article.getContentUrl());
 
-    return content;
+    boolean hasThumbnailUrl = StringUtils.hasText(article.getThumbnailUrl());
+    if (hasThumbnailUrl) {
+      return new ResolvedArticle(content, null);
+    }
+
+    String thumbnailUrl = extractThumbnailUrl(document, policy).orElse(null);
+    return new ResolvedArticle(content, thumbnailUrl);
   }
 
   private void assertMinBodyChars(String content, String contentUrl) {
@@ -73,22 +88,40 @@ public class CrawlingContentResolver implements ContentResolver {
     }
   }
 
-  private String extractContent(String html, URI contentUri, ArticleSource source) {
-    Document document = Jsoup.parse(html, contentUri.toString());
-    document.select("script, style, noscript").remove();
+  private Optional<String> extractThumbnailUrl(Document document, CrawlingPolicy policy) {
+    for (String selector : policy.thumbnailSelectors()) {
+      Element image = document.selectFirst(selector);
+      if (image != null) {
+        String imageUrl = image.absUrl("src");
+        if (StringUtils.hasText(imageUrl)) {
+          return Optional.of(imageUrl);
+        }
+      }
+    }
 
-    for (String selector : source.getPolicy().crawling().selectors()) {
+    Element ogImage = document.selectFirst("meta[property=\"og:image\"]");
+    if (ogImage != null) {
+      String ogImageUrl = ogImage.absUrl("content");
+      if (StringUtils.hasText(ogImageUrl)) {
+        return Optional.of(ogImageUrl);
+      }
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<String> extractContent(Document document, ArticleSource source) {
+    for (String selector : source.getPolicy().crawling().contentSelectors()) {
       Optional<String> content =
           document.select(selector).stream()
               .map(element -> element.text().replaceAll("\\s+", " ").trim())
               .filter(StringUtils::hasText)
               .max((left, right) -> Integer.compare(left.length(), right.length()));
       if (content.isPresent()) {
-        return content.get();
+        return content;
       }
     }
-    throw EnrichmentException.permanent(
-        "failed to extract article body: contentUrl=%s".formatted(contentUri));
+    return Optional.empty();
   }
 
   private Optional<URI> parseUri(String contentUrl) {

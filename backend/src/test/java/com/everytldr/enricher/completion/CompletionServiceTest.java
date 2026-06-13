@@ -55,18 +55,48 @@ class CompletionServiceTest {
     Long articleId = job.getArticle().getId();
     flushAndClear();
 
-    CompletionStatus status = completionService.completeWithResult(job.getId(), validResults());
+    CompletionStatus status =
+        completionService.completeWithResult(
+            job.getId(), "https://example.com/thumbnail.jpg", validResults());
     flushAndClear();
 
     assertThat(status).isEqualTo(CompletionStatus.SUCCEEDED);
     assertThat(jobRepository.findById(job.getId()).orElseThrow().getState())
         .isEqualTo(IngestionState.SUCCEEDED);
+    assertThat(articleRepository.findById(articleId).orElseThrow().getThumbnailUrl())
+        .isEqualTo("https://example.com/thumbnail.jpg");
     assertSummary(articleId, SupportedLanguage.KOREAN.code(), "KO title", "KO summary");
     assertSummary(articleId, SupportedLanguage.ENGLISH.code(), "EN title", "EN summary");
     assertThat(articleCategoryRepository.findAllByArticleId(articleId))
         .singleElement()
         .extracting(articleCategory -> articleCategory.getCategory().getSlug())
         .isEqualTo("politics");
+  }
+
+  @Test
+  void completeWithResultKeepsExistingThumbnailUrl() {
+    source();
+    Article article =
+        articleRepository.saveAndFlush(
+            Article.create(
+                "https://example.com/enricher/existing-thumbnail",
+                SOURCE_NAME,
+                "https://example.com/original.jpg",
+                "en",
+                PUBLISHED_AT));
+    ArticleIngestionJob job =
+        jobRepository.saveAndFlush(ArticleIngestionJob.create(article, sha256("existing")));
+    assertThat(job.claimForAttempt(NOW)).isTrue();
+    jobRepository.saveAndFlush(job);
+    Long articleId = article.getId();
+    flushAndClear();
+
+    completionService.completeWithResult(
+        job.getId(), "https://example.com/replacement.jpg", validResults());
+    flushAndClear();
+
+    assertThat(articleRepository.findById(articleId).orElseThrow().getThumbnailUrl())
+        .isEqualTo("https://example.com/original.jpg");
   }
 
   @Test
@@ -78,7 +108,8 @@ class CompletionServiceTest {
             ArticleSummary.create(article, SupportedLanguage.KOREAN.code(), "old ko", "old body"));
     flushAndClear();
 
-    CompletionStatus status = completionService.completeWithResult(job.getId(), validResults());
+    CompletionStatus status =
+        completionService.completeWithResult(job.getId(), null, validResults());
     flushAndClear();
 
     ArticleSummary rewrittenKo =
@@ -99,7 +130,7 @@ class CompletionServiceTest {
 
     CompletionStatus status =
         completionService.completeWithResult(
-            job.getId(), List.of(new EnrichmentResult("ko", "", "KO summary", "media")));
+            job.getId(), null, List.of(new EnrichmentResult("ko", "", "KO summary", "media")));
     flushAndClear();
 
     ArticleIngestionJob reloadedJob = jobRepository.findById(job.getId()).orElseThrow();
@@ -116,7 +147,8 @@ class CompletionServiceTest {
     Long articleId = job.getArticle().getId();
     flushAndClear();
 
-    CompletionStatus status = completionService.completeWithResult(job.getId(), validResults());
+    CompletionStatus status =
+        completionService.completeWithResult(job.getId(), null, validResults());
     flushAndClear();
 
     assertThat(status).isEqualTo(CompletionStatus.SKIPPED_NOT_PROCESSING);
@@ -175,7 +207,8 @@ class CompletionServiceTest {
                         SOURCE_NAME,
                         "https://example.com/feed.xml",
                         new SourcePolicy(
-                            new CrawlingPolicy(List.of("example.com"), List.of("article"))),
+                            new CrawlingPolicy(
+                                List.of("example.com"), List.of("article"), List.of())),
                         "en",
                         SourceType.RSS)));
   }

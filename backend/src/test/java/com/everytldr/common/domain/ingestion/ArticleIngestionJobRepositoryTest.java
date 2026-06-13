@@ -210,7 +210,8 @@ class ArticleIngestionJobRepositoryTest {
                         "Example Source",
                         "https://example.com/feed.xml",
                         new SourcePolicy(
-                            new CrawlingPolicy(List.of("example.com"), List.of("article"))),
+                            new CrawlingPolicy(
+                                List.of("example.com"), List.of("article"), List.of())),
                         "en",
                         SourceType.RSS)));
   }

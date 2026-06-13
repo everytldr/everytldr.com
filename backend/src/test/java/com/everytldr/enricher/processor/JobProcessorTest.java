@@ -16,6 +16,7 @@ import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.enricher.completion.CompletionService;
 import com.everytldr.enricher.completion.CompletionStatus;
 import com.everytldr.enricher.content.ContentResolver;
+import com.everytldr.enricher.content.ContentResolver.ResolvedArticle;
 import com.everytldr.enricher.enrichment.CategorySlugProvider;
 import com.everytldr.enricher.enrichment.EnrichmentClient;
 import com.everytldr.enricher.enrichment.EnrichmentException;
@@ -82,10 +83,11 @@ class JobProcessorTest {
     when(claimService.claimNextJobs(NOW, 2)).thenReturn(List.of(job));
     when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
     when(contentResolver.supports(job.getArticle())).thenReturn(true);
-    when(contentResolver.resolve(job.getArticle())).thenReturn(ARTICLE_BODY);
+    when(contentResolver.resolve(job.getArticle()))
+        .thenReturn(new ResolvedArticle(ARTICLE_BODY, null));
     when(categorySlugProvider.getCategorySlugs()).thenReturn(categorySlugs());
     when(enrichmentClient.enrich(enrichmentRequest(job.getArticle()))).thenReturn(results);
-    when(completionService.completeWithResult(job.getId(), results))
+    when(completionService.completeWithResult(job.getId(), null, results))
         .thenReturn(CompletionStatus.SUCCEEDED);
 
     assertThat(processor.processNextBatch(2))
@@ -159,7 +161,8 @@ class JobProcessorTest {
 
     when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
     when(contentResolver.supports(job.getArticle())).thenReturn(true);
-    when(contentResolver.resolve(job.getArticle())).thenReturn(ARTICLE_BODY);
+    when(contentResolver.resolve(job.getArticle()))
+        .thenReturn(new ResolvedArticle(ARTICLE_BODY, null));
     when(categorySlugProvider.getCategorySlugs()).thenReturn(categorySlugs());
     when(enrichmentClient.enrich(enrichmentRequest(job.getArticle())))
         .thenThrow(new IllegalStateException("bad response"));

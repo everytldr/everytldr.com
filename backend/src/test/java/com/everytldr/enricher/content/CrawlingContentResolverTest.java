@@ -10,6 +10,7 @@ import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
 import com.everytldr.common.domain.source.SourceType;
+import com.everytldr.enricher.content.ContentResolver.ResolvedArticle;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -73,10 +74,86 @@ class CrawlingContentResolverTest {
             .formatted("Tottenham controlled the first half. ".repeat(5)));
 
     String content =
-        resolver(List.of("localhost"), List.of("article")).resolve(article(serverUrl("/story")));
+        resolver(List.of("localhost"), List.of("article"))
+            .resolve(article(serverUrl("/story")))
+            .content();
 
     assertThat(content).contains("Match report").contains("Tottenham controlled");
     assertThat(content).doesNotContain("tracking").doesNotContain("Main fallback");
+  }
+
+  @Test
+  void resolvesThumbnailFromOpenGraphImageWhenArticleHasNone() {
+    route(
+        "/story",
+        200,
+        Map.of("Content-Type", "text/html; charset=UTF-8"),
+        """
+        <html>
+          <head>
+            <meta property="og:image" content="https://cdn.example.com/hero.jpg" />
+          </head>
+          <body>
+            <article><p>%s</p></article>
+          </body>
+        </html>
+        """
+            .formatted("Tottenham controlled the first half. ".repeat(5)));
+
+    ResolvedArticle resolved =
+        resolver(List.of("localhost"), List.of("article")).resolve(article(serverUrl("/story")));
+
+    assertThat(resolved.thumbnailUrl()).isEqualTo("https://cdn.example.com/hero.jpg");
+  }
+
+  @Test
+  void resolvesThumbnailFromConfiguredSelectorsWhenOpenGraphMissing() {
+    route(
+        "/story",
+        200,
+        Map.of("Content-Type", "text/html; charset=UTF-8"),
+        """
+        <html>
+          <body>
+            <header><img src="https://cdn.example.com/logo.png" /></header>
+            <figure class="feat-image"><img src="https://cdn.example.com/feature.jpg" /></figure>
+            <article><p>%s</p></article>
+          </body>
+        </html>
+        """
+            .formatted("Tottenham controlled the first half. ".repeat(5)));
+
+    ResolvedArticle resolved =
+        resolver(List.of("localhost"), List.of("article"), List.of(".feat-image > img"))
+            .resolve(article(serverUrl("/story")));
+
+    assertThat(resolved.thumbnailUrl()).isEqualTo("https://cdn.example.com/feature.jpg");
+  }
+
+  @Test
+  void prefersConfiguredThumbnailSelectorOverOpenGraphImage() {
+    route(
+        "/story",
+        200,
+        Map.of("Content-Type", "text/html; charset=UTF-8"),
+        """
+        <html>
+          <head>
+            <meta property="og:image" content="https://cdn.example.com/og.jpg" />
+          </head>
+          <body>
+            <figure class="feat-image"><img src="https://cdn.example.com/feature.jpg" /></figure>
+            <article><p>%s</p></article>
+          </body>
+        </html>
+        """
+            .formatted("Tottenham controlled the first half. ".repeat(5)));
+
+    ResolvedArticle resolved =
+        resolver(List.of("localhost"), List.of("article"), List.of(".feat-image > img"))
+            .resolve(article(serverUrl("/story")));
+
+    assertThat(resolved.thumbnailUrl()).isEqualTo("https://cdn.example.com/feature.jpg");
   }
 
   @Test
@@ -132,20 +209,26 @@ class CrawlingContentResolverTest {
     assertThat(exception.isRetryable()).isFalse();
   }
 
-  private CrawlingContentResolver resolver(List<String> hosts, List<String> selectors) {
+  private CrawlingContentResolver resolver(List<String> hosts, List<String> contentSelectors) {
+    return resolver(hosts, contentSelectors, List.of());
+  }
+
+  private CrawlingContentResolver resolver(
+      List<String> hosts, List<String> contentSelectors, List<String> thumbnailSelectors) {
     ArticleSourceProvider sourceProvider = mock(ArticleSourceProvider.class);
     when(sourceProvider.findByName("Global Voices"))
-        .thenReturn(Optional.of(source(hosts, selectors)));
+        .thenReturn(Optional.of(source(hosts, contentSelectors, thumbnailSelectors)));
 
     return new CrawlingContentResolver(
         sourceProvider, new ContentCrawler(Duration.ofSeconds(2), 4096), 20);
   }
 
-  private ArticleSource source(List<String> hosts, List<String> selectors) {
+  private ArticleSource source(
+      List<String> hosts, List<String> contentSelectors, List<String> thumbnailSelectors) {
     return ArticleSource.create(
         "Global Voices",
         "https://globalvoices.org/feed/",
-        new SourcePolicy(new CrawlingPolicy(hosts, selectors)),
+        new SourcePolicy(new CrawlingPolicy(hosts, contentSelectors, thumbnailSelectors)),
         "en",
         SourceType.RSS);
   }

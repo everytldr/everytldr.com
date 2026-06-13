@@ -43,4 +43,8 @@ public class Article extends SoftDeletableEntity {
       String contentUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
     return new Article(contentUrl, source, thumbnailUrl, language, publishedAt);
   }
+
+  public void updateThumbnailUrl(String thumbnailUrl) {
+    this.thumbnailUrl = thumbnailUrl;
+  }
 }
