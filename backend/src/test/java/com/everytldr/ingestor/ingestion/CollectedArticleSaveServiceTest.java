@@ -182,7 +182,8 @@ class CollectedArticleSaveServiceTest {
                         "The Guardian Football",
                         "https://example.com/rss.xml",
                         new SourcePolicy(
-                            new CrawlingPolicy(List.of("theguardian.com"), List.of("article"))),
+                            new CrawlingPolicy(
+                                List.of("theguardian.com"), List.of("article"), List.of())),
                         "en",
                         SourceType.RSS)));
   }

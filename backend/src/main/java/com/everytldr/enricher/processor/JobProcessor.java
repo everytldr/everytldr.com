@@ -7,6 +7,7 @@ import com.everytldr.common.domain.ingestion.IngestionState;
 import com.everytldr.enricher.completion.CompletionService;
 import com.everytldr.enricher.completion.CompletionStatus;
 import com.everytldr.enricher.content.ContentResolver;
+import com.everytldr.enricher.content.ContentResolver.ResolvedArticle;
 import com.everytldr.enricher.enrichment.CategorySlugProvider;
 import com.everytldr.enricher.enrichment.EnrichmentClient;
 import com.everytldr.enricher.enrichment.EnrichmentException;
@@ -64,13 +65,15 @@ public class JobProcessor {
       ContentResolver contentResolver = selectContentResolver(article);
       EnrichmentClient enrichmentClient = selectEnrichmentClient();
 
-      String content = contentResolver.resolve(article);
+      ResolvedArticle resolvedArticle = contentResolver.resolve(article);
       List<String> categorySlugs = categorySlugProvider.getCategorySlugs();
 
       List<EnrichmentResult> enrichmentResults =
-          enrichmentClient.enrich(EnrichmentRequest.from(article, content, categorySlugs));
+          enrichmentClient.enrich(
+              EnrichmentRequest.from(article, resolvedArticle.content(), categorySlugs));
       CompletionStatus completionStatus =
-          completionService.completeWithResult(jobId, enrichmentResults);
+          completionService.completeWithResult(
+              jobId, resolvedArticle.thumbnailUrl(), enrichmentResults);
       return ProcessingResult.from(jobId, completionStatus);
     } catch (EnrichmentException e) {
       return completeFailure(jobId, job, e);

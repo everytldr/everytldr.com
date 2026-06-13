@@ -18,7 +18,7 @@ public class CategorySlugProvider {
   @Cacheable(cacheNames = CACHE_NAME, sync = true)
   public List<String> getCategorySlugs() {
     List<String> categorySlugs =
-        categoryRepository.findAllByOrderBySortOrderAscIdAsc().stream()
+        categoryRepository.findAllByOrderBySlugAsc().stream()
             .map(category -> category.getSlug())
             .toList();
 

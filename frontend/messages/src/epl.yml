@@ -75,10 +75,10 @@ team-short:
   liverpool:
     en: "Liverpool"
     ko: "리버풀"
-  manchester-city:
+  manchester_city:
     en: "Man City"
     ko: "맨시티"
-  manchester-united:
+  manchester_united:
     en: "Man Utd"
     ko: "맨유"
   tottenham:
@@ -89,7 +89,7 @@ team:
   arsenal:
     en: "Arsenal"
     ko: "아스널"
-  aston-villa:
+  aston_villa:
     en: "Aston Villa"
     ko: "애스턴 빌라"
   bournemouth:
@@ -107,7 +107,7 @@ team:
   chelsea:
     en: "Chelsea"
     ko: "첼시"
-  crystal-palace:
+  crystal_palace:
     en: "Crystal Palace"
     ko: "크리스털 팰리스"
   everton:
@@ -122,16 +122,16 @@ team:
   liverpool:
     en: "Liverpool"
     ko: "리버풀"
-  manchester-city:
+  manchester_city:
     en: "Manchester City"
     ko: "맨체스터 시티"
-  manchester-united:
+  manchester_united:
     en: "Manchester United"
     ko: "맨체스터 유나이티드"
   newcastle:
     en: "Newcastle United"
     ko: "뉴캐슬"
-  nottingham-forest:
+  nottingham_forest:
     en: "Nottingham Forest"
     ko: "노팅엄 포레스트"
   sunderland:
@@ -140,7 +140,7 @@ team:
   tottenham:
     en: "Tottenham Hotspur"
     ko: "토트넘"
-  west-ham:
+  west_ham:
     en: "West Ham United"
     ko: "웨스트햄"
   wolves:

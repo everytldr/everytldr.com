@@ -1,6 +1,6 @@
 "use client";
 
-import { EplPageTab } from "@/shared/config";
+import { EplTabSlug } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { buildEplTabUrl } from "@/shared/lib";
 import { Tabs, TabsList, TabsTrigger, Translation } from "@/shared/ui";
@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 
 type EplTabsProps = {
   className?: string;
-  activeTab: EplPageTab;
+  activeTab: EplTabSlug;
 };
 
 export function EplTabs({ className, activeTab }: EplTabsProps) {
@@ -17,13 +17,13 @@ export function EplTabs({ className, activeTab }: EplTabsProps) {
   return (
     <Tabs className={className} value={activeTab}>
       <TabsList aria-label={t("tabs")}>
-        <TabsTrigger value={EplPageTab.News} asChild>
-          <Link href={buildEplTabUrl(EplPageTab.News)}>
+        <TabsTrigger value={EplTabSlug.News} asChild>
+          <Link href={buildEplTabUrl(EplTabSlug.News)}>
             <Translation tKey="epl.tab.news" />
           </Link>
         </TabsTrigger>
-        <TabsTrigger value={EplPageTab.Record} asChild>
-          <Link href={buildEplTabUrl(EplPageTab.Record)}>
+        <TabsTrigger value={EplTabSlug.Record} asChild>
+          <Link href={buildEplTabUrl(EplTabSlug.Record)}>
             <Translation tKey="epl.tab.record" />
           </Link>
         </TabsTrigger>

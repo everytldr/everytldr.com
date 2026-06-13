@@ -59,7 +59,7 @@ class ArticleControllerTest {
   @BeforeEach
   void seedFixtures() {
     sourceRepository.saveAndFlush(source());
-    football = categoryRepository.saveAndFlush(Category.create("football", 0));
+    football = categoryRepository.saveAndFlush(Category.create("football"));
   }
 
   @Test
@@ -81,6 +81,49 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.items[0].title").value("T0"))
         .andExpect(jsonPath("$.items[1].title").value("T1"))
         .andExpect(jsonPath("$.nextCursor").isString());
+  }
+
+  @Test
+  void listCategoryPrefixMatchesExactSlugAndHyphenDescendantsOnly() throws Exception {
+    Category worldConflict = categoryRepository.saveAndFlush(Category.create("world-conflict"));
+    Category war = categoryRepository.findBySlug("world-conflict-war").orElseThrow();
+    Category worldConflicted = categoryRepository.saveAndFlush(Category.create("world-conflicted"));
+    Instant base = Instant.parse("2026-04-01T00:00:00Z");
+    saveArticle(base, worldConflicted, "ko", "World Conflicted", "본문");
+    saveArticle(base.minus(1, ChronoUnit.HOURS), worldConflict, "ko", "World Conflict", "본문");
+    saveArticle(base.minus(2, ChronoUnit.HOURS), war, "ko", "War", "본문");
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(
+            get("/api/articles")
+                .header("Accept-Language", "ko")
+                .param("categoryPrefix", "world-conflict")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(2))
+        .andExpect(jsonPath("$.items[0].title").value("World Conflict"))
+        .andExpect(jsonPath("$.items[1].title").value("War"));
+  }
+
+  @Test
+  void listSupportsExistingFootballTeamCategoryPrefix() throws Exception {
+    Category arsenal = categoryRepository.findBySlug("sport-football-epl-arsenal").orElseThrow();
+    saveArticle(Instant.parse("2026-04-01T00:00:00Z"), arsenal, "ko", "EPL", "본문");
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(
+            get("/api/articles")
+                .header("Accept-Language", "ko")
+                .param("categoryPrefix", "sport-football-epl-arsenal")
+                .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(1))
+        .andExpect(jsonPath("$.items[0].title").value("EPL"))
+        .andExpect(jsonPath("$.items[0].category").value("sport-football-epl-arsenal"));
   }
 
   @Test
@@ -138,7 +181,7 @@ class ArticleControllerTest {
     return ArticleSource.create(
         "Example",
         "https://example.com/feed.xml",
-        new SourcePolicy(new CrawlingPolicy(List.of("example.com"), List.of("article"))),
+        new SourcePolicy(new CrawlingPolicy(List.of("example.com"), List.of("article"), List.of())),
         "en",
         SourceType.RSS);
   }

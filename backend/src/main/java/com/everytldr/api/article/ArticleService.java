@@ -46,16 +46,17 @@ public class ArticleService {
       Instant cursorPublishedAt,
       Long cursorId,
       int size) {
+    PageRequest pageRequest =
+        PageRequest.of(
+            0,
+            size + 1, // NOTE: 행 하나를 추가로 받아와서 hasMore를 계산해냄.
+            Sort.unsorted());
     List<ListItemProjection> rows =
-        articleRepository.findRecent(
-            language.code(),
-            categoryPrefix,
-            cursorPublishedAt,
-            cursorId,
-            PageRequest.of(
-                0,
-                size + 1, // NOTE: 행 하나를 추가로 받아와서 hasMore를 계산해냄.
-                Sort.unsorted()));
+        categoryPrefix == null
+            ? articleRepository.findRecent(
+                language.code(), cursorPublishedAt, cursorId, pageRequest)
+            : articleRepository.findRecentByCategoryPrefix(
+                language.code(), categoryPrefix, cursorPublishedAt, cursorId, pageRequest);
     return Pagination.Page.from(rows, size);
   }
 }

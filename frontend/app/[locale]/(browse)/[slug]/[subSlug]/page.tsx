@@ -1,24 +1,24 @@
 import { SportPage } from "@/pages/sport";
-import { EplPageTab, EplTeam, SubCategorySlug } from "@/shared/config";
+import { EplTabSlug, EplTeam } from "@/shared/config";
 import { locales } from "@/shared/i18n";
 import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<
     { locale: string } & (
-      | { slug: SubCategorySlug.NBA; subSlug?: unknown } // TODO: MVP 이후에 구현 예정
-      | { slug: SubCategorySlug.EPL; subSlug?: EplPageTab | EplTeam }
+      | { slug: "nba"; subSlug?: unknown } // TODO: MVP 이후에 구현 예정
+      | { slug: "epl"; subSlug?: EplTabSlug | EplTeam }
     )
   >;
 };
 
-const EPL_SUB_SLUGS = [...Object.values(EplPageTab), ...Object.values(EplTeam)];
+const EPL_SUB_SLUGS = [...Object.values(EplTabSlug), ...Object.values(EplTeam)];
 
 export function generateStaticParams() {
   return locales.flatMap((locale) => {
     return EPL_SUB_SLUGS.map((subSlug) => ({
       locale,
-      slug: SubCategorySlug.EPL,
+      slug: "epl",
       subSlug,
     }));
   });
@@ -27,9 +27,9 @@ export function generateStaticParams() {
 export default async function Page({ params: _params }: PageProps) {
   const params = await _params;
 
-  if (params.slug === SubCategorySlug.EPL) {
-    return <SportPage slug={params.slug} subSlug={params.subSlug} />;
+  if (params.slug !== "epl") {
+    notFound();
   }
 
-  notFound();
+  return <SportPage slug={params.slug} subSlug={params.subSlug} />;
 }

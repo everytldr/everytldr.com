@@ -12,6 +12,7 @@ import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import com.everytldr.enricher.enrichment.EnrichmentResult;
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -32,7 +33,8 @@ public class CompletionService {
   private final CategoryRepository categoryRepository;
 
   @Transactional
-  public CompletionStatus completeWithResult(Long jobId, List<EnrichmentResult> results) {
+  public CompletionStatus completeWithResult(
+      Long jobId, String thumbnailUrl, List<EnrichmentResult> results) {
     Objects.requireNonNull(jobId, "jobId must not be null");
 
     ArticleIngestionJob job = findJob(jobId);
@@ -52,6 +54,12 @@ public class CompletionService {
     } catch (CompletionFailure | EnrichmentException e) {
       job.markFailed(e.getMessage());
       return CompletionStatus.FAILED;
+    }
+
+    boolean canUpdateThumbnailUrl =
+        isHttpUrl(thumbnailUrl) && !isHttpUrl(article.getThumbnailUrl());
+    if (canUpdateThumbnailUrl) {
+      article.updateThumbnailUrl(thumbnailUrl);
     }
 
     for (EnrichmentResult result : results) {
@@ -145,6 +153,18 @@ public class CompletionService {
             () ->
                 articleSummaryRepository.save(
                     ArticleSummary.create(article, language, title, content)));
+  }
+
+  private static boolean isHttpUrl(String url) {
+    if (url == null || url.isBlank()) {
+      return false;
+    }
+    try {
+      String scheme = URI.create(url).getScheme();
+      return "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
   private static final class CompletionFailure extends RuntimeException {

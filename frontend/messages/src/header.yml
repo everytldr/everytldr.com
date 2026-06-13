@@ -50,35 +50,158 @@ category:
   home:
     en: "Home"
     ko: "홈"
-  sport:
-    en: "Sport"
-    ko: "스포츠"
   politics:
     en: "Politics"
     ko: "정치"
+  economy:
+    en: "Economy"
+    ko: "경제"
+  society:
+    en: "Society"
+    ko: "사회"
+  world:
+    en: "World"
+    ko: "세계"
   technology:
     en: "Technology"
     ko: "IT/과학"
+  culture:
+    en: "Culture"
+    ko: "문화"
+  sport:
+    en: "Sport"
+    ko: "스포츠"
+  health:
+    en: "Health"
+    ko: "건강"
+  environment:
+    en: "Environment"
+    ko: "환경"
 
 subcategory:
   discover:
     en: "Discover"
     ko: "추천"
-  latest:
-    en: "Latest"
-    ko: "최신"
   trending:
     en: "Trending"
     ko: "트렌딩"
+  latest:
+    en: "Latest"
+    ko: "최신"
+  politics-elections:
+    en: "Elections"
+    ko: "선거"
+  politics-government:
+    en: "Government"
+    ko: "정부"
+  politics-law:
+    en: "Law"
+    ko: "법"
+  economy-business:
+    en: "Business"
+    ko: "비즈니스"
+  economy-consumer:
+    en: "Consumer"
+    ko: "소비"
+  economy-finance:
+    en: "Finance"
+    ko: "금융"
+  economy-policy:
+    en: "Policy"
+    ko: "정책"
+  economy-work:
+    en: "Work"
+    ko: "노동"
+  society-activism:
+    en: "Activism"
+    ko: "시민운동"
+  society-demographics:
+    en: "Demographics"
+    ko: "인구"
+  society-education:
+    en: "Education"
+    ko: "교육"
+  society-media:
+    en: "Media"
+    ko: "미디어"
+  society-migration:
+    en: "Migration"
+    ko: "이주"
+  society-rights:
+    en: "Rights"
+    ko: "인권"
+  society-safety:
+    en: "Safety"
+    ko: "안전"
+  world-conflict:
+    en: "Conflict"
+    ko: "분쟁"
+  world-geopolitics:
+    en: "Geopolitics"
+    ko: "지정학"
+  world-humanitarian:
+    en: "Humanitarian"
+    ko: "인도주의"
+  technology-ai:
+    en: "AI"
+    ko: "AI"
+  technology-cybersecurity:
+    en: "Cybersecurity"
+    ko: "보안"
+  technology-devices:
+    en: "Devices"
+    ko: "디바이스"
+  technology-games:
+    en: "Games"
+    ko: "게임"
+  technology-internet_platforms:
+    en: "Internet & Platforms"
+    ko: "인터넷·플랫폼"
+  technology-science:
+    en: "Science"
+    ko: "과학"
+  culture-arts:
+    en: "Arts"
+    ko: "예술"
+  culture-history:
+    en: "History"
+    ko: "역사"
+  culture-language:
+    en: "Language"
+    ko: "언어"
+  culture-lifestyle:
+    en: "Lifestyle"
+    ko: "라이프스타일"
+  culture-religion:
+    en: "Religion"
+    ko: "종교"
   epl:
     en: "EPL"
     ko: "EPL"
   nba:
     en: "NBA"
     ko: "NBA"
-  domestic:
-    en: "Domestic"
-    ko: "국내"
-  ai:
-    en: "AI"
-    ko: "AI"
+  health-healthcare:
+    en: "Healthcare"
+    ko: "의료"
+  health-mental_health:
+    en: "Mental Health"
+    ko: "정신건강"
+  health-public_health:
+    en: "Public Health"
+    ko: "공중보건"
+  health-wellness:
+    en: "Wellness"
+    ko: "웰빙"
+  environment-climate:
+    en: "Climate"
+    ko: "기후"
+  environment-energy:
+    en: "Energy"
+    ko: "에너지"
+  environment-nature:
+    en: "Nature"
+    ko: "자연"
+  environment-pollution:
+    en: "Pollution"
+    ko: "오염"

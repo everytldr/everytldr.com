@@ -26,18 +26,39 @@ class CategoryControllerTest {
   @Autowired private CategoryRepository categoryRepository;
 
   @Test
-  void listReturnsCategoriesOrderedBySortOrderThenId() throws Exception {
-    categoryRepository.saveAndFlush(Category.create("test-tech", -1));
-    categoryRepository.saveAndFlush(Category.create("test-football", -3));
-    categoryRepository.saveAndFlush(Category.create("test-tie-a", -2));
-    categoryRepository.saveAndFlush(Category.create("test-tie-b", -2));
+  void listReturnsSeededLeafCategories() throws Exception {
+    mockMvc
+        .perform(get("/api/categories"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(99))
+        .andExpect(jsonPath("$[0].slug").value("culture-arts-books"))
+        .andExpect(jsonPath("$[98].slug").value("world-humanitarian-disaster_response"))
+        .andExpect(jsonPath("$[?(@.slug == 'sport-football-epl-aston_villa')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'sport-events')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'technology-internet_platforms')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-rights-free_speech_censorship')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'economy-consumer')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'health-wellness')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-activism')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'rights')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'media')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'education')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'science')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'sport-football-arsenal')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'technology-companies')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'environment-water')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-profiles')]").isEmpty());
+  }
+
+  @Test
+  void listReturnsCategoriesOrderedBySlug() throws Exception {
+    categoryRepository.saveAndFlush(Category.create("zzz-test-b"));
+    categoryRepository.saveAndFlush(Category.create("zzz-test-a"));
 
     mockMvc
         .perform(get("/api/categories"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].slug").value("test-football"))
-        .andExpect(jsonPath("$[1].slug").value("test-tie-a"))
-        .andExpect(jsonPath("$[2].slug").value("test-tie-b"))
-        .andExpect(jsonPath("$[3].slug").value("test-tech"));
+        .andExpect(jsonPath("$[99].slug").value("zzz-test-a"))
+        .andExpect(jsonPath("$[100].slug").value("zzz-test-b"));
   }
 }
