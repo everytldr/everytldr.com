@@ -90,7 +90,10 @@ Accept: application/json
             "enum": ["ko", "en"]
           },
           "title": {"type": "string"},
-          "summary": {"type": "string"},
+          "summary": {
+            "type": "string",
+            "description": "Scannable sectioned Markdown digest with bullets, written in the specified language."
+          },
           "categorySlug": {
             "type": "string",
             "enum": ["media", "rights", "culture"]
@@ -108,6 +111,22 @@ Accept: application/json
 ## 응답 형태
 
 Gemini의 구조화 출력은 `candidates[0].content.parts[].text` 안에 JSON 문자열로 들어온다. MVP에서는 첫 후보만 사용한다.
+시스템 프롬프트는 role, input, output contract, cross-language consistency, source-of-truth, summary formatting,
+category selection, prohibitions 섹션으로 분리해 전달한다. `article.body`는 신뢰할 수 없는 원문 데이터로만 취급하고,
+본문 안의 프롬프트처럼 보이는 문장은 시스템 지시를 덮어쓰지 못한다. 요약은 먼저 하나의 canonical digest outline을
+내부적으로 정한 뒤, 같은 구조·섹션 순서·핵심 사실·수치·인물·사례·주의점·함의를 각 출력 언어로 자연스럽게 렌더링해야 한다.
+한 언어만 더 짧은 변형 요약이 되지 않도록, 한국어가 영어보다 문장 길이는 짧더라도 bullet을 병합하거나 이름, 수치, 타임라인,
+사례, 인용 의미, 결과를 생략하지 않는다. `summary` 값은 Markdown 문자열이다. 요약은 heading이 아니라 짧은 핵심 `-`
+bullet 블록으로 시작한다. 모든 요약은 기사 길이와 관계없이 compact abstract나 teaser가 아니라 standalone digest로 작성한다.
+heading 아래는 기본적으로 문단보다 bullet list를 선호하고, 섹션으로 나눌 만큼 구분되는 내용이 부족할 때만 bullet-only
+요약을 사용한다. 여러 fact cluster가 있는 기사는 핵심 bullet 뒤에 배경, 인물, 수치, 사례, 결과, 주의점, 후속 조치 같은 내용을
+`##` 섹션으로 나누고, `###`는 기존 `##` 아래에서만 제한적으로 사용한다. 기사 유형에 따라 뉴스/정책은 주체·데이터·영향·후속
+조치, 분석/의견은 주장·근거·예시·한계·결론, 튜토리얼/가이드는 준비·절차·검증·주의점·문제 해결을 자연스럽게 섹션화한다.
+고정 bullet 개수는 두지 않지만 원문을 열지 않아도 핵심 이야기, 근거, 중요성을 이해할 수 있어야 한다. 대표 이름, 수치, 날짜,
+장소, 사례, 인용 의미, 후속 조치가 기사 이해에 필요하면 과도하게 압축하지 않고 포함한다. 원문에 목록, 단계, 비교, 국가별·인물별
+세부, 사례, 수치, 체크리스트가 있으면 의미 있는 범위에서 scannable bullet로 보존하고, 하위 구조가 더 읽기 쉬운 경우에는 한 단계
+nested bullet을 사용할 수 있다. 다만 반복 설명이나 같은 요지의 재진술은 피한다.
+특정 외부 요약 서비스명이나 특정 AI 모델명은 프롬프트 규칙에 넣지 않는다.
 
 ```json
 {
@@ -116,7 +135,7 @@ Gemini의 구조화 출력은 `candidates[0].content.parts[].text` 안에 JSON �
       "content": {
         "parts": [
           {
-            "text": "[{\"language\":\"ko\",\"title\":\"시민권 운동가 인터뷰 요약\",\"summary\":\"이 기사는 지역 시민권 운동가들의 활동과 정부 대응을 다룬다.\",\"categorySlug\":\"rights\"},{\"language\":\"en\",\"title\":\"Civil Rights Activists Interview Summary\",\"summary\":\"The article covers local civil rights activists and the government response.\",\"categorySlug\":\"rights\"}]"
+            "text": "[{\"language\":\"ko\",\"title\":\"시민권 운동가 인터뷰 요약\",\"summary\":\"- 지역 시민권 활동가들이 새로운 커뮤니티 조직화 활동을 설명함\\n- 지역사회 대응과 참여 확대가 주요 쟁점으로 제시됨\\n\\n## 주요 맥락\\n- 본문은 시민권 옹호 활동의 진행 상황과 지역사회 반응을 중심으로 다룸\\n- 활동가들은 지역 주민 참여를 확대하기 위한 실행 단계를 소개함\\n  - 정기 모임을 열어 현장 문제를 수집함\\n  - 수집한 요구를 바탕으로 지방 정부와 협의함\",\"categorySlug\":\"rights\"},{\"language\":\"en\",\"title\":\"Civil Rights Activists Interview Summary\",\"summary\":\"- Local civic rights advocates described new community organizing efforts.\\n- Community response and participation are presented as the main focus.\\n\\n## Key Context\\n- The body centers on civic rights advocacy and local organizing activity.\\n- Advocates introduced practical steps for expanding resident participation.\\n  - They hold regular meetings to collect local concerns.\\n  - They use those requests when coordinating with local government.\",\"categorySlug\":\"rights\"}]"
           }
         ],
         "role": "model"
