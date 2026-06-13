@@ -160,10 +160,6 @@
         "properties" : {
           "slug" : {
             "type" : "string"
-          },
-          "sortOrder" : {
-            "format" : "int32",
-            "type" : "integer"
           }
         },
         "type" : "object"
