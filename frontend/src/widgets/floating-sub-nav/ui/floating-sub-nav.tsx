@@ -62,31 +62,33 @@ export function FloatingSubNav({ className }: FloatingSubNavProps) {
         <nav className="flex" aria-label={t("header.aria-label.subcategories")}>
           <ul className="flex items-stretch gap-xl">
             {category.children &&
-              category.children.map((child) => {
-                const isActive = child.slug === categorySlug;
-                return (
-                  <li key={child.slug} className="flex">
-                    <Link
-                      className={cn(
-                        "inline-flex items-stretch text-nav-md whitespace-nowrap transition-colors outline-none",
-                        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                        isActive ? "text-ink" : "text-meta hover:text-ink",
-                      )}
-                      href={buildCategoryUrl(child)}
-                      tabIndex={visible ? 0 : -1}
-                      aria-current={isActive ? "page" : undefined}
-                    >
-                      <Translation
+              category.children
+                .filter((child) => !("routable" in child) || child.routable)
+                .map((child) => {
+                  const isActive = child.slug === categorySlug;
+                  return (
+                    <li key={child.slug} className="flex">
+                      <Link
                         className={cn(
-                          "flex items-center border-b-2 transition-colors",
-                          isActive ? "border-ink" : "border-transparent",
+                          "inline-flex items-stretch text-nav-md whitespace-nowrap transition-colors outline-none",
+                          "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+                          isActive ? "text-ink" : "text-meta hover:text-ink",
                         )}
-                        tKey={`header.subcategory.${child.slug}`}
-                      />
-                    </Link>
-                  </li>
-                );
-              })}
+                        href={buildCategoryUrl(child)}
+                        tabIndex={visible ? 0 : -1}
+                        aria-current={isActive ? "page" : undefined}
+                      >
+                        <Translation
+                          className={cn(
+                            "flex items-center border-b-2 transition-colors",
+                            isActive ? "border-ink" : "border-transparent",
+                          )}
+                          tKey={`header.subcategory.${child.slug}`}
+                        />
+                      </Link>
+                    </li>
+                  );
+                })}
           </ul>
         </nav>
       </Container>
