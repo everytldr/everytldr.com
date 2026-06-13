@@ -26,21 +26,28 @@ class CategoryControllerTest {
   @Autowired private CategoryRepository categoryRepository;
 
   @Test
-  void listReturnsSeededCategoriesWithMergedHierarchicalSlugs() throws Exception {
+  void listReturnsSeededLeafCategories() throws Exception {
     mockMvc
         .perform(get("/api/categories"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(146))
-        .andExpect(jsonPath("$[0].slug").value("culture"))
-        .andExpect(jsonPath("$[145].slug").value("world-humanitarian-refugees"))
-        .andExpect(jsonPath("$[?(@.slug == 'society-rights')]").isNotEmpty())
-        .andExpect(jsonPath("$[?(@.slug == 'society-media')]").isNotEmpty())
-        .andExpect(jsonPath("$[?(@.slug == 'society-education')]").isNotEmpty())
-        .andExpect(jsonPath("$[?(@.slug == 'technology-science')]").isNotEmpty())
+        .andExpect(jsonPath("$.length()").value(99))
+        .andExpect(jsonPath("$[0].slug").value("culture-arts-books"))
+        .andExpect(jsonPath("$[98].slug").value("world-humanitarian-disaster_response"))
+        .andExpect(jsonPath("$[?(@.slug == 'sport-football-aston_villa')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'sport-events')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'technology-internet_platforms')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-rights-free_speech_censorship')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'economy-consumer')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'health-wellness')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-activism')]").isNotEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'rights')]").isEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'media')]").isEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'education')]").isEmpty())
-        .andExpect(jsonPath("$[?(@.slug == 'science')]").isEmpty());
+        .andExpect(jsonPath("$[?(@.slug == 'science')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'sport-football-epl-arsenal')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'technology-companies')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'environment-water')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'society-profiles')]").isEmpty());
   }
 
   @Test
@@ -51,7 +58,7 @@ class CategoryControllerTest {
     mockMvc
         .perform(get("/api/categories"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[146].slug").value("zzz-test-a"))
-        .andExpect(jsonPath("$[147].slug").value("zzz-test-b"));
+        .andExpect(jsonPath("$[99].slug").value("zzz-test-a"))
+        .andExpect(jsonPath("$[100].slug").value("zzz-test-b"));
   }
 }
