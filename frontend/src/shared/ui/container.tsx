@@ -11,8 +11,8 @@ export function Container({ className, size = "md", children }: ContainerProps) 
     <div
       className={cn(
         "mx-auto w-full px-md pc:px-xl",
-        size === "md" && "max-w-5xl",
-        size === "sm" && "max-w-3xl",
+        size === "md" && "max-w-6xl",
+        size === "sm" && "max-w-4xl",
         className,
       )}
     >
