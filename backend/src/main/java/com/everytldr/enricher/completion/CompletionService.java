@@ -12,6 +12,7 @@ import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import com.everytldr.enricher.enrichment.EnrichmentResult;
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -56,9 +56,9 @@ public class CompletionService {
       return CompletionStatus.FAILED;
     }
 
-    boolean canBackfillThumbnailUrl =
-        StringUtils.hasText(thumbnailUrl) && !StringUtils.hasText(article.getThumbnailUrl());
-    if (canBackfillThumbnailUrl) {
+    boolean canUpdateThumbnailUrl =
+        isHttpUrl(thumbnailUrl) && !isHttpUrl(article.getThumbnailUrl());
+    if (canUpdateThumbnailUrl) {
       article.updateThumbnailUrl(thumbnailUrl);
     }
 
@@ -153,6 +153,18 @@ public class CompletionService {
             () ->
                 articleSummaryRepository.save(
                     ArticleSummary.create(article, language, title, content)));
+  }
+
+  private static boolean isHttpUrl(String url) {
+    if (url == null || url.isBlank()) {
+      return false;
+    }
+    try {
+      String scheme = URI.create(url).getScheme();
+      return "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
   private static final class CompletionFailure extends RuntimeException {
