@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  getListArticlesInfiniteQueryKey,
   getListArticlesSuspenseInfiniteQueryOptions,
   type ArticleListItem,
   type listArticlesResponse,
 } from "@/shared/api";
+import type { Locale } from "@/shared/i18n";
 import type { Optional } from "@/shared/lib";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { range } from "lodash-es";
@@ -17,17 +19,31 @@ type ArticleListInfiniteProps = {
   className?: string;
   categoryPrefix: string;
   empty: ReactNode;
+  locale: Locale;
 };
 
 export function ArticleListInfinite({
   className,
   categoryPrefix,
   empty,
+  locale,
 }: ArticleListInfiniteProps) {
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } = useSuspenseInfiniteQuery({
-    ...getListArticlesSuspenseInfiniteQueryOptions({ categoryPrefix }),
+    ...getListArticlesSuspenseInfiniteQueryOptions(
+      { categoryPrefix },
+      {
+        query: {
+          queryKey: [...getListArticlesInfiniteQueryKey({ categoryPrefix }), locale],
+        },
+        request: {
+          headers: {
+            "Accept-Language": locale,
+          },
+        },
+      },
+    ),
     getNextPageParam: (lastPage: listArticlesResponse): Optional<string> =>
-      lastPage.status === 200 ? lastPage.data.nextCursor : undefined,
+      lastPage.status === 200 ? (lastPage.data.nextCursor ?? undefined) : undefined,
   });
   const { ref: sentinelRef, inView } = useInView({ rootMargin: "200px" });
 

@@ -1,9 +1,9 @@
 import { type ArticleDetailResponse } from "@/shared/api";
 import { ADSENSE_SLOT_ARTICLE_DETAIL } from "@/shared/config";
+import type { Locale } from "@/shared/i18n";
 import { cn, formatDate } from "@/shared/lib";
-import { AdSlot, Button, Translation } from "@/shared/ui";
+import { AdSlot, Button, MarkdownContent, Translation } from "@/shared/ui";
 import { ExternalLink } from "lucide-react";
-import { getLocale } from "next-intl/server";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { fetchArticleDetail } from "../api/fetch-article-detail";
@@ -13,14 +13,15 @@ import { ArticleLikeButton, ArticleLikeButtonSkeleton } from "./article-like-but
 type ArticleDetailPageProps = {
   className?: string;
   articleId: string;
+  locale: Locale;
 };
 
-export async function ArticleDetailPage({ className, articleId }: ArticleDetailPageProps) {
-  const article = await fetchArticleDetail(articleId);
+export async function ArticleDetailPage({ className, articleId, locale }: ArticleDetailPageProps) {
+  const article = await fetchArticleDetail(articleId, locale);
 
   return (
     <article className={cn("space-y-xl", className)}>
-      <ArticleDetailContent article={article} />
+      <ArticleDetailContent article={article} locale={locale} />
 
       <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">
         <ErrorBoundary fallback={null}>
@@ -45,7 +46,7 @@ export async function ArticleDetailPage({ className, articleId }: ArticleDetailP
 
       <ErrorBoundary fallback={<ArticleCommentsError />}>
         <Suspense fallback={<ArticleCommentsSkeleton />}>
-          <ArticleComments articleId={articleId} />
+          <ArticleComments articleId={articleId} locale={locale} />
         </Suspense>
       </ErrorBoundary>
     </article>
@@ -55,22 +56,17 @@ export async function ArticleDetailPage({ className, articleId }: ArticleDetailP
 type ArticleDetailContentProps = {
   className?: string;
   article: ArticleDetailResponse;
+  locale: Locale;
 };
 
-async function ArticleDetailContent({ className, article }: ArticleDetailContentProps) {
-  const locale = await getLocale();
-
+function ArticleDetailContent({ className, article, locale }: ArticleDetailContentProps) {
   return (
     <div className={cn("space-y-lg", className)}>
       <header className="space-y-sm">
         <p className="text-caption text-meta">
           {article.source}
-          {article.publishedAt && (
-            <>
-              {" · "}
-              <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
-            </>
-          )}
+          {" · "}
+          <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
         </p>
         <h1 className="text-display-xl text-ink">{article.title}</h1>
       </header>
@@ -87,7 +83,7 @@ async function ArticleDetailContent({ className, article }: ArticleDetailContent
         />
       )}
 
-      <p className="text-body-lg whitespace-pre-wrap text-body">{article.summary}</p>
+      <MarkdownContent markdown={article.summary} />
     </div>
   );
 }

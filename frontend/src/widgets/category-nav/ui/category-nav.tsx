@@ -4,6 +4,7 @@ import {
   CATEGORY_GRAPH,
   DEFAULT_CATEGORY_NODE,
   findRootCategory,
+  isHiddenNode,
   type CategorySlug,
 } from "@/shared/config";
 import { Link } from "@/shared/i18n";
@@ -31,7 +32,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
           aria-label={t("header.aria-label.categories")}
         >
           <div className="flex h-12 items-stretch gap-2xs">
-            {CATEGORY_GRAPH.map((node) => {
+            {CATEGORY_GRAPH.filter((node) => !isHiddenNode(node)).map((node) => {
               const isActive = node.slug === category.slug;
               return (
                 <Link
@@ -59,23 +60,25 @@ export function CategoryNav({ className }: CategoryNavProps) {
         >
           <div className="flex h-11 items-center gap-md">
             {category.children &&
-              category.children.map((child) => {
-                const isActive = child.slug === categorySlug;
-                return (
-                  <Link
-                    key={child.slug}
-                    className={cn(
-                      "inline-flex items-center text-nav-sm whitespace-nowrap transition-colors outline-none",
-                      "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft",
-                      isActive ? "text-ink" : "text-meta-soft hover:text-ink",
-                    )}
-                    href={buildCategoryUrl(child)}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    <Translation tKey={`header.subcategory.${child.slug}`} />
-                  </Link>
-                );
-              })}
+              category.children
+                .filter((node) => !isHiddenNode(node))
+                .map((child) => {
+                  const isActive = child.slug === categorySlug;
+                  return (
+                    <Link
+                      key={child.slug}
+                      className={cn(
+                        "inline-flex items-center text-nav-sm whitespace-nowrap transition-colors outline-none",
+                        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft",
+                        isActive ? "text-ink" : "text-meta-soft hover:text-ink",
+                      )}
+                      href={buildCategoryUrl(child)}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      <Translation tKey={`header.subcategory.${child.slug}`} />
+                    </Link>
+                  );
+                })}
           </div>
         </nav>
       </div>

@@ -77,7 +77,7 @@ export const listArticles = ({ request }: { request: Request }) => {
   const items = take(drop(filteredArticles, startIndex), size);
 
   const nextIndex = startIndex + size;
-  const nextCursor = nextIndex < filteredArticles.length ? nextIndex.toString() : undefined;
+  const nextCursor = nextIndex < filteredArticles.length ? nextIndex.toString() : null;
 
   const responseData: ArticleListResponse = {
     items,
@@ -100,7 +100,7 @@ export const getArticle = ({ params: { id } }: { params: { id: string } }) => {
 
   const responseData: ArticleDetailResponse = {
     ...article,
-    thumbnailUrl: article.thumbnailUrl ?? undefined,
+    thumbnailUrl: article.thumbnailUrl,
     commentCount,
     likeCount,
     contentUrl,

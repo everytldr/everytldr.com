@@ -59,6 +59,7 @@
             "type" : "array"
           }
         },
+        "required" : [ "items" ],
         "type" : "object"
       },
       "ArticleDetailResponse" : {
@@ -91,12 +92,13 @@
             "type" : "string"
           },
           "thumbnailUrl" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "title" : {
             "type" : "string"
           }
         },
+        "required" : [ "category", "commentCount", "contentUrl", "id", "likeCount", "publishedAt", "source", "summary", "thumbnailUrl", "title" ],
         "type" : "object"
       },
       "ArticleLikeStateResponse" : {
@@ -112,6 +114,7 @@
             "type" : "boolean"
           }
         },
+        "required" : [ "articleId", "likeCount", "likedByReader" ],
         "type" : "object"
       },
       "ArticleListItem" : {
@@ -151,9 +154,10 @@
             "type" : "array"
           },
           "nextCursor" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           }
         },
+        "required" : [ "items", "nextCursor" ],
         "type" : "object"
       },
       "CategoryListItem" : {
@@ -162,6 +166,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "slug" ],
         "type" : "object"
       }
     }
