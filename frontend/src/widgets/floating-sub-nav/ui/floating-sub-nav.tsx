@@ -63,7 +63,7 @@ export function FloatingSubNav({ className }: FloatingSubNavProps) {
       )}
       aria-hidden={!visible}
     >
-      <Container className="flex h-14 items-stretch justify-center pc:h-16">
+      <Container className="flex h-14 items-stretch overflow-x-scroll pc:h-16 sm:justify-center">
         <nav className="flex" aria-label={t("header.aria-label.subcategories")}>
           <ul className="flex items-stretch gap-xl">
             {category.children &&
