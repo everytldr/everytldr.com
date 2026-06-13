@@ -131,6 +131,10 @@ export function findRootCategory(slug: string) {
   return category;
 }
 
+export function isMainCategorySlug(slug: CategorySlug): slug is MainCategorySlug {
+  return CATEGORY_GRAPH.some((node) => node.slug === slug);
+}
+
 export function isHiddenNode(node: CategoryNode) {
   return !("routable" in node) || (!node.routable && !node.redirectPath);
 }

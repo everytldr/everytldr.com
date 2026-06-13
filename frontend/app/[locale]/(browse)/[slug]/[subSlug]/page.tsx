@@ -1,6 +1,9 @@
 import { SportPage } from "@/pages/sport";
 import { EplTabSlug, EplTeam } from "@/shared/config";
 import { type Locale, locales } from "@/shared/i18n";
+import { buildPageMetadata } from "@/shared/lib";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 type PageProps = {
@@ -21,6 +24,25 @@ export function generateStaticParams() {
       slug: "epl",
       subSlug,
     }));
+  });
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale, slug, subSlug } = await params;
+
+  if (slug !== "epl") {
+    return {};
+  }
+
+  const tHeader = await getTranslations({ locale });
+  const category = tHeader("header.subcategory.epl");
+
+  const tMeta = await getTranslations({ locale, namespace: "metadata.category" });
+  return buildPageMetadata({
+    title: tMeta("title", { category }),
+    description: tMeta("description", { category }),
+    locale,
+    path: subSlug ? `/epl/${subSlug}` : "/epl",
   });
 }
 

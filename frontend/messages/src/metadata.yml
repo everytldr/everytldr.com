@@ -1,0 +1,31 @@
+default:
+  title:
+    en: "everytldr"
+    ko: "everytldr"
+  description:
+    en: "Foreign news, summarised in your language."
+    ko: "외신을 당신의 언어로 요약합니다."
+
+home:
+  title:
+    en: "everytldr — Foreign news, summarised in your language"
+    ko: "everytldr — 외신을 당신의 언어로 요약"
+  description:
+    en: "Read the world's headlines as concise summaries in your language. everytldr turns foreign news into short, clear briefings."
+    ko: "전 세계 헤드라인을 당신의 언어로 짧고 명확하게. everytldr이 외신을 핵심만 간추려 전합니다."
+
+search:
+  title:
+    en: "Search · everytldr"
+    ko: "검색 · everytldr"
+  description:
+    en: "Search summarised foreign news by topic or source on everytldr."
+    ko: "주제나 출처로 요약된 외신을 everytldr에서 검색하세요."
+
+category:
+  title:
+    en: "{category} · everytldr"
+    ko: "{category} · everytldr"
+  description:
+    en: "The latest {category} news from around the world, summarised in your language."
+    ko: "전 세계 {category} 뉴스를 당신의 언어로 요약해 전합니다."
