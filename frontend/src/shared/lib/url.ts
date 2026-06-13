@@ -35,3 +35,20 @@ export function buildSearchUrl(query: string): string {
 export function buildArticleDetailUrl(articleId: string): string {
   return `/articles/${articleId}`;
 }
+
+const WSRV_ENDPOINT = "https://wsrv.nl/";
+
+export function buildOgImageUrl(src: string): string {
+  if (!isWebpUrl(src)) {
+    return src;
+  }
+  return `${WSRV_ENDPOINT}?url=${encodeURIComponent(src)}&output=jpg`;
+}
+
+function isWebpUrl(src: string): boolean {
+  try {
+    return new URL(src).pathname.toLowerCase().endsWith(".webp");
+  } catch {
+    return src.toLowerCase().endsWith(".webp");
+  }
+}

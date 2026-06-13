@@ -8,5 +8,6 @@ export {
   buildCategoryUrl,
   buildEplFilterUrl,
   buildEplTabUrl,
+  buildOgImageUrl,
   buildSearchUrl,
 } from "./url";
