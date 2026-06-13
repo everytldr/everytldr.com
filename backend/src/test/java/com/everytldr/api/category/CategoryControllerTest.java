@@ -33,7 +33,7 @@ class CategoryControllerTest {
         .andExpect(jsonPath("$.length()").value(99))
         .andExpect(jsonPath("$[0].slug").value("culture-arts-books"))
         .andExpect(jsonPath("$[98].slug").value("world-humanitarian-disaster_response"))
-        .andExpect(jsonPath("$[?(@.slug == 'sport-football-aston_villa')]").isNotEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'sport-football-epl-aston_villa')]").isNotEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'sport-events')]").isNotEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'technology-internet_platforms')]").isNotEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'society-rights-free_speech_censorship')]").isNotEmpty())
@@ -44,7 +44,7 @@ class CategoryControllerTest {
         .andExpect(jsonPath("$[?(@.slug == 'media')]").isEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'education')]").isEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'science')]").isEmpty())
-        .andExpect(jsonPath("$[?(@.slug == 'sport-football-epl-arsenal')]").isEmpty())
+        .andExpect(jsonPath("$[?(@.slug == 'sport-football-arsenal')]").isEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'technology-companies')]").isEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'environment-water')]").isEmpty())
         .andExpect(jsonPath("$[?(@.slug == 'society-profiles')]").isEmpty());

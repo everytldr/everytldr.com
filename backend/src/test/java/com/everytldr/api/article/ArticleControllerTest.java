@@ -109,7 +109,7 @@ class ArticleControllerTest {
 
   @Test
   void listSupportsExistingFootballTeamCategoryPrefix() throws Exception {
-    Category arsenal = categoryRepository.findBySlug("sport-football-arsenal").orElseThrow();
+    Category arsenal = categoryRepository.findBySlug("sport-football-epl-arsenal").orElseThrow();
     saveArticle(Instant.parse("2026-04-01T00:00:00Z"), arsenal, "ko", "EPL", "본문");
     entityManager.flush();
     entityManager.clear();
@@ -118,12 +118,12 @@ class ArticleControllerTest {
         .perform(
             get("/api/articles")
                 .header("Accept-Language", "ko")
-                .param("categoryPrefix", "sport-football-arsenal")
+                .param("categoryPrefix", "sport-football-epl-arsenal")
                 .param("size", "10"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items.length()").value(1))
         .andExpect(jsonPath("$.items[0].title").value("EPL"))
-        .andExpect(jsonPath("$.items[0].category").value("sport-football-arsenal"));
+        .andExpect(jsonPath("$.items[0].category").value("sport-football-epl-arsenal"));
   }
 
   @Test
