@@ -70,7 +70,7 @@ class CompletionServiceTest {
     assertThat(articleCategoryRepository.findAllByArticleId(articleId))
         .singleElement()
         .extracting(articleCategory -> articleCategory.getCategory().getSlug())
-        .isEqualTo("politics");
+        .isEqualTo("politics-government-governance");
   }
 
   @Test
@@ -179,8 +179,8 @@ class CompletionServiceTest {
 
   private List<EnrichmentResult> validResults() {
     return List.of(
-        new EnrichmentResult("ko", "KO title", "KO summary", "politics"),
-        new EnrichmentResult("en", "EN title", "EN summary", "politics"));
+        new EnrichmentResult("ko", "KO title", "KO summary", "politics-government-governance"),
+        new EnrichmentResult("en", "EN title", "EN summary", "politics-government-governance"));
   }
 
   private ArticleIngestionJob saveProcessingJob(String sourceUrl) {
