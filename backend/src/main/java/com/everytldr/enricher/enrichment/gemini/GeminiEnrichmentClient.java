@@ -214,7 +214,10 @@ public class GeminiEnrichmentClient implements EnrichmentClient {
                 Map.of("type", "string", "description", "Article title in the specified language."),
                 "summary",
                 Map.of(
-                    "type", "string", "description", "Article summary in the specified language."),
+                    "type",
+                    "string",
+                    "description",
+                    "Scannable sectioned Markdown digest with bullets, written in the specified language."),
                 "categorySlug",
                 Map.of(
                     "type",
