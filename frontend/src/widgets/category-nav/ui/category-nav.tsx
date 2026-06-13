@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  CATEGORIES,
-  DEFAULT_SUB_CATEGORY_SLUG,
-  type SubCategorySlug,
+  CATEGORY_GRAPH,
+  DEFAULT_CATEGORY_NODE,
   findRootCategory,
+  type CategorySlug,
 } from "@/shared/config";
 import { Link } from "@/shared/i18n";
-import { buildMainCategoryUrl, buildSubcategoryUrl, cn } from "@/shared/lib";
+import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -18,9 +18,9 @@ type CategoryNavProps = {
 
 export function CategoryNav({ className }: CategoryNavProps) {
   const t = useTranslations();
-  const params = useParams<{ slug?: SubCategorySlug }>();
+  const params = useParams<{ slug?: CategorySlug }>();
 
-  const categorySlug = params?.slug ?? DEFAULT_SUB_CATEGORY_SLUG;
+  const categorySlug = params?.slug ?? DEFAULT_CATEGORY_NODE.slug;
   const category = findRootCategory(categorySlug);
 
   return (
@@ -31,7 +31,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
           aria-label={t("header.aria-label.categories")}
         >
           <div className="flex h-12 items-stretch gap-2xs">
-            {CATEGORIES.map((node) => {
+            {CATEGORY_GRAPH.map((node) => {
               const isActive = node.slug === category.slug;
               return (
                 <Link
@@ -43,7 +43,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
                       ? "border-ink text-ink"
                       : "border-transparent text-meta hover:text-ink",
                   )}
-                  href={buildMainCategoryUrl(node)}
+                  href={buildCategoryUrl(node)}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Translation tKey={`header.category.${node.slug}`} />
@@ -58,23 +58,24 @@ export function CategoryNav({ className }: CategoryNavProps) {
           aria-label={t("header.aria-label.subcategories")}
         >
           <div className="flex h-11 items-center gap-md">
-            {category.subs.map((subCategorySlug) => {
-              const isActive = subCategorySlug === categorySlug;
-              return (
-                <Link
-                  key={subCategorySlug}
-                  className={cn(
-                    "inline-flex items-center text-nav-sm whitespace-nowrap transition-colors outline-none",
-                    "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft",
-                    isActive ? "text-ink" : "text-meta-soft hover:text-ink",
-                  )}
-                  href={buildSubcategoryUrl(category, subCategorySlug)}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <Translation tKey={`header.subcategory.${subCategorySlug}`} />
-                </Link>
-              );
-            })}
+            {category.children &&
+              category.children.map((child) => {
+                const isActive = child.slug === categorySlug;
+                return (
+                  <Link
+                    key={child.slug}
+                    className={cn(
+                      "inline-flex items-center text-nav-sm whitespace-nowrap transition-colors outline-none",
+                      "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft",
+                      isActive ? "text-ink" : "text-meta-soft hover:text-ink",
+                    )}
+                    href={buildCategoryUrl(child)}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    <Translation tKey={`header.subcategory.${child.slug}`} />
+                  </Link>
+                );
+              })}
           </div>
         </nav>
       </div>

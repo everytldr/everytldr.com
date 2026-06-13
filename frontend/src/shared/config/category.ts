@@ -1,47 +1,145 @@
 import { assert, ensure } from "@/shared/lib";
 
-export enum MainCategorySlug {
-  Home = "home",
-  Sport = "sport",
-  Politics = "politics",
-  Technology = "technology",
-}
-
-export enum SubCategorySlug {
-  Discover = "discover",
-  Latest = "latest",
-  Trending = "trending",
-  EPL = "epl",
-  Domestic = "domestic",
-  Ai = "ai",
-  NBA = "nba",
-}
-
 export type CategoryNode = {
-  slug: MainCategorySlug;
-  subs: SubCategorySlug[];
+  slug: string;
+  routable?: boolean;
+  redirectPath?: `/${string}`;
+  children?: readonly CategoryNode[];
 };
 
-export const CATEGORIES: CategoryNode[] = [
+export const CATEGORY_GRAPH = processGraph([
   {
-    slug: MainCategorySlug.Home,
-    subs: [SubCategorySlug.Discover, SubCategorySlug.Latest, SubCategorySlug.Trending],
+    slug: "home",
+    routable: false,
+    redirectPath: "/",
+    children: [{ slug: "discover" }, { slug: "trending" }, { slug: "latest" }],
   },
-  { slug: MainCategorySlug.Sport, subs: [SubCategorySlug.EPL, SubCategorySlug.NBA] },
-  { slug: MainCategorySlug.Politics, subs: [SubCategorySlug.Domestic] },
-  { slug: MainCategorySlug.Technology, subs: [SubCategorySlug.Ai] },
-];
+  {
+    slug: "politics",
+    children: [
+      { slug: "politics-elections" },
+      { slug: "politics-government" },
+      { slug: "politics-law" },
+    ],
+  },
+  {
+    slug: "economy",
+    children: [
+      { slug: "economy-business" },
+      { slug: "economy-consumer" },
+      { slug: "economy-finance" },
+      { slug: "economy-policy" },
+      { slug: "economy-work" },
+    ],
+  },
+  {
+    slug: "society",
+    children: [
+      { slug: "society-activism" },
+      { slug: "society-demographics" },
+      { slug: "society-education" },
+      { slug: "society-media" },
+      { slug: "society-migration" },
+      { slug: "society-rights" },
+      { slug: "society-safety" },
+    ],
+  },
+  {
+    slug: "world",
+    children: [
+      { slug: "world-conflict" },
+      { slug: "world-geopolitics" },
+      { slug: "world-humanitarian" },
+    ],
+  },
+  {
+    slug: "technology",
+    children: [
+      { slug: "technology-ai" },
+      { slug: "technology-cybersecurity" },
+      { slug: "technology-devices" },
+      { slug: "technology-games" },
+      { slug: "technology-internet_platforms" },
+      { slug: "technology-science" },
+    ],
+  },
+  {
+    slug: "culture",
+    children: [
+      { slug: "culture-arts" },
+      { slug: "culture-history" },
+      { slug: "culture-language" },
+      { slug: "culture-lifestyle" },
+      { slug: "culture-religion" },
+    ],
+  },
+  {
+    slug: "sport",
+    routable: false,
+    redirectPath: "/epl",
+    children: [{ slug: "epl" }, { slug: "nba" }],
+  },
+  {
+    slug: "health",
+    children: [
+      { slug: "health-healthcare" },
+      { slug: "health-mental_health" },
+      { slug: "health-public_health" },
+      { slug: "health-wellness" },
+    ],
+  },
+  {
+    slug: "environment",
+    children: [
+      { slug: "environment-climate" },
+      { slug: "environment-energy" },
+      { slug: "environment-nature" },
+      { slug: "environment-pollution" },
+    ],
+  },
+] as const satisfies CategoryNode[]);
 
-export const HOME_CATEGORY_NODE: CategoryNode = ensure(
-  CATEGORIES.find((c) => c.slug === MainCategorySlug.Home),
+export const CATEGORY_NODES = CATEGORY_GRAPH.flatMap((node) => [node, ...(node.children ?? [])]);
+export const ROUTABLE_CATEGORY_NODES = CATEGORY_NODES.filter(
+  (node) => "routable" in node && node.routable,
+);
+export const LEAF_CATEGORY_SLUGS = CATEGORY_GRAPH.flatMap(
+  (node) => node.children?.map((node) => node.slug) ?? [],
+);
+export const STATIC_CATEGORY_SLUGS = CATEGORY_GRAPH.flatMap((node) =>
+  node.redirectPath ? (node.children?.map((child) => child.slug) ?? []) : [node.slug],
+);
+export const HOME_CATEGORY_NODE = ensure(CATEGORY_NODES.find((node) => node.slug === "home"));
+export const DEFAULT_CATEGORY_NODE = ensure(
+  CATEGORY_NODES.find((node) => node.slug === "discover"),
 );
 
-export const SUB_CATEGORY_SLUGS: SubCategorySlug[] = CATEGORIES.flatMap((c) => c.subs);
+export type MainCategorySlug = (typeof CATEGORY_GRAPH)[number]["slug"];
+export type LeafCategorySlug = (typeof LEAF_CATEGORY_SLUGS)[number];
+export type CategorySlug = MainCategorySlug | LeafCategorySlug;
 
-export const DEFAULT_SUB_CATEGORY_SLUG: SubCategorySlug = SubCategorySlug.Discover;
+export function findRootCategory(slug: string) {
+  function findRecursively(node: CategoryNode) {
+    if (slug === node.slug) {
+      return true;
+    }
+    return node.children?.some(findRecursively) || false;
+  }
 
-export function findRootCategory(sub: SubCategorySlug): CategoryNode {
-  const category = CATEGORIES.find((c) => c.subs.includes(sub));
+  const category = CATEGORY_GRAPH.find(findRecursively);
   assert(category, "Invalid subcategory slug");
   return category;
+}
+
+function processGraph<T extends CategoryNode>(graph: ReadonlyArray<T>): ReadonlyArray<T> {
+  const BLOCKED_SLUG_SET = new Set(process.env.NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS?.split(","));
+
+  return graph.map((node) => {
+    return Object.create({
+      slug: node.slug,
+      routable: typeof node.routable !== "boolean" && !BLOCKED_SLUG_SET.has(node.slug),
+      redirectPath: node.redirectPath,
+      children: node.children && processGraph(node.children),
+    });
+  });
 }
