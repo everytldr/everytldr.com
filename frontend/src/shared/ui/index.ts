@@ -7,6 +7,7 @@ export { Container } from "./container";
 export { IconButton } from "./icon-button";
 export { Input } from "./input";
 export { default as Logo } from "./logo.svg";
+export { MarkdownContent } from "./markdown-content";
 export { Modal } from "./modal";
 export { RelativeTime } from "./relative-time";
 export { ResponsiveDialog } from "./responsive-dialog";

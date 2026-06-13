@@ -1,9 +1,10 @@
 import { ArticleDetailPage, fetchArticleDetail } from "@/pages/article-detail";
+import type { Locale } from "@/shared/i18n";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: Locale; id: string }>;
 };
 
 const ARTICLE_ID_PLACEHOLDER = "__placeholder__";
@@ -13,13 +14,13 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
+  const { locale, id } = await params;
 
   if (id === ARTICLE_ID_PLACEHOLDER) {
     return {};
   }
 
-  const article = await fetchArticleDetail(id);
+  const article = await fetchArticleDetail(id, locale);
 
   return {
     title: article.title,
@@ -33,11 +34,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-  const { id } = await params;
+  const { locale, id } = await params;
 
   if (id === ARTICLE_ID_PLACEHOLDER) {
     notFound();
   }
 
-  return <ArticleDetailPage articleId={id} />;
+  return <ArticleDetailPage articleId={id} locale={locale} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ArticleListItem } from "@/shared/api";
-import { cn, formatDate } from "@/shared/lib";
+import { cn, formatDate, markdownToPlainText } from "@/shared/lib";
 import { RelativeTime } from "@/shared/ui";
 import { useLocale } from "next-intl";
 import { Suspense } from "react";
@@ -15,19 +15,20 @@ type ArticleCardProps = {
 export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
   const locale = useLocale();
   const fallback = formatDate(article.publishedAt, locale);
+  const summary = markdownToPlainText(article.summary);
 
   return (
     <article
       className={cn(
-        "flex items-start gap-md border-b border-hairline-soft py-md last:border-b-0",
+        "flex items-start gap-md border-b border-hairline-soft py-md last:border-b-0 md:gap-2xl",
         className,
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2xs">
-        <h3 className={cn("line-clamp-2 min-w-0 text-display-sm text-ink", titleClassName)}>
+        <h3 className={cn("line-clamp-1 min-w-0 text-display-sm text-ink", titleClassName)}>
           {article.title}
         </h3>
-        <p className="line-clamp-1 text-body-sm text-meta">{article.summary}</p>
+        <p className="line-clamp-2 text-body-sm text-meta">{summary}</p>
         <p className="text-caption text-meta">
           {article.source} ·{" "}
           <time dateTime={article.publishedAt}>

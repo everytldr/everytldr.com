@@ -1,10 +1,12 @@
 import { ArticleList, ArticleListInfinite } from "@/entities/article";
 import {
+  getListArticlesInfiniteQueryKey,
   getListArticlesSuspenseInfiniteQueryOptions,
   getQueryClient,
   type ArticleListItem,
   type listArticlesResponse,
 } from "@/shared/api";
+import type { Locale } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { HydrationBoundary, dehydrate, type InfiniteData } from "@tanstack/react-query";
@@ -14,10 +16,11 @@ import { Suspense } from "react";
 type CategoryPageProps = {
   className?: string;
   categoryPrefix: string;
+  locale: Locale;
 };
 
-export async function CategoryPage({ className, categoryPrefix }: CategoryPageProps) {
-  const { articles, dehydratedState } = await prefetchArticles(categoryPrefix);
+export async function CategoryPage({ className, categoryPrefix, locale }: CategoryPageProps) {
+  const { articles, dehydratedState } = await prefetchArticles(categoryPrefix, locale);
 
   return (
     <main className={cn("py-lg", className)}>
@@ -39,6 +42,7 @@ export async function CategoryPage({ className, categoryPrefix }: CategoryPagePr
           >
             <ArticleListInfinite
               categoryPrefix={categoryPrefix}
+              locale={locale}
               empty={
                 <Translation
                   className="rounded-md border border-hairline-soft bg-surface-soft px-2xl py-2xl text-center text-body-md text-meta"
@@ -54,14 +58,26 @@ export async function CategoryPage({ className, categoryPrefix }: CategoryPagePr
   );
 }
 
-async function prefetchArticles(categoryPrefix: string) {
+async function prefetchArticles(categoryPrefix: string, locale: Locale) {
   "use cache";
 
   cacheLife("minutes");
-  cacheTag(`articles:${categoryPrefix}`);
+  cacheTag(`articles:${locale}:${categoryPrefix}`);
 
   const queryClient = getQueryClient();
-  const queryOptions = getListArticlesSuspenseInfiniteQueryOptions({ categoryPrefix });
+  const queryOptions = getListArticlesSuspenseInfiniteQueryOptions(
+    { categoryPrefix },
+    {
+      query: {
+        queryKey: [...getListArticlesInfiniteQueryKey({ categoryPrefix }), locale],
+      },
+      request: {
+        headers: {
+          "Accept-Language": locale,
+        },
+      },
+    },
+  );
   await queryClient.prefetchInfiniteQuery(queryOptions);
 
   const data = queryClient.getQueryData<InfiniteData<listArticlesResponse>>(queryOptions.queryKey);
