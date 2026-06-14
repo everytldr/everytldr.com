@@ -1,12 +1,10 @@
+import { STATIC_PAGE_URLS } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { ConditionalLink, Container, Logo, Translation } from "@/shared/ui";
 import { cacheLife } from "next/cache";
 import { type PropsWithChildren } from "react";
 
-const ABOUT_URL = process.env.NEXT_PUBLIC_FOOTER_ABOUT_URL || "/about";
-const PRIVACY_URL = process.env.NEXT_PUBLIC_FOOTER_PRIVACY_URL || "/privacy";
-const TERMS_URL = process.env.NEXT_PUBLIC_FOOTER_TERMS_URL || "/terms";
 const GITHUB_URL =
   process.env.NEXT_PUBLIC_FOOTER_GITHUB_URL || "https://github.com/everytldr/everytldr.com";
 
@@ -28,15 +26,15 @@ export async function Footer({ className }: FooterProps) {
         </div>
 
         <nav className="flex flex-wrap items-center gap-x-sm gap-y-xs text-nav-sm">
-          <FooterLink href={ABOUT_URL}>
+          <FooterLink href={STATIC_PAGE_URLS.about}>
             <Translation tKey="footer.about" />
           </FooterLink>
           <FooterSeparator />
-          <FooterLink href={PRIVACY_URL}>
+          <FooterLink href={STATIC_PAGE_URLS.privacy}>
             <Translation tKey="footer.privacy" />
           </FooterLink>
           <FooterSeparator />
-          <FooterLink href={TERMS_URL}>
+          <FooterLink href={STATIC_PAGE_URLS.terms}>
             <Translation tKey="footer.terms" />
           </FooterLink>
           <FooterSeparator />

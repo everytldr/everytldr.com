@@ -7,6 +7,13 @@ export type CategoryNode = {
   children?: readonly CategoryNode[];
 };
 
+export const BLOCKED_CATEGORY_SLUGS = (process.env.NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS ?? "")
+  .split(",")
+  .map((slug) => slug.trim())
+  .filter(Boolean);
+
+const BLOCKED_SLUG_SET = new Set(BLOCKED_CATEGORY_SLUGS);
+
 export const CATEGORY_GRAPH = processGraph([
   {
     slug: "home",
@@ -140,8 +147,6 @@ export function isHiddenNode(node: CategoryNode) {
 }
 
 function processGraph<T extends CategoryNode>(graph: ReadonlyArray<T>): ReadonlyArray<T> {
-  const BLOCKED_SLUG_SET = new Set(process.env.NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS?.split(","));
-
   return graph.map((node) => {
     return Object.create({
       slug: node.slug,

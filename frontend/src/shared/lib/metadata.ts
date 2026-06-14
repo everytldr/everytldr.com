@@ -1,5 +1,5 @@
 import { OG_IMAGE, SITE_NAME } from "@/shared/config";
-import { type Locale, locales } from "@/shared/i18n";
+import { getPathname, type Locale, locales } from "@/shared/i18n";
 import type { Metadata } from "next";
 
 type OgImage = {
@@ -26,7 +26,7 @@ export function buildPageMetadata({
   images,
   article,
 }: BuildPageMetadataParams): Metadata {
-  const canonical = path === undefined ? undefined : buildLocalePath(locale, path);
+  const canonical = path === undefined ? undefined : getPathname({ locale, href: path });
   const resolvedImages = images ?? [OG_IMAGE];
   const base = {
     siteName: SITE_NAME,
@@ -46,7 +46,7 @@ export function buildPageMetadata({
         : {
             canonical,
             languages: Object.fromEntries(
-              locales.map((value) => [value, buildLocalePath(value, path)]),
+              locales.map((value) => [value, getPathname({ locale: value, href: path })]),
             ),
           },
     openGraph: article
@@ -59,8 +59,4 @@ export function buildPageMetadata({
       images: resolvedImages.map((image) => image.url),
     },
   };
-}
-
-function buildLocalePath(locale: Locale, path: string): string {
-  return path === "/" ? `/${locale}` : `/${locale}${path}`;
 }

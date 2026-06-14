@@ -1,7 +1,15 @@
 import { type ArticleDetailResponse } from "@/shared/api";
-import { ADSENSE_SLOT_ARTICLE_DETAIL } from "@/shared/config";
-import type { Locale } from "@/shared/i18n";
-import { cn, formatDate } from "@/shared/lib";
+import { ADSENSE_SLOT_ARTICLE_DETAIL, SITE_URL } from "@/shared/config";
+import { getPathname, type Locale } from "@/shared/i18n";
+import {
+  buildArticleDetailUrl,
+  buildNewsArticleJsonLd,
+  buildOgImageUrl,
+  cn,
+  formatDate,
+  markdownToPlainText,
+  serializeJsonLd,
+} from "@/shared/lib";
 import { AdSlot, Button, MarkdownContent, Translation } from "@/shared/ui";
 import { ExternalLink } from "lucide-react";
 import { Suspense } from "react";
@@ -19,8 +27,21 @@ type ArticleDetailPageProps = {
 export async function ArticleDetailPage({ className, articleId, locale }: ArticleDetailPageProps) {
   const article = await fetchArticleDetail(articleId, locale);
 
+  const jsonLd = buildNewsArticleJsonLd({
+    url: `${SITE_URL}${getPathname({ locale, href: buildArticleDetailUrl(articleId) })}`,
+    headline: article.title,
+    description: markdownToPlainText(article.summary),
+    datePublished: article.publishedAt,
+    image: article.thumbnailUrl ? buildOgImageUrl(article.thumbnailUrl) : undefined,
+  });
+
   return (
     <article className={cn("space-y-xl", className)}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
+
       <ArticleDetailContent article={article} locale={locale} />
 
       <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">

@@ -1,7 +1,7 @@
 import { jetbrainsMono, pretendard } from "@/app/fonts";
 import { GlobalProvider } from "@/app/providers";
 import "@/app/styles";
-import { ADSENSE_CLIENT_ID, GA_MEASUREMENT_ID, SITE_URL } from "@/shared/config";
+import { ADSENSE_CLIENT_ID, GA_MEASUREMENT_ID, SITE_URL, SITE_VERIFICATION } from "@/shared/config";
 import { routing } from "@/shared/i18n";
 import { buildPageMetadata, cn } from "@/shared/lib";
 import { Footer } from "@/widgets/footer";
@@ -38,7 +38,11 @@ export async function generateMetadata({
       locale,
     }),
     metadataBase: new URL(SITE_URL),
-    other: { "google-adsense-account": ADSENSE_CLIENT_ID },
+    other: {
+      "google-adsense-account": ADSENSE_CLIENT_ID,
+      "naver-site-verification": SITE_VERIFICATION.naver,
+      "msvalidate.01": SITE_VERIFICATION.bing,
+    },
   };
 }
 
