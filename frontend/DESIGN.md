@@ -241,7 +241,7 @@ Each `--text-{token}` (with companion `--text-{token}--line-height`, `--text-{to
 | `button-md`    | 15        | 600    | 1.25        | 0                   | Default button label                      |
 | `button-sm`    | 14        | 500    | 1.25        | 0                   | Pill / chip label                         |
 | `nav-md`       | 16        | 700    | 1.25        | -0.25               | Primary navigation label (tabs, `<nav>`)  |
-| `nav-sm`       | 14        | 500    | 1.30        | 0                   | Secondary / sub-nav label (tabs, `<nav>`) |
+| `nav-sm`       | 13        | 500    | 1.30        | 0                   | Secondary / sub-nav label (tabs, `<nav>`) |
 
 ### 3.2.3. Korean Overrides.
 
@@ -257,8 +257,8 @@ Apply via `:lang(ko)` selector. Mechanism: § 4.5.
 | `title-*`                        | unchanged         | size unchanged; line-height +0.05            |
 | `body-*`                         | unchanged         | size unchanged; line-height +0.05            |
 | `caption` / `micro` / `button-*` | unchanged         | unchanged                                    |
-| `nav-md`                         | 16 / 1.25 / -0.25 | 15 / 1.30 / 0                                |
-| `nav-sm`                         | 14 / 1.30 / 0     | 14 / 1.35 / 0                                |
+| `nav-md`                         | 16 / 1.25 / -0.25 | 16 / 1.30 / 0                                |
+| `nav-sm`                         | 13 / 1.30 / 0     | 13 / 1.35 / 0                                |
 
 ### 3.2.4. Rules.
 
