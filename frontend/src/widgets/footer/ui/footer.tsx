@@ -4,11 +4,11 @@ import { ConditionalLink, Container, Logo, Translation } from "@/shared/ui";
 import { cacheLife } from "next/cache";
 import { type PropsWithChildren } from "react";
 
-const ABOUT_URL = process.env.NEXT_PUBLIC_FOOTER_ABOUT_URL ?? "/about";
-const PRIVACY_URL = process.env.NEXT_PUBLIC_FOOTER_PRIVACY_URL ?? "/privacy";
-const TERMS_URL = process.env.NEXT_PUBLIC_FOOTER_TERMS_URL ?? "/terms";
+const ABOUT_URL = process.env.NEXT_PUBLIC_FOOTER_ABOUT_URL || "/about";
+const PRIVACY_URL = process.env.NEXT_PUBLIC_FOOTER_PRIVACY_URL || "/privacy";
+const TERMS_URL = process.env.NEXT_PUBLIC_FOOTER_TERMS_URL || "/terms";
 const GITHUB_URL =
-  process.env.NEXT_PUBLIC_FOOTER_GITHUB_URL ?? "https://github.com/everytldr/everytldr.com";
+  process.env.NEXT_PUBLIC_FOOTER_GITHUB_URL || "https://github.com/everytldr/everytldr.com";
 
 type FooterProps = {
   className?: string;
