@@ -1,7 +1,7 @@
 import { jetbrainsMono, pretendard } from "@/app/fonts";
 import { GlobalProvider } from "@/app/providers";
 import "@/app/styles";
-import { ADSENSE_CLIENT_ID, SITE_URL } from "@/shared/config";
+import { ADSENSE_CLIENT_ID, GA_MEASUREMENT_ID, SITE_URL } from "@/shared/config";
 import { routing } from "@/shared/i18n";
 import { buildPageMetadata, cn } from "@/shared/lib";
 import { Footer } from "@/widgets/footer";
@@ -62,6 +62,18 @@ export default async function RootLayout({ params, children }: RootLayoutProps) 
           <div className="flex-1">{children}</div>
           <Footer />
         </GlobalProvider>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script strategy="afterInteractive" id="google-analytics">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         <Script
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
           crossOrigin="anonymous"
