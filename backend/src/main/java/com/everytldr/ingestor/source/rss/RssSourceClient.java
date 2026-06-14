@@ -71,6 +71,13 @@ public class RssSourceClient implements SourceClient {
         feedUrls.size(),
         failedFeeds,
         collected.size());
+
+    if (failedFeeds == feedUrls.size()) {
+      throw new IllegalStateException(
+          "All RSS feeds failed. sourceName=%s, feeds=%d"
+              .formatted(source.getName(), feedUrls.size()));
+    }
+
     return collected;
   }
 

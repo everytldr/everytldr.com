@@ -1,6 +1,7 @@
 package com.everytldr.ingestor.source.rss;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
@@ -77,6 +78,16 @@ class RssSourceClientTest {
     route("/rss.xml", 200, feedWithInvalidEntries());
 
     assertThat(newClient().collect(source("/rss.xml"))).isEmpty();
+  }
+
+  @Test
+  void throwsWhenEveryConfiguredFeedFails() {
+    route("/broken.xml", 500, "boom");
+    route("/also-broken.xml", 500, "boom");
+
+    assertThatThrownBy(() -> newClient().collect(source("/broken.xml", "/also-broken.xml")))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("All RSS feeds failed");
   }
 
   @Test
