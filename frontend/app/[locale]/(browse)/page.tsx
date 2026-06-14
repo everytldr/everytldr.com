@@ -1,6 +1,6 @@
 import { HomePage } from "@/pages/home";
 import { type Locale, locales } from "@/shared/i18n";
-import { buildPageMetadata } from "@/shared/lib";
+import { buildPageMetadata, buildSiteJsonLd, serializeJsonLd } from "@/shared/lib";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
@@ -24,6 +24,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default function Page() {
-  return <HomePage />;
+export default async function Page({ params }: PageProps) {
+  const { locale } = await params;
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildSiteJsonLd(locale)) }}
+      />
+      <HomePage />
+    </>
+  );
 }
