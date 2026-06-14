@@ -7,6 +7,9 @@ const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8080";
 
 export default withNextIntl({
   output: "standalone",
+  outputFileTracingIncludes: {
+    "/*": ["./docs/pages/*.md"],
+  },
   cacheComponents: true,
   turbopack: {
     rules: {
