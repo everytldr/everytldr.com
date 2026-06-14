@@ -1,4 +1,5 @@
 export { ADSENSE_CLIENT_ID, ADSENSE_SLOT_ARTICLE_DETAIL } from "./ads";
+export { GA_MEASUREMENT_ID } from "./analytics";
 export {
   CATEGORY_GRAPH,
   DEFAULT_CATEGORY_NODE,
