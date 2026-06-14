@@ -33,19 +33,19 @@ const components = {
     />
   ),
   h1: ({ className, ...props }) => (
-    <h2 className={cn("pt-sm text-display-sm text-ink", className)} {...props} />
+    <h2 className={cn("pt-lg text-display-lg text-ink", className)} {...props} />
   ),
   h2: ({ className, ...props }) => (
-    <h2 className={cn("pt-sm text-display-sm text-ink", className)} {...props} />
+    <h3 className={cn("pt-md text-display-md text-ink", className)} {...props} />
   ),
   h3: ({ className, ...props }) => (
-    <h3 className={cn("pt-xs text-title-md text-ink", className)} {...props} />
+    <h4 className={cn("pt-sm text-display-sm text-ink", className)} {...props} />
   ),
   h4: ({ className, ...props }) => (
-    <h4 className={cn("pt-xs text-title-sm text-ink", className)} {...props} />
+    <h5 className={cn("pt-xs text-title-md text-ink", className)} {...props} />
   ),
   h5: ({ className, ...props }) => (
-    <h5 className={cn("pt-xs text-title-sm text-ink", className)} {...props} />
+    <h6 className={cn("pt-xs text-title-sm text-ink", className)} {...props} />
   ),
   h6: ({ className, ...props }) => (
     <h6 className={cn("pt-xs text-title-sm text-meta", className)} {...props} />
