@@ -17,15 +17,18 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import java.io.StringReader;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 @Component
 @Profile("ingestor")
@@ -34,8 +37,11 @@ public class RssSourceClient implements SourceClient {
 
   private final RestClient restClient;
 
-  public RssSourceClient(RestClient.Builder restClientBuilder) {
-    this.restClient = restClientBuilder.build();
+  public RssSourceClient(RestClient.Builder restClientBuilder, FeedProperties feedProperties) {
+    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+    requestFactory.setConnectTimeout(feedProperties.connectTimeout());
+    requestFactory.setReadTimeout(feedProperties.readTimeout());
+    this.restClient = restClientBuilder.requestFactory(requestFactory).build();
   }
 
   @Override
@@ -45,8 +51,32 @@ public class RssSourceClient implements SourceClient {
 
   @Override
   public List<CollectedArticle> collect(ArticleSource source) {
-    String xml = restClient.get().uri(source.getUrl()).retrieve().body(String.class);
-    SyndFeed feed = parse(xml, source);
+    List<String> feedUrls = source.getPolicy().crawling().feedUrls();
+    List<CollectedArticle> collected = new ArrayList<>();
+    int failedFeeds = 0;
+
+    for (String feedUrl : feedUrls) {
+      try {
+        collected.addAll(fetchFeed(feedUrl, source));
+      } catch (RestClientException | IllegalStateException e) {
+        failedFeeds++;
+        log.warn(
+            "Failed to fetch RSS feed. sourceName={}, feedUrl={}", source.getName(), feedUrl, e);
+      }
+    }
+
+    log.info(
+        "Fetched RSS feeds for source. sourceName={}, feeds={}, failedFeeds={}, collected={}",
+        source.getName(),
+        feedUrls.size(),
+        failedFeeds,
+        collected.size());
+    return collected;
+  }
+
+  private List<CollectedArticle> fetchFeed(String feedUrl, ArticleSource source) {
+    String xml = restClient.get().uri(feedUrl).retrieve().body(String.class);
+    SyndFeed feed = parse(xml, source, feedUrl);
 
     return feed.getEntries().stream()
         .map(entry -> mapEntry(entry, source))
@@ -54,18 +84,19 @@ public class RssSourceClient implements SourceClient {
         .toList();
   }
 
-  private SyndFeed parse(String xml, ArticleSource source) {
+  private SyndFeed parse(String xml, ArticleSource source, String feedUrl) {
     if (!StringUtils.hasText(xml)) {
       throw new IllegalStateException(
-          "RSS feed response is empty. sourceName=%s".formatted(source.getName()));
+          "RSS feed response is empty. sourceName=%s, feedUrl=%s"
+              .formatted(source.getName(), feedUrl));
     }
 
     try {
       return new SyndFeedInput().build(new StringReader(xml));
     } catch (IllegalArgumentException | FeedException e) {
       throw new IllegalStateException(
-          "Failed to parse RSS feed. sourceName=%s, sourceUrl=%s"
-              .formatted(source.getName(), source.getUrl()),
+          "Failed to parse RSS feed. sourceName=%s, feedUrl=%s"
+              .formatted(source.getName(), feedUrl),
           e);
     }
   }
