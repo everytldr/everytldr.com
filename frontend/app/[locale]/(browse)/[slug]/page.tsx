@@ -4,6 +4,7 @@ import { SportPage } from "@/pages/sport";
 import {
   DEFAULT_CATEGORY_NODE,
   HOME_CATEGORY_NODE,
+  isFeedableCategory,
   isMainCategorySlug,
   ROUTABLE_CATEGORY_NODES,
   STATIC_CATEGORY_SLUGS,
@@ -53,6 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: tMeta("description", { category }),
     locale,
     path: `/${slug}`,
+    feedSlug: isFeedableCategory(slug) ? slug : undefined,
   });
 }
 
@@ -63,7 +65,7 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  const isSportTab = slug === "epl" || slug === "nba";
+  const isSportTab = slug === "epl" || slug === "nba" || slug === "sport-events";
   if (isSportTab) {
     return <SportPage slug={slug} locale={locale} />;
   }

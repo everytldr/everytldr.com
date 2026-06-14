@@ -16,6 +16,7 @@ type BuildPageMetadataParams = {
   path?: string;
   images?: OgImage[];
   article?: { publishedTime: string };
+  feedSlug?: string;
 };
 
 export function buildPageMetadata({
@@ -25,8 +26,10 @@ export function buildPageMetadata({
   path,
   images,
   article,
+  feedSlug,
 }: BuildPageMetadataParams): Metadata {
   const canonical = path === undefined ? undefined : getPathname({ locale, href: path });
+  const feedUrl = feedSlug ? `/${locale}/${feedSlug}/feed.xml` : `/${locale}/feed.xml`;
   const resolvedImages = images ?? [OG_IMAGE];
   const base = {
     siteName: SITE_NAME,
@@ -48,6 +51,7 @@ export function buildPageMetadata({
             languages: Object.fromEntries(
               locales.map((value) => [value, getPathname({ locale: value, href: path })]),
             ),
+            types: { "application/rss+xml": [{ url: feedUrl, title: SITE_NAME }] },
           },
     openGraph: article
       ? { type: "article", publishedTime: article.publishedTime, ...base }
