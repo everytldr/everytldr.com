@@ -9,8 +9,8 @@ import { notFound } from "next/navigation";
 type PageProps = {
   params: Promise<
     { locale: Locale } & (
-      | { slug: "nba"; subSlug?: unknown } // TODO: MVP 이후에 구현 예정
-      | { slug: "epl"; subSlug?: EplTabSlug | EplTeam }
+      | { slug: "nba"; subSlug: unknown } // TODO: MVP 이후에 구현 예정
+      | { slug: "epl"; subSlug: EplTabSlug | EplTeam }
     )
   >;
 };
@@ -28,7 +28,8 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale, slug, subSlug } = await params;
+  const pageParams = await params;
+  const { locale, slug, subSlug } = pageParams;
 
   if (slug !== "epl") {
     return {};
@@ -42,8 +43,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: tMeta("title", { category }),
     description: tMeta("description", { category }),
     locale,
-    path: subSlug ? `/epl/${subSlug}` : "/epl",
+    path: `/epl/${subSlug}`,
+    feedSlug: resolveFeedSlug(pageParams),
   });
+}
+
+function resolveFeedSlug(params: Awaited<PageProps["params"]>) {
+  if (params.slug === "epl" || params.subSlug === EplTabSlug.News) {
+    return "epl";
+  }
+
+  if (params.subSlug === EplTabSlug.News) {
+    return undefined;
+  }
+
+  return `${params.slug}/${params.subSlug}`;
 }
 
 export default async function Page({ params: _params }: PageProps) {
