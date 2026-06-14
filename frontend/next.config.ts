@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { defaultLocale } from "./src/shared/i18n/locale";
 
 const withNextIntl = createNextIntlPlugin("./src/shared/i18n/request.ts");
 
@@ -39,6 +40,15 @@ export default withNextIntl({
       {
         source: "/api/:path*",
         destination: `${BACKEND_URL}/api/:path*`,
+      },
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: "/feed.xml",
+        destination: `/${defaultLocale}/feed.xml`,
+        permanent: true,
       },
     ];
   },

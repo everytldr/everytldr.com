@@ -82,9 +82,7 @@ export const CATEGORY_GRAPH = processGraph([
   },
   {
     slug: "sport",
-    routable: false,
-    redirectPath: "/epl",
-    children: [{ slug: "epl" }, { slug: "nba", routable: false }],
+    children: [{ slug: "sport-events" }, { slug: "epl" }, { slug: "nba", routable: false }],
   },
   {
     slug: "health",
@@ -140,6 +138,16 @@ export function findRootCategory(slug: string) {
 
 export function isMainCategorySlug(slug: CategorySlug): slug is MainCategorySlug {
   return CATEGORY_GRAPH.some((node) => node.slug === slug);
+}
+
+export function isFeedableCategory(slug: string): slug is CategorySlug {
+  const isRoutable = ROUTABLE_CATEGORY_NODES.some((node) => node.slug === slug);
+  const isHomeTab = HOME_CATEGORY_NODE.children?.some((child) => child.slug === slug) ?? false;
+  return isRoutable && !isHomeTab;
+}
+
+export function resolveCategoryFeedPrefix(slug: CategorySlug) {
+  return slug === "epl" ? "sport-football-epl" : slug;
 }
 
 export function isHiddenNode(node: CategoryNode) {

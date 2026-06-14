@@ -181,6 +181,9 @@ subcategory:
   nba:
     en: "NBA"
     ko: "NBA"
+  sport-events:
+    en: "Events"
+    ko: "이벤트"
   health-healthcare:
     en: "Healthcare"
     ko: "의료"
