@@ -227,8 +227,12 @@ class CrawlingContentResolverTest {
       List<String> hosts, List<String> contentSelectors, List<String> thumbnailSelectors) {
     return ArticleSource.create(
         "Global Voices",
-        "https://globalvoices.org/feed/",
-        new SourcePolicy(new CrawlingPolicy(hosts, contentSelectors, thumbnailSelectors)),
+        new SourcePolicy(
+            new CrawlingPolicy(
+                List.of("https://globalvoices.org/feed/"),
+                hosts,
+                contentSelectors,
+                thumbnailSelectors)),
         "en",
         SourceType.RSS);
   }

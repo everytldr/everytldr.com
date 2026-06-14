@@ -2,39 +2,54 @@ package com.everytldr.ingestor.source.rss;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
 import com.everytldr.common.domain.source.SourceType;
 import com.everytldr.ingestor.source.CollectedArticle;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 class RssSourceClientTest {
 
-  private static final String RSS_URL = "https://news.example.com/rss.xml";
+  private HttpServer server;
+
+  @BeforeEach
+  void startServer() throws IOException {
+    server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
+    server.start();
+  }
+
+  @AfterEach
+  void stopServer() {
+    if (server != null) {
+      server.stop(0);
+    }
+  }
 
   @Test
   void supportsRssSourceType() {
-    assertThat(newClient(RestClient.builder()).supports(SourceType.RSS)).isTrue();
+    assertThat(newClient().supports(SourceType.RSS)).isTrue();
   }
 
   @Test
   void collectsValidFeedEntries() {
-    RestClient.Builder restClientBuilder = RestClient.builder();
-    MockRestServiceServer server = server(restClientBuilder, feedWithOneArticle());
+    route("/rss.xml", 200, feedWithOneArticle());
 
-    List<CollectedArticle> articles = newClient(restClientBuilder).collect(source());
+    List<CollectedArticle> articles = newClient().collect(source("/rss.xml"));
 
     assertThat(articles)
         .containsExactly(
@@ -44,15 +59,13 @@ class RssSourceClientTest {
                 null,
                 "en",
                 Instant.parse("2026-05-08T08:25:43Z")));
-    server.verify();
   }
 
   @Test
   void resolvesThumbnailFromFeedMedia() {
-    RestClient.Builder restClientBuilder = RestClient.builder();
-    server(restClientBuilder, feedWithMedia());
+    route("/rss.xml", 200, feedWithMedia());
 
-    List<CollectedArticle> articles = newClient(restClientBuilder).collect(source());
+    List<CollectedArticle> articles = newClient().collect(source("/rss.xml"));
 
     assertThat(articles)
         .extracting(CollectedArticle::thumbnailUrl)
@@ -62,58 +75,108 @@ class RssSourceClientTest {
 
   @Test
   void skipsEntriesMissingRequiredFields() {
-    RestClient.Builder restClientBuilder = RestClient.builder();
-    server(restClientBuilder, feedWithInvalidEntries());
+    route("/rss.xml", 200, feedWithInvalidEntries());
 
-    assertThat(newClient(restClientBuilder).collect(source())).isEmpty();
+    assertThat(newClient().collect(source("/rss.xml"))).isEmpty();
   }
 
   @Test
-  void rejectsInvalidFeedXml() {
-    RestClient.Builder restClientBuilder = RestClient.builder();
-    server(restClientBuilder, "<rss><channel>");
+  void throwsWhenEveryConfiguredFeedFails() {
+    route("/broken.xml", 500, "boom");
+    route("/also-broken.xml", 500, "boom");
 
-    assertThatThrownBy(() -> newClient(restClientBuilder).collect(source()))
+    assertThatThrownBy(() -> newClient().collect(source("/broken.xml", "/also-broken.xml")))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("Failed to parse RSS feed")
-        .hasMessageContaining("Example News");
+        .hasMessageContaining("All RSS feeds failed");
   }
 
-  private RssSourceClient newClient(RestClient.Builder restClientBuilder) {
-    return new RssSourceClient(restClientBuilder);
+  @Test
+  void collectsFromEveryConfiguredFeed() {
+    route("/sport.xml", 200, feedWithArticle("https://news.example.com/sport"));
+    route("/food.xml", 200, feedWithArticle("https://news.example.com/food"));
+
+    List<CollectedArticle> articles = newClient().collect(source("/sport.xml", "/food.xml"));
+
+    assertThat(articles)
+        .extracting(CollectedArticle::contentUrl)
+        .containsExactlyInAnyOrder(
+            "https://news.example.com/sport", "https://news.example.com/food");
   }
 
-  private MockRestServiceServer server(RestClient.Builder restClientBuilder, String body) {
-    MockRestServiceServer server = MockRestServiceServer.bindTo(restClientBuilder).build();
-    server
-        .expect(requestTo(startsWith(RSS_URL)))
-        .andExpect(method(HttpMethod.GET))
-        .andRespond(withSuccess(body, MediaType.APPLICATION_XML));
-    return server;
+  @Test
+  void continuesCollectingWhenOneFeedFails() {
+    route("/broken.xml", 500, "boom");
+    route("/good.xml", 200, feedWithArticle("https://news.example.com/good"));
+
+    List<CollectedArticle> articles = newClient().collect(source("/broken.xml", "/good.xml"));
+
+    assertThat(articles)
+        .extracting(CollectedArticle::contentUrl)
+        .containsExactly("https://news.example.com/good");
   }
 
-  private ArticleSource source() {
+  @Test
+  void skipsFeedWithInvalidXml() {
+    route("/broken.xml", 200, "<rss><channel>");
+    route("/good.xml", 200, feedWithArticle("https://news.example.com/good"));
+
+    List<CollectedArticle> articles = newClient().collect(source("/broken.xml", "/good.xml"));
+
+    assertThat(articles)
+        .extracting(CollectedArticle::contentUrl)
+        .containsExactly("https://news.example.com/good");
+  }
+
+  private RssSourceClient newClient() {
+    return new RssSourceClient(
+        RestClient.builder(), new FeedProperties(Duration.ofSeconds(2), Duration.ofSeconds(2)));
+  }
+
+  private ArticleSource source(String... paths) {
+    List<String> feedUrls = Arrays.stream(paths).map(path -> serverUrl() + path).toList();
     return ArticleSource.create(
         "Example News",
-        RSS_URL,
         new SourcePolicy(
-            new CrawlingPolicy(List.of("news.example.com"), List.of("article"), List.of())),
+            new CrawlingPolicy(
+                feedUrls, List.of("news.example.com"), List.of("article"), List.of())),
         "en",
         SourceType.RSS);
   }
 
-  private String feedWithOneArticle() {
+  private String serverUrl() {
+    return "http://localhost:%d".formatted(server.getAddress().getPort());
+  }
+
+  private void route(String path, int status, String body) {
+    server.createContext(
+        path,
+        exchange -> {
+          byte[] responseBody = body.getBytes(StandardCharsets.UTF_8);
+          exchange.getResponseHeaders().add("Content-Type", "application/xml");
+          exchange.sendResponseHeaders(status, responseBody.length);
+          try (OutputStream outputStream = exchange.getResponseBody()) {
+            outputStream.write(responseBody);
+          }
+        });
+  }
+
+  private String feedWithArticle(String link) {
     return """
         <?xml version="1.0" encoding="UTF-8"?>
         <rss version="2.0">
           <channel>
             <item>
-              <link>https://news.example.com/article</link>
+              <link>%s</link>
               <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
             </item>
           </channel>
         </rss>
-        """;
+        """
+        .formatted(link);
+  }
+
+  private String feedWithOneArticle() {
+    return feedWithArticle("https://news.example.com/article");
   }
 
   private String feedWithMedia() {

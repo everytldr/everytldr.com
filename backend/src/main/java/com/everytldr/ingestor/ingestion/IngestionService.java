@@ -21,8 +21,9 @@ public class IngestionService {
 
   private final CollectedArticleSaveService collectedArticleSaveService;
 
-  public void ingestActiveSources() {
+  public IngestionSummary ingestActiveSources() {
     List<ArticleSource> sources = articleSourceRepository.findAllByIsActiveTrue();
+    int failedSources = 0;
 
     for (ArticleSource source : sources) {
       try {
@@ -36,6 +37,7 @@ public class IngestionService {
             collectedArticles == null ? 0 : collectedArticles.size());
         collectedArticleSaveService.saveNewArticles(collectedArticles);
       } catch (RuntimeException e) {
+        failedSources++;
         log.warn(
             "Failed to ingest article source. sourceId={}, sourceName={}, sourceType={}",
             source.getId(),
@@ -43,6 +45,14 @@ public class IngestionService {
             source.getSourceType(),
             e);
       }
+    }
+
+    return new IngestionSummary(sources.size(), failedSources);
+  }
+
+  public record IngestionSummary(int sourcesProcessed, int sourcesFailed) {
+    public boolean isCompleteFailure() {
+      return sourcesProcessed > 0 && sourcesFailed == sourcesProcessed;
     }
   }
 }

@@ -11,15 +11,10 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-    uniqueConstraints = @UniqueConstraint(name = "uk_article_source_url", columnNames = "url"),
-    indexes = @Index(name = "idx_article_source_is_active", columnList = "is_active"))
+@Table(indexes = @Index(name = "idx_article_source_is_active", columnList = "is_active"))
 public class ArticleSource extends BaseEntity {
   @Column(nullable = false, length = 100)
   private String name;
-
-  @Column(nullable = false, length = 500)
-  private String url;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(nullable = false)
@@ -37,14 +32,8 @@ public class ArticleSource extends BaseEntity {
   private SourceType sourceType;
 
   private ArticleSource(
-      String name,
-      String url,
-      SourcePolicy policy,
-      String language,
-      SourceType sourceType,
-      boolean isActive) {
+      String name, SourcePolicy policy, String language, SourceType sourceType, boolean isActive) {
     this.name = name;
-    this.url = url;
     this.policy = policy;
     this.language = language;
     this.sourceType = sourceType;
@@ -52,8 +41,8 @@ public class ArticleSource extends BaseEntity {
   }
 
   public static ArticleSource create(
-      String name, String url, SourcePolicy policy, String language, SourceType sourceType) {
-    return new ArticleSource(name, url, policy, language, sourceType, true);
+      String name, SourcePolicy policy, String language, SourceType sourceType) {
+    return new ArticleSource(name, policy, language, sourceType, true);
   }
 
   public void activate() {
