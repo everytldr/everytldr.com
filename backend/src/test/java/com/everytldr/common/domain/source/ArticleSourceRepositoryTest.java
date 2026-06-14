@@ -17,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class ArticleSourceRepositoryTest {
 
-  private static final String GLOBAL_VOICES_RSS_URL = "https://globalvoices.org/feed/";
-
   @Autowired private ArticleSourceRepository articleSourceRepository;
 
   @Test
@@ -27,7 +25,7 @@ class ArticleSourceRepositoryTest {
 
     ArticleSource globalVoicesSource =
         activeSources.stream()
-            .filter(source -> GLOBAL_VOICES_RSS_URL.equals(source.getUrl()))
+            .filter(source -> "Global Voices".equals(source.getName()))
             .findFirst()
             .orElseThrow();
 
@@ -35,6 +33,13 @@ class ArticleSourceRepositoryTest {
     assertThat(globalVoicesSource.getName()).isEqualTo("Global Voices");
     assertThat(globalVoicesSource.getLanguage()).isEqualTo("en");
     assertThat(globalVoicesSource.getSourceType()).isEqualTo(SourceType.RSS);
+    assertThat(globalVoicesSource.getPolicy().crawling().feedUrls())
+        .hasSize(47)
+        .startsWith("https://globalvoices.org/feed/")
+        .contains(
+            "https://globalvoices.org/-/topics/sport/feed/",
+            "https://globalvoices.org/-/topics/food/feed/",
+            "https://globalvoices.org/-/topics/labor/feed/");
     assertThat(globalVoicesSource.getPolicy().crawling().hosts())
         .containsExactly("globalvoices.org", "www.globalvoices.org");
     assertThat(globalVoicesSource.getPolicy().crawling().contentSelectors())
@@ -49,7 +54,7 @@ class ArticleSourceRepositoryTest {
 
     ArticleSource threeSixtyInfoSource =
         activeSources.stream()
-            .filter(source -> "https://360info.org/feed/".equals(source.getUrl()))
+            .filter(source -> "360info".equals(source.getName()))
             .findFirst()
             .orElseThrow();
 
@@ -57,6 +62,12 @@ class ArticleSourceRepositoryTest {
     assertThat(threeSixtyInfoSource.getName()).isEqualTo("360info");
     assertThat(threeSixtyInfoSource.getLanguage()).isEqualTo("en");
     assertThat(threeSixtyInfoSource.getSourceType()).isEqualTo(SourceType.RSS);
+    assertThat(threeSixtyInfoSource.getPolicy().crawling().feedUrls())
+        .hasSize(10)
+        .startsWith("https://360info.org/feed/")
+        .contains(
+            "https://360info.org/category/economy/feed/",
+            "https://360info.org/category/special-report/feed/");
     assertThat(threeSixtyInfoSource.getPolicy().crawling().hosts())
         .containsExactly("360info.org", "www.360info.org");
     assertThat(threeSixtyInfoSource.getPolicy().crawling().contentSelectors())

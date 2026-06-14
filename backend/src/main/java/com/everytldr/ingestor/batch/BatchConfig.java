@@ -1,6 +1,7 @@
 package com.everytldr.ingestor.batch;
 
 import com.everytldr.ingestor.ingestion.IngestionService;
+import com.everytldr.ingestor.ingestion.IngestionService.IngestionSummary;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -28,7 +29,12 @@ public class BatchConfig {
     return new StepBuilder(STEP_NAME, jobRepository)
         .tasklet(
             (contribution, chunkContext) -> {
-              ingestionService.ingestActiveSources();
+              IngestionSummary summary = ingestionService.ingestActiveSources();
+              if (summary.isCompleteFailure()) {
+                throw new IllegalStateException(
+                    "All %d active article sources failed to ingest"
+                        .formatted(summary.sourcesProcessed()));
+              }
               return RepeatStatus.FINISHED;
             })
         .build();

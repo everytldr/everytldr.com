@@ -1,10 +1,13 @@
 package com.everytldr.ingestor.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 import com.everytldr.TestcontainersConfig;
 import com.everytldr.ingestor.ingestion.IngestionService;
+import com.everytldr.ingestor.ingestion.IngestionService.IngestionSummary;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.job.Job;
@@ -35,12 +38,14 @@ class BatchConfigTest {
 
   @Test
   void ingestionBatchJobRunsIngestionService() throws Exception {
+    doReturn(new IngestionSummary(1, 0)).when(ingestionService).ingestActiveSources();
+
     JobExecution jobExecution =
         jobOperator.start(
             ingestionBatchJob,
             new JobParametersBuilder().addLong("run.id", System.nanoTime()).toJobParameters());
 
     assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
-    verify(ingestionService).ingestActiveSources();
+    verify(ingestionService, atLeastOnce()).ingestActiveSources();
   }
 }

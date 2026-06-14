@@ -58,7 +58,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
           className="scrollbar-hidden overflow-x-auto px-md"
           aria-label={t("header.aria-label.subcategories")}
         >
-          <div className="flex h-11 items-center gap-md">
+          <div className="flex h-11 items-center gap-lg">
             {category.children &&
               category.children
                 .filter((node) => !isHiddenNode(node))

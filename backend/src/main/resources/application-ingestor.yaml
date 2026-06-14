@@ -8,3 +8,6 @@ everytldr:
     ingestion:
       enabled: ${INGESTION_ENABLED:false}
       fixed-delay: ${INGESTION_FIXED_DELAY:15m}
+      feed:
+        connect-timeout: ${INGESTION_FEED_CONNECT_TIMEOUT:5s}
+        read-timeout: ${INGESTION_FEED_READ_TIMEOUT:10s}

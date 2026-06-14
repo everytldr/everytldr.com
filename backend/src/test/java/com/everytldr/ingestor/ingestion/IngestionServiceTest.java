@@ -30,9 +30,9 @@ class IngestionServiceTest {
     ArticleSource firstSource =
         ArticleSource.create(
             "Broken Guardian",
-            "https://content.guardianapis.com/search?section=football",
             new SourcePolicy(
                 new CrawlingPolicy(
+                    List.of("https://content.guardianapis.com/search?section=football"),
                     List.of("theguardian.com", "www.theguardian.com"),
                     List.of("article"),
                     List.of())),
@@ -41,9 +41,9 @@ class IngestionServiceTest {
     ArticleSource secondSource =
         ArticleSource.create(
             "The Guardian Football",
-            "https://content.guardianapis.com/search?section=football",
             new SourcePolicy(
                 new CrawlingPolicy(
+                    List.of("https://content.guardianapis.com/search?section=football"),
                     List.of("theguardian.com", "www.theguardian.com"),
                     List.of("article"),
                     List.of())),

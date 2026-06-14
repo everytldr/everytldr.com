@@ -10,16 +10,21 @@ public record SourcePolicy(CrawlingPolicy crawling) {
   }
 
   public record CrawlingPolicy(
+      @JsonProperty("feed_urls") List<String> feedUrls,
       List<String> hosts,
       @JsonProperty("content_selectors") List<String> contentSelectors,
       @JsonProperty("thumbnail_selectors") List<String> thumbnailSelectors) {
     public CrawlingPolicy {
+      if (feedUrls == null || feedUrls.isEmpty()) {
+        throw new IllegalArgumentException("feedUrls must not be empty");
+      }
       if (hosts == null || hosts.isEmpty()) {
         throw new IllegalArgumentException("hosts must not be empty");
       }
       if (contentSelectors == null || contentSelectors.isEmpty()) {
         throw new IllegalArgumentException("contentSelectors must not be empty");
       }
+      feedUrls = List.copyOf(feedUrls);
       hosts = List.copyOf(hosts);
       contentSelectors = List.copyOf(contentSelectors);
       thumbnailSelectors = List.copyOf(Objects.requireNonNullElse(thumbnailSelectors, List.of()));
