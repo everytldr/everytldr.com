@@ -17,12 +17,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata.search" });
 
-  return buildPageMetadata({
-    title: t("title"),
-    description: t("description"),
-    locale,
-    path: "/search",
-  });
+  return {
+    ...buildPageMetadata({
+      title: t("title"),
+      description: t("description"),
+      locale,
+      path: "/search",
+    }),
+    robots: { index: false, follow: true },
+  };
 }
 
 export default async function Page({ searchParams }: PageProps) {
