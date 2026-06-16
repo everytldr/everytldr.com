@@ -24,7 +24,7 @@
     "clsx": "^2.1.1",
     "lodash-es": "^4.18.1",
     "lucide-react": "^1.14.0",
-    "next": "16.2.4",
+    "next": "16.2.6",
     "next-intl": "^4.11.0",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
@@ -54,7 +54,7 @@
     "chokidar": "^5.0.0",
     "concurrently": "^9.2.1",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-perfectionist": "^5.9.0",
     "eslint-plugin-prettier": "^5.5.5",
@@ -73,5 +73,14 @@
     "workerDirectory": [
       "public"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "shell-quote@<1.8.4": ">=1.8.4",
+      "js-cookie@<=3.0.5": ">=3.0.7",
+      "esbuild@<0.28.1": ">=0.28.1",
+      "postcss@<8.5.10": ">=8.5.10",
+      "@babel/plugin-transform-modules-systemjs@<=7.29.3": ">=7.29.4"
+    }
   }
 }
