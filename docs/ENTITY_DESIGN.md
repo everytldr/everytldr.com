@@ -1,110 +1,87 @@
 # 1. Scope
 
-This document specifies the persistence layer for the everytldr backend: which entities exist, how they map to the database, how identifiers are generated, and which conventions every entity follows. Reader: an autonomous coding agent with no prior context on this codebase.
-
-Out of scope: HTTP layer, ingestion business logic, summarization pipeline, frontend.
+Persistence layer for the everytldr backend: entities, DB mapping, ID generation, and shared conventions. Reader: a coding agent with no prior context on this codebase. Out of scope: HTTP layer, ingestion/summarization logic, frontend.
 
 # 2. Stack and module layout
 
 ## 2.1. Runtime
 
-| Component | Version or choice |
+| Component | Choice |
 |---|---|
-| Java toolchain | 25 |
+| Java | 25 |
 | Spring Boot | 4.0.6 |
 | Persistence | Spring Data JPA over Hibernate 7.2.12 |
-| Production RDBMS | MySQL 8.4 |
-| Test RDBMS | MySQL 8.4 via Testcontainers (§ 6.) |
-| Migration tool | Flyway, registered via `spring-boot-starter-flyway` |
-| Build tool | Gradle Kotlin DSL |
+| RDBMS (prod / test) | MySQL 8.4 / MySQL 8.4 via Testcontainers (§ 6.) |
+| Migration | Flyway (`spring-boot-starter-flyway`) |
+| Build | Gradle Kotlin DSL |
 | ID generator | Custom Snowflake (§ 8.) |
-| Lombok policy | § 4.2. |
 
 ## 2.2. Module layout
 
-The backend is a single Gradle project. The five Spring profiles are realized as Java packages, not as Gradle subprojects.
+Single Gradle project. Five Spring profiles realized as Java packages, not subprojects.
 
 | Profile | Package root | Role |
 |---|---|---|
-| `common` | `org.everytldr.common` | Shared code: domain entities, repositories, snowflake, base classes |
-| `api` | `org.everytldr.api` | HTTP endpoints, DTOs |
-| `ingestor` | `org.everytldr.ingestor` | RSS polling, article ingestion |
-| `enricher` | `org.everytldr.enricher` | LLM translation and summarization |
+| `common` | `com.everytldr.common` | Domain entities, repositories, snowflake, base classes |
+| `api` | `com.everytldr.api` | HTTP endpoints, DTOs |
+| `ingestor` | `com.everytldr.ingestor` | RSS polling, article ingestion |
+| `enricher` | `com.everytldr.enricher` | LLM translation and summarization |
 | `monolith` | inherits all | Single-process deployment |
 
-All persistence entities live under `org.everytldr.common.domain.<aggregate>`. This is package-by-feature (§ 10.).
+Entities live under `com.everytldr.common.domain.<aggregate>` (package-by-feature). Repositories sit beside their entities; no top-level `repository/` folder.
 
 ## 2.3. Domain package layout
 
 ```
-common.domain.support/      BaseEntity, SoftDeletableEntity,
-                            SnowflakeId (meta-annotation),
-                            SnowflakeIdGenerator,
-                            HibernateSnowflakeIdGenerator
+common.domain.support/      BaseEntity, SoftDeletableEntity, SnowflakeId,
+                            SnowflakeIdGenerator, HibernateSnowflakeIdGenerator
 common.domain.article/      Article, ArticleSummary, ArticleLike, ArticleComment, *Repository
 common.domain.category/     Category, ArticleCategory, *Repository
 common.domain.ingestion/    ArticleIngestionJob, IngestionState, *Repository
-common.domain.source/       ArticleSource, SourceType, *Repository
+common.domain.source/       ArticleSource, SourceType, SourcePolicy, *Repository
+common.domain.language/     SupportedLanguage
 ```
-
-Repositories sit beside their entities in the same package. There is no top-level `repository/` folder.
 
 # 3. Database conventions
 
 ## 3.1. Character set
 
-All tables: `CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`. Required for emoji and full Unicode in nicknames and comments.
+All tables: `utf8mb4 / utf8mb4_0900_ai_ci` (emoji and full Unicode in nicknames/comments).
 
 ## 3.2. Time
 
-| Surface | Type |
-|---|---|
-| MySQL columns | `DATETIME(6)` storing UTC values |
-| Java fields | `java.time.Instant` |
-
-`TIMESTAMP` is not used; `DATETIME` avoids implicit time zone conversion at the column level.
+MySQL `DATETIME(6)` (UTC) ↔ Java `java.time.Instant`. `TIMESTAMP` is avoided to prevent implicit time-zone conversion.
 
 ## 3.3. Identifiers
 
-Every entity uses a 64-bit Snowflake ID generated in the application (§ 8.). Stored as `BIGINT NOT NULL PRIMARY KEY`. No `AUTO_INCREMENT`. No table sequences.
-
-Consequence: row insertion order is monotonic in `id` per worker. List ordering uses `ORDER BY id DESC` instead of `ORDER BY created_at DESC`. **There is no `created_at` column on any table**; creation time is exposed in Java via a derived transient field on `BaseEntity` (§ 4.1.) backed by the decoder in § 8.6.
+Every entity uses a 64-bit application-generated Snowflake ID (§ 8.) stored as `BIGINT NOT NULL PRIMARY KEY` — no `AUTO_INCREMENT`, no sequences. IDs are monotonic per worker, so list ordering uses `ORDER BY id DESC`. **No `created_at` column exists**; creation time is a transient field on `BaseEntity` decoded from the ID (§ 4.1., § 8.6.).
 
 ## 3.4. Foreign keys
 
-All foreign keys: `ON DELETE RESTRICT, ON UPDATE RESTRICT`. Hard deletion of a parent row is therefore a deliberate multi-statement operation; routine deletion uses soft delete (§ 3.5.).
-
-JPA-side cascade attributes (`CascadeType.*`) are not used. Bidirectional `@OneToMany` mappings are not declared.
+All FKs `ON DELETE RESTRICT, ON UPDATE RESTRICT`, except `article.source → article_source(name)` which is `ON UPDATE CASCADE` (publisher rename propagates; § 7.2.2.–§ 7.2.3.). Parent hard-deletion is therefore deliberate; routine deletion is soft (§ 3.5.). No `CascadeType.*`; no bidirectional `@OneToMany`.
 
 ## 3.5. Soft delete
 
-`Article` and `ArticleComment` are soft-deletable. They inherit a `deleted_at DATETIME(6) NULL` column from `SoftDeletableEntity` (§ 4.1.) — `NULL` means active, a non-`NULL` timestamp means deleted at that instant.
-
-Filter mechanism: Hibernate `@SQLRestriction("deleted_at IS NULL")` placed **on `SoftDeletableEntity` itself** (the mapped superclass). It propagates to every concrete subclass at metamodel build time — verified empirically against Hibernate 7 by `SoftDeleteTest`. Concrete subclasses (`Article`, `ArticleComment`) therefore do **not** repeat the annotation. If the test ever fails on a future Hibernate upgrade, restore the per-subclass annotation as a workaround and reopen this question.
+`Article` and `ArticleComment` extend `SoftDeletableEntity`, inheriting `deleted_at DATETIME(6) NULL` (`NULL` = active). Filter: `@SQLRestriction("deleted_at IS NULL")` is declared on the mapped superclass and propagates to all subclasses at metamodel build (verified by `SoftDeleteTest`), so subclasses do not repeat it.
 
 | Operation | Effect |
 |---|---|
-| `entity.softDelete(Instant.now())` + `repository.save(entity)` | Sets `deleted_at`, dirty checking emits `UPDATE ... SET deleted_at = ?` |
-| `entityManager.find` / JPQL / Criteria SELECTs | Hibernate appends `AND deleted_at IS NULL` to every read against the entity |
-| Lazy association loads of a soft-deletable target | Same filter applies; the target row reads as absent |
-| `repository.delete(entity)` | Issues a real SQL `DELETE` (not soft-delete). Reserved for hard-delete by moderation, gated by `ON DELETE RESTRICT` (§ 3.4.) |
+| `entity.softDelete(now)` + `save` | Sets `deleted_at` via dirty `UPDATE` |
+| `find` / JPQL / Criteria SELECT | Hibernate appends `AND deleted_at IS NULL` |
+| Lazy load of a soft-deleted target | Filter applies; target reads as absent |
+| `repository.delete(entity)` | Real SQL `DELETE`; reserved for moderation hard-delete |
 
-Why not Hibernate `@SoftDelete`: that annotation is incompatible with our LAZY fetch policy. Hibernate refuses to map a `LAZY @ManyToOne` whose target is `@SoftDelete`-marked (`UnsupportedMappingException` at `ToOneAttributeMapping.java:422`), because the proxy cannot determine soft-delete state without loading the row. Our `Article` is the target of five LAZY associations (§ 7.2.4.–§ 7.2.8.) and `ArticleComment` is the target of one self-referential LAZY association (§ 7.2.7.); soft-deleting them via `@SoftDelete` would force EAGER fetching and break § 4.5. `@SQLRestriction` does not have this restriction because it runs at query time, not at proxy-resolution time.
-
-Moderation tooling that needs deleted rows must use native SQL or a dedicated repository method that bypasses the ORM filter (e.g., `@Query(nativeQuery = true)`).
-
-Comment thread semantics: deleting a parent comment does not soft-delete its children. The UI replaces the deleted parent's body and nickname with a placeholder while children remain visible. Implementation detail: when a child comment lazy-loads its `parent` reference and the parent was soft-deleted, the load returns no row; the application code treats this as "parent unavailable" rather than an error.
+`@SoftDelete` is not used: it forbids `LAZY @ManyToOne` to soft-deletable targets (both entities are such targets), whereas `@SQLRestriction` filters at query time without that restriction. Moderation reads of deleted rows must bypass the filter via native SQL. Deleting a parent comment does not delete its replies; a child whose `parent` was soft-deleted loads no parent row (treated as "parent unavailable"), and the UI shows a placeholder.
 
 ## 3.6. Naming
 
 | Element | Convention |
 |---|---|
-| Tables | `snake_case`, singular (`article_summary`). Derived from the entity class name by `org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy`, anchored in `application.yaml` (`spring.jpa.hibernate.naming.physical-strategy`). `@Table(name = "...")` is omitted unless overriding the auto-derived name. |
-| Columns | `snake_case`. Same naming strategy converts `camelCase` Java field names to `snake_case` columns. `@Column(name = "...")` is omitted unless overriding the auto-derived name. |
-| Java entities | `PascalCase`, singular (`ArticleSummary`). |
-| Java fields | `camelCase`. |
-| Indexes / unique constraints / FK names | Explicitly named via `@Index(name = ...)`, `@UniqueConstraint(name = ...)`, `@ForeignKey(name = ...)`. Pattern: `idx_<table>_<columns>`, `uk_<table>_<columns>`, `fk_<table>_<referenced>`. |
-| `@JoinColumn(name = ...)` | Always explicit. Anchors FK column names against silent renames if the Java association field is later refactored (e.g., `Article article` → `Article subject`). |
+| Tables | `snake_case`, singular; auto-derived from entity name by `CamelCaseToUnderscoresNamingStrategy`. `@Table(name)` only to override |
+| Columns | `snake_case`, auto-derived from field name. `@Column(name)` only to override |
+| Java entities / fields | `PascalCase` singular / `camelCase` |
+| Index / unique / FK names | Explicit: `idx_<table>_<cols>`, `uk_<table>_<cols>`, `fk_<table>_<referenced>` |
+| `@JoinColumn(name)` | Always explicit, to anchor FK column names against field renames |
 
 # 4. Persistence framework conventions
 
@@ -114,161 +91,116 @@ Comment thread semantics: deleting a parent comment does not soft-delete its chi
 BaseEntity (@MappedSuperclass, @EntityListeners(AuditingEntityListener))
 ├── id        : Long     (@Id @SnowflakeId; § 8.)
 ├── updatedAt : Instant  (@LastModifiedDate)
-└── createdAt : Instant  (@Transient; derived from id via
-                          @PostLoad @PostPersist callback;
-                          decoder in § 8.6.)
-        ▲
-        │ extends
+└── createdAt : Instant  (@Transient; decoded from id via @PostLoad/@PostPersist; § 8.6.)
+        ▲ extends
 SoftDeletableEntity (@MappedSuperclass, @SQLRestriction("deleted_at IS NULL"))
-└── deletedAt : Instant  (nullable; null = active, set = deleted; § 3.5.)
-    Domain methods: softDelete(Instant), isSoftDeleted()
+└── deletedAt : Instant  (nullable; § 3.5.; methods softDelete(Instant), isSoftDeleted())
 ```
 
-`createdAt` is **not** a database column. It is populated by a private JPA callback that runs after `@PostLoad` (read path) and `@PostPersist` (write path). Property semantics:
+`createdAt` is not a column; a JPA callback fills it after `@PostLoad`/`@PostPersist`:
 
-| State | `getCreatedAt()` returns |
+| State | `getCreatedAt()` |
 |---|---|
-| Newly constructed (`new`), not persisted | `null` |
-| After `entityManager.persist(...)`, before flush | `null` (blank window: ID is assigned at flush time by the `BeforeExecutionGenerator`; the callback fires only after `INSERT` executes) |
-| After flush (`@PostPersist` fired) | decoded `Instant` |
-| Loaded via repository / query (`@PostLoad` fired) | decoded `Instant` |
+| New, not persisted | `null` |
+| After `persist`, before flush | `null` (ID assigned at flush; callback fires after `INSERT`) |
+| After flush / loaded | decoded `Instant` |
 
-The blank window between `persist` and flush is accepted as a design tradeoff against the alternative of recomputing per call.
-
-Allocation per entity:
-
-| Entity | Base class |
-|---|---|
-| `Article` | `SoftDeletableEntity` |
-| `ArticleComment` | `SoftDeletableEntity` |
-| `ArticleSummary` | `BaseEntity` |
-| `ArticleLike` | `BaseEntity` |
-| `ArticleCategory` | `BaseEntity` |
-| `ArticleIngestionJob` | `BaseEntity` |
-| `Category` | `BaseEntity` |
-| `ArticleSource` | `BaseEntity` |
+Base class per entity: `SoftDeletableEntity` for `Article`, `ArticleComment`; `BaseEntity` for `ArticleSummary`, `ArticleLike`, `ArticleCategory`, `ArticleIngestionJob`, `Category`, `ArticleSource`.
 
 ## 4.2. Lombok policy
 
-| Annotation | Allowed on entities |
-|---|---|
-| `@Getter` | Yes |
-| `@Setter` | No |
-| `@NoArgsConstructor(access = PROTECTED)` | Yes (JPA requires) |
-| `@Builder` or static factory | Yes |
-| `@EqualsAndHashCode` | No (write manually, ID-based, null-safe; § 4.6.) |
-| `@ToString` | No (lazy-loading hazard) |
-| `@Data` | No |
+Allowed: `@Getter`, `@NoArgsConstructor(access = PROTECTED)` (JPA), `@Builder` / static factory. Forbidden: `@Setter`, `@EqualsAndHashCode` (write manually; § 4.6.), `@ToString` (lazy-load hazard), `@Data`.
 
 ## 4.3. Validation policy
 
-JPA constraints (`nullable`, `length`, `unique`) on entity columns. Bean Validation (`@NotNull`, `@Size`, `@Pattern`) belongs on DTOs at HTTP boundaries, not on entities.
+JPA constraints (`nullable`, `length`, `unique`) on entity columns. Bean Validation (`@NotNull`, `@Size`, …) belongs on HTTP DTOs, not entities.
 
 ## 4.4. Auditing
 
-`@EnableJpaAuditing` is declared on `org.everytldr.common.CommonConfig`. `@LastModifiedDate` populates `updatedAt` (§ 4.1.) on both INSERT and UPDATE; therefore at first persist, `updatedAt` equals the persist instant. `@CreatedBy` and `@LastModifiedBy` are not used (anonymous service).
+`@EnableJpaAuditing` on `com.everytldr.common.CommonConfig`. `@LastModifiedDate` fills `updatedAt` on INSERT and UPDATE (so at first persist `updatedAt` = persist instant). `@CreatedBy`/`@LastModifiedBy` unused (anonymous service).
 
 ## 4.5. Fetch and association rules
 
 | Rule | Reason |
 |---|---|
-| All `@ManyToOne` and `@OneToOne` declared `fetch = LAZY` | Avoid hidden N+1 |
-| No bidirectional mappings | Avoid cycles and cascade accidents |
+| All `@ManyToOne`/`@OneToOne` are `LAZY` | Avoid hidden N+1 |
+| No bidirectional mappings | Avoid cycles / cascade accidents |
 | No `cascade = *` | Hard deletion must be explicit (§ 3.4.) |
-| `@ManyToMany` not used | Replaced by an explicit join entity (§ 7.2.8.) |
+| No `@ManyToMany` | Replaced by an explicit join entity (§ 7.2.8.) |
 
 ## 4.6. Equality
 
-Entity `equals` and `hashCode` are based on `id` and the proxy-safe class returned by `org.hibernate.Hibernate.getClass(...)`:
-
-- `equals` returns `true` iff the runtime classes (after proxy unwrap) are identical and both `id`s are non-null and equal.
-- A transient entity (`id == null`) is therefore equal only to itself by reference.
-- `hashCode` returns the proxy-unwrapped class's `hashCode` (constant per concrete entity type), which keeps the contract stable across the transient-to-managed transition.
+`equals`/`hashCode` use `id` plus the proxy-unwrapped class (`Hibernate.getClass(...)`): equal iff unwrapped runtime classes match and both `id`s are non-null and equal (a transient `id == null` entity equals only itself by reference). `hashCode` is the unwrapped class's constant hashCode, stable across the transient→managed transition.
 
 # 5. Schema migration
 
 ## 5.1. Bootstrap
 
-1. Define all entities per § 3.–§ 4.
-2. Run the application once with `spring.jpa.hibernate.ddl-auto=update` against an empty MySQL schema. Hibernate creates the initial tables.
-3. Dump the resulting schema with `mysqldump --no-data` and place it as `src/main/resources/db/migration/V1__init.sql`.
-4. Switch `spring.jpa.hibernate.ddl-auto=validate`.
+1. Define entities per § 3.–§ 4.
+2. Run once with `ddl-auto=update` on an empty schema (Hibernate creates tables).
+3. Dump via `mysqldump --no-data` to `src/main/resources/db/migration/V1__init.sql`.
+4. Switch `ddl-auto=validate`.
 
-The procedure has been executed. The committed output is `backend/src/main/resources/db/migration/V1__init.sql`. After the dump, tables were manually reordered to topological foreign-key order (`category` → `rss_source` → `article` → `article_ingestion_job` → `article_summary` → `article_like` → `article_comment` → `article_category`) so the migration loads without `FOREIGN_KEY_CHECKS=0`, and the `mysqldump` session pragmas (`/*!40101 ... */` etc.) were removed.
-
-`application.yaml` exposes `JPA_DDL_AUTO` (default `validate`) and `FLYWAY_ENABLED` (default `true`) environment variables to support re-running the bootstrap procedure later. To re-baseline: drop the schema, run with `JPA_DDL_AUTO=update FLYWAY_ENABLED=false`, dump, reset both variables to defaults.
+Already executed. In the committed `V1__init.sql`, tables were reordered to topological FK order and `mysqldump` session pragmas stripped so it loads without `FOREIGN_KEY_CHECKS=0`. `application.yaml` exposes `JPA_DDL_AUTO` (default `validate`) and `FLYWAY_ENABLED` (default `true`) to re-baseline (drop schema → run `JPA_DDL_AUTO=update FLYWAY_ENABLED=false` → dump → reset).
 
 ## 5.2. Steady state
 
-| Change type | Procedure |
+| Change | Procedure |
 |---|---|
-| Schema change | New `V{n}__{description}.sql` Flyway migration |
-| Reference data seed | New `V{n}__seed_{table}.sql` Flyway migration |
-| Entity-only change with no DDL impact | No migration |
+| Schema change | New `V{n}__{description}.sql` |
+| Reference-data seed | New `V{n}__seed_{table}.sql` |
+| Entity-only, no DDL | No migration |
 
-After § 5.1. step 4, `ddl-auto` remains `validate`. Hibernate refuses to start if entity mappings drift from the live schema.
+`ddl-auto` stays `validate`: Hibernate refuses to start if mappings drift from the live schema.
 
 # 6. Test database strategy
 
-H2 is removed from the build. Test code uses a real MySQL 8 container managed by Testcontainers. One container per JVM, reused across test classes, with per-test transaction rollback for isolation.
+No H2. Tests use a real MySQL 8 Testcontainers container (one per JVM, reused, per-test rollback) for dialect parity with production.
 
-| Gradle dependency | Configuration |
+| Gradle dependency | Config |
 |---|---|
-| `org.springframework.boot:spring-boot-testcontainers` | `testImplementation` |
-| `org.testcontainers:mysql` | `testImplementation` |
-| `org.testcontainers:junit-jupiter` | `testImplementation` |
-| `com.h2database:h2` | removed |
-| `org.springframework.boot:spring-boot-h2console` | removed |
-
-Rationale: dialect parity with production. SQL valid on H2 but invalid on MySQL is rejected at test time.
+| `spring-boot-testcontainers` | `testImplementation` |
+| `org.testcontainers:mysql`, `:junit-jupiter` | `testImplementation` |
+| `com.h2database:h2`, `spring-boot-h2console` | removed |
 
 # 7. Entity catalog
 
 ## 7.1. Implementation order
 
-Order is the topological sort of foreign-key dependency. Each step compiles only after the previous step.
-
-1. § 7.2.1. `Category` (no FKs)
-2. § 7.2.2. `ArticleSource` (no FKs)
-3. § 7.2.3. `Article` (no FKs)
-4. § 7.2.4. `ArticleIngestionJob` (FK → `Article`)
-5. § 7.2.5. `ArticleSummary` (FK → `Article`)
-6. § 7.2.6. `ArticleLike` (FK → `Article`)
-7. § 7.2.7. `ArticleComment` (FK → `Article`, self-FK)
-8. § 7.2.8. `ArticleCategory` (FK → `Article`, FK → `Category`)
+Topological FK order: `Category` → `ArticleSource` → `Article` → `ArticleIngestionJob` → `ArticleSummary` → `ArticleLike` → `ArticleComment` → `ArticleCategory`.
 
 ## 7.2. Per-entity specifications
 
-Inherited columns are omitted from each table; refer to § 4.1. Concretely:
-- Every table inherits `id BIGINT NOT NULL PRIMARY KEY` and `updated_at DATETIME(6) NOT NULL` from `BaseEntity`.
-- Tables backed by `SoftDeletableEntity` additionally carry `deleted_at DATETIME(6) NULL` (§ 3.5.).
+Inherited columns are omitted: every table has `id BIGINT NOT NULL PRIMARY KEY` and `updated_at DATETIME(6) NOT NULL` (`BaseEntity`); `SoftDeletableEntity` tables add `deleted_at DATETIME(6) NULL` (§ 3.5.).
 
 ### 7.2.1. `category`
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
-| `slug` | `VARCHAR(50)` | `NOT NULL UNIQUE` | URL-safe identifier, e.g. `football` |
-| `sort_order` | `INT` | `NOT NULL DEFAULT 0` | Display order; lower first |
+| `slug` | `VARCHAR(50)` | `NOT NULL UNIQUE` | URL-safe id; hierarchy encoded with `-`, e.g. `sport-football-epl-arsenal` |
 
-Display labels (Korean, English, …) are resolved client-side from `slug` via i18n resources; no `name` column.
-
-`Category` is the product-defined taxonomy used for article classification and API filtering. The MVP source domain remains football, but the MVP category taxonomy may include football-domain subcategories such as leagues, teams, and competitions. These rows must exist before enrichment so the enricher can choose one of the allowed categories.
+Display labels and hierarchy are resolved client-side from `slug`; no `name`/`sort_order` column. The taxonomy is a product-defined multi-level hierarchy from top topics (`world`, `politics`, `society`, `economy`, `environment`, `technology`, `science`, `health`, `education`, `culture`, `sport`, …) down to specific entities (e.g. individual sport teams), seeded as Flyway reference data. Rows must exist before enrichment so the enricher can pick an allowed category.
 
 ### 7.2.2. `article_source`
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
-| `name` | `VARCHAR(100)` | `NOT NULL` | Display name, e.g. `BBC Sport` |
-| `url` | `VARCHAR(500)` | `NOT NULL UNIQUE` | Provider locator. For RSS this is the feed URL; for Guardian API this is an API-key-free locator such as a section/search URL. |
-| `is_active` | `BOOLEAN` | `NOT NULL DEFAULT TRUE`, indexed | Inactive sources skipped by ingestor |
-| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en`. Articles emitted from this source inherit this value. |
-| `source_type` | `VARCHAR(32)` | `NOT NULL` | Java `SourceType` enum, mapped `EnumType.STRING`; values include `GUARDIAN_API` and `RSS`. |
+| `name` | `VARCHAR(100)` | `NOT NULL UNIQUE` (`uk_article_source_name`) | Display name; referenced by `article.source` FK (§ 7.2.3.) |
+| `policy` | `JSON` | `NOT NULL` | Serialized `SourcePolicy` (`@JdbcTypeCode(SqlTypes.JSON)`); see below |
+| `is_active` | `BOOLEAN` | `NOT NULL DEFAULT TRUE`, indexed | Inactive sources skipped |
+| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase; articles inherit it |
+| `source_type` | `VARCHAR(32)` | `NOT NULL` | `SourceType` enum (STRING + `VARCHAR` JDBC type). Discriminates the collection channel; the ingestor dispatches to a matching `SourceClient` via a registry. Extension point for multiple channels (RSS, API, …); `RSS` is the only value implemented so far |
 
-For `GUARDIAN_API`, `url` is a provider locator, not the final outbound request URL. It must not contain `api-key` or other secrets. The ingestor extracts supported provider parameters such as `section` from this locator, while the actual Guardian API base URL comes from `everytldr.ingestor.guardian.base-url`. This keeps credentials and outbound host configuration outside reference data and prevents database rows from controlling the request host.
+`SourcePolicy.CrawlingPolicy` JSON keys:
 
-Seed policy: initial `article_source` rows are managed by Flyway versioned SQL migrations. Because SQL migrations do not invoke Hibernate's `@SnowflakeId` generator, seed rows must provide explicit fixed IDs. These IDs are still Snowflake-format values, not arbitrary small integers: use the project epoch and bit layout from § 8, set the timestamp to the migration's chosen UTC reference instant, reserve `workerId = 1023` for Flyway reference data, and increment the sequence from `1` within the same migration. Runtime application processes must not use `workerId = 1023`; assign `APP_WORKER_ID` values from `0..1022` so generated runtime IDs cannot collide with reference-data IDs.
+| Key | Required | Meaning |
+|---|---|---|
+| `feed_urls` | yes, non-empty | RSS feed URLs to poll |
+| `hosts` | yes, non-empty | Hostname allowlist for page fetches |
+| `content_selectors` | yes, non-empty | CSS selectors for the article body |
+| `thumbnail_selectors` | no | CSS selectors for the thumbnail; defaults to empty |
 
-Example: `V5__seed_article_sources.sql` seeds Guardian football with timestamp `2026-05-07T00:00:00Z`, `workerId = 1023`, and `sequence = 1`, producing ID `45660871069790209`.
+Seed rows are Flyway reference data with explicit fixed Snowflake-format IDs (SQL seeds bypass `@SnowflakeId`): project epoch/layout (§ 8.), `workerId = 1023` reserved for reference data. Runtime processes use `APP_WORKER_ID` in `0..1022` so IDs cannot collide.
 
 ### 7.2.3. `article`
 
@@ -276,13 +208,13 @@ Base: `SoftDeletableEntity`.
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
-| `source_url` | `VARCHAR(1000)` | `NOT NULL` | Original article URL |
-| `source` | `VARCHAR(100)` | `NOT NULL` | Publisher display name |
+| `content_url` | `VARCHAR(1000)` | `NOT NULL` | Original article URL |
+| `source` | `VARCHAR(100)` | `NOT NULL`, FK → `article_source(name)` | Publisher name; FK `fk_article_source_name`, `ON UPDATE CASCADE` (§ 3.4.) |
 | `thumbnail_url` | `VARCHAR(1000)` | `NULL` | |
-| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase, e.g. `en` |
-| `published_at` | `DATETIME(6)` | `NOT NULL`, indexed | Backs `(published_at DESC, id DESC)` list ordering |
+| `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase |
+| `published_at` | `DATETIME(6)` | `NOT NULL`, indexed | Backs `(published_at DESC, id DESC)` ordering |
 
-The original (untranslated) article title is not stored. See § 9. Q3.
+The original (untranslated) title is not stored (§ 9. Q3).
 
 ### 7.2.4. `article_ingestion_job`
 
@@ -291,20 +223,16 @@ Base: `BaseEntity`. 1:1 with `article`.
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
 | `article_id` | `BIGINT` | `NOT NULL UNIQUE`, FK → `article(id)` | One job per article |
-| `url_hash` | `BINARY(32)` | `NOT NULL UNIQUE` | SHA-256 of `article.source_url` |
-| `state` | `VARCHAR(32)` | `NOT NULL` | Java `IngestionState` enum, mapped `EnumType.STRING` |
+| `url_hash` | `BINARY(32)` | `NOT NULL UNIQUE` | SHA-256 of `content_url` |
+| `state` | `VARCHAR(32)` | `NOT NULL` | `IngestionState` enum |
+| `attempt_count` | `INT` | `NOT NULL` | Incremented on each claim |
+| `attempt_started_at` | `DATETIME(6)` | `NULL` | Set on claim; `NULL` while not `PROCESSING`; backs stale reclaim |
+| `next_attempt_at` | `DATETIME(6)` | `NULL` | Earliest retry instant while `RETRY_SCHEDULED` |
+| `last_error_message` | `VARCHAR(1000)` | `NULL` | Last failure message, truncated to 1000 |
 
-`IngestionState` values: `PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`, `RETRY_SCHEDULED`. Allowed transitions are enforced in domain code, not in the database.
+Indexes: `(state, next_attempt_at)` selects due jobs; `(state, attempt_started_at)` finds stale `PROCESSING` jobs. `IngestionState`: `PENDING`, `PROCESSING`, `SUCCEEDED`, `FAILED`, `RETRY_SCHEDULED`; transitions, claiming, reclaim, and retry scheduling are enforced in `ArticleIngestionJob`, not the DB. `state` uses `@Enumerated(STRING)` + `@JdbcTypeCode(SqlTypes.VARCHAR)` to force plain `VARCHAR(32)` over Hibernate's default native `ENUM`; a `CHECK` constraint still lists valid values (adding one needs a DROP/ADD CONSTRAINT migration).
 
-The ingestor creates `ArticleIngestionJob(PENDING)` after saving source article metadata. It does not decide or persist the article category. The enricher later processes pending jobs, writes summaries, selects one existing category from the product-defined taxonomy, and then marks the job according to the processing outcome.
-
-The Java field is annotated `@Enumerated(EnumType.STRING)` plus `@JdbcTypeCode(SqlTypes.VARCHAR)`. Hibernate 6 and later default `@Enumerated(STRING)` to native MySQL `ENUM(...)`; the explicit `VARCHAR` JDBC type code suppresses that mapping and produces a plain `VARCHAR(32)`. Hibernate still emits a `CHECK` constraint named `article_ingestion_job_chk_1` enumerating the valid string values. The constraint is accepted: adding an enum value requires a `DROP CONSTRAINT` / `ADD CONSTRAINT` migration, which is lighter than altering a native `ENUM` column type. The `@UniqueConstraint` annotations on the entity's `@Table` give the two unique indexes explicit names (`uk_article_ingestion_job_article`, `uk_article_ingestion_job_url_hash`) instead of Hibernate's auto-generated hash names.
-
-Dedupe flow:
-
-1. Compute `url_hash = SHA-256(source_url)`.
-2. Query `article_ingestion_job WHERE url_hash = ?`. If found, skip.
-3. In one transaction: insert `article`, then insert `article_ingestion_job` with `state = PENDING`. Do not insert `article_category` in the ingestor transaction; category assignment happens during enrichment. Concurrent inserts collide on the `url_hash` UNIQUE index; the loser's transaction rolls back.
+Flow: ingestor saves article metadata + `ArticleIngestionJob(PENDING)` (no category); enricher later writes summaries, selects one category, and marks the job by outcome. Dedupe: compute `url_hash = SHA-256(content_url)`; if a job row exists, skip; else in one transaction insert `article` then the job — concurrent inserts collide on the `url_hash` UNIQUE index and the loser rolls back.
 
 ### 7.2.5. `article_summary`
 
@@ -313,21 +241,19 @@ Dedupe flow:
 | `article_id` | `BIGINT` | `NOT NULL`, FK → `article(id)` | |
 | `language` | `VARCHAR(10)` | `NOT NULL` | BCP-47 lowercase |
 | `title` | `VARCHAR(500)` | `NOT NULL` | Translated title |
-| `content` | `TEXT` | `NOT NULL` | LLM summary; no DB length cap |
+| `content` | `TEXT` | `NOT NULL` | LLM summary |
 
-Composite UNIQUE: `(article_id, language)`.
-
-`ArticleSummary` rows are produced by the enricher. In the same successful enrichment flow, the enricher must select one existing category and create the article's `ArticleCategory` row. If summary generation or category selection fails, the job must not be marked `SUCCEEDED`.
+Composite UNIQUE `(article_id, language)`. Produced by the enricher; the same successful flow also creates the `ArticleCategory` row. If summary or category selection fails, the job is not `SUCCEEDED`.
 
 ### 7.2.6. `article_like`
 
 | Column | Type | Constraint | Notes |
 |---|---|---|---|
 | `article_id` | `BIGINT` | `NOT NULL`, FK → `article(id)` | |
-| `ip_hash` | `CHAR(64)` | `NOT NULL` | HMAC-SHA256(pepper, IP), hex-encoded |
+| `ip_hash` | `CHAR(64)` | `NOT NULL` | HMAC-SHA256(pepper, IP), hex |
 | `is_active` | `BOOLEAN` | `NOT NULL DEFAULT TRUE` | `FALSE` = unliked |
 
-Composite UNIQUE: `(article_id, ip_hash)`. Indexed: `(article_id, is_active)`. Toggling reuses the row; only `is_active` and `updatedAt` change. Active count: `COUNT(*) WHERE article_id = ? AND is_active = TRUE`.
+Composite UNIQUE `(article_id, ip_hash)`; indexed `(article_id, is_active)`. Toggling reuses the row (only `is_active`/`updatedAt` change). Active count: `COUNT(*) WHERE article_id = ? AND is_active = TRUE`.
 
 ### 7.2.7. `article_comment`
 
@@ -339,94 +265,70 @@ Base: `SoftDeletableEntity`.
 | `parent_id` | `BIGINT` | `NULL`, FK → `article_comment(id)` | `NULL` = top-level |
 | `nickname` | `VARCHAR(50)` | `NOT NULL` | Display only |
 | `password_hash` | `CHAR(60)` | `NOT NULL` | bcrypt; gates self-delete |
-| `ip_hash` | `CHAR(64)` | `NOT NULL` | Per § 7.2.6. |
-| `content` | `TEXT` | `NOT NULL` | Body |
+| `ip_hash` | `CHAR(64)` | `NOT NULL` | Stable hash (§ 7.2.6.), never displayed |
+| `masked_ip` | `VARCHAR(32)` | `NOT NULL` | Partially masked IP for display; derived at write time |
+| `content` | `TEXT` | `NOT NULL` | Body; DTO-level ≤ 5000 |
 
-Indexed: `(article_id, id)` for chronological loading. Self-referential FK uses `parent_id`. DTO-level constraint: `content` length ≤ 2000.
-
-Soft-delete behavior: see § 3.5.
+Indexed `(article_id, id)` for chronological loading. Soft-delete: § 3.5.
 
 ### 7.2.8. `article_category`
 
-Explicit join entity (not `@ManyToMany`). This table stores the category selected during enrichment.
+Explicit join entity (not `@ManyToMany`); stores the category chosen during enrichment.
 
-| Column | Type | Constraint | Notes |
-|---|---|---|---|
-| `article_id` | `BIGINT` | `NOT NULL`, FK → `article(id)` | |
-| `category_id` | `BIGINT` | `NOT NULL`, FK → `category(id)` | |
+| Column | Type | Constraint |
+|---|---|---|
+| `article_id` | `BIGINT` | `NOT NULL`, FK → `article(id)` |
+| `category_id` | `BIGINT` | `NOT NULL`, FK → `category(id)` |
 
-Composite UNIQUE: `(article_id, category_id)`.
-
-MVP business rules require exactly one primary category per article. The current schema prevents duplicate pairs but does not prevent multiple different categories for the same article; enforce the one-category invariant in the enricher service and its tests unless the schema is changed later.
+Composite UNIQUE `(article_id, category_id)`. Exactly one category per article is a business invariant enforced in the enricher (and tests); the schema only blocks duplicate pairs, not multiple distinct categories.
 
 ## 7.3. Excluded
 
-`article_views` from the source ERD is not implemented in this round. The PRD requirement that repeat views from the same reader do not inflate the view count is deferred to a follow-up design.
+`article_views` (view-count dedupe from the PRD) is not implemented; deferred.
 
 # 8. Snowflake generator
 
 ## 8.1. Bit layout
 
-64-bit signed `long`. Most significant bit unused (always 0) so that IDs remain positive.
+64-bit signed `long`, sign bit always 0 (IDs stay positive). Order MSB→LSB: `sign(1) | timestamp(41) | worker(10) | sequence(12)`, so IDs are monotonically non-decreasing in time per worker.
 
-| Bits | Field | Range |
+| Field | Bits | Range |
 |---|---|---|
-| 1 | sign (always 0) | — |
-| 41 | timestamp in milliseconds since § 8.2. epoch | ~69 years |
-| 10 | worker ID | 0..1023 |
-| 12 | sequence within the same millisecond | 0..4095 |
-
-Order from most to least significant: `sign | timestamp | worker | sequence`. IDs are therefore monotonically non-decreasing in time per worker.
+| timestamp (ms since epoch § 8.2.) | 41 | ~69 years |
+| worker ID | 10 | 0..1023 |
+| sequence (per ms) | 12 | 0..4095 |
 
 ## 8.2. Epoch
 
-`2026-01-01T00:00:00Z`. Stored as a constant. Changing this constant invalidates all existing IDs and is forbidden after the first production write.
+`2026-01-01T00:00:00Z`, a constant. Changing it invalidates all IDs and is forbidden after the first production write.
 
 ## 8.3. Worker ID configuration
 
-| Source | Resolution order |
-|---|---|
-| Spring property `everytldr.snowflake.worker-id` | 1 (highest) |
-| Environment variable `APP_WORKER_ID` (via property placeholder) | 2 |
-| Default | `0` |
-
-Operator responsibility: assign distinct worker IDs to distinct concurrent processes. Duplicate worker IDs across processes can produce identical Snowflake IDs and violate `BIGINT PRIMARY KEY`.
+Resolution: Spring property `everytldr.snowflake.worker-id` → env `APP_WORKER_ID` → default `0`. Operators must assign distinct worker IDs to concurrent processes; duplicates can mint identical IDs and violate the `BIGINT PRIMARY KEY`.
 
 ## 8.4. Clock skew
 
-The generator tracks the last-issued millisecond. On `generateId()`:
+`generateId()` tracks the last-issued millisecond:
 
 | Condition | Action |
 |---|---|
-| `now > last` | Reset sequence to 0; emit. |
-| `now == last` and sequence < 4095 | Increment sequence; emit. |
-| `now == last` and sequence == 4095 | Busy-wait until the next millisecond; emit. |
-| `now < last`, gap < 1000 ms | Busy-wait until `now >= last`; emit. |
-| `now < last`, gap ≥ 1000 ms | Throw `IllegalStateException`. |
+| `now > last` | Reset sequence to 0; emit |
+| `now == last`, seq < 4095 | Increment; emit |
+| `now == last`, seq == 4095 | Busy-wait to next ms; emit |
+| `now < last`, gap < 1000 ms | Busy-wait until `now >= last`; emit |
+| `now < last`, gap ≥ 1000 ms | Throw `IllegalStateException` |
 
 ## 8.5. Hibernate integration
 
-Two collaborating types in `common.domain.support`:
-
 | Type | Role |
 |---|---|
-| `SnowflakeIdGenerator` (`@Component`) | Spring-managed bean. Holds `Clock`, worker ID, last-millisecond / sequence state. Exposes `synchronized long generateId()` and the static decoder of § 8.6. |
-| `HibernateSnowflakeIdGenerator` (`implements org.hibernate.generator.BeforeExecutionGenerator`) | Hibernate plug-in. Constructed by Hibernate per entity field. Resolves the Spring `SnowflakeIdGenerator` bean via `ManagedBeanRegistry`, then delegates `generate(...)` to it. `getEventTypes()` returns `INSERT_ONLY`. |
-| `@SnowflakeId` | Custom meta-annotation declared `@IdGeneratorType(HibernateSnowflakeIdGenerator.class)`. Field-level. Replaces the deprecated `@GenericGenerator` from Hibernate ≤ 6. |
+| `SnowflakeIdGenerator` (`@Component`) | Holds `Clock`, worker ID, last-ms/sequence state. `synchronized long generateId()` + static decoder (§ 8.6.) |
+| `HibernateSnowflakeIdGenerator` (`BeforeExecutionGenerator`) | Resolves the bean via `ManagedBeanRegistry`, delegates `generate(...)`; `getEventTypes()` = `INSERT_ONLY` |
+| `@SnowflakeId` | Field meta-annotation (`@IdGeneratorType(HibernateSnowflakeIdGenerator.class)`), replacing deprecated `@GenericGenerator` |
 
-Each entity declares its primary key as:
-
-```java
-@Id
-@SnowflakeId
-private Long id;
-```
-
-Entities never set `id` manually; Hibernate calls the generator before `INSERT` is executed (`BeforeExecutionGenerator` semantics) and writes the returned value into the `INSERT` statement.
+Each PK is `@Id @SnowflakeId private Long id;`. Entities never set `id`; Hibernate generates it before `INSERT`.
 
 ## 8.6. Timestamp decoding
-
-`SnowflakeIdGenerator` exposes a static decoder used by `BaseEntity` (§ 4.1.) and any other code that needs to recover creation time from an ID:
 
 ```java
 public static Instant extractTimestamp(long id) {
@@ -434,38 +336,13 @@ public static Instant extractTimestamp(long id) {
 }
 ```
 
-`TIMESTAMP_SHIFT = WORKER_BITS + SEQUENCE_BITS = 22`. The right-shift is unsigned (`>>>`) because the sign bit is always 0; signed shift would yield the same result here but `>>>` documents the invariant.
+`TIMESTAMP_SHIFT = WORKER_BITS + SEQUENCE_BITS = 22`. Unsigned `>>>` documents the always-0 sign bit invariant.
 
 # 9. Resolved decisions
 
-The questions tracked here in earlier drafts are now closed. The resolutions are folded into § 7. and reproduced for traceability.
-
-| ID | Question | Decision | Where applied |
+| ID | Question | Decision | Where |
 |---|---|---|---|
-| Q1 | Generalize `rss_source` to `article_source`? | **Yes**; `ArticleSource` represents a provider-specific collection channel with `language` and `source_type`. | § 7.2.2. |
-| Q2 | How is the initial `category` row (`football`) seeded? | **Deferred.** No seed migration was committed in this round. Population path (Flyway data migration, Spring `ApplicationRunner`, or operational `INSERT`) will be decided alongside the first ingestion run. | not yet applied |
-| Q3 | Store original (untranslated) article title? | **No**. Operational identification of an article uses `article.source_url` and the loaded `article_summary.title` for the active reader language. | § 7.2.3. |
-| Q4 | Add `processed_at`, `last_error_message` to `article_ingestion_job`? | **No** for now. Add when retry/observability work begins; not required for MVP correctness. | § 7.2.4. |
-
-# 10. Glossary
-
-| Term | Definition |
-|---|---|
-| Aggregate | A cluster of entities treated as a single consistency boundary, accessed only through its root entity. From Domain-Driven Design. |
-| BCP-47 | IETF Best Current Practice 47, the standard for language tags (e.g. `en`, `ko-KR`). This project uses lowercase short forms. |
-| Bean Validation | Jakarta standard for declarative input validation (`@NotNull`, `@Size`). |
-| `BeforeExecutionGenerator` | Hibernate 7 SPI for generating values before the SQL statement executes. The Snowflake integration implements it for `INSERT_ONLY` event types. |
-| bcrypt | Password hashing function producing 60-character output. |
-| Flyway | Versioned SQL migration tool. Each `V{n}__name.sql` runs once in order. |
-| HMAC-SHA256 | Keyed cryptographic hash. Used here to derive `ip_hash` from a per-deployment pepper and the client IP. |
-| `@IdGeneratorType` | Hibernate 7 meta-annotation that binds a custom annotation (`@SnowflakeId` here) to a generator class, replacing the deprecated `@GenericGenerator`. |
-| Idempotent | Producing the same end state when applied more than once. |
-| `@MappedSuperclass` | JPA annotation for an inheritable class whose fields map into each subclass table; the superclass has no table of its own. |
-| Package-by-feature | Organizing source code by domain concept (e.g. `article/`, `category/`) rather than by layer (`controller/`, `service/`). |
-| Pepper | A secret value, distinct from a per-row salt, mixed into a hash to defeat rainbow tables. Stored in deployment config, not in the database. |
-| `@PostLoad` / `@PostPersist` | JPA lifecycle callbacks invoked after a row is loaded or after an `INSERT` executes, respectively. Used here to populate the transient `createdAt` (§ 4.1.). |
-| `@SQLRestriction` | Hibernate annotation that appends a fixed `WHERE` clause to every SELECT against an entity. Verified to propagate from a `@MappedSuperclass` to every concrete subclass at metamodel build time on Hibernate 7 (see § 3.5. and `SoftDeleteTest`). Compatible with `LAZY @ManyToOne` to soft-deletable targets, unlike `@SoftDelete`. |
-| Snowflake | A 64-bit time-ordered identifier scheme (§ 8.). |
-| Soft delete | Marking a row deleted by setting a column (here `deleted_at` to a timestamp) instead of removing it. SELECTs filter the column automatically via `@SQLRestriction` (§ 3.5.); the column is set in application code via `softDelete(Instant)` followed by `repository.save(...)`. |
-| Testcontainers | A library that runs throwaway Docker containers from JUnit, used here to host MySQL during tests. |
-| `@Transient` | JPA annotation marking a field as not persisted; the field exists in Java but no column is generated. |
+| Q1 | Generalize `rss_source` to `article_source`? | Yes; provider-specific channel with `language` and `source_type`. | § 7.2.2. |
+| Q2 | How is the taxonomy seeded? | Flyway reference-data seeds, fixed Snowflake IDs (`workerId = 1023`). | § 7.2.1. |
+| Q3 | Store original article title? | No; identify via `content_url` + active-language `article_summary.title`. | § 7.2.3. |
+| Q4 | Add retry/observability fields to the job? | Added: `attempt_count`, `attempt_started_at`, `next_attempt_at`, `last_error_message` + index. | § 7.2.4. |

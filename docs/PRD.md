@@ -1,92 +1,84 @@
 # everytldr — Product Requirements Document
 
 ## 1. Goals
-- Let readers consume news originally written in languages they don't read, via AI-generated summaries in their preferred language.
-- Provide a lightweight discussion surface (comments, likes) per article.
+- Let readers consume foreign-language news via AI summaries in their own language.
+- Organize summaries under a browsable, hierarchical topic taxonomy.
+- Provide lightweight per-article discussion (comments, likes).
+- Surface the catalog to external readers and search engines via feeds and standard discovery files.
 - Reference UX: https://news.hada.io/lists.
 
 ## 2. Functional Requirements
 
 ### 2.1 Content Ingestion
-- The system collects non-Korean news articles from external sources on a schedule.
-- Each ingested article is automatically translated, summarized, and classified into a category.
+- News is collected from external sources on a schedule, then automatically translated, summarized, and classified into exactly one category (§2.2).
+- Ingestion and enrichment are separate stages: metadata is captured first; translation/summarization/category selection follow and are independently retryable.
 
 ### 2.2 Categorization
-- Articles carry exactly one category (e.g., football, baseball, basketball, politics, economy, tech, entertainment, …).
-- The category taxonomy is a closed, product-defined enum. The enum is extensible without breaking existing data.
+- Each article carries exactly one category.
+- The taxonomy is a closed, product-defined **hierarchy**: top-level topics (world, politics, society, economy, environment, technology, science, health, education, culture, sport, …) nested several levels deep into sub-topics and specific entities (e.g. sport → competition → team).
+- Extensible: adding/renaming/merging/re-nesting categories must not break existing data.
+- A category can be administratively hidden from readers without deletion (blocked categories), so the published set is a subset of the defined set.
 
 ### 2.3 Multi-Language Summaries
-- Every article is available in every supported summary language.
-- The set of supported languages is extensible (Korean, English, Spanish, Japanese, …); adding a language must not require disruptive changes.
-- **Language selection rules**
-  - Default: the reader's browser language preference.
-  - If the reader's browser language is not among supported languages, fall back to English.
-  - The reader can override the default via an in-site settings control; the override persists across visits for that reader.
+- Every article is available in every supported language.
+- Supported: Korean and English; the set is extensible without disruptive changes.
+- Selection: default English; the reader switches language via an in-site control; the choice persists across visits and is reflected in the page URL (localized URLs are shareable).
 
-### 2.4 Article List Page
-- Displays: title, 2-line summary, thumbnail, category, published time, all rendered in the reader's selected language (see §2.3).
-- Supports pagination.
-- Filterable by category.
+### 2.4 Article List & Browse
+- Each item shows title, summary, thumbnail, category, and published time in the selected language (§2.3).
+- Continuation-based pagination (load-more / infinite scroll), newest-first.
+- Browsable by the category hierarchy; filterable by category, where a parent includes all descendants.
 
 ### 2.5 Article Detail Page
-- Displays: AI-generated summary in the reader's selected language, link to original source article, view count, like button with count, comment thread.
-- Repeat views from the same reader do not inflate the view count.
+- Shows the summary in the selected language, a link to the source (§2.8), publisher attribution, a like button with count, and the comment thread with count.
 
 ### 2.6 Likes (Anonymous)
-- One like per reader per article. Unliking is allowed.
-- Like counts are displayed on list and detail pages.
-- The system must reasonably prevent automated or large-scale like abuse.
+- One like per reader per article; unliking allowed; count shown on the detail page.
+- Must reasonably prevent automated or large-scale abuse.
 
 ### 2.7 Comments (Anonymous)
-- Threaded comments per article.
-- Each comment has: content, nickname, timestamp.
-- A default nickname is auto-generated for the reader on first use; the reader can change it in settings.
-- Soft delete supported (hidden from UI, retained for moderation).
-- Anonymous posting is permitted without login.
+- Threaded, no login. Each comment requires a nickname and a password (the password gates later moderation of that comment).
+- Displays content, nickname, timestamp, and a partially masked reader network address for lightweight accountability.
+- Soft delete (moderation): hidden from UI but retained. Deleting a parent keeps its replies and shows a placeholder for the parent.
 
 ### 2.8 Source Link & Attribution
-- Every article detail page links out to the original source URL.
-- Original publisher name is displayed as attribution.
+- Every detail page links out to the original source URL and displays the publisher name as attribution.
+
+### 2.9 Syndication & Discovery
+- Machine-readable feeds segmented per language and per category.
+- Search across summarized articles.
+- Search-engine discovery surfaces (sitemap, crawler directives).
+- Static pages: about, privacy, terms.
 
 ## 3. Non-Functional Requirements
+- **Freshness**: new source articles appear shortly after publication under normal operation.
+- **Durability**: a successfully ingested article is never silently lost on transient failures (LLM outage, network error); failed enrichment is retryable without re-ingesting.
+- **Compliance**: respect `robots.txt` and each source's ToS; store/display only summaries and metadata, never full copyrighted bodies.
 
-- **Content freshness**
-  - Newly published source articles must appear on the service within 15 minutes of original publication under normal operation.
-- **Content durability**
-  - No article that has been successfully ingested is silently lost due to transient external failures (LLM outage, network error, etc.).
-- **Compliance**
-  - Respect `robots.txt` and each source's Terms of Service.
-  - Store and display only summaries and metadata; never redistribute full copyrighted article bodies.
-
-## 4. MVP Scope
-All MVP-specific constraints are consolidated here. Anything not listed under "In Scope" is deferred.
+## 4. Scope
+Anything not under In Scope is deferred.
 
 ### 4.1 In Scope
-- Ingest foreign football articles only (single active category: `FOOTBALL`).
-- Translate and summarize into Korean and English.
-- Article list page.
-- Article detail page.
-- Anonymous likes.
-- Anonymous threaded comments.
-- View counts.
-- Original source link + publisher attribution.
+- Scheduled ingestion across the full taxonomy from multiple sources (§2.1–§2.2).
+- Korean and English summaries (§2.3).
+- Hierarchical browse + article list (§2.4), article detail (§2.5).
+- Anonymous likes (§2.6) and threaded comments (§2.7).
+- Source link + attribution (§2.8).
+- Per-language/per-category feeds, search, discovery files, static pages (§2.9).
 
 ### 4.2 Out of Scope
-- Categories other than football.
-- Summary languages other than Korean and English.
+- Languages other than Korean and English.
 - Breaking-news push notifications.
-- Per-team / per-league / per-player filtering within a category.
-- Native mobile applications.
+- Per-reader accounts / authenticated profiles.
+- Reader-facing view counts.
+- Reader self-service comment deletion (moderation-only; §2.7).
+- Native mobile apps.
 
 ## 5. Success Metrics *(to be refined)*
-- Daily active readers.
-- Articles viewed per session.
-- Likes per article.
-- Comments per article.
-- Summary quality rating (qualitative review, post-launch).
+- Daily active readers; articles viewed per session; likes per article; comments per article; summary quality (qualitative, post-launch).
 
 ## 6. Open Questions
 - Is real-time breaking-news push in scope post-MVP?
-- What is the policy when a source's `robots.txt` or ToS prohibits ingestion?
-- Definition of "high importance" for breaking-news eligibility.
+- Policy when a source's `robots.txt` or ToS prohibits ingestion?
+- Should language default additionally consider the reader's browser preference?
 - Moderation policy for anonymous comments.
