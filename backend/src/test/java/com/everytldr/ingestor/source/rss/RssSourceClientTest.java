@@ -6,6 +6,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourcePolicy.EligibilityPolicy;
+import com.everytldr.common.domain.source.SourcePolicy.ThumbnailCandidateSelector;
+import com.everytldr.common.domain.source.SourcePolicy.ThumbnailEligibilityPolicy;
+import com.everytldr.common.domain.source.SourcePolicy.ThumbnailPolicy;
 import com.everytldr.common.domain.source.SourceType;
 import com.everytldr.ingestor.source.CollectedArticle;
 import com.sun.net.httpserver.HttpServer;
@@ -74,6 +78,26 @@ class RssSourceClientTest {
   }
 
   @Test
+  void skipsFeedMediaThumbnailWhenThumbnailPolicyIsDisabled() {
+    route("/rss.xml", 200, feedWithMedia());
+
+    List<CollectedArticle> articles =
+        newClient().collect(source(ThumbnailPolicy.DISABLED, "/rss.xml"));
+
+    assertThat(articles).extracting(CollectedArticle::thumbnailUrl).containsExactly(null, null);
+  }
+
+  @Test
+  void skipsFeedMediaThumbnailWhenThumbnailPolicyRequiresEligibility() {
+    route("/rss.xml", 200, feedWithMedia());
+
+    List<CollectedArticle> articles =
+        newClient().collect(source(ThumbnailPolicy.ELIGIBLE_ONLY, "/rss.xml"));
+
+    assertThat(articles).extracting(CollectedArticle::thumbnailUrl).containsExactly(null, null);
+  }
+
+  @Test
   void skipsEntriesMissingRequiredFields() {
     route("/rss.xml", 200, feedWithInvalidEntries());
 
@@ -133,14 +157,35 @@ class RssSourceClientTest {
   }
 
   private ArticleSource source(String... paths) {
+    return source(ThumbnailPolicy.ALLOW, paths);
+  }
+
+  private ArticleSource source(ThumbnailPolicy thumbnailPolicy, String... paths) {
     List<String> feedUrls = Arrays.stream(paths).map(path -> serverUrl() + path).toList();
     return ArticleSource.create(
         "Example News",
         new SourcePolicy(
             new CrawlingPolicy(
-                feedUrls, List.of("news.example.com"), List.of("article"), List.of())),
+                feedUrls, List.of("news.example.com"), List.of("article"), List.of()),
+            eligibilityPolicy(thumbnailPolicy)),
         "en",
         SourceType.RSS);
+  }
+
+  private EligibilityPolicy eligibilityPolicy(ThumbnailPolicy thumbnailPolicy) {
+    if (thumbnailPolicy != ThumbnailPolicy.ELIGIBLE_ONLY) {
+      return new EligibilityPolicy(List.of(), thumbnailPolicy, null);
+    }
+
+    return new EligibilityPolicy(
+        List.of(),
+        thumbnailPolicy,
+        new ThumbnailEligibilityPolicy(
+            List.of(
+                new ThumbnailCandidateSelector(
+                    "figure img", "src", "figure", List.of("figcaption"))),
+            List.of("Example News"),
+            List.of("Reuters")));
   }
 
   private String serverUrl() {

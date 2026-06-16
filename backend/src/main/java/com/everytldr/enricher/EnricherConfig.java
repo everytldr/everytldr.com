@@ -2,8 +2,10 @@ package com.everytldr.enricher;
 
 import com.everytldr.enricher.content.ArticleSourceProvider;
 import com.everytldr.enricher.content.ContentCrawler;
+import com.everytldr.enricher.content.ContentEligibilityChecker;
 import com.everytldr.enricher.content.ContentProperties;
 import com.everytldr.enricher.content.CrawlingContentResolver;
+import com.everytldr.enricher.content.ThumbnailEligibilityChecker;
 import com.everytldr.enricher.enrichment.CategorySlugProvider;
 import com.everytldr.enricher.enrichment.gemini.GeminiProperties;
 import com.everytldr.enricher.processor.ProcessingProperties;
@@ -54,9 +56,25 @@ public class EnricherConfig {
   CrawlingContentResolver crawlingContentResolver(
       ArticleSourceProvider articleSourceProvider,
       ContentCrawler contentCrawler,
+      ContentEligibilityChecker contentEligibilityChecker,
+      ThumbnailEligibilityChecker thumbnailEligibilityChecker,
       ContentProperties contentProperties) {
     return new CrawlingContentResolver(
-        articleSourceProvider, contentCrawler, contentProperties.minBodyChars());
+        articleSourceProvider,
+        contentCrawler,
+        contentEligibilityChecker,
+        thumbnailEligibilityChecker,
+        contentProperties.minBodyChars());
+  }
+
+  @Bean
+  ContentEligibilityChecker contentEligibilityChecker() {
+    return new ContentEligibilityChecker();
+  }
+
+  @Bean
+  ThumbnailEligibilityChecker thumbnailEligibilityChecker() {
+    return new ThumbnailEligibilityChecker();
   }
 
   @Bean

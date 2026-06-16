@@ -1,6 +1,7 @@
 package com.everytldr.ingestor.source.rss;
 
 import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.SourcePolicy.ThumbnailPolicy;
 import com.everytldr.common.domain.source.SourceType;
 import com.everytldr.ingestor.source.CollectedArticle;
 import com.everytldr.ingestor.source.SourceClient;
@@ -126,10 +127,17 @@ public class RssSourceClient implements SourceClient {
       return Optional.empty();
     }
 
-    String thumbnailUrl = resolveThumbnailUrl(entry);
+    String thumbnailUrl = resolveThumbnailUrl(entry, source);
     return Optional.of(
         new CollectedArticle(
             link, source.getName(), thumbnailUrl, source.getLanguage(), publishedAt));
+  }
+
+  private String resolveThumbnailUrl(SyndEntry entry, ArticleSource source) {
+    if (source.getPolicy().eligibility().thumbnailPolicy() != ThumbnailPolicy.ALLOW) {
+      return null;
+    }
+    return resolveThumbnailUrl(entry);
   }
 
   private String resolveThumbnailUrl(SyndEntry entry) {

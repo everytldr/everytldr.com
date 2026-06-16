@@ -3,6 +3,8 @@ package com.everytldr.enricher.content;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourcePolicy.EligibilityPolicy;
+import com.everytldr.common.domain.source.SourcePolicy.ThumbnailPolicy;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import java.net.URI;
 import java.util.Optional;
@@ -16,14 +18,20 @@ import org.springframework.util.StringUtils;
 public class CrawlingContentResolver implements ContentResolver {
   private final ArticleSourceProvider articleSourceProvider;
   private final ContentCrawler contentCrawler;
+  private final ContentEligibilityChecker contentEligibilityChecker;
+  private final ThumbnailEligibilityChecker thumbnailEligibilityChecker;
   private final int minBodyChars;
 
   public CrawlingContentResolver(
       ArticleSourceProvider articleSourceProvider,
       ContentCrawler contentCrawler,
+      ContentEligibilityChecker contentEligibilityChecker,
+      ThumbnailEligibilityChecker thumbnailEligibilityChecker,
       int minBodyChars) {
     this.articleSourceProvider = articleSourceProvider;
     this.contentCrawler = contentCrawler;
+    this.contentEligibilityChecker = contentEligibilityChecker;
+    this.thumbnailEligibilityChecker = thumbnailEligibilityChecker;
     this.minBodyChars = minBodyChars;
   }
 
@@ -60,6 +68,7 @@ public class CrawlingContentResolver implements ContentResolver {
             contentUri, responseUri -> policy.isAllowedHost(responseUri.getHost()));
 
     Document document = Jsoup.parse(html, contentUri.toString());
+    contentEligibilityChecker.assertEligible(document, source);
     document.select("script, style, noscript").remove();
 
     Optional<String> extracted = extractContent(document, source);
@@ -70,13 +79,29 @@ public class CrawlingContentResolver implements ContentResolver {
     String content = extracted.get();
     assertMinBodyChars(content, article.getContentUrl());
 
-    boolean hasThumbnailUrl = StringUtils.hasText(article.getThumbnailUrl());
-    if (hasThumbnailUrl) {
-      return new ResolvedArticle(content, null);
+    String thumbnailUrl = resolveThumbnailUrl(article, document, source, policy).orElse(null);
+    return new ResolvedArticle(content, thumbnailUrl);
+  }
+
+  private Optional<String> resolveThumbnailUrl(
+      Article article, Document document, ArticleSource source, CrawlingPolicy crawlingPolicy) {
+    EligibilityPolicy eligibilityPolicy = source.getPolicy().eligibility();
+    ThumbnailPolicy thumbnailPolicy = eligibilityPolicy.thumbnailPolicy();
+    if (thumbnailPolicy == ThumbnailPolicy.DISABLED) {
+      return Optional.empty();
     }
 
-    String thumbnailUrl = extractThumbnailUrl(document, policy).orElse(null);
-    return new ResolvedArticle(content, thumbnailUrl);
+    boolean hasThumbnailUrl = StringUtils.hasText(article.getThumbnailUrl());
+    if (hasThumbnailUrl) {
+      return Optional.empty();
+    }
+
+    if (thumbnailPolicy == ThumbnailPolicy.ELIGIBLE_ONLY) {
+      return thumbnailEligibilityChecker.findEligibleThumbnailUrl(
+          document, eligibilityPolicy.thumbnailEligibility());
+    }
+
+    return extractThumbnailUrl(document, crawlingPolicy);
   }
 
   private void assertMinBodyChars(String content, String contentUrl) {
