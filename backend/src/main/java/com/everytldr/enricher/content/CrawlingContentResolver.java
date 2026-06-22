@@ -3,15 +3,12 @@ package com.everytldr.enricher.content;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
-import com.everytldr.common.domain.source.SourcePolicy.EligibilityPolicy;
-import com.everytldr.common.domain.source.SourcePolicy.ThumbnailPolicy;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import java.net.URI;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.springframework.util.StringUtils;
 
 @Slf4j
@@ -79,29 +76,11 @@ public class CrawlingContentResolver implements ContentResolver {
     String content = extracted.get();
     assertMinBodyChars(content, article.getContentUrl());
 
-    String thumbnailUrl = resolveThumbnailUrl(article, document, source, policy).orElse(null);
+    String thumbnailUrl =
+        thumbnailEligibilityChecker
+            .findAllowedThumbnailUrl(document, source, article.getThumbnailUrl())
+            .orElse(null);
     return new ResolvedArticle(content, thumbnailUrl);
-  }
-
-  private Optional<String> resolveThumbnailUrl(
-      Article article, Document document, ArticleSource source, CrawlingPolicy crawlingPolicy) {
-    EligibilityPolicy eligibilityPolicy = source.getPolicy().eligibility();
-    ThumbnailPolicy thumbnailPolicy = eligibilityPolicy.thumbnailPolicy();
-    if (thumbnailPolicy == ThumbnailPolicy.DISABLED) {
-      return Optional.empty();
-    }
-
-    boolean hasThumbnailUrl = StringUtils.hasText(article.getThumbnailUrl());
-    if (hasThumbnailUrl) {
-      return Optional.empty();
-    }
-
-    if (thumbnailPolicy == ThumbnailPolicy.ELIGIBLE_ONLY) {
-      return thumbnailEligibilityChecker.findEligibleThumbnailUrl(
-          document, eligibilityPolicy.thumbnailEligibility());
-    }
-
-    return extractThumbnailUrl(document, crawlingPolicy);
   }
 
   private void assertMinBodyChars(String content, String contentUrl) {
@@ -111,28 +90,6 @@ public class CrawlingContentResolver implements ContentResolver {
           "extracted article body is too short: contentUrl=%s, length=%d"
               .formatted(contentUrl, contentLength));
     }
-  }
-
-  private Optional<String> extractThumbnailUrl(Document document, CrawlingPolicy policy) {
-    for (String selector : policy.thumbnailSelectors()) {
-      Element image = document.selectFirst(selector);
-      if (image != null) {
-        String imageUrl = image.absUrl("src");
-        if (StringUtils.hasText(imageUrl)) {
-          return Optional.of(imageUrl);
-        }
-      }
-    }
-
-    Element ogImage = document.selectFirst("meta[property=\"og:image\"]");
-    if (ogImage != null) {
-      String ogImageUrl = ogImage.absUrl("content");
-      if (StringUtils.hasText(ogImageUrl)) {
-        return Optional.of(ogImageUrl);
-      }
-    }
-
-    return Optional.empty();
   }
 
   private Optional<String> extractContent(Document document, ArticleSource source) {

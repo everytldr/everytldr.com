@@ -1,5 +1,8 @@
 package com.everytldr.enricher.content;
 
+import com.everytldr.common.domain.source.ArticleSource;
+import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
+import com.everytldr.common.domain.source.SourcePolicy.EligibilityPolicy;
 import com.everytldr.common.domain.source.SourcePolicy.ThumbnailCandidateSelector;
 import com.everytldr.common.domain.source.SourcePolicy.ThumbnailEligibilityPolicy;
 import java.util.Locale;
@@ -11,13 +14,32 @@ import org.springframework.util.StringUtils;
 
 public class ThumbnailEligibilityChecker {
 
-  public Optional<String> findEligibleThumbnailUrl(
+  public Optional<String> findAllowedThumbnailUrl(
+      Document document, ArticleSource source, String currentThumbnailUrl) {
+    Objects.requireNonNull(document, "document must not be null");
+    Objects.requireNonNull(source, "source must not be null");
+
+    if (StringUtils.hasText(currentThumbnailUrl)) {
+      return Optional.empty();
+    }
+
+    EligibilityPolicy eligibilityPolicy = source.getPolicy().eligibility();
+    return switch (eligibilityPolicy.thumbnailPolicy()) {
+      case ALLOW -> findUnverifiedThumbnailUrl(document, source.getPolicy().crawling());
+      case DISABLED -> Optional.empty();
+      case ELIGIBLE_ONLY ->
+          findCreditVerifiedThumbnailUrl(document, eligibilityPolicy.thumbnailEligibility());
+    };
+  }
+
+  private Optional<String> findCreditVerifiedThumbnailUrl(
       Document document, ThumbnailEligibilityPolicy policy) {
     Objects.requireNonNull(document, "document must not be null");
     Objects.requireNonNull(policy, "policy must not be null");
 
     for (ThumbnailCandidateSelector candidateSelector : policy.candidateSelectors()) {
-      Optional<String> thumbnailUrl = findEligibleThumbnailUrl(document, candidateSelector, policy);
+      Optional<String> thumbnailUrl =
+          findCreditVerifiedThumbnailUrl(document, candidateSelector, policy);
       if (thumbnailUrl.isPresent()) {
         return thumbnailUrl;
       }
@@ -26,7 +48,7 @@ public class ThumbnailEligibilityChecker {
     return Optional.empty();
   }
 
-  private Optional<String> findEligibleThumbnailUrl(
+  private Optional<String> findCreditVerifiedThumbnailUrl(
       Document document,
       ThumbnailCandidateSelector candidateSelector,
       ThumbnailEligibilityPolicy policy) {
@@ -46,6 +68,28 @@ public class ThumbnailEligibilityChecker {
       }
       if (containsAny(creditText.get(), policy.allowedCreditFragments())) {
         return Optional.of(imageUrl);
+      }
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<String> findUnverifiedThumbnailUrl(Document document, CrawlingPolicy policy) {
+    for (String selector : policy.thumbnailSelectors()) {
+      Element image = document.selectFirst(selector);
+      if (image != null) {
+        String imageUrl = image.absUrl("src");
+        if (StringUtils.hasText(imageUrl)) {
+          return Optional.of(imageUrl);
+        }
+      }
+    }
+
+    Element ogImage = document.selectFirst("meta[property=\"og:image\"]");
+    if (ogImage != null) {
+      String ogImageUrl = ogImage.absUrl("content");
+      if (StringUtils.hasText(ogImageUrl)) {
+        return Optional.of(ogImageUrl);
       }
     }
 
