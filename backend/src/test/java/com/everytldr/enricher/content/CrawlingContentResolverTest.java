@@ -292,8 +292,19 @@ class CrawlingContentResolverTest {
     assertThat(resolved.thumbnailUrl()).isNull();
   }
 
-  @Test
-  void rejectsVoaNewsBylineAsPermanentFailure() {
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "VOA News",
+        "AP",
+        "AP News",
+        "AFP",
+        "Reuters",
+        "Associated Press",
+        "Agence France-Presse",
+        "Agence France Presse"
+      })
+  void rejectsVoaDeniedBylineAsPermanentFailure(String byline) {
     route(
         "/voa-news",
         200,
@@ -301,9 +312,10 @@ class CrawlingContentResolverTest {
         voaArticleHtml(
             """
             <li class="links__item">
-              By <a class="links__item-link" href="/author/voa-news/oumqq">VOA News</a>
+              By <a class="links__item-link" href="/author/voa-news/oumqq">%s</a>
             </li>
-            """,
+            """
+                .formatted(byline),
             "Leaders discussed regional security. ".repeat(5),
             ""));
 
@@ -313,7 +325,7 @@ class CrawlingContentResolverTest {
             EnrichmentException.class);
 
     assertThat(exception).hasMessageContaining("article failed source eligibility policy");
-    assertThat(exception).hasMessageContaining("selector text matched denied value: VOA News");
+    assertThat(exception).hasMessageContaining("selector text matched denied value: " + byline);
     assertThat(exception.isRetryable()).isFalse();
   }
 
@@ -322,8 +334,11 @@ class CrawlingContentResolverTest {
       strings = {
         "wire service reports",
         "Associated Press",
+        "AP Photo",
+        "AP News",
         "Reuters",
         "Agence France-Presse",
+        "Agence France Presse",
         "(AFP)"
       })
   void rejectsVoaArticleWithDeniedTextFragments(String deniedTextFragment) {
@@ -494,7 +509,15 @@ class CrawlingContentResolverTest {
                         RuleType.SELECTOR_TEXT_NOT_EQUALS_ANY,
                         ".publishing-details .links__item-link",
                         null,
-                        List.of("VOA News")),
+                        List.of(
+                            "VOA News",
+                            "AP",
+                            "AP News",
+                            "AFP",
+                            "Reuters",
+                            "Associated Press",
+                            "Agence France-Presse",
+                            "Agence France Presse")),
                     new ArticleEligibilityRule(
                         RuleType.DOCUMENT_HTML_NOT_CONTAINS_ANY,
                         null,
@@ -502,8 +525,11 @@ class CrawlingContentResolverTest {
                         List.of(
                             "wire service reports",
                             "Associated Press",
+                            "AP Photo",
+                            "AP News",
                             "Reuters",
                             "Agence France-Presse",
+                            "Agence France Presse",
                             "(AFP)"))),
                 ThumbnailPolicy.ELIGIBLE_ONLY,
                 new ThumbnailEligibilityPolicy(

@@ -44,15 +44,27 @@ SET `policy` = JSON_SET(
                 JSON_OBJECT(
                     'type', 'SELECTOR_TEXT_NOT_EQUALS_ANY',
                     'selector', '.publishing-details .links__item-link',
-                    'values', JSON_ARRAY('VOA News')),
+                    'values',
+                    JSON_ARRAY(
+                        'VOA News',
+                        'AP',
+                        'AP News',
+                        'AFP',
+                        'Reuters',
+                        'Associated Press',
+                        'Agence France-Presse',
+                        'Agence France Presse')),
                 JSON_OBJECT(
                     'type', 'DOCUMENT_HTML_NOT_CONTAINS_ANY',
                     'values',
                     JSON_ARRAY(
                         'wire service reports',
                         'Associated Press',
+                        'AP Photo',
+                        'AP News',
                         'Reuters',
                         'Agence France-Presse',
+                        'Agence France Presse',
                         '(AFP)'))),
             'thumbnail_policy', 'ELIGIBLE_ONLY',
             'thumbnail_eligibility', JSON_OBJECT(

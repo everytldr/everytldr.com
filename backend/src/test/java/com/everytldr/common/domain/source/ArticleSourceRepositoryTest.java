@@ -159,7 +159,16 @@ class ArticleSourceRepositoryTest {
             .filter(rule -> rule.type() == RuleType.SELECTOR_TEXT_NOT_EQUALS_ANY)
             .findFirst()
             .orElseThrow();
-    assertThat(deniedBylineRule.values()).containsExactly("VOA News");
+    assertThat(deniedBylineRule.values())
+        .containsExactly(
+            "VOA News",
+            "AP",
+            "AP News",
+            "AFP",
+            "Reuters",
+            "Associated Press",
+            "Agence France-Presse",
+            "Agence France Presse");
     ArticleEligibilityRule deniedHtmlRule =
         eligibility.articleRules().stream()
             .filter(rule -> rule.type() == RuleType.DOCUMENT_HTML_NOT_CONTAINS_ANY)
@@ -167,7 +176,14 @@ class ArticleSourceRepositoryTest {
             .orElseThrow();
     assertThat(deniedHtmlRule.values())
         .contains(
-            "wire service reports", "Associated Press", "Reuters", "Agence France-Presse", "(AFP)");
+            "wire service reports",
+            "Associated Press",
+            "AP Photo",
+            "AP News",
+            "Reuters",
+            "Agence France-Presse",
+            "Agence France Presse",
+            "(AFP)");
     assertThat(eligibility.thumbnailPolicy()).isEqualTo(ThumbnailPolicy.ELIGIBLE_ONLY);
     assertThat(eligibility.thumbnailEligibility().allowedCreditFragments())
         .containsExactly("VOA", "Voice of America");
