@@ -81,4 +81,49 @@ class ArticleSourceRepositoryTest {
     assertThat(threeSixtyInfoSource.getLicenseInfo().getLicenseVersion()).isEqualTo("4.0");
     assertThat(threeSixtyInfoSource.isActive()).isTrue();
   }
+
+  @Test
+  void findsSeededCcByRssSources() {
+    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrue();
+
+    ArticleSource universeToday = findSource(activeSources, "Universe Today");
+    assertThat(universeToday.getId()).isEqualTo(62693100752990208L);
+    assertThat(universeToday.getPolicy().crawling().feedUrls())
+        .containsExactly("https://www.universetoday.com/rss.xml");
+    assertThat(universeToday.getPolicy().crawling().hosts())
+        .containsExactly("universetoday.com", "www.universetoday.com");
+    assertThat(universeToday.getPolicy().crawling().contentSelectors())
+        .containsExactly(".article-content");
+    assertCcBy4(universeToday);
+
+    ArticleSource effDeeplinks = findSource(activeSources, "EFF Deeplinks");
+    assertThat(effDeeplinks.getId()).isEqualTo(62693100752990209L);
+    assertThat(effDeeplinks.getPolicy().crawling().feedUrls())
+        .containsExactly("https://www.eff.org/rss/updates.xml");
+    assertThat(effDeeplinks.getPolicy().crawling().hosts()).containsExactly("www.eff.org");
+    assertThat(effDeeplinks.getPolicy().crawling().contentSelectors())
+        .containsExactly(".node--full .field--name-body");
+    assertCcBy4(effDeeplinks);
+
+    ArticleSource apc = findSource(activeSources, "APC");
+    assertThat(apc.getId()).isEqualTo(62693100752990210L);
+    assertThat(apc.getPolicy().crawling().feedUrls())
+        .containsExactly("https://www.apc.org/en/rss.xml");
+    assertThat(apc.getPolicy().crawling().hosts()).containsExactly("www.apc.org");
+    assertThat(apc.getPolicy().crawling().contentSelectors()).containsExactly(".field--name-body");
+    assertCcBy4(apc);
+  }
+
+  private ArticleSource findSource(List<ArticleSource> sources, String name) {
+    return sources.stream()
+        .filter(source -> name.equals(source.getName()))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  private void assertCcBy4(ArticleSource source) {
+    assertThat(source.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY);
+    assertThat(source.getLicenseInfo().getLicenseVersion()).isEqualTo("4.0");
+    assertThat(source.isActive()).isTrue();
+  }
 }
