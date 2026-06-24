@@ -3,6 +3,7 @@ package com.everytldr.common.domain.source;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.everytldr.TestcontainersConfig;
+import com.everytldr.common.domain.license.LicenseCode;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ class ArticleSourceRepositoryTest {
     assertThat(globalVoicesSource.getPolicy().crawling().contentSelectors())
         .containsExactly(".full-article .entry", ".post .entry", ".entry-container .entry");
     assertThat(globalVoicesSource.getPolicy().crawling().thumbnailSelectors()).isEmpty();
+    assertThat(globalVoicesSource.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY);
+    assertThat(globalVoicesSource.getLicenseInfo().getLicenseVersion()).isEqualTo("3.0");
     assertThat(globalVoicesSource.isActive()).isTrue();
   }
 
@@ -74,6 +77,8 @@ class ArticleSourceRepositoryTest {
         .containsExactly("article.article .content-wrapper", "article.article");
     assertThat(threeSixtyInfoSource.getPolicy().crawling().thumbnailSelectors())
         .containsExactly(".feat-image > img");
+    assertThat(threeSixtyInfoSource.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY);
+    assertThat(threeSixtyInfoSource.getLicenseInfo().getLicenseVersion()).isEqualTo("4.0");
     assertThat(threeSixtyInfoSource.isActive()).isTrue();
   }
 }

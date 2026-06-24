@@ -129,7 +129,12 @@ public class RssSourceClient implements SourceClient {
     String thumbnailUrl = resolveThumbnailUrl(entry);
     return Optional.of(
         new CollectedArticle(
-            link, source.getName(), thumbnailUrl, source.getLanguage(), publishedAt));
+            link,
+            source.getName(),
+            thumbnailUrl,
+            source.getLanguage(),
+            publishedAt,
+            source.getLicenseInfo()));
   }
 
   private String resolveThumbnailUrl(SyndEntry entry) {

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.everytldr.common.domain.article.Article;
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
@@ -234,7 +235,8 @@ class CrawlingContentResolverTest {
                 contentSelectors,
                 thumbnailSelectors)),
         "en",
-        SourceType.RSS);
+        SourceType.RSS,
+        LicenseInfo.createCcBy("4.0"));
   }
 
   private Article article(String contentUrl) {

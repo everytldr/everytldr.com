@@ -1,5 +1,7 @@
 package com.everytldr.common.domain.article;
 
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicenseInfo;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +22,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
           a.publishedAt,
           a.source,
           a.contentUrl,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
           c.slug,
           (SELECT COUNT(l.id)
            FROM ArticleLike l
@@ -39,7 +43,15 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
   @Query(
       """
       SELECT new com.everytldr.common.domain.article.ArticleRepository$ListItemProjection(
-          a.id, s.title, s.content, a.thumbnailUrl, a.publishedAt, a.source, c.slug)
+          a.id,
+          s.title,
+          s.content,
+          a.thumbnailUrl,
+          a.publishedAt,
+          a.source,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
+          c.slug)
       FROM Article a
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
@@ -58,7 +70,15 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
   @Query(
       """
       SELECT new com.everytldr.common.domain.article.ArticleRepository$ListItemProjection(
-          a.id, s.title, s.content, a.thumbnailUrl, a.publishedAt, a.source, c.slug)
+          a.id,
+          s.title,
+          s.content,
+          a.thumbnailUrl,
+          a.publishedAt,
+          a.source,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
+          c.slug)
       FROM Article a
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
@@ -84,9 +104,19 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       Instant publishedAt,
       String source,
       String contentUrl,
+      LicenseCode licenseCode,
+      String licenseVersion,
       String category,
       long likeCount,
-      long commentCount) {}
+      long commentCount) {
+    public String licenseCodeValue() {
+      return licenseCode.value();
+    }
+
+    public LicenseInfo licenseInfo() {
+      return new LicenseInfo(licenseCode, licenseVersion);
+    }
+  }
 
   record ListItemProjection(
       Long id,
@@ -95,5 +125,15 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       String thumbnailUrl,
       Instant publishedAt,
       String source,
-      String categorySlug) {}
+      LicenseCode licenseCode,
+      String licenseVersion,
+      String categorySlug) {
+    public String licenseCodeValue() {
+      return licenseCode.value();
+    }
+
+    public LicenseInfo licenseInfo() {
+      return new LicenseInfo(licenseCode, licenseVersion);
+    }
+  }
 }

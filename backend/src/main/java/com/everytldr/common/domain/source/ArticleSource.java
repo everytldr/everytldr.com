@@ -1,5 +1,6 @@
 package com.everytldr.common.domain.source;
 
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.support.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -31,18 +32,35 @@ public class ArticleSource extends BaseEntity {
   @JdbcTypeCode(SqlTypes.VARCHAR)
   private SourceType sourceType;
 
+  @Embedded private LicenseInfo licenseInfo;
+
   private ArticleSource(
-      String name, SourcePolicy policy, String language, SourceType sourceType, boolean isActive) {
+      String name,
+      SourcePolicy policy,
+      String language,
+      SourceType sourceType,
+      LicenseInfo licenseInfo,
+      boolean isActive) {
     this.name = name;
     this.policy = policy;
     this.language = language;
     this.sourceType = sourceType;
+    this.licenseInfo = licenseInfo == null ? LicenseInfo.createUnknown() : licenseInfo;
     this.isActive = isActive;
   }
 
   public static ArticleSource create(
       String name, SourcePolicy policy, String language, SourceType sourceType) {
-    return new ArticleSource(name, policy, language, sourceType, true);
+    return new ArticleSource(name, policy, language, sourceType, LicenseInfo.createUnknown(), true);
+  }
+
+  public static ArticleSource create(
+      String name,
+      SourcePolicy policy,
+      String language,
+      SourceType sourceType,
+      LicenseInfo licenseInfo) {
+    return new ArticleSource(name, policy, language, sourceType, licenseInfo, true);
   }
 
   public void activate() {

@@ -17,6 +17,7 @@ import com.everytldr.common.domain.category.ArticleCategory;
 import com.everytldr.common.domain.category.ArticleCategoryRepository;
 import com.everytldr.common.domain.category.Category;
 import com.everytldr.common.domain.category.CategoryRepository;
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
 import com.everytldr.common.domain.source.SourcePolicy;
@@ -79,6 +80,9 @@ class ArticleControllerTest {
                 .param("size", "2"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items[0].title").value("T0"))
+        .andExpect(jsonPath("$.items[0].licenseCode").value("CC-BY"))
+        .andExpect(jsonPath("$.items[0].licenseVersion").value("4.0"))
+        .andExpect(jsonPath("$.items[0].advertisingAllowed").value(true))
         .andExpect(jsonPath("$.items[1].title").value("T1"))
         .andExpect(jsonPath("$.nextCursor").isString());
   }
@@ -146,6 +150,9 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.title").value("제목"))
         .andExpect(jsonPath("$.summary").value("요약"))
         .andExpect(jsonPath("$.contentUrl").value(article.getContentUrl()))
+        .andExpect(jsonPath("$.licenseCode").value("CC-BY"))
+        .andExpect(jsonPath("$.licenseVersion").value("4.0"))
+        .andExpect(jsonPath("$.advertisingAllowed").value(true))
         .andExpect(jsonPath("$.category").value("football"))
         .andExpect(jsonPath("$.likeCount").value(1))
         .andExpect(jsonPath("$.commentCount").value(1))
@@ -171,7 +178,12 @@ class ArticleControllerTest {
     Article article =
         articleRepository.saveAndFlush(
             Article.create(
-                "https://example.com/" + System.nanoTime(), "Example", null, "en", publishedAt));
+                "https://example.com/" + System.nanoTime(),
+                "Example",
+                null,
+                "en",
+                publishedAt,
+                licenseInfo()));
     articleCategoryRepository.saveAndFlush(ArticleCategory.create(article, category));
     summaryRepository.saveAndFlush(ArticleSummary.create(article, language, title, content));
     return article;
@@ -187,6 +199,11 @@ class ArticleControllerTest {
                 List.of("article"),
                 List.of())),
         "en",
-        SourceType.RSS);
+        SourceType.RSS,
+        licenseInfo());
+  }
+
+  private LicenseInfo licenseInfo() {
+    return LicenseInfo.createCcBy("4.0");
   }
 }

@@ -3,6 +3,7 @@ package com.everytldr.ingestor.source.rss;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
@@ -58,7 +59,8 @@ class RssSourceClientTest {
                 "Example News",
                 null,
                 "en",
-                Instant.parse("2026-05-08T08:25:43Z")));
+                Instant.parse("2026-05-08T08:25:43Z"),
+                licenseInfo()));
   }
 
   @Test
@@ -140,7 +142,12 @@ class RssSourceClientTest {
             new CrawlingPolicy(
                 feedUrls, List.of("news.example.com"), List.of("article"), List.of())),
         "en",
-        SourceType.RSS);
+        SourceType.RSS,
+        licenseInfo());
+  }
+
+  private LicenseInfo licenseInfo() {
+    return LicenseInfo.createCcBy("4.0");
   }
 
   private String serverUrl() {
