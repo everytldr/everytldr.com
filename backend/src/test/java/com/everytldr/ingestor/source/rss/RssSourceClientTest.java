@@ -83,6 +83,17 @@ class RssSourceClientTest {
   }
 
   @Test
+  void skipsEntriesOutsideAllowedContentHosts() {
+    route("/rss.xml", 200, feedWithMixedAllowedAndBlockedLinks());
+
+    List<CollectedArticle> articles = newClient().collect(source("/rss.xml"));
+
+    assertThat(articles)
+        .extracting(CollectedArticle::contentUrl)
+        .containsExactly("https://news.example.com/allowed");
+  }
+
+  @Test
   void throwsWhenEveryConfiguredFeedFails() {
     route("/broken.xml", 500, "boom");
     route("/also-broken.xml", 500, "boom");
@@ -217,6 +228,36 @@ class RssSourceClientTest {
             </item>
             <item>
               <link>https://news.example.com/missing-date</link>
+            </item>
+          </channel>
+        </rss>
+        """;
+  }
+
+  private String feedWithMixedAllowedAndBlockedLinks() {
+    return """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://news.example.com/allowed</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://partner.example.com/external</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>not a url</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>/relative</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>ftp://news.example.com/file</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
             </item>
           </channel>
         </rss>

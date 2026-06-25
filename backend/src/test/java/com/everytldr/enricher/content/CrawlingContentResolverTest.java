@@ -51,6 +51,7 @@ class CrawlingContentResolverTest {
 
     assertThat(resolver.supports(article("https://globalvoices.org/story"))).isTrue();
     assertThat(resolver.supports(article("https://example.com/story"))).isFalse();
+    assertThat(resolver.supports(article("ftp://globalvoices.org/story"))).isFalse();
     assertThat(resolver.supports(article("not a url"))).isFalse();
   }
 

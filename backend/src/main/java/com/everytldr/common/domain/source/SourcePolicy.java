@@ -1,6 +1,7 @@
 package com.everytldr.common.domain.source;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,6 +36,28 @@ public record SourcePolicy(CrawlingPolicy crawling) {
         return false;
       }
       return hosts.stream().anyMatch(allowed -> allowed.equalsIgnoreCase(host));
+    }
+
+    public boolean isAllowedContentUrl(String contentUrl) {
+      if (contentUrl == null || contentUrl.isBlank()) {
+        return false;
+      }
+
+      try {
+        return isAllowedContentUri(URI.create(contentUrl));
+      } catch (IllegalArgumentException e) {
+        return false;
+      }
+    }
+
+    public boolean isAllowedContentUri(URI uri) {
+      if (uri == null) {
+        return false;
+      }
+
+      String scheme = uri.getScheme();
+      boolean isHttpUrl = "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
+      return isHttpUrl && isAllowedHost(uri.getHost());
     }
   }
 }

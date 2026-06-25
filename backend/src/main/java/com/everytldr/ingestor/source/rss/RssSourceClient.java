@@ -119,6 +119,13 @@ public class RssSourceClient implements SourceClient {
       log.warn("Skipping RSS entry because link is missing. sourceName={}", source.getName());
       return Optional.empty();
     }
+    if (!source.getPolicy().crawling().isAllowedContentUrl(link)) {
+      log.warn(
+          "Skipping RSS entry because link is not allowed. sourceName={}, link={}",
+          source.getName(),
+          link);
+      return Optional.empty();
+    }
 
     Instant publishedAt = resolvePublishedAt(entry);
     if (publishedAt == null) {
