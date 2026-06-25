@@ -19,6 +19,8 @@ import com.everytldr.common.domain.category.ArticleCategory;
 import com.everytldr.common.domain.category.ArticleCategoryRepository;
 import com.everytldr.common.domain.category.Category;
 import com.everytldr.common.domain.category.CategoryRepository;
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
 import com.everytldr.common.domain.source.SourcePolicy;
@@ -151,6 +153,36 @@ class ArticleCommentControllerTest {
   }
 
   @Test
+  void commentsReturnNotFoundWhenArticleLicenseIsUnsupportedForPublishing() throws Exception {
+    Article article =
+        saveArticle(
+            Instant.parse("2026-04-01T00:00:00Z"),
+            football,
+            "ko",
+            "?쒕ぉ",
+            "?붿빟",
+            new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(get("/api/articles/{id}/comments", article.getId()))
+        .andExpect(status().isNotFound());
+
+    String body =
+        """
+        {"nickname":"reader","password":"secret1234","content":"first"}
+        """;
+    mockMvc
+        .perform(
+            post("/api/articles/{id}/comments", article.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-Forwarded-For", "1.1.1.1")
+                .content(body))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
   void commentsReturnsBadRequestWhenArticleIdIsInvalid() throws Exception {
     mockMvc
         .perform(get("/api/articles/{id}/comments", "invalid"))
@@ -180,10 +212,26 @@ class ArticleCommentControllerTest {
 
   private Article saveArticle(
       Instant publishedAt, Category category, String language, String title, String content) {
+    return saveArticle(
+        publishedAt, category, language, title, content, LicenseInfo.createCcBy("4.0"));
+  }
+
+  private Article saveArticle(
+      Instant publishedAt,
+      Category category,
+      String language,
+      String title,
+      String content,
+      LicenseInfo licenseInfo) {
     Article article =
         articleRepository.saveAndFlush(
             Article.create(
-                "https://example.com/" + System.nanoTime(), "Example", null, "en", publishedAt));
+                "https://example.com/" + System.nanoTime(),
+                "Example",
+                null,
+                "en",
+                publishedAt,
+                licenseInfo));
     articleCategoryRepository.saveAndFlush(ArticleCategory.create(article, category));
     summaryRepository.saveAndFlush(ArticleSummary.create(article, language, title, content));
     return article;

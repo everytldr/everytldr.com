@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LicensePolicyEvaluator {
+  private static final Set<LicenseCode> PUBLISHABLE_TRANSFORMED_TEXT_CODES =
+      Set.of(LicenseCode.CC0, LicenseCode.PUBLIC_DOMAIN, LicenseCode.CC_BY, LicenseCode.CC_BY_NC);
   private static final Set<LicenseCode> COMMERCIAL_ALLOWED_CODES =
       Set.of(
           LicenseCode.CC0,
@@ -12,14 +14,6 @@ public class LicensePolicyEvaluator {
           LicenseCode.CC_BY,
           LicenseCode.CC_BY_SA,
           LicenseCode.CC_BY_ND);
-  private static final Set<LicenseCode> TRANSFORMATION_ALLOWED_CODES =
-      Set.of(
-          LicenseCode.CC0,
-          LicenseCode.PUBLIC_DOMAIN,
-          LicenseCode.CC_BY,
-          LicenseCode.CC_BY_SA,
-          LicenseCode.CC_BY_NC,
-          LicenseCode.CC_BY_NC_SA);
   private static final Set<LicenseCode> ATTRIBUTION_REQUIRED_CODES =
       Set.of(
           LicenseCode.CC_BY,
@@ -33,12 +27,16 @@ public class LicensePolicyEvaluator {
     return licenseInfo != null && COMMERCIAL_ALLOWED_CODES.contains(licenseInfo.getLicenseCode());
   }
 
-  public boolean canTransformText(LicenseInfo licenseInfo) {
+  public boolean canPublishTransformedText(LicenseInfo licenseInfo) {
     return licenseInfo != null
-        && TRANSFORMATION_ALLOWED_CODES.contains(licenseInfo.getLicenseCode());
+        && PUBLISHABLE_TRANSFORMED_TEXT_CODES.contains(licenseInfo.getLicenseCode());
   }
 
   public boolean requiresAttribution(LicenseInfo licenseInfo) {
     return licenseInfo != null && ATTRIBUTION_REQUIRED_CODES.contains(licenseInfo.getLicenseCode());
+  }
+
+  public Set<LicenseCode> getPublishableTransformedTextLicenseCodes() {
+    return PUBLISHABLE_TRANSFORMED_TEXT_CODES;
   }
 }

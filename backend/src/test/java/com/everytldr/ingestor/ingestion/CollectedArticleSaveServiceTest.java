@@ -167,14 +167,52 @@ class CollectedArticleSaveServiceTest {
     assertThat(articleIngestionJobRepository.findAll()).isEmpty();
   }
 
+  @Test
+  void skipsCollectedArticlesWithUnsupportedLicenseForPublishing() {
+    collectedArticleSaveService.saveNewArticles(
+        List.of(
+            collectedArticle(
+                "https://www.theguardian.com/football/unknown-license",
+                LicenseInfo.createUnknown()),
+            collectedArticle(
+                "https://www.theguardian.com/football/share-alike",
+                new LicenseInfo(LicenseCode.CC_BY_SA, "4.0")),
+            collectedArticle(
+                "https://www.theguardian.com/football/no-derivatives",
+                new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"))));
+    clearPersistenceContext();
+
+    assertThat(articleRepository.findAll()).isEmpty();
+    assertThat(articleIngestionJobRepository.findAll()).isEmpty();
+  }
+
+  @Test
+  void savesCollectedArticleWithNonCommercialTransformableLicense() {
+    CollectedArticle collectedArticle =
+        collectedArticle(
+            "https://www.theguardian.com/football/non-commercial",
+            new LicenseInfo(LicenseCode.CC_BY_NC, "4.0"));
+
+    collectedArticleSaveService.saveNewArticles(List.of(collectedArticle));
+    clearPersistenceContext();
+
+    Article article = articleRepository.findAll().getFirst();
+    assertThat(article.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY_NC);
+    assertThat(articleIngestionJobRepository.findAll()).hasSize(1);
+  }
+
   private CollectedArticle collectedArticle(String sourceUrl) {
+    return collectedArticle(sourceUrl, licenseInfo());
+  }
+
+  private CollectedArticle collectedArticle(String sourceUrl, LicenseInfo licenseInfo) {
     return new CollectedArticle(
         sourceUrl,
         "The Guardian Football",
         "https://media.guim.co.uk/example-thumbnail.jpg",
         "en",
         Instant.parse("2026-05-04T10:15:30Z"),
-        licenseInfo());
+        licenseInfo);
   }
 
   private ArticleSource source() {

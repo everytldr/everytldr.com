@@ -15,9 +15,20 @@ class LicensePolicyEvaluatorTest {
   }
 
   @Test
-  void canTransformTextForLicensesWithoutNoDerivativesRestriction() {
-    assertThat(evaluator.canTransformText(licenseInfo("CC-BY-SA"))).isTrue();
-    assertThat(evaluator.canTransformText(licenseInfo("CC-BY-ND"))).isFalse();
+  void canPublishTransformedTextOnlyForCurrentlySupportedLicenses() {
+    assertThat(evaluator.canPublishTransformedText(new LicenseInfo(LicenseCode.CC0, "1.0")))
+        .isTrue();
+    assertThat(
+            evaluator.canPublishTransformedText(new LicenseInfo(LicenseCode.PUBLIC_DOMAIN, null)))
+        .isTrue();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY"))).isTrue();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-NC"))).isTrue();
+
+    assertThat(evaluator.canPublishTransformedText(LicenseInfo.createUnknown())).isFalse();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-SA"))).isFalse();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-NC-SA"))).isFalse();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-ND"))).isFalse();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-NC-ND"))).isFalse();
   }
 
   @Test

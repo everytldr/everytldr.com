@@ -3,6 +3,7 @@ package com.everytldr.common.domain.article;
 import com.everytldr.common.domain.license.LicenseCode;
 import com.everytldr.common.domain.license.LicenseInfo;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -36,9 +37,12 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
       WHERE a.id = :id
+        AND a.licenseInfo.licenseCode IN :publishableLicenseCodes
       """)
-  Optional<DetailProjection> findDetailByIdAndLanguage(
-      @Param("id") Long id, @Param("language") String language);
+  Optional<DetailProjection> findPublishableDetailByIdAndLanguage(
+      @Param("id") Long id,
+      @Param("language") String language,
+      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes);
 
   @Query(
       """
@@ -56,15 +60,17 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
-      WHERE (:cursorPublishedAt IS NULL
+      WHERE a.licenseInfo.licenseCode IN :publishableLicenseCodes
+        AND (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
-  List<ListItemProjection> findRecent(
+  List<ListItemProjection> findRecentPublishable(
       @Param("language") String language,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,
       @Param("cursorId") Long cursorId,
+      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes,
       Pageable pageable);
 
   @Query(
@@ -83,18 +89,42 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
-      WHERE (:cursorPublishedAt IS NULL
+      WHERE a.licenseInfo.licenseCode IN :publishableLicenseCodes
+        AND (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
         AND (c.slug = :categoryPrefix OR c.slug LIKE CONCAT(:categoryPrefix, '-%'))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
-  List<ListItemProjection> findRecentByCategoryPrefix(
+  List<ListItemProjection> findRecentPublishableByCategoryPrefix(
       @Param("language") String language,
       @Param("categoryPrefix") String categoryPrefix,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,
       @Param("cursorId") Long cursorId,
+      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes,
       Pageable pageable);
+
+  @Query(
+      """
+      SELECT a
+      FROM Article a
+      WHERE a.id = :id
+        AND a.licenseInfo.licenseCode IN :publishableLicenseCodes
+      """)
+  Optional<Article> findPublishableById(
+      @Param("id") Long id,
+      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes);
+
+  @Query(
+      """
+      SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
+      FROM Article a
+      WHERE a.id = :id
+        AND a.licenseInfo.licenseCode IN :publishableLicenseCodes
+      """)
+  boolean existsPublishableById(
+      @Param("id") Long id,
+      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes);
 
   record DetailProjection(
       Long id,

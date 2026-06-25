@@ -6,37 +6,39 @@ import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.article.ArticleRepository.DetailProjection;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
 import com.everytldr.common.domain.language.SupportedLanguage;
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 @Profile("api")
 public class ArticleService {
   private final ArticleRepository articleRepository;
-
-  public ArticleService(ArticleRepository articleRepository) {
-    this.articleRepository = articleRepository;
-  }
+  private final LicensePolicyEvaluator licensePolicyEvaluator;
 
   public Article getArticleOrThrow(Long articleId) {
     return articleRepository
-        .findById(articleId)
+        .findPublishableById(articleId, getPublishableLicenseCodes())
         .orElseThrow(() -> new ArticleExceptions.NotFound(articleId));
   }
 
   public void assertArticleExists(Long articleId) {
-    if (!articleRepository.existsById(articleId)) {
+    if (!articleRepository.existsPublishableById(articleId, getPublishableLicenseCodes())) {
       throw new ArticleExceptions.NotFound(articleId);
     }
   }
 
   public DetailProjection getArticleDetail(Long id, SupportedLanguage language) {
     return articleRepository
-        .findDetailByIdAndLanguage(id, language.code())
+        .findPublishableDetailByIdAndLanguage(id, language.code(), getPublishableLicenseCodes())
         .orElseThrow(() -> new ArticleExceptions.NotFound(id));
   }
 
@@ -53,10 +55,23 @@ public class ArticleService {
             Sort.unsorted());
     List<ListItemProjection> rows =
         categoryPrefix == null
-            ? articleRepository.findRecent(
-                language.code(), cursorPublishedAt, cursorId, pageRequest)
-            : articleRepository.findRecentByCategoryPrefix(
-                language.code(), categoryPrefix, cursorPublishedAt, cursorId, pageRequest);
+            ? articleRepository.findRecentPublishable(
+                language.code(),
+                cursorPublishedAt,
+                cursorId,
+                getPublishableLicenseCodes(),
+                pageRequest)
+            : articleRepository.findRecentPublishableByCategoryPrefix(
+                language.code(),
+                categoryPrefix,
+                cursorPublishedAt,
+                cursorId,
+                getPublishableLicenseCodes(),
+                pageRequest);
     return Pagination.Page.from(rows, size);
+  }
+
+  private Collection<LicenseCode> getPublishableLicenseCodes() {
+    return licensePolicyEvaluator.getPublishableTransformedTextLicenseCodes();
   }
 }
