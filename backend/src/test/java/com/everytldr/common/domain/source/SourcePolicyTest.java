@@ -31,8 +31,36 @@ class SourcePolicyTest {
     assertThat(policy.isAllowedContentUrl(" ")).isFalse();
   }
 
+  @Test
+  void allowsOnlyConfiguredContentPathPrefixesWhenPresent() {
+    CrawlingPolicy policy =
+        new CrawlingPolicy(
+            List.of("https://news.example.com/feed.xml"),
+            List.of("news.example.com"),
+            List.of("article"),
+            List.of(),
+            List.of("/global/news/", "/global/features/"));
+
+    assertThat(policy.isAllowedContentUrl("https://news.example.com/global/news/story")).isTrue();
+    assertThat(policy.isAllowedContentUrl("https://news.example.com/global/features/story"))
+        .isTrue();
+    assertThat(policy.isAllowedContentUrl("https://news.example.com/global/podcast/story"))
+        .isFalse();
+    assertThat(
+            policy.isAllowedContentUrl("https://news.example.com/global/supported-content/story"))
+        .isFalse();
+    assertThat(policy.isAllowedContentUrl("https://partner.example.com/global/news/story"))
+        .isFalse();
+    assertThat(policy.isAllowedContentUrl("ftp://news.example.com/global/news/story")).isFalse();
+    assertThat(policy.isAllowedContentUrl("/global/news/story")).isFalse();
+  }
+
   private CrawlingPolicy policy(String host) {
     return new CrawlingPolicy(
-        List.of("https://news.example.com/feed.xml"), List.of(host), List.of("article"), List.of());
+        List.of("https://news.example.com/feed.xml"),
+        List.of(host),
+        List.of("article"),
+        List.of(),
+        List.of());
   }
 }

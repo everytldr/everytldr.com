@@ -190,6 +190,7 @@ class CollectedArticleSaveServiceTest {
                                 List.of("https://example.com/rss.xml"),
                                 List.of("theguardian.com"),
                                 List.of("article"),
+                                List.of(),
                                 List.of())),
                         "en",
                         SourceType.RSS,

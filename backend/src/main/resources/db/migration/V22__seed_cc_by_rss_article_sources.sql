@@ -1,14 +1,3 @@
--- CC-BY candidates deferred from this RSS seed:
--- Horizon Magazine, SciDev.Net, and Prensa Obrera need follow-up source-client or feed work.
---
--- Non-CC-BY candidates deferred for later policy support:
--- El Salto (CC BY-SA), La Marea (CC BY-SA with AI-training restriction notice),
--- elDiario.es / Spin (CC BY-NC), Tercera Informacion (CC BY-NC),
--- and Voxeurop (official site blocked automated verification; likely CC BY-NC-SA).
---
--- Thumbnail reuse policy is intentionally deferred. The current source seed only records
--- text license identity; thumbnail-specific license verification should be added separately.
-
 INSERT INTO `article_source` (`id`,
                               `updated_at`,
                               `is_active`,
@@ -66,4 +55,45 @@ VALUES
              'content_selectors', JSON_ARRAY('.field--name-body'))),
      'RSS',
      'CC-BY',
-     '4.0');
+     '4.0'),
+    -- Fixed Snowflake-format seed ID:
+    -- timestamp=2026-06-23T00:00:00Z, worker=1023 reserved for Flyway reference data, sequence=3.
+    (62693100752990211,
+     '2026-06-23 00:00:00.000000',
+     TRUE,
+     'en',
+     'Horizon Magazine',
+     JSON_OBJECT(
+         'crawling',
+         JSON_OBJECT(
+             'feed_urls',
+             JSON_ARRAY(
+                 'https://projects.research-and-innovation.ec.europa.eu/horizon-magazine/articles.xml'),
+             'hosts', JSON_ARRAY('projects.research-and-innovation.ec.europa.eu'),
+             'content_selectors', JSON_ARRAY('.article--body'),
+             'allowed_path_prefixes', JSON_ARRAY('/en/horizon-magazine/'))),
+     'RSS',
+     'CC-BY',
+     '4.0'),
+    -- Fixed Snowflake-format seed ID:
+    -- timestamp=2026-06-23T00:00:00Z, worker=1023 reserved for Flyway reference data, sequence=4.
+    (62693100752990212,
+     '2026-06-23 00:00:00.000000',
+     TRUE,
+     'en',
+     'SciDev.Net',
+     JSON_OBJECT(
+         'crawling',
+         JSON_OBJECT(
+             'feed_urls', JSON_ARRAY('https://www.scidev.net/global/rss.xml/?type=header'),
+             'hosts', JSON_ARRAY('www.scidev.net'),
+             'content_selectors', JSON_ARRAY('.fl-module-fl-post-content .fl-module-content'),
+             'allowed_path_prefixes',
+             JSON_ARRAY(
+                 '/global/news/',
+                 '/global/features/',
+                 '/global/opinions/',
+                 '/global/scidev-net-investigates/'))),
+     'RSS',
+     'CC-BY',
+     '2.0');

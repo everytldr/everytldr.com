@@ -112,6 +112,36 @@ class ArticleSourceRepositoryTest {
     assertThat(apc.getPolicy().crawling().hosts()).containsExactly("www.apc.org");
     assertThat(apc.getPolicy().crawling().contentSelectors()).containsExactly(".field--name-body");
     assertCcBy4(apc);
+
+    ArticleSource horizonMagazine = findSource(activeSources, "Horizon Magazine");
+    assertThat(horizonMagazine.getId()).isEqualTo(62693100752990211L);
+    assertThat(horizonMagazine.getPolicy().crawling().feedUrls())
+        .containsExactly(
+            "https://projects.research-and-innovation.ec.europa.eu/horizon-magazine/articles.xml");
+    assertThat(horizonMagazine.getPolicy().crawling().hosts())
+        .containsExactly("projects.research-and-innovation.ec.europa.eu");
+    assertThat(horizonMagazine.getPolicy().crawling().contentSelectors())
+        .containsExactly(".article--body");
+    assertThat(horizonMagazine.getPolicy().crawling().allowedPathPrefixes())
+        .containsExactly("/en/horizon-magazine/");
+    assertCcBy4(horizonMagazine);
+
+    ArticleSource sciDevNet = findSource(activeSources, "SciDev.Net");
+    assertThat(sciDevNet.getId()).isEqualTo(62693100752990212L);
+    assertThat(sciDevNet.getPolicy().crawling().feedUrls())
+        .containsExactly("https://www.scidev.net/global/rss.xml/?type=header");
+    assertThat(sciDevNet.getPolicy().crawling().hosts()).containsExactly("www.scidev.net");
+    assertThat(sciDevNet.getPolicy().crawling().contentSelectors())
+        .containsExactly(".fl-module-fl-post-content .fl-module-content");
+    assertThat(sciDevNet.getPolicy().crawling().allowedPathPrefixes())
+        .containsExactly(
+            "/global/news/",
+            "/global/features/",
+            "/global/opinions/",
+            "/global/scidev-net-investigates/");
+    assertThat(sciDevNet.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY);
+    assertThat(sciDevNet.getLicenseInfo().getLicenseVersion()).isEqualTo("2.0");
+    assertThat(sciDevNet.isActive()).isTrue();
   }
 
   private ArticleSource findSource(List<ArticleSource> sources, String name) {

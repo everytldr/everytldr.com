@@ -234,7 +234,8 @@ class CrawlingContentResolverTest {
                 List.of("https://globalvoices.org/feed/"),
                 hosts,
                 contentSelectors,
-                thumbnailSelectors)),
+                thumbnailSelectors,
+                List.of())),
         "en",
         SourceType.RSS,
         LicenseInfo.createCcBy("4.0"));

@@ -94,6 +94,23 @@ class RssSourceClientTest {
   }
 
   @Test
+  void skipsEntriesOutsideAllowedContentPathPrefixes() {
+    route("/rss.xml", 200, feedWithMixedAllowedAndBlockedPaths());
+
+    List<CollectedArticle> articles =
+        newClient()
+            .collect(
+                sourceWithAllowedPathPrefixes(
+                    List.of("/global/news/", "/global/features/"), "/rss.xml"));
+
+    assertThat(articles)
+        .extracting(CollectedArticle::contentUrl)
+        .containsExactly(
+            "https://news.example.com/global/news/allowed",
+            "https://news.example.com/global/features/allowed");
+  }
+
+  @Test
   void throwsWhenEveryConfiguredFeedFails() {
     route("/broken.xml", 500, "boom");
     route("/also-broken.xml", 500, "boom");
@@ -146,12 +163,21 @@ class RssSourceClientTest {
   }
 
   private ArticleSource source(String... paths) {
+    return sourceWithAllowedPathPrefixes(List.of(), paths);
+  }
+
+  private ArticleSource sourceWithAllowedPathPrefixes(
+      List<String> allowedPathPrefixes, String... paths) {
     List<String> feedUrls = Arrays.stream(paths).map(path -> serverUrl() + path).toList();
     return ArticleSource.create(
         "Example News",
         new SourcePolicy(
             new CrawlingPolicy(
-                feedUrls, List.of("news.example.com"), List.of("article"), List.of())),
+                feedUrls,
+                List.of("news.example.com"),
+                List.of("article"),
+                List.of(),
+                allowedPathPrefixes)),
         "en",
         SourceType.RSS,
         licenseInfo());
@@ -257,6 +283,32 @@ class RssSourceClientTest {
             </item>
             <item>
               <link>ftp://news.example.com/file</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+          </channel>
+        </rss>
+        """;
+  }
+
+  private String feedWithMixedAllowedAndBlockedPaths() {
+    return """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://news.example.com/global/news/allowed</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://news.example.com/global/features/allowed</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://news.example.com/global/podcast/blocked</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://news.example.com/global/supported-content/blocked</link>
               <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
             </item>
           </channel>
