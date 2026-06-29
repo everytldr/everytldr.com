@@ -37,6 +37,7 @@ public class JobProcessor {
   private final List<EnrichmentClient> enrichmentClients;
   private final ProcessingProperties properties;
   private final Clock clock;
+  private final EnricherMetrics enricherMetrics;
 
   public List<ProcessingResult> processNextBatch(int limit) {
     Instant now = Instant.now(clock);
@@ -52,12 +53,12 @@ public class JobProcessor {
     Optional<ArticleIngestionJob> reloadedJob =
         articleIngestionJobRepository.findByIdWithArticle(jobId);
     if (reloadedJob.isEmpty()) {
-      return new ProcessingResult(jobId, Status.SKIPPED_NOT_FOUND);
+      return recordResult(new ProcessingResult(jobId, Status.SKIPPED_NOT_FOUND));
     }
 
     ArticleIngestionJob job = reloadedJob.get();
     if (job.getState() != IngestionState.PROCESSING) {
-      return new ProcessingResult(jobId, Status.SKIPPED_NOT_PROCESSING);
+      return recordResult(new ProcessingResult(jobId, Status.SKIPPED_NOT_PROCESSING));
     }
 
     try {
@@ -74,7 +75,7 @@ public class JobProcessor {
       CompletionStatus completionStatus =
           completionService.completeWithResult(
               jobId, resolvedArticle.thumbnailUrl(), enrichmentResults);
-      return ProcessingResult.from(jobId, completionStatus);
+      return recordResult(ProcessingResult.from(jobId, completionStatus));
     } catch (EnrichmentException e) {
       return completeFailure(jobId, job, e);
     } catch (RuntimeException e) {
@@ -129,6 +130,11 @@ public class JobProcessor {
         job.getAttemptCount(),
         completionStatus,
         exception);
-    return ProcessingResult.from(jobId, completionStatus);
+    return recordResult(ProcessingResult.from(jobId, completionStatus));
+  }
+
+  private ProcessingResult recordResult(ProcessingResult result) {
+    enricherMetrics.recordJob(result.status());
+    return result;
   }
 }
