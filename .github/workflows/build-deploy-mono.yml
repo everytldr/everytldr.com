@@ -152,7 +152,7 @@ jobs:
           host: ${{ secrets.INFRA_MONO_HOST }}
           username: ${{ secrets.INFRA_MONO_USER }}
           key: ${{ secrets.INFRA_MONO_SSH_KEY }}
-          source: infra/mono/docker-compose.yml,infra/mono/Caddyfile
+          source: infra/mono/docker-compose.yml,infra/mono/Caddyfile,infra/mono/prometheus/**,infra/mono/grafana/**
           target: /opt/everytldr
           strip_components: 2
 
