@@ -64,6 +64,9 @@
       },
       "ArticleDetailResponse" : {
         "properties" : {
+          "advertisingAllowed" : {
+            "type" : "boolean"
+          },
           "category" : {
             "type" : "string"
           },
@@ -77,6 +80,12 @@
           "id" : {
             "type" : "string"
           },
+          "licenseCode" : {
+            "type" : "string"
+          },
+          "licenseVersion" : {
+            "type" : [ "string", "null" ]
+          },
           "likeCount" : {
             "format" : "int64",
             "type" : "integer"
@@ -84,6 +93,9 @@
           "publishedAt" : {
             "format" : "date-time",
             "type" : "string"
+          },
+          "requiresAttribution" : {
+            "type" : "boolean"
           },
           "source" : {
             "type" : "string"
@@ -98,7 +110,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "category", "commentCount", "contentUrl", "id", "likeCount", "publishedAt", "source", "summary", "thumbnailUrl", "title" ],
+        "required" : [ "advertisingAllowed", "category", "commentCount", "contentUrl", "id", "licenseCode", "licenseVersion", "likeCount", "publishedAt", "requiresAttribution", "source", "summary", "thumbnailUrl", "title" ],
         "type" : "object"
       },
       "ArticleLikeStateResponse" : {
@@ -119,15 +131,27 @@
       },
       "ArticleListItem" : {
         "properties" : {
+          "advertisingAllowed" : {
+            "type" : "boolean"
+          },
           "category" : {
             "type" : "string"
           },
           "id" : {
             "type" : "string"
           },
+          "licenseCode" : {
+            "type" : "string"
+          },
+          "licenseVersion" : {
+            "type" : [ "string", "null" ]
+          },
           "publishedAt" : {
             "format" : "date-time",
             "type" : "string"
+          },
+          "requiresAttribution" : {
+            "type" : "boolean"
           },
           "source" : {
             "type" : "string"
@@ -142,7 +166,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "category", "id", "publishedAt", "source", "summary", "thumbnailUrl", "title" ],
+        "required" : [ "advertisingAllowed", "category", "id", "licenseCode", "licenseVersion", "publishedAt", "requiresAttribution", "source", "summary", "thumbnailUrl", "title" ],
         "type" : "object"
       },
       "ArticleListResponse" : {

@@ -84,6 +84,7 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.items[0].licenseCode").value("CC-BY"))
         .andExpect(jsonPath("$.items[0].licenseVersion").value("4.0"))
         .andExpect(jsonPath("$.items[0].advertisingAllowed").value(true))
+        .andExpect(jsonPath("$.items[0].requiresAttribution").value(true))
         .andExpect(jsonPath("$.items[1].title").value("T1"))
         .andExpect(jsonPath("$.nextCursor").isString());
   }
@@ -182,6 +183,7 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.licenseCode").value("CC-BY"))
         .andExpect(jsonPath("$.licenseVersion").value("4.0"))
         .andExpect(jsonPath("$.advertisingAllowed").value(true))
+        .andExpect(jsonPath("$.requiresAttribution").value(true))
         .andExpect(jsonPath("$.category").value("football"))
         .andExpect(jsonPath("$.likeCount").value(1))
         .andExpect(jsonPath("$.commentCount").value(1))

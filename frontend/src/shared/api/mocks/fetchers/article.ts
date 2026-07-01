@@ -27,6 +27,10 @@ const ALL_ARTICLES: ArticleListItem[] = times(100, (index) => {
     category: `sport-football-epl-${team}`,
     publishedAt: new Date(Date.now() - index * AN_HOUR).toISOString(),
     thumbnailUrl: `https://picsum.photos/seed/article-${id}/300/200`,
+    licenseCode: "CC-BY",
+    licenseVersion: "4.0",
+    advertisingAllowed: true,
+    requiresAttribution: true,
   };
 });
 
