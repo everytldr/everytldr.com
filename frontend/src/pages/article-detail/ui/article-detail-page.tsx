@@ -62,17 +62,6 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
             </a>
           </Button>
         )}
-        {article.requiresAttribution && (
-          <Button variant="link" asChild>
-            <a
-              href={buildLicenseUrl(article.licenseCode, article.licenseVersion)}
-              target="_blank"
-              rel="noreferrer license"
-            >
-              {formatLicenseLabel(article.licenseCode, article.licenseVersion)}
-            </a>
-          </Button>
-        )}
       </div>
 
       {article.advertisingAllowed && (
@@ -98,10 +87,19 @@ function ArticleDetailContent({ className, article, locale }: ArticleDetailConte
   return (
     <div className={cn("space-y-lg", className)}>
       <header className="space-y-sm">
-        <p className="text-caption text-meta">
-          {article.source}
-          {" · "}
+        <p className="text-caption text-meta [&>*:not(:last-child)]:after:mx-2xs [&>*:not(:last-child)]:after:content-['·']">
+          <span>{article.source}</span>
           <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
+          {article.requiresAttribution && (
+            <a
+              className="text-meta underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
+              href={buildLicenseUrl(article.licenseCode, article.licenseVersion)}
+              target="_blank"
+              rel="noreferrer license"
+            >
+              {formatLicenseLabel(article.licenseCode, article.licenseVersion)}
+            </a>
+          )}
         </p>
         <h1 className="text-display-xl text-ink">{article.title}</h1>
       </header>
