@@ -8,6 +8,7 @@ import {
   cn,
   formatDate,
   markdownToPlainText,
+  type Nullable,
   serializeJsonLd,
 } from "@/shared/lib";
 import { AdSlot, Button, MarkdownContent, Translation } from "@/shared/ui";
@@ -61,9 +62,22 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
             </a>
           </Button>
         )}
+        {article.requiresAttribution && (
+          <Button variant="link" asChild>
+            <a
+              href={buildLicenseUrl(article.licenseCode, article.licenseVersion)}
+              target="_blank"
+              rel="noreferrer license"
+            >
+              {formatLicenseLabel(article.licenseCode, article.licenseVersion)}
+            </a>
+          </Button>
+        )}
       </div>
 
-      <AdSlot className="w-full" slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
+      {article.advertisingAllowed && (
+        <AdSlot className="w-full" slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
+      )}
 
       <ErrorBoundary fallback={<ArticleCommentsError />}>
         <Suspense fallback={<ArticleCommentsSkeleton />}>
@@ -107,4 +121,14 @@ function ArticleDetailContent({ className, article, locale }: ArticleDetailConte
       <MarkdownContent markdown={article.summary} />
     </div>
   );
+}
+
+function formatLicenseLabel(licenseCode: string, licenseVersion: Nullable<string>) {
+  const name = licenseCode.replace(/-/g, " ");
+  return licenseVersion ? `${name} ${licenseVersion}` : name;
+}
+
+function buildLicenseUrl(licenseCode: string, licenseVersion: Nullable<string>) {
+  const slug = licenseCode.replace(/^CC-/, "").toLowerCase();
+  return `https://creativecommons.org/licenses/${slug}/${licenseVersion ?? "4.0"}/`;
 }

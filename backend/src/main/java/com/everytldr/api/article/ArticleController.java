@@ -86,6 +86,7 @@ public class ArticleController {
               types = {"string", "null"})
           String licenseVersion,
       @Schema(requiredMode = RequiredMode.REQUIRED) boolean advertisingAllowed,
+      @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresAttribution,
       @Schema(
               requiredMode = RequiredMode.REQUIRED,
               types = {"string", "null"}) // TODO: thumbnailUrl 나중에 Nullable 제거해야함
@@ -105,6 +106,7 @@ public class ArticleController {
           article.licenseCodeValue(),
           article.licenseVersion(),
           licensePolicyEvaluator.canDisplayAdvertising(article.licenseInfo()),
+          licensePolicyEvaluator.requiresAttribution(article.licenseInfo()),
           article.thumbnailUrl(),
           article.likeCount(),
           article.commentCount());
@@ -134,6 +136,7 @@ public class ArticleController {
                 types = {"string", "null"})
             String licenseVersion,
         @Schema(requiredMode = RequiredMode.REQUIRED) boolean advertisingAllowed,
+        @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresAttribution,
         @Schema(requiredMode = RequiredMode.REQUIRED) String category) {
       static Item from(
           ListItemProjection projection, LicensePolicyEvaluator licensePolicyEvaluator) {
@@ -147,6 +150,7 @@ public class ArticleController {
             projection.licenseCodeValue(),
             projection.licenseVersion(),
             licensePolicyEvaluator.canDisplayAdvertising(projection.licenseInfo()),
+            licensePolicyEvaluator.requiresAttribution(projection.licenseInfo()),
             projection.categorySlug());
       }
     }
