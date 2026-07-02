@@ -24,19 +24,22 @@ public class LicensePolicyEvaluator {
           LicenseCode.CC_BY_NC_ND);
 
   public boolean canDisplayAdvertising(LicenseInfo licenseInfo) {
-    return licenseInfo != null && COMMERCIAL_ALLOWED_CODES.contains(licenseInfo.getLicenseCode());
+    return hasLicenseCode(licenseInfo, COMMERCIAL_ALLOWED_CODES);
   }
 
   public boolean canPublishTransformedText(LicenseInfo licenseInfo) {
-    return licenseInfo != null
-        && PUBLISHABLE_TRANSFORMED_TEXT_CODES.contains(licenseInfo.getLicenseCode());
+    return hasLicenseCode(licenseInfo, PUBLISHABLE_TRANSFORMED_TEXT_CODES);
   }
 
   public boolean requiresAttribution(LicenseInfo licenseInfo) {
-    return licenseInfo != null && ATTRIBUTION_REQUIRED_CODES.contains(licenseInfo.getLicenseCode());
+    return hasLicenseCode(licenseInfo, ATTRIBUTION_REQUIRED_CODES);
   }
 
   public Set<LicenseCode> getPublishableTransformedTextLicenseCodes() {
     return PUBLISHABLE_TRANSFORMED_TEXT_CODES;
+  }
+
+  private boolean hasLicenseCode(LicenseInfo licenseInfo, Set<LicenseCode> licenseCodes) {
+    return licenseInfo != null && licenseCodes.contains(licenseInfo.getLicenseCode());
   }
 }
