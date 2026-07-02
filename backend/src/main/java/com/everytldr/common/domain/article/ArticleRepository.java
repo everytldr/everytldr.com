@@ -37,12 +37,12 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
       WHERE a.id = :id
-        AND a.licenseInfo.licenseCode IN :publishableLicenseCodes
+        AND a.licenseInfo.licenseCode IN :licenseCodes
       """)
-  Optional<DetailProjection> findPublishableDetailByIdAndLanguage(
+  Optional<DetailProjection> findDetailByIdAndLanguageAndLicenseCodeIn(
       @Param("id") Long id,
       @Param("language") String language,
-      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes);
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
 
   @Query(
       """
@@ -60,17 +60,17 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
-      WHERE a.licenseInfo.licenseCode IN :publishableLicenseCodes
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
         AND (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
-  List<ListItemProjection> findRecentPublishable(
+  List<ListItemProjection> findRecentByLicenseCodeIn(
       @Param("language") String language,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,
       @Param("cursorId") Long cursorId,
-      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes,
       Pageable pageable);
 
   @Query(
@@ -89,19 +89,19 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
-      WHERE a.licenseInfo.licenseCode IN :publishableLicenseCodes
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
         AND (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
         AND (c.slug = :categoryPrefix OR c.slug LIKE CONCAT(:categoryPrefix, '-%'))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
-  List<ListItemProjection> findRecentPublishableByCategoryPrefix(
+  List<ListItemProjection> findRecentByCategoryPrefixAndLicenseCodeIn(
       @Param("language") String language,
       @Param("categoryPrefix") String categoryPrefix,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,
       @Param("cursorId") Long cursorId,
-      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes,
       Pageable pageable);
 
   @Query(
@@ -109,22 +109,20 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       SELECT a
       FROM Article a
       WHERE a.id = :id
-        AND a.licenseInfo.licenseCode IN :publishableLicenseCodes
+        AND a.licenseInfo.licenseCode IN :licenseCodes
       """)
-  Optional<Article> findPublishableById(
-      @Param("id") Long id,
-      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes);
+  Optional<Article> findByIdAndLicenseCodeIn(
+      @Param("id") Long id, @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
 
   @Query(
       """
       SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
       FROM Article a
       WHERE a.id = :id
-        AND a.licenseInfo.licenseCode IN :publishableLicenseCodes
+        AND a.licenseInfo.licenseCode IN :licenseCodes
       """)
-  boolean existsPublishableById(
-      @Param("id") Long id,
-      @Param("publishableLicenseCodes") Collection<LicenseCode> publishableLicenseCodes);
+  boolean existsByIdAndLicenseCodeIn(
+      @Param("id") Long id, @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
 
   record DetailProjection(
       Long id,

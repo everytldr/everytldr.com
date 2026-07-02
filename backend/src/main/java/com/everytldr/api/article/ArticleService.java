@@ -26,19 +26,20 @@ public class ArticleService {
 
   public Article getArticleOrThrow(Long articleId) {
     return articleRepository
-        .findPublishableById(articleId, getPublishableLicenseCodes())
+        .findByIdAndLicenseCodeIn(articleId, getPublishableLicenseCodes())
         .orElseThrow(() -> new ArticleExceptions.NotFound(articleId));
   }
 
   public void assertArticleExists(Long articleId) {
-    if (!articleRepository.existsPublishableById(articleId, getPublishableLicenseCodes())) {
+    if (!articleRepository.existsByIdAndLicenseCodeIn(articleId, getPublishableLicenseCodes())) {
       throw new ArticleExceptions.NotFound(articleId);
     }
   }
 
   public DetailProjection getArticleDetail(Long id, SupportedLanguage language) {
     return articleRepository
-        .findPublishableDetailByIdAndLanguage(id, language.code(), getPublishableLicenseCodes())
+        .findDetailByIdAndLanguageAndLicenseCodeIn(
+            id, language.code(), getPublishableLicenseCodes())
         .orElseThrow(() -> new ArticleExceptions.NotFound(id));
   }
 
@@ -55,13 +56,13 @@ public class ArticleService {
             Sort.unsorted());
     List<ListItemProjection> rows =
         categoryPrefix == null
-            ? articleRepository.findRecentPublishable(
+            ? articleRepository.findRecentByLicenseCodeIn(
                 language.code(),
                 cursorPublishedAt,
                 cursorId,
                 getPublishableLicenseCodes(),
                 pageRequest)
-            : articleRepository.findRecentPublishableByCategoryPrefix(
+            : articleRepository.findRecentByCategoryPrefixAndLicenseCodeIn(
                 language.code(),
                 categoryPrefix,
                 cursorPublishedAt,
