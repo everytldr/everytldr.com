@@ -17,7 +17,7 @@ export {
   type LeafCategorySlug,
   type MainCategorySlug,
 } from "./category";
-export type { CategoryGraph, CategoryNode } from "./category";
+export type { CategoryNode } from "./category";
 export {
   EPL_BIG_SIX_TEAMS,
   EPL_TEAMS_ALPHABETICAL,
