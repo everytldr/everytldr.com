@@ -4,9 +4,10 @@ import { type PropsWithChildren } from "react";
 type ConditionalLinkProps = PropsWithChildren<{
   className?: string;
   href: string;
+  prefetch?: boolean;
 }>;
 
-export function ConditionalLink({ className, href, children }: ConditionalLinkProps) {
+export function ConditionalLink({ className, href, prefetch, children }: ConditionalLinkProps) {
   if (isExternalHref(href)) {
     return (
       <a className={className} href={href} rel="noopener noreferrer" target="_blank">
@@ -15,7 +16,7 @@ export function ConditionalLink({ className, href, children }: ConditionalLinkPr
     );
   }
   return (
-    <Link className={className} href={href}>
+    <Link className={className} href={href} prefetch={prefetch}>
       {children}
     </Link>
   );

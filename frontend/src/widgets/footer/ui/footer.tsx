@@ -68,6 +68,7 @@ function FooterLink({ className, href, children }: FooterLinkProps) {
         className,
       )}
       href={href}
+      prefetch={false}
     >
       {children}
     </ConditionalLink>
