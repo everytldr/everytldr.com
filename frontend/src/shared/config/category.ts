@@ -7,7 +7,7 @@ export type CategoryNode = {
   children?: readonly CategoryNode[];
 };
 
-export const BLOCKED_CATEGORY_SLUGS = (process.env.BLOCKED_CATEGORY_SLUGS ?? "")
+export const BLOCKED_CATEGORY_SLUGS = (process.env.NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS ?? "")
   .split(",")
   .map((slug) => slug.trim())
   .filter(Boolean);
@@ -104,8 +104,6 @@ export const CATEGORY_GRAPH = processGraph([
   },
 ] as const satisfies CategoryNode[]);
 
-export type CategoryGraph = typeof CATEGORY_GRAPH;
-
 export const CATEGORY_NODES = CATEGORY_GRAPH.flatMap((node) => [node, ...(node.children ?? [])]);
 export const ROUTABLE_CATEGORY_NODES = CATEGORY_NODES.filter(
   (node) => !("routable" in node) || node.routable,
@@ -125,15 +123,15 @@ export type MainCategorySlug = (typeof CATEGORY_GRAPH)[number]["slug"];
 export type LeafCategorySlug = (typeof LEAF_CATEGORY_SLUGS)[number];
 export type CategorySlug = MainCategorySlug | LeafCategorySlug;
 
-export function findRootCategory<T extends CategoryNode>(graph: readonly T[], slug: string): T {
-  function findRecursively(node: CategoryNode): boolean {
+export function findRootCategory(slug: string) {
+  function findRecursively(node: CategoryNode) {
     if (slug === node.slug) {
       return true;
     }
     return node.children?.some(findRecursively) || false;
   }
 
-  const category = graph.find(findRecursively);
+  const category = CATEGORY_GRAPH.find(findRecursively);
   assert(category, "Invalid subcategory slug");
   return category;
 }

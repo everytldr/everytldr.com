@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  type CategoryGraph,
-  type CategorySlug,
+  CATEGORY_GRAPH,
   DEFAULT_CATEGORY_NODE,
   findRootCategory,
   isHiddenNode,
+  type CategorySlug,
 } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { buildCategoryUrl, cn } from "@/shared/lib";
@@ -15,15 +15,14 @@ import { useParams } from "next/navigation";
 
 type CategoryNavProps = {
   className?: string;
-  categoryGraph: CategoryGraph;
 };
 
-export function CategoryNav({ className, categoryGraph }: CategoryNavProps) {
+export function CategoryNav({ className }: CategoryNavProps) {
   const t = useTranslations();
   const params = useParams<{ slug?: CategorySlug }>();
 
   const categorySlug = params?.slug ?? DEFAULT_CATEGORY_NODE.slug;
-  const category = findRootCategory(categoryGraph, categorySlug);
+  const category = findRootCategory(categorySlug);
 
   return (
     <Container className={className}>
@@ -33,28 +32,26 @@ export function CategoryNav({ className, categoryGraph }: CategoryNavProps) {
           aria-label={t("header.aria-label.categories")}
         >
           <div className="flex h-12 items-stretch gap-2xs">
-            {categoryGraph
-              .filter((node) => !isHiddenNode(node))
-              .map((node) => {
-                const isActive = node.slug === category.slug;
-                return (
-                  <Link
-                    key={node.slug}
-                    className={cn(
-                      "inline-flex items-center border-b-2 px-md text-nav-md whitespace-nowrap transition-colors outline-none",
-                      "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                      isActive
-                        ? "border-ink text-ink"
-                        : "border-transparent text-meta hover:text-ink",
-                    )}
-                    href={buildCategoryUrl(node)}
-                    prefetch={false}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    <Translation tKey={`header.category.${node.slug}`} />
-                  </Link>
-                );
-              })}
+            {CATEGORY_GRAPH.filter((node) => !isHiddenNode(node)).map((node) => {
+              const isActive = node.slug === category.slug;
+              return (
+                <Link
+                  key={node.slug}
+                  className={cn(
+                    "inline-flex items-center border-b-2 px-md text-nav-md whitespace-nowrap transition-colors outline-none",
+                    "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+                    isActive
+                      ? "border-ink text-ink"
+                      : "border-transparent text-meta hover:text-ink",
+                  )}
+                  href={buildCategoryUrl(node)}
+                  prefetch={false}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <Translation tKey={`header.category.${node.slug}`} />
+                </Link>
+              );
+            })}
           </div>
         </nav>
 
