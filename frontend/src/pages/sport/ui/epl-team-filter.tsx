@@ -33,7 +33,11 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
       <ScrollableRow>
         <div className="flex h-12 items-center gap-xs">
           <Chip className="order-first" asChild isSelected={!filter}>
-            <Link href={buildEplFilterUrl()} aria-current={!filter ? "page" : undefined}>
+            <Link
+              href={buildEplFilterUrl()}
+              prefetch={false}
+              aria-current={!filter ? "page" : undefined}
+            >
               <Translation tKey="epl.all-teams" />
             </Link>
           </Chip>
@@ -47,7 +51,11 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
                 asChild
                 isSelected={isSelected}
               >
-                <Link href={buildEplFilterUrl(team)} aria-current={isSelected ? "page" : undefined}>
+                <Link
+                  href={buildEplFilterUrl(team)}
+                  prefetch={false}
+                  aria-current={isSelected ? "page" : undefined}
+                >
                   <EplTeamCrest
                     className={cn("not-pc:hidden dark:drop-stroke", isSelected && "drop-stroke")}
                     team={team}
@@ -60,7 +68,7 @@ export function EplTeamFilter({ className, filter }: EplTeamFilterProps) {
 
           {filter && !isBigSixTeam(filter) && (
             <Chip className="-order-1" asChild isSelected>
-              <Link href={buildEplFilterUrl()}>
+              <Link href={buildEplFilterUrl()} prefetch={false}>
                 <EplTeamCrest className="drop-stroke not-pc:hidden" team={filter} />
                 <Translation tKey={`epl.team.${filter}`} />
               </Link>

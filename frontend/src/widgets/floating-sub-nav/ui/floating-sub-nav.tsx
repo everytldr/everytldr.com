@@ -80,6 +80,7 @@ export function FloatingSubNav({ className }: FloatingSubNavProps) {
                           isActive ? "text-ink" : "text-meta hover:text-ink",
                         )}
                         href={buildCategoryUrl(child)}
+                        prefetch={false}
                         tabIndex={visible ? 0 : -1}
                         aria-current={isActive ? "page" : undefined}
                       >

@@ -14,7 +14,7 @@ export function Header({ className, locale }: HeaderProps) {
   return (
     <header className={cn("z-40 bg-canvas", className)}>
       <Container className="flex h-14 items-center justify-between gap-md pc:h-16">
-        <Link href="/" aria-label="everytldr">
+        <Link href="/" prefetch={false} aria-label="everytldr">
           <Logo />
         </Link>
 
