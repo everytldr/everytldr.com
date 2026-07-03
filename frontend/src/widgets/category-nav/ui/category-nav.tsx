@@ -45,6 +45,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
                       : "border-transparent text-meta hover:text-ink",
                   )}
                   href={buildCategoryUrl(node)}
+                  prefetch={false}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <Translation tKey={`header.category.${node.slug}`} />
@@ -73,6 +74,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
                         isActive ? "text-ink" : "text-meta-soft hover:text-ink",
                       )}
                       href={buildCategoryUrl(child)}
+                      prefetch={false}
                       aria-current={isActive ? "page" : undefined}
                     >
                       <Translation tKey={`header.subcategory.${child.slug}`} />

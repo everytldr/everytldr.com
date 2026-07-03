@@ -12,14 +12,14 @@ export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const [, firstSegment] = pathname.split("/");
 
-  if (pathname.endsWith("/feed.xml") && !isLocale(firstSegment)) {
+  if (pathname.endsWith("/feed.xml")) {
+    if (isLocale(firstSegment)) {
+      return NextResponse.next();
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = `/${defaultLocale}${pathname}`;
     return NextResponse.redirect(url, 308);
-  }
-
-  if (pathname.endsWith("/feed.xml")) {
-    return NextResponse.next();
   }
 
   return intlMiddleware(request);
