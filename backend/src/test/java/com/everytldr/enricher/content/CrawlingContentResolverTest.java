@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.everytldr.common.domain.article.Article;
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
@@ -50,6 +51,7 @@ class CrawlingContentResolverTest {
 
     assertThat(resolver.supports(article("https://globalvoices.org/story"))).isTrue();
     assertThat(resolver.supports(article("https://example.com/story"))).isFalse();
+    assertThat(resolver.supports(article("ftp://globalvoices.org/story"))).isFalse();
     assertThat(resolver.supports(article("not a url"))).isFalse();
   }
 
@@ -232,9 +234,11 @@ class CrawlingContentResolverTest {
                 List.of("https://globalvoices.org/feed/"),
                 hosts,
                 contentSelectors,
-                thumbnailSelectors)),
+                thumbnailSelectors,
+                List.of())),
         "en",
-        SourceType.RSS);
+        SourceType.RSS,
+        LicenseInfo.createCcBy("4.0"));
   }
 
   private Article article(String contentUrl) {

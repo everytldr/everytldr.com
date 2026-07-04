@@ -3,6 +3,7 @@ package com.everytldr.ingestor.source.rss;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
@@ -58,7 +59,8 @@ class RssSourceClientTest {
                 "Example News",
                 null,
                 "en",
-                Instant.parse("2026-05-08T08:25:43Z")));
+                Instant.parse("2026-05-08T08:25:43Z"),
+                licenseInfo()));
   }
 
   @Test
@@ -78,6 +80,34 @@ class RssSourceClientTest {
     route("/rss.xml", 200, feedWithInvalidEntries());
 
     assertThat(newClient().collect(source("/rss.xml"))).isEmpty();
+  }
+
+  @Test
+  void skipsEntriesOutsideAllowedContentHosts() {
+    route("/rss.xml", 200, feedWithMixedAllowedAndBlockedLinks());
+
+    List<CollectedArticle> articles = newClient().collect(source("/rss.xml"));
+
+    assertThat(articles)
+        .extracting(CollectedArticle::contentUrl)
+        .containsExactly("https://news.example.com/allowed");
+  }
+
+  @Test
+  void skipsEntriesOutsideAllowedContentPathPrefixes() {
+    route("/rss.xml", 200, feedWithMixedAllowedAndBlockedPaths());
+
+    List<CollectedArticle> articles =
+        newClient()
+            .collect(
+                sourceWithAllowedPathPrefixes(
+                    List.of("/global/news/", "/global/features/"), "/rss.xml"));
+
+    assertThat(articles)
+        .extracting(CollectedArticle::contentUrl)
+        .containsExactly(
+            "https://news.example.com/global/news/allowed",
+            "https://news.example.com/global/features/allowed");
   }
 
   @Test
@@ -133,14 +163,28 @@ class RssSourceClientTest {
   }
 
   private ArticleSource source(String... paths) {
+    return sourceWithAllowedPathPrefixes(List.of(), paths);
+  }
+
+  private ArticleSource sourceWithAllowedPathPrefixes(
+      List<String> allowedPathPrefixes, String... paths) {
     List<String> feedUrls = Arrays.stream(paths).map(path -> serverUrl() + path).toList();
     return ArticleSource.create(
         "Example News",
         new SourcePolicy(
             new CrawlingPolicy(
-                feedUrls, List.of("news.example.com"), List.of("article"), List.of())),
+                feedUrls,
+                List.of("news.example.com"),
+                List.of("article"),
+                List.of(),
+                allowedPathPrefixes)),
         "en",
-        SourceType.RSS);
+        SourceType.RSS,
+        licenseInfo());
+  }
+
+  private LicenseInfo licenseInfo() {
+    return LicenseInfo.createCcBy("4.0");
   }
 
   private String serverUrl() {
@@ -210,6 +254,62 @@ class RssSourceClientTest {
             </item>
             <item>
               <link>https://news.example.com/missing-date</link>
+            </item>
+          </channel>
+        </rss>
+        """;
+  }
+
+  private String feedWithMixedAllowedAndBlockedLinks() {
+    return """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://news.example.com/allowed</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://partner.example.com/external</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>not a url</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>/relative</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>ftp://news.example.com/file</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+          </channel>
+        </rss>
+        """;
+  }
+
+  private String feedWithMixedAllowedAndBlockedPaths() {
+    return """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://news.example.com/global/news/allowed</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://news.example.com/global/features/allowed</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://news.example.com/global/podcast/blocked</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
+            </item>
+            <item>
+              <link>https://news.example.com/global/supported-content/blocked</link>
+              <pubDate>Fri, 08 May 2026 08:25:43 GMT</pubDate>
             </item>
           </channel>
         </rss>

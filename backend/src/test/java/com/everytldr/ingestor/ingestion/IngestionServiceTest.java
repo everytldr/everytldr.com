@@ -35,6 +35,7 @@ class IngestionServiceTest {
                     List.of("https://content.guardianapis.com/search?section=football"),
                     List.of("theguardian.com", "www.theguardian.com"),
                     List.of("article"),
+                    List.of(),
                     List.of())),
             "en",
             SourceType.RSS);
@@ -46,6 +47,7 @@ class IngestionServiceTest {
                     List.of("https://content.guardianapis.com/search?section=football"),
                     List.of("theguardian.com", "www.theguardian.com"),
                     List.of("article"),
+                    List.of(),
                     List.of())),
             "en",
             SourceType.RSS);

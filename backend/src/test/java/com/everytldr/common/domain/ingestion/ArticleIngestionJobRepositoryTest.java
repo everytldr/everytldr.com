@@ -213,6 +213,7 @@ class ArticleIngestionJobRepositoryTest {
                                 List.of("https://example.com/feed.xml"),
                                 List.of("example.com"),
                                 List.of("article"),
+                                List.of(),
                                 List.of())),
                         "en",
                         SourceType.RSS)));

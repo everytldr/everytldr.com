@@ -158,3 +158,11 @@ Code should carry routine intent through names and structure. Comments should ex
 | Redundant comments | Remove comments and Javadocs that repeat class, enum, method, or constant names without adding policy or context. |
 | Policy comments | Keep comments or Javadocs when they explain non-obvious policy, such as retry semantics, security boundaries, allowlists, timeouts, idempotency, or transaction behavior. |
 | Strategy selection | When code expects exactly one bean, resolver, client, or strategy, fail explicitly for none or multiple matches instead of silently selecting one. |
+
+# 14. Verification Conventions
+
+After implementation and before reporting completion, run the Gradle `spotlessCheck` task when Java, Gradle, or repository-tracked source/test/resource files were changed.
+
+If `spotlessCheck` fails only because formatting is required, run the Gradle `spotlessApply` task, then rerun `spotlessCheck`.
+
+Do not use `spotlessApply` to mask non-formatting failures. If Spotless fails for a reason other than formatting, report the failure and investigate it directly.

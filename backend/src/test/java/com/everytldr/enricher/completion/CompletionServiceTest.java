@@ -12,6 +12,7 @@ import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
 import com.everytldr.common.domain.language.SupportedLanguage;
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
 import com.everytldr.common.domain.source.SourcePolicy;
@@ -83,7 +84,8 @@ class CompletionServiceTest {
                 SOURCE_NAME,
                 "https://example.com/original.jpg",
                 "en",
-                PUBLISHED_AT));
+                PUBLISHED_AT,
+                licenseInfo()));
     ArticleIngestionJob job =
         jobRepository.saveAndFlush(ArticleIngestionJob.create(article, sha256("existing")));
     assertThat(job.claimForAttempt(NOW)).isTrue();
@@ -193,7 +195,7 @@ class CompletionServiceTest {
     source();
     Article article =
         articleRepository.saveAndFlush(
-            Article.create(sourceUrl, SOURCE_NAME, null, "en", PUBLISHED_AT));
+            Article.create(sourceUrl, SOURCE_NAME, null, "en", PUBLISHED_AT, licenseInfo()));
     return jobRepository.saveAndFlush(ArticleIngestionJob.create(article, sha256(sourceUrl)));
   }
 
@@ -210,9 +212,15 @@ class CompletionServiceTest {
                                 List.of("https://example.com/feed.xml"),
                                 List.of("example.com"),
                                 List.of("article"),
+                                List.of(),
                                 List.of())),
                         "en",
-                        SourceType.RSS)));
+                        SourceType.RSS,
+                        licenseInfo())));
+  }
+
+  private LicenseInfo licenseInfo() {
+    return LicenseInfo.createCcBy("4.0");
   }
 
   private void flushAndClear() {

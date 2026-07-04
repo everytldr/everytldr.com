@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import com.everytldr.common.domain.license.LicenseInfo;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.ingestor.source.CollectedArticle;
 import java.time.Instant;
 import java.util.List;
@@ -26,7 +28,9 @@ class CollectedArticleSaveServiceUnitTest {
         mock(CollectedArticleCandidateSaveService.class);
     CollectedArticleSaveService collectedArticleSaveService =
         new CollectedArticleSaveService(
-            articleIngestionJobRepository, collectedArticleCandidateSaveService);
+            articleIngestionJobRepository,
+            collectedArticleCandidateSaveService,
+            new LicensePolicyEvaluator());
     CollectedArticle conflictingArticle =
         collectedArticle("https://www.theguardian.com/football/race-conflict");
     CollectedArticle newArticle = collectedArticle("https://www.theguardian.com/football/new");
@@ -54,6 +58,7 @@ class CollectedArticleSaveServiceUnitTest {
         "The Guardian Football",
         "https://media.guim.co.uk/example-thumbnail.jpg",
         "en",
-        Instant.parse("2026-05-04T10:15:30Z"));
+        Instant.parse("2026-05-04T10:15:30Z"),
+        LicenseInfo.createCcBy("4.0"));
   }
 }
