@@ -13,8 +13,6 @@ export default function Loading() {
           </div>
         </header>
 
-        <Skeleton className="aspect-[16/9] w-full rounded-md" />
-
         <div className="space-y-sm">
           <Skeleton className="h-5 w-full" />
           <Skeleton className="h-5 w-full" />
