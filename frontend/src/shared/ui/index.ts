@@ -1,4 +1,5 @@
 export { AdSlot } from "./ad-slot";
+export { Badge } from "./badge";
 export { BottomSheet } from "./bottom-sheet";
 export { Button } from "./button";
 export { Chip } from "./chip";
