@@ -22,6 +22,7 @@ export function ArticleList({ className, articles, empty, children }: ArticleLis
               <Link
                 className="group block outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
                 href={buildArticleDetailUrl(article.id)}
+                prefetch={false}
               >
                 <ArticleCard titleClassName="group-hover:text-primary" article={article} />
               </Link>

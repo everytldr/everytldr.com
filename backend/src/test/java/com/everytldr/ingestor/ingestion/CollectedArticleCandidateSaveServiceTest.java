@@ -9,6 +9,8 @@ import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
 import com.everytldr.common.domain.source.SourcePolicy;
@@ -70,6 +72,8 @@ class CollectedArticleCandidateSaveServiceTest {
 
     Article article = articleRepository.findAll().getFirst();
     assertThat(article.getContentUrl()).isEqualTo(collectedArticle.contentUrl());
+    assertThat(article.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY);
+    assertThat(article.getLicenseInfo().getLicenseVersion()).isEqualTo("4.0");
 
     ArticleIngestionJob job =
         articleIngestionJobRepository.findByArticleId(article.getId()).orElseThrow();
@@ -113,7 +117,8 @@ class CollectedArticleCandidateSaveServiceTest {
         "The Guardian Football",
         "https://media.guim.co.uk/example-thumbnail.jpg",
         "en",
-        Instant.parse("2026-05-04T10:15:30Z"));
+        Instant.parse("2026-05-04T10:15:30Z"),
+        licenseInfo());
   }
 
   private ArticleSource source() {
@@ -129,9 +134,15 @@ class CollectedArticleCandidateSaveServiceTest {
                                 List.of("https://example.com/rss.xml"),
                                 List.of("theguardian.com"),
                                 List.of("article"),
+                                List.of(),
                                 List.of())),
                         "en",
-                        SourceType.RSS)));
+                        SourceType.RSS,
+                        licenseInfo())));
+  }
+
+  private LicenseInfo licenseInfo() {
+    return LicenseInfo.createCcBy("4.0");
   }
 
   private byte[] sha256(String value) {

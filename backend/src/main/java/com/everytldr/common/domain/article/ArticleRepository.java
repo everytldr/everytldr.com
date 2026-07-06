@@ -1,6 +1,9 @@
 package com.everytldr.common.domain.article;
 
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicenseInfo;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +23,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
           a.publishedAt,
           a.source,
           a.contentUrl,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
           c.slug,
           (SELECT COUNT(l.id)
            FROM ArticleLike l
@@ -32,49 +37,92 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
       WHERE a.id = :id
+        AND a.licenseInfo.licenseCode IN :licenseCodes
       """)
-  Optional<DetailProjection> findDetailByIdAndLanguage(
-      @Param("id") Long id, @Param("language") String language);
+  Optional<DetailProjection> findDetailByIdAndLanguageAndLicenseCodeIn(
+      @Param("id") Long id,
+      @Param("language") String language,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
 
   @Query(
       """
       SELECT new com.everytldr.common.domain.article.ArticleRepository$ListItemProjection(
-          a.id, s.title, s.content, a.thumbnailUrl, a.publishedAt, a.source, c.slug)
+          a.id,
+          s.title,
+          s.content,
+          a.thumbnailUrl,
+          a.publishedAt,
+          a.source,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
+          c.slug)
       FROM Article a
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
-      WHERE (:cursorPublishedAt IS NULL
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
+        AND (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
-  List<ListItemProjection> findRecent(
+  List<ListItemProjection> findRecentByLicenseCodeIn(
       @Param("language") String language,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,
       @Param("cursorId") Long cursorId,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes,
       Pageable pageable);
 
   @Query(
       """
       SELECT new com.everytldr.common.domain.article.ArticleRepository$ListItemProjection(
-          a.id, s.title, s.content, a.thumbnailUrl, a.publishedAt, a.source, c.slug)
+          a.id,
+          s.title,
+          s.content,
+          a.thumbnailUrl,
+          a.publishedAt,
+          a.source,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
+          c.slug)
       FROM Article a
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
         JOIN ac.category c
-      WHERE (:cursorPublishedAt IS NULL
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
+        AND (:cursorPublishedAt IS NULL
           OR a.publishedAt < :cursorPublishedAt
           OR (a.publishedAt = :cursorPublishedAt AND a.id < :cursorId))
         AND (c.slug = :categoryPrefix OR c.slug LIKE CONCAT(:categoryPrefix, '-%'))
       ORDER BY a.publishedAt DESC, a.id DESC
       """)
-  List<ListItemProjection> findRecentByCategoryPrefix(
+  List<ListItemProjection> findRecentByCategoryPrefixAndLicenseCodeIn(
       @Param("language") String language,
       @Param("categoryPrefix") String categoryPrefix,
       @Param("cursorPublishedAt") Instant cursorPublishedAt,
       @Param("cursorId") Long cursorId,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes,
       Pageable pageable);
+
+  @Query(
+      """
+      SELECT a
+      FROM Article a
+      WHERE a.id = :id
+        AND a.licenseInfo.licenseCode IN :licenseCodes
+      """)
+  Optional<Article> findByIdAndLicenseCodeIn(
+      @Param("id") Long id, @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
+
+  @Query(
+      """
+      SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END
+      FROM Article a
+      WHERE a.id = :id
+        AND a.licenseInfo.licenseCode IN :licenseCodes
+      """)
+  boolean existsByIdAndLicenseCodeIn(
+      @Param("id") Long id, @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
 
   record DetailProjection(
       Long id,
@@ -84,9 +132,19 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       Instant publishedAt,
       String source,
       String contentUrl,
+      LicenseCode licenseCode,
+      String licenseVersion,
       String category,
       long likeCount,
-      long commentCount) {}
+      long commentCount) {
+    public String licenseCodeValue() {
+      return licenseCode.value();
+    }
+
+    public LicenseInfo licenseInfo() {
+      return new LicenseInfo(licenseCode, licenseVersion);
+    }
+  }
 
   record ListItemProjection(
       Long id,
@@ -95,5 +153,15 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       String thumbnailUrl,
       Instant publishedAt,
       String source,
-      String categorySlug) {}
+      LicenseCode licenseCode,
+      String licenseVersion,
+      String categorySlug) {
+    public String licenseCodeValue() {
+      return licenseCode.value();
+    }
+
+    public LicenseInfo licenseInfo() {
+      return new LicenseInfo(licenseCode, licenseVersion);
+    }
+  }
 }

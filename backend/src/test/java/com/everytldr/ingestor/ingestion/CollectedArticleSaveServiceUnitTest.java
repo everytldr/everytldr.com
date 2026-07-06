@@ -11,6 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import com.everytldr.common.domain.license.LicenseInfo;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.ingestor.source.CollectedArticle;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +36,7 @@ class CollectedArticleSaveServiceUnitTest {
         new CollectedArticleSaveService(
             articleIngestionJobRepository,
             collectedArticleCandidateSaveService,
+            new LicensePolicyEvaluator(),
             new IngestionMetrics(meterRegistry));
     CollectedArticle conflictingArticle =
         collectedArticle("https://www.theguardian.com/football/race-conflict");
@@ -81,6 +84,7 @@ class CollectedArticleSaveServiceUnitTest {
         new CollectedArticleSaveService(
             articleIngestionJobRepository,
             collectedArticleCandidateSaveService,
+            new LicensePolicyEvaluator(),
             new IngestionMetrics(meterRegistry));
     String existingUrl = "https://www.theguardian.com/football/existing";
     String newUrl = "https://www.theguardian.com/football/new";
@@ -130,7 +134,8 @@ class CollectedArticleSaveServiceUnitTest {
         "The Guardian Football",
         "https://media.guim.co.uk/example-thumbnail.jpg",
         "en",
-        Instant.parse("2026-05-04T10:15:30Z"));
+        Instant.parse("2026-05-04T10:15:30Z"),
+        LicenseInfo.createCcBy("4.0"));
   }
 
   private byte[] sha256(String value) {

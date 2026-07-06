@@ -1,6 +1,7 @@
 package com.everytldr.ingestor.ingestion;
 
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.ingestor.source.CollectedArticle;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,6 +30,8 @@ public class CollectedArticleSaveService {
   private final ArticleIngestionJobRepository articleIngestionJobRepository;
 
   private final CollectedArticleCandidateSaveService collectedArticleCandidateSaveService;
+
+  private final LicensePolicyEvaluator licensePolicyEvaluator;
 
   private final IngestionMetrics ingestionMetrics;
 
@@ -137,6 +140,7 @@ public class CollectedArticleSaveService {
         && hasRequiredText(article.sourceName(), MAX_SOURCE_NAME_LENGTH)
         && hasRequiredText(article.language(), MAX_LANGUAGE_LENGTH)
         && article.publishedAt() != null
+        && licensePolicyEvaluator.canPublishTransformedText(article.licenseInfo())
         && isOptionalHttpUrl(article.thumbnailUrl());
   }
 

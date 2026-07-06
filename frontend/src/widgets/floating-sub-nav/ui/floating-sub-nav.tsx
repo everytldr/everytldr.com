@@ -1,10 +1,11 @@
 "use client";
 
 import {
+  type CategoryGraph,
+  type CategorySlug,
   DEFAULT_CATEGORY_NODE,
   findRootCategory,
   isHiddenNode,
-  type CategorySlug,
 } from "@/shared/config";
 import { Link } from "@/shared/i18n";
 import { buildCategoryUrl, cn } from "@/shared/lib";
@@ -16,9 +17,10 @@ import { useRafState } from "react-use";
 
 type FloatingSubNavProps = {
   className?: string;
+  categoryGraph: CategoryGraph;
 };
 
-export function FloatingSubNav({ className }: FloatingSubNavProps) {
+export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps) {
   const params = useParams<{ slug?: CategorySlug }>();
   const categorySlug = params?.slug ?? DEFAULT_CATEGORY_NODE.slug;
   const t = useTranslations();
@@ -52,7 +54,7 @@ export function FloatingSubNav({ className }: FloatingSubNavProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [setVisible]);
 
-  const category = findRootCategory(categorySlug);
+  const category = findRootCategory(categoryGraph, categorySlug);
 
   return (
     <div
@@ -80,6 +82,7 @@ export function FloatingSubNav({ className }: FloatingSubNavProps) {
                           isActive ? "text-ink" : "text-meta hover:text-ink",
                         )}
                         href={buildCategoryUrl(child)}
+                        prefetch={false}
                         tabIndex={visible ? 0 : -1}
                         aria-current={isActive ? "page" : undefined}
                       >

@@ -2,22 +2,22 @@ import { assert, ensure } from "@/shared/lib";
 
 export type CategoryNode = {
   slug: string;
-  routable?: boolean;
+  forceHidden?: boolean;
   redirectPath?: `/${string}`;
   children?: readonly CategoryNode[];
 };
 
-export const BLOCKED_CATEGORY_SLUGS = (process.env.NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS ?? "")
+export const BLOCKED_CATEGORY_SLUGS = (process.env.BLOCKED_CATEGORY_SLUGS ?? "")
   .split(",")
   .map((slug) => slug.trim())
   .filter(Boolean);
 
 const BLOCKED_SLUG_SET = new Set(BLOCKED_CATEGORY_SLUGS);
 
-export const CATEGORY_GRAPH = processGraph([
+export const CATEGORY_GRAPH = [
   {
     slug: "home",
-    routable: false,
+    forceHidden: true,
     redirectPath: "/",
     children: [{ slug: "discover" }, { slug: "trending" }, { slug: "latest" }],
   },
@@ -82,7 +82,7 @@ export const CATEGORY_GRAPH = processGraph([
   },
   {
     slug: "sport",
-    children: [{ slug: "sport-events" }, { slug: "epl" }, { slug: "nba", routable: false }],
+    children: [{ slug: "sport-events" }, { slug: "epl" }, { slug: "nba", forceHidden: true }],
   },
   {
     slug: "health",
@@ -102,17 +102,19 @@ export const CATEGORY_GRAPH = processGraph([
       { slug: "environment-pollution" },
     ],
   },
-] as const satisfies CategoryNode[]);
+] as const satisfies CategoryNode[];
+
+export type CategoryGraph = typeof CATEGORY_GRAPH;
 
 export const CATEGORY_NODES = CATEGORY_GRAPH.flatMap((node) => [node, ...(node.children ?? [])]);
-export const ROUTABLE_CATEGORY_NODES = CATEGORY_NODES.filter(
-  (node) => !("routable" in node) || node.routable,
-);
+export const ROUTABLE_CATEGORY_NODES = CATEGORY_NODES.filter(isRoutable);
 export const LEAF_CATEGORY_SLUGS = CATEGORY_GRAPH.flatMap(
   (node) => node.children?.map((node) => node.slug) ?? [],
 );
 export const STATIC_CATEGORY_SLUGS = CATEGORY_GRAPH.flatMap((node) =>
-  node.redirectPath ? (node.children?.map((child) => child.slug) ?? []) : [node.slug],
+  "redirectPath" in node && node.redirectPath
+    ? (node.children?.map((child) => child.slug) ?? [])
+    : [node.slug],
 );
 export const HOME_CATEGORY_NODE = ensure(CATEGORY_NODES.find((node) => node.slug === "home"));
 export const DEFAULT_CATEGORY_NODE = ensure(
@@ -123,15 +125,15 @@ export type MainCategorySlug = (typeof CATEGORY_GRAPH)[number]["slug"];
 export type LeafCategorySlug = (typeof LEAF_CATEGORY_SLUGS)[number];
 export type CategorySlug = MainCategorySlug | LeafCategorySlug;
 
-export function findRootCategory(slug: string) {
-  function findRecursively(node: CategoryNode) {
+export function findRootCategory<T extends CategoryNode>(graph: readonly T[], slug: string): T {
+  function findRecursively(node: CategoryNode): boolean {
     if (slug === node.slug) {
       return true;
     }
     return node.children?.some(findRecursively) || false;
   }
 
-  const category = CATEGORY_GRAPH.find(findRecursively);
+  const category = graph.find(findRecursively);
   assert(category, "Invalid subcategory slug");
   return category;
 }
@@ -141,9 +143,9 @@ export function isMainCategorySlug(slug: CategorySlug): slug is MainCategorySlug
 }
 
 export function isFeedableCategory(slug: string): slug is CategorySlug {
-  const isRoutable = ROUTABLE_CATEGORY_NODES.some((node) => node.slug === slug);
+  const isRoutableSlug = ROUTABLE_CATEGORY_NODES.some((node) => node.slug === slug);
   const isHomeTab = HOME_CATEGORY_NODE.children?.some((child) => child.slug === slug) ?? false;
-  return isRoutable && !isHomeTab;
+  return isRoutableSlug && !isHomeTab;
 }
 
 export function resolveCategoryFeedPrefix(slug: CategorySlug) {
@@ -151,16 +153,9 @@ export function resolveCategoryFeedPrefix(slug: CategorySlug) {
 }
 
 export function isHiddenNode(node: CategoryNode) {
-  return !("routable" in node) || (!node.routable && !node.redirectPath);
+  return !isRoutable(node) && !node.redirectPath;
 }
 
-function processGraph<T extends CategoryNode>(graph: ReadonlyArray<T>): ReadonlyArray<T> {
-  return graph.map((node) => {
-    return Object.create({
-      slug: node.slug,
-      routable: typeof node.routable !== "boolean" && !BLOCKED_SLUG_SET.has(node.slug),
-      redirectPath: node.redirectPath,
-      children: node.children && processGraph(node.children),
-    });
-  });
+function isRoutable(node: CategoryNode): boolean {
+  return !node.forceHidden && !BLOCKED_SLUG_SET.has(node.slug);
 }

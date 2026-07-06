@@ -4,6 +4,8 @@ import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
+import com.everytldr.common.domain.license.LicenseInfo;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.enricher.completion.CompletionService;
 import com.everytldr.enricher.completion.CompletionStatus;
 import com.everytldr.enricher.content.ContentResolver;
@@ -37,6 +39,7 @@ public class JobProcessor {
   private final List<EnrichmentClient> enrichmentClients;
   private final ProcessingProperties properties;
   private final Clock clock;
+  private final LicensePolicyEvaluator licensePolicyEvaluator;
   private final EnricherMetrics enricherMetrics;
 
   public List<ProcessingResult> processNextBatch(int limit) {
@@ -63,6 +66,7 @@ public class JobProcessor {
 
     try {
       Article article = job.getArticle();
+      assertArticleLicenseCanBePublished(article);
       ContentResolver contentResolver = selectContentResolver(article);
       EnrichmentClient enrichmentClient = selectEnrichmentClient();
 
@@ -96,6 +100,18 @@ public class JobProcessor {
     }
 
     return resolvers.getFirst();
+  }
+
+  private void assertArticleLicenseCanBePublished(Article article) {
+    LicenseInfo licenseInfo =
+        article.getLicenseInfo() == null ? LicenseInfo.createUnknown() : article.getLicenseInfo();
+    if (licensePolicyEvaluator.canPublishTransformedText(licenseInfo)) {
+      return;
+    }
+
+    throw EnrichmentException.permanent(
+        "article license does not allow transformed text publishing: licenseCode=%s"
+            .formatted(licenseInfo.getLicenseCode().value()));
   }
 
   private EnrichmentClient selectEnrichmentClient() {

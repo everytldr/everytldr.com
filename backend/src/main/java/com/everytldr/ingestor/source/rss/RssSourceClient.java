@@ -119,6 +119,13 @@ public class RssSourceClient implements SourceClient {
       log.warn("Skipping RSS entry because link is missing. sourceName={}", source.getName());
       return Optional.empty();
     }
+    if (!source.getPolicy().crawling().isAllowedContentUrl(link)) {
+      log.warn(
+          "Skipping RSS entry because link is not allowed. sourceName={}, link={}",
+          source.getName(),
+          link);
+      return Optional.empty();
+    }
 
     Instant publishedAt = resolvePublishedAt(entry);
     if (publishedAt == null) {
@@ -129,7 +136,12 @@ public class RssSourceClient implements SourceClient {
     String thumbnailUrl = resolveThumbnailUrl(entry);
     return Optional.of(
         new CollectedArticle(
-            link, source.getName(), thumbnailUrl, source.getLanguage(), publishedAt));
+            link,
+            source.getName(),
+            thumbnailUrl,
+            source.getLanguage(),
+            publishedAt,
+            source.getLicenseInfo()));
   }
 
   private String resolveThumbnailUrl(SyndEntry entry) {

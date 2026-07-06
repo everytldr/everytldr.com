@@ -40,7 +40,7 @@ public class CrawlingContentResolver implements ContentResolver {
 
     return articleSourceProvider
         .findByName(article.getSource())
-        .map(source -> source.getPolicy().crawling().isAllowedHost(contentUri.get().getHost()))
+        .map(source -> source.getPolicy().crawling().isAllowedContentUri(contentUri.get()))
         .orElse(false);
   }
 
@@ -55,9 +55,7 @@ public class CrawlingContentResolver implements ContentResolver {
 
     CrawlingPolicy policy = source.getPolicy().crawling();
 
-    String html =
-        contentCrawler.crawl(
-            contentUri, responseUri -> policy.isAllowedHost(responseUri.getHost()));
+    String html = contentCrawler.crawl(contentUri, policy::isAllowedContentUri);
 
     Document document = Jsoup.parse(html, contentUri.toString());
     document.select("script, style, noscript").remove();

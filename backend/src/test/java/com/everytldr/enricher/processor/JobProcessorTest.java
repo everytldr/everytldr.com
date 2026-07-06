@@ -13,6 +13,9 @@ import static org.mockito.Mockito.when;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicenseInfo;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.enricher.completion.CompletionService;
 import com.everytldr.enricher.completion.CompletionStatus;
 import com.everytldr.enricher.content.ContentResolver;
@@ -77,6 +80,7 @@ class JobProcessorTest {
                 RETRY_DELAY,
                 Duration.ofMinutes(15)),
             Clock.fixed(NOW, ZoneOffset.UTC),
+            new LicensePolicyEvaluator(),
             new EnricherMetrics(meterRegistry, jobRepository));
   }
 
@@ -149,6 +153,25 @@ class JobProcessorTest {
   }
 
   @Test
+  void unsupportedLicenseFailsBeforeResolvingContent() {
+    ArticleIngestionJob job =
+        processingJob(
+            107L,
+            "https://globalvoices.org/share-alike",
+            1,
+            new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+
+    when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
+    when(completionService.fail(
+            job.getId(),
+            "article license does not allow transformed text publishing: licenseCode=CC-BY-SA"))
+        .thenReturn(CompletionStatus.FAILED);
+
+    assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
+    verifyNoInteractions(contentResolver, enrichmentClient);
+  }
+
+  @Test
   void skipsJobsThatCannotBeProcessed() {
     ArticleIngestionJob pendingJob = pendingJob(104L, "https://globalvoices.org/pending");
     ArticleIngestionJob missingJob = processingJob(105L, "https://globalvoices.org/missing", 1);
@@ -184,7 +207,12 @@ class JobProcessorTest {
   }
 
   private ArticleIngestionJob processingJob(Long id, String sourceUrl, int attemptCount) {
-    ArticleIngestionJob job = pendingJob(id, sourceUrl);
+    return processingJob(id, sourceUrl, attemptCount, LicenseInfo.createCcBy("4.0"));
+  }
+
+  private ArticleIngestionJob processingJob(
+      Long id, String sourceUrl, int attemptCount, LicenseInfo licenseInfo) {
+    ArticleIngestionJob job = pendingJob(id, sourceUrl, licenseInfo);
     for (int attempt = 0; attempt < attemptCount; attempt++) {
       Instant attemptStartedAt = NOW.plusSeconds(attempt);
       assertThat(job.claimForAttempt(attemptStartedAt)).isTrue();
@@ -196,7 +224,12 @@ class JobProcessorTest {
   }
 
   private ArticleIngestionJob pendingJob(Long id, String sourceUrl) {
-    Article article = Article.create(sourceUrl, "Global Voices", null, "en", PUBLISHED_AT);
+    return pendingJob(id, sourceUrl, LicenseInfo.createCcBy("4.0"));
+  }
+
+  private ArticleIngestionJob pendingJob(Long id, String sourceUrl, LicenseInfo licenseInfo) {
+    Article article =
+        Article.create(sourceUrl, "Global Voices", null, "en", PUBLISHED_AT, licenseInfo);
     ArticleIngestionJob job = ArticleIngestionJob.create(article, sha256(sourceUrl));
     ReflectionTestUtils.setField(job, "id", id);
     return job;
@@ -221,19 +254,19 @@ class JobProcessorTest {
     return List.of("media", "politics");
   }
 
-  private byte[] sha256(String value) {
-    try {
-      return MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
-    } catch (NoSuchAlgorithmException e) {
-      throw new IllegalStateException("SHA-256 algorithm is not available", e);
-    }
-  }
-
   private double jobMetricCount(ProcessingResult.Status status) {
     return meterRegistry
         .get("everytldr.enricher.jobs")
         .tag("status", status.name().toLowerCase(Locale.ROOT))
         .counter()
         .count();
+  }
+
+  private byte[] sha256(String value) {
+    try {
+      return MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-256 algorithm is not available", e);
+    }
   }
 }

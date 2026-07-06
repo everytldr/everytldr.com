@@ -26,7 +26,8 @@ public class CollectedArticleCandidateSaveService {
             collectedArticle.sourceName(),
             collectedArticle.thumbnailUrl(),
             collectedArticle.language(),
-            collectedArticle.publishedAt());
+            collectedArticle.publishedAt(),
+            collectedArticle.licenseInfo());
     Article savedArticle = articleRepository.save(article);
 
     ArticleIngestionJob job = ArticleIngestionJob.create(savedArticle, urlHash);
