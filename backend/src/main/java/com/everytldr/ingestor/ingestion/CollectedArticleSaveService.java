@@ -1,6 +1,7 @@
 package com.everytldr.ingestor.ingestion;
 
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.ingestor.source.CollectedArticle;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,11 +31,14 @@ public class CollectedArticleSaveService {
 
   private final CollectedArticleCandidateSaveService collectedArticleCandidateSaveService;
 
+  private final LicensePolicyEvaluator licensePolicyEvaluator;
+
+  private final IngestionMetrics ingestionMetrics;
+
   public void saveNewArticles(List<CollectedArticle> collectedArticles) {
     int receivedCount = collectedArticles == null ? 0 : collectedArticles.size();
     if (receivedCount == 0) {
-      log.info(
-          "Finished saving collected articles. received=0, valid=0, invalidSkipped=0, duplicateInBatchSkipped=0, existingDuplicateSkipped=0, concurrencyDuplicateSkipped=0, saved=0");
+      finishSaving(receivedCount, 0, 0, 0, 0, 0, 0);
       return;
     }
 
@@ -56,11 +60,7 @@ public class CollectedArticleSaveService {
     }
 
     if (validArticles.isEmpty()) {
-      log.info(
-          "Finished saving collected articles. received={}, valid=0, invalidSkipped={}, duplicateInBatchSkipped={}, existingDuplicateSkipped=0, concurrencyDuplicateSkipped=0, saved=0",
-          receivedCount,
-          invalidSkippedCount,
-          duplicateInBatchSkippedCount);
+      finishSaving(receivedCount, 0, invalidSkippedCount, duplicateInBatchSkippedCount, 0, 0, 0);
       return;
     }
 
@@ -97,10 +97,36 @@ public class CollectedArticleSaveService {
       }
     }
 
+    finishSaving(
+        receivedCount,
+        validArticles.size(),
+        invalidSkippedCount,
+        duplicateInBatchSkippedCount,
+        existingDuplicateSkippedCount,
+        concurrencyDuplicateSkippedCount,
+        savedCount);
+  }
+
+  private void finishSaving(
+      int receivedCount,
+      int validCount,
+      int invalidSkippedCount,
+      int duplicateInBatchSkippedCount,
+      int existingDuplicateSkippedCount,
+      int concurrencyDuplicateSkippedCount,
+      int savedCount) {
     log.info(
         "Finished saving collected articles. received={}, valid={}, invalidSkipped={}, duplicateInBatchSkipped={}, existingDuplicateSkipped={}, concurrencyDuplicateSkipped={}, saved={}",
         receivedCount,
-        validArticles.size(),
+        validCount,
+        invalidSkippedCount,
+        duplicateInBatchSkippedCount,
+        existingDuplicateSkippedCount,
+        concurrencyDuplicateSkippedCount,
+        savedCount);
+    ingestionMetrics.recordArticles(
+        receivedCount,
+        validCount,
         invalidSkippedCount,
         duplicateInBatchSkippedCount,
         existingDuplicateSkippedCount,
@@ -114,6 +140,7 @@ public class CollectedArticleSaveService {
         && hasRequiredText(article.sourceName(), MAX_SOURCE_NAME_LENGTH)
         && hasRequiredText(article.language(), MAX_LANGUAGE_LENGTH)
         && article.publishedAt() != null
+        && licensePolicyEvaluator.canPublishTransformedText(article.licenseInfo())
         && isOptionalHttpUrl(article.thumbnailUrl());
   }
 

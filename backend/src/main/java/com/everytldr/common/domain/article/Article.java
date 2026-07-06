@@ -1,7 +1,9 @@
 package com.everytldr.common.domain.article;
 
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.support.SoftDeletableEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
@@ -30,18 +32,37 @@ public class Article extends SoftDeletableEntity {
   @Column(nullable = false)
   private Instant publishedAt;
 
+  @Embedded private LicenseInfo licenseInfo;
+
   private Article(
-      String contentUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
+      String contentUrl,
+      String source,
+      String thumbnailUrl,
+      String language,
+      Instant publishedAt,
+      LicenseInfo licenseInfo) {
     this.contentUrl = contentUrl;
     this.source = source;
     this.thumbnailUrl = thumbnailUrl;
     this.language = language;
     this.publishedAt = publishedAt;
+    this.licenseInfo = licenseInfo == null ? LicenseInfo.createUnknown() : licenseInfo;
   }
 
   public static Article create(
       String contentUrl, String source, String thumbnailUrl, String language, Instant publishedAt) {
-    return new Article(contentUrl, source, thumbnailUrl, language, publishedAt);
+    return new Article(
+        contentUrl, source, thumbnailUrl, language, publishedAt, LicenseInfo.createUnknown());
+  }
+
+  public static Article create(
+      String contentUrl,
+      String source,
+      String thumbnailUrl,
+      String language,
+      Instant publishedAt,
+      LicenseInfo licenseInfo) {
+    return new Article(contentUrl, source, thumbnailUrl, language, publishedAt, licenseInfo);
   }
 
   public void updateThumbnailUrl(String thumbnailUrl) {

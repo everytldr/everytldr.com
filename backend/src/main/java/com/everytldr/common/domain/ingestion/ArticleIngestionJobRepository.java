@@ -28,6 +28,8 @@ public interface ArticleIngestionJobRepository extends JpaRepository<ArticleInge
 
   boolean existsByUrlHash(byte[] urlHash);
 
+  long countByState(IngestionState state);
+
   @Query("SELECT j.urlHash FROM ArticleIngestionJob j WHERE j.urlHash IN :urlHashes")
   List<byte[]> findExistingUrlHashes(@Param("urlHashes") Collection<byte[]> urlHashes);
 

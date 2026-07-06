@@ -17,6 +17,8 @@ import com.everytldr.common.domain.category.ArticleCategory;
 import com.everytldr.common.domain.category.ArticleCategoryRepository;
 import com.everytldr.common.domain.category.Category;
 import com.everytldr.common.domain.category.CategoryRepository;
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
 import com.everytldr.common.domain.source.SourcePolicy;
@@ -79,8 +81,40 @@ class ArticleControllerTest {
                 .param("size", "2"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items[0].title").value("T0"))
+        .andExpect(jsonPath("$.items[0].licenseCode").value("CC-BY"))
+        .andExpect(jsonPath("$.items[0].licenseVersion").value("4.0"))
+        .andExpect(jsonPath("$.items[0].advertisingAllowed").value(true))
+        .andExpect(jsonPath("$.items[0].requiresAttribution").value(true))
         .andExpect(jsonPath("$.items[1].title").value("T1"))
         .andExpect(jsonPath("$.nextCursor").isString());
+  }
+
+  @Test
+  void listHidesArticlesWithUnsupportedLicenseForPublishing() throws Exception {
+    Instant base = Instant.parse("2026-04-01T00:00:00Z");
+    saveArticle(base, football, "ko", "Supported", "蹂몃Ц", licenseInfo());
+    saveArticle(
+        base.minus(1, ChronoUnit.HOURS),
+        football,
+        "ko",
+        "Share Alike",
+        "蹂몃Ц",
+        new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+    saveArticle(
+        base.minus(2, ChronoUnit.HOURS),
+        football,
+        "ko",
+        "Unknown",
+        "蹂몃Ц",
+        LicenseInfo.createUnknown());
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(get("/api/articles").header("Accept-Language", "ko").param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(1))
+        .andExpect(jsonPath("$.items[0].title").value("Supported"));
   }
 
   @Test
@@ -146,10 +180,32 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.title").value("제목"))
         .andExpect(jsonPath("$.summary").value("요약"))
         .andExpect(jsonPath("$.contentUrl").value(article.getContentUrl()))
+        .andExpect(jsonPath("$.licenseCode").value("CC-BY"))
+        .andExpect(jsonPath("$.licenseVersion").value("4.0"))
+        .andExpect(jsonPath("$.advertisingAllowed").value(true))
+        .andExpect(jsonPath("$.requiresAttribution").value(true))
         .andExpect(jsonPath("$.category").value("football"))
         .andExpect(jsonPath("$.likeCount").value(1))
         .andExpect(jsonPath("$.commentCount").value(1))
         .andExpect(jsonPath("$.likedByReader").doesNotExist());
+  }
+
+  @Test
+  void detailReturnsNotFoundWhenArticleLicenseIsUnsupportedForPublishing() throws Exception {
+    Article article =
+        saveArticle(
+            Instant.parse("2026-04-01T00:00:00Z"),
+            football,
+            "ko",
+            "?쒕ぉ",
+            "?붿빟",
+            new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"));
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(get("/api/articles/{id}", article.getId()).header("Accept-Language", "ko"))
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -168,10 +224,25 @@ class ArticleControllerTest {
 
   private Article saveArticle(
       Instant publishedAt, Category category, String language, String title, String content) {
+    return saveArticle(publishedAt, category, language, title, content, licenseInfo());
+  }
+
+  private Article saveArticle(
+      Instant publishedAt,
+      Category category,
+      String language,
+      String title,
+      String content,
+      LicenseInfo licenseInfo) {
     Article article =
         articleRepository.saveAndFlush(
             Article.create(
-                "https://example.com/" + System.nanoTime(), "Example", null, "en", publishedAt));
+                "https://example.com/" + System.nanoTime(),
+                "Example",
+                null,
+                "en",
+                publishedAt,
+                licenseInfo));
     articleCategoryRepository.saveAndFlush(ArticleCategory.create(article, category));
     summaryRepository.saveAndFlush(ArticleSummary.create(article, language, title, content));
     return article;
@@ -185,8 +256,14 @@ class ArticleControllerTest {
                 List.of("https://example.com/feed.xml"),
                 List.of("example.com"),
                 List.of("article"),
+                List.of(),
                 List.of())),
         "en",
-        SourceType.RSS);
+        SourceType.RSS,
+        licenseInfo());
+  }
+
+  private LicenseInfo licenseInfo() {
+    return LicenseInfo.createCcBy("4.0");
   }
 }

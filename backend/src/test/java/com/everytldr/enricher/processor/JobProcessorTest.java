@@ -13,6 +13,9 @@ import static org.mockito.Mockito.when;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
+import com.everytldr.common.domain.license.LicenseCode;
+import com.everytldr.common.domain.license.LicenseInfo;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.enricher.completion.CompletionService;
 import com.everytldr.enricher.completion.CompletionStatus;
 import com.everytldr.enricher.content.ContentResolver;
@@ -22,6 +25,7 @@ import com.everytldr.enricher.enrichment.EnrichmentClient;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import com.everytldr.enricher.enrichment.EnrichmentRequest;
 import com.everytldr.enricher.enrichment.EnrichmentResult;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,6 +34,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,9 +59,11 @@ class JobProcessorTest {
   @Mock private EnrichmentClient enrichmentClient;
 
   private JobProcessor processor;
+  private SimpleMeterRegistry meterRegistry;
 
   @BeforeEach
   void setUp() {
+    meterRegistry = new SimpleMeterRegistry();
     processor =
         new JobProcessor(
             claimService,
@@ -72,7 +79,9 @@ class JobProcessorTest {
                 MAX_ATTEMPTS,
                 RETRY_DELAY,
                 Duration.ofMinutes(15)),
-            Clock.fixed(NOW, ZoneOffset.UTC));
+            Clock.fixed(NOW, ZoneOffset.UTC),
+            new LicensePolicyEvaluator(),
+            new EnricherMetrics(meterRegistry, jobRepository));
   }
 
   @Test
@@ -92,6 +101,7 @@ class JobProcessorTest {
 
     assertThat(processor.processNextBatch(2))
         .containsExactly(new ProcessingResult(job.getId(), SUCCEEDED));
+    assertThat(jobMetricCount(SUCCEEDED)).isEqualTo(1.0);
   }
 
   @Test
@@ -107,6 +117,7 @@ class JobProcessorTest {
 
     assertThat(processor.processJob(job))
         .isEqualTo(new ProcessingResult(job.getId(), RETRY_SCHEDULED));
+    assertThat(jobMetricCount(RETRY_SCHEDULED)).isEqualTo(1.0);
     verifyNoInteractions(enrichmentClient);
   }
 
@@ -123,6 +134,7 @@ class JobProcessorTest {
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
+    assertThat(jobMetricCount(FAILED)).isEqualTo(1.0);
   }
 
   @Test
@@ -141,6 +153,25 @@ class JobProcessorTest {
   }
 
   @Test
+  void unsupportedLicenseFailsBeforeResolvingContent() {
+    ArticleIngestionJob job =
+        processingJob(
+            107L,
+            "https://globalvoices.org/share-alike",
+            1,
+            new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+
+    when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
+    when(completionService.fail(
+            job.getId(),
+            "article license does not allow transformed text publishing: licenseCode=CC-BY-SA"))
+        .thenReturn(CompletionStatus.FAILED);
+
+    assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
+    verifyNoInteractions(contentResolver, enrichmentClient);
+  }
+
+  @Test
   void skipsJobsThatCannotBeProcessed() {
     ArticleIngestionJob pendingJob = pendingJob(104L, "https://globalvoices.org/pending");
     ArticleIngestionJob missingJob = processingJob(105L, "https://globalvoices.org/missing", 1);
@@ -152,6 +183,8 @@ class JobProcessorTest {
         .isEqualTo(new ProcessingResult(pendingJob.getId(), SKIPPED_NOT_PROCESSING));
     assertThat(processor.processJob(missingJob))
         .isEqualTo(new ProcessingResult(missingJob.getId(), SKIPPED_NOT_FOUND));
+    assertThat(jobMetricCount(SKIPPED_NOT_PROCESSING)).isEqualTo(1.0);
+    assertThat(jobMetricCount(SKIPPED_NOT_FOUND)).isEqualTo(1.0);
     verifyNoInteractions(contentResolver, enrichmentClient, completionService);
   }
 
@@ -174,7 +207,12 @@ class JobProcessorTest {
   }
 
   private ArticleIngestionJob processingJob(Long id, String sourceUrl, int attemptCount) {
-    ArticleIngestionJob job = pendingJob(id, sourceUrl);
+    return processingJob(id, sourceUrl, attemptCount, LicenseInfo.createCcBy("4.0"));
+  }
+
+  private ArticleIngestionJob processingJob(
+      Long id, String sourceUrl, int attemptCount, LicenseInfo licenseInfo) {
+    ArticleIngestionJob job = pendingJob(id, sourceUrl, licenseInfo);
     for (int attempt = 0; attempt < attemptCount; attempt++) {
       Instant attemptStartedAt = NOW.plusSeconds(attempt);
       assertThat(job.claimForAttempt(attemptStartedAt)).isTrue();
@@ -186,7 +224,12 @@ class JobProcessorTest {
   }
 
   private ArticleIngestionJob pendingJob(Long id, String sourceUrl) {
-    Article article = Article.create(sourceUrl, "Global Voices", null, "en", PUBLISHED_AT);
+    return pendingJob(id, sourceUrl, LicenseInfo.createCcBy("4.0"));
+  }
+
+  private ArticleIngestionJob pendingJob(Long id, String sourceUrl, LicenseInfo licenseInfo) {
+    Article article =
+        Article.create(sourceUrl, "Global Voices", null, "en", PUBLISHED_AT, licenseInfo);
     ArticleIngestionJob job = ArticleIngestionJob.create(article, sha256(sourceUrl));
     ReflectionTestUtils.setField(job, "id", id);
     return job;
@@ -209,6 +252,14 @@ class JobProcessorTest {
 
   private List<String> categorySlugs() {
     return List.of("media", "politics");
+  }
+
+  private double jobMetricCount(ProcessingResult.Status status) {
+    return meterRegistry
+        .get("everytldr.enricher.jobs")
+        .tag("status", status.name().toLowerCase(Locale.ROOT))
+        .counter()
+        .count();
   }
 
   private byte[] sha256(String value) {

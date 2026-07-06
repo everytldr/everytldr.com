@@ -4,6 +4,8 @@ import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
+import com.everytldr.common.domain.license.LicenseInfo;
+import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import com.everytldr.enricher.completion.CompletionService;
 import com.everytldr.enricher.completion.CompletionStatus;
 import com.everytldr.enricher.content.ContentResolver;
@@ -37,6 +39,8 @@ public class JobProcessor {
   private final List<EnrichmentClient> enrichmentClients;
   private final ProcessingProperties properties;
   private final Clock clock;
+  private final LicensePolicyEvaluator licensePolicyEvaluator;
+  private final EnricherMetrics enricherMetrics;
 
   public List<ProcessingResult> processNextBatch(int limit) {
     Instant now = Instant.now(clock);
@@ -52,16 +56,17 @@ public class JobProcessor {
     Optional<ArticleIngestionJob> reloadedJob =
         articleIngestionJobRepository.findByIdWithArticle(jobId);
     if (reloadedJob.isEmpty()) {
-      return new ProcessingResult(jobId, Status.SKIPPED_NOT_FOUND);
+      return recordResult(new ProcessingResult(jobId, Status.SKIPPED_NOT_FOUND));
     }
 
     ArticleIngestionJob job = reloadedJob.get();
     if (job.getState() != IngestionState.PROCESSING) {
-      return new ProcessingResult(jobId, Status.SKIPPED_NOT_PROCESSING);
+      return recordResult(new ProcessingResult(jobId, Status.SKIPPED_NOT_PROCESSING));
     }
 
     try {
       Article article = job.getArticle();
+      assertArticleLicenseCanBePublished(article);
       ContentResolver contentResolver = selectContentResolver(article);
       EnrichmentClient enrichmentClient = selectEnrichmentClient();
 
@@ -74,7 +79,7 @@ public class JobProcessor {
       CompletionStatus completionStatus =
           completionService.completeWithResult(
               jobId, resolvedArticle.thumbnailUrl(), enrichmentResults);
-      return ProcessingResult.from(jobId, completionStatus);
+      return recordResult(ProcessingResult.from(jobId, completionStatus));
     } catch (EnrichmentException e) {
       return completeFailure(jobId, job, e);
     } catch (RuntimeException e) {
@@ -95,6 +100,18 @@ public class JobProcessor {
     }
 
     return resolvers.getFirst();
+  }
+
+  private void assertArticleLicenseCanBePublished(Article article) {
+    LicenseInfo licenseInfo =
+        article.getLicenseInfo() == null ? LicenseInfo.createUnknown() : article.getLicenseInfo();
+    if (licensePolicyEvaluator.canPublishTransformedText(licenseInfo)) {
+      return;
+    }
+
+    throw EnrichmentException.permanent(
+        "article license does not allow transformed text publishing: licenseCode=%s"
+            .formatted(licenseInfo.getLicenseCode().value()));
   }
 
   private EnrichmentClient selectEnrichmentClient() {
@@ -129,6 +146,11 @@ public class JobProcessor {
         job.getAttemptCount(),
         completionStatus,
         exception);
-    return ProcessingResult.from(jobId, completionStatus);
+    return recordResult(ProcessingResult.from(jobId, completionStatus));
+  }
+
+  private ProcessingResult recordResult(ProcessingResult result) {
+    enricherMetrics.recordJob(result.status());
+    return result;
   }
 }

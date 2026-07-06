@@ -76,7 +76,6 @@ jobs:
             football_key=${{ secrets.FOOTBALL_DATA_API_KEY }}
           build-args: |
             NEXT_PUBLIC_API_MOCKING=${{ vars.NEXT_PUBLIC_API_MOCKING || 'false' }}
-            NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS=${{ vars.NEXT_PUBLIC_BLOCKED_CATEGORY_SLUGS }}
             NEXT_PUBLIC_ADSENSE_CLIENT_ID=${{ vars.NEXT_PUBLIC_ADSENSE_CLIENT_ID }}
             NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_DETAIL=${{ vars.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_DETAIL }}
             NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
@@ -152,7 +151,7 @@ jobs:
           host: ${{ secrets.INFRA_MONO_HOST }}
           username: ${{ secrets.INFRA_MONO_USER }}
           key: ${{ secrets.INFRA_MONO_SSH_KEY }}
-          source: infra/mono/docker-compose.yml,infra/mono/Caddyfile
+          source: infra/mono/docker-compose.yml,infra/mono/Caddyfile,infra/mono/prometheus/**,infra/mono/grafana/**
           target: /opt/everytldr
           strip_components: 2
 
