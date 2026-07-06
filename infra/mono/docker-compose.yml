@@ -37,7 +37,7 @@ services:
     image: ghcr.io/everytldr/everytldr.com-backend:latest
     restart: always
     ports:
-        - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8080:8080"
     env_file:
       - .env.backend
     depends_on:
@@ -73,6 +73,38 @@ services:
       retries: 10
       start_period: 30s
 
+  prometheus:
+    image: prom/prometheus
+    container_name: everytldr-prometheus
+    restart: always
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+
+  grafana:
+    image: grafana/grafana
+    container_name: everytldr-grafana
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"
+    env_file:
+      - .env.grafana
+    environment:
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
 volumes:
   mysql-data:
     name: everytldr-mysql-data
@@ -80,3 +112,7 @@ volumes:
     name: everytldr-caddy-mono-data
   caddy-config:
     name: everytldr-caddy-mono-config
+  prometheus-data:
+    name: everytldr-prometheus-data
+  grafana-data:
+    name: everytldr-grafana-data

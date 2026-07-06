@@ -1,5 +1,6 @@
 package com.everytldr.ingestor.ingestion;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import com.everytldr.common.domain.source.SourceType;
 import com.everytldr.ingestor.source.CollectedArticle;
 import com.everytldr.ingestor.source.SourceClient;
 import com.everytldr.ingestor.source.SourceClientRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -24,9 +26,13 @@ class IngestionServiceTest {
     SourceClientRegistry sourceClientRegistry = mock(SourceClientRegistry.class);
     CollectedArticleSaveService collectedArticleSaveService =
         mock(CollectedArticleSaveService.class);
+    SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
     IngestionService ingestionService =
         new IngestionService(
-            articleSourceRepository, sourceClientRegistry, collectedArticleSaveService);
+            articleSourceRepository,
+            sourceClientRegistry,
+            collectedArticleSaveService,
+            new IngestionMetrics(meterRegistry));
     ArticleSource firstSource =
         ArticleSource.create(
             "Broken Guardian",
@@ -71,5 +77,21 @@ class IngestionServiceTest {
     ingestionService.ingestActiveSources();
 
     verify(collectedArticleSaveService).saveNewArticles(List.of(collectedArticle));
+    assertThat(
+            meterRegistry
+                .get("everytldr.ingestor.sources")
+                .tag("source_type", "rss")
+                .tag("outcome", "failure")
+                .counter()
+                .count())
+        .isEqualTo(1.0);
+    assertThat(
+            meterRegistry
+                .get("everytldr.ingestor.sources")
+                .tag("source_type", "rss")
+                .tag("outcome", "success")
+                .counter()
+                .count())
+        .isEqualTo(1.0);
   }
 }

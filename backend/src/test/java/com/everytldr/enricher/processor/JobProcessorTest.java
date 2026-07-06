@@ -25,6 +25,7 @@ import com.everytldr.enricher.enrichment.EnrichmentClient;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import com.everytldr.enricher.enrichment.EnrichmentRequest;
 import com.everytldr.enricher.enrichment.EnrichmentResult;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,6 +34,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,9 +59,11 @@ class JobProcessorTest {
   @Mock private EnrichmentClient enrichmentClient;
 
   private JobProcessor processor;
+  private SimpleMeterRegistry meterRegistry;
 
   @BeforeEach
   void setUp() {
+    meterRegistry = new SimpleMeterRegistry();
     processor =
         new JobProcessor(
             claimService,
@@ -76,7 +80,8 @@ class JobProcessorTest {
                 RETRY_DELAY,
                 Duration.ofMinutes(15)),
             Clock.fixed(NOW, ZoneOffset.UTC),
-            new LicensePolicyEvaluator());
+            new LicensePolicyEvaluator(),
+            new EnricherMetrics(meterRegistry, jobRepository));
   }
 
   @Test
@@ -96,6 +101,7 @@ class JobProcessorTest {
 
     assertThat(processor.processNextBatch(2))
         .containsExactly(new ProcessingResult(job.getId(), SUCCEEDED));
+    assertThat(jobMetricCount(SUCCEEDED)).isEqualTo(1.0);
   }
 
   @Test
@@ -111,6 +117,7 @@ class JobProcessorTest {
 
     assertThat(processor.processJob(job))
         .isEqualTo(new ProcessingResult(job.getId(), RETRY_SCHEDULED));
+    assertThat(jobMetricCount(RETRY_SCHEDULED)).isEqualTo(1.0);
     verifyNoInteractions(enrichmentClient);
   }
 
@@ -127,6 +134,7 @@ class JobProcessorTest {
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
+    assertThat(jobMetricCount(FAILED)).isEqualTo(1.0);
   }
 
   @Test
@@ -175,6 +183,8 @@ class JobProcessorTest {
         .isEqualTo(new ProcessingResult(pendingJob.getId(), SKIPPED_NOT_PROCESSING));
     assertThat(processor.processJob(missingJob))
         .isEqualTo(new ProcessingResult(missingJob.getId(), SKIPPED_NOT_FOUND));
+    assertThat(jobMetricCount(SKIPPED_NOT_PROCESSING)).isEqualTo(1.0);
+    assertThat(jobMetricCount(SKIPPED_NOT_FOUND)).isEqualTo(1.0);
     verifyNoInteractions(contentResolver, enrichmentClient, completionService);
   }
 
@@ -242,6 +252,14 @@ class JobProcessorTest {
 
   private List<String> categorySlugs() {
     return List.of("media", "politics");
+  }
+
+  private double jobMetricCount(ProcessingResult.Status status) {
+    return meterRegistry
+        .get("everytldr.enricher.jobs")
+        .tag("status", status.name().toLowerCase(Locale.ROOT))
+        .counter()
+        .count();
   }
 
   private byte[] sha256(String value) {

@@ -129,6 +129,23 @@ class ArticleIngestionJobRepositoryTest {
   }
 
   @Test
+  void countsJobsByState() {
+    savePendingJob("https://example.com/count-pending");
+    saveRetryScheduledJob("https://example.com/count-retry", NOW);
+    saveProcessingJob("https://example.com/count-processing");
+    saveSucceededJob("https://example.com/count-succeeded");
+    saveFailedJob("https://example.com/count-failed");
+    flushAndClear();
+
+    assertThat(articleIngestionJobRepository.countByState(IngestionState.PENDING)).isEqualTo(1);
+    assertThat(articleIngestionJobRepository.countByState(IngestionState.RETRY_SCHEDULED))
+        .isEqualTo(1);
+    assertThat(articleIngestionJobRepository.countByState(IngestionState.PROCESSING)).isEqualTo(1);
+    assertThat(articleIngestionJobRepository.countByState(IngestionState.SUCCEEDED)).isEqualTo(1);
+    assertThat(articleIngestionJobRepository.countByState(IngestionState.FAILED)).isEqualTo(1);
+  }
+
+  @Test
   void claimableJobLookupRequiresNow() {
     assertThatNullPointerException()
         .isThrownBy(() -> articleIngestionJobRepository.findClaimableJobsForUpdate(null, 1))
