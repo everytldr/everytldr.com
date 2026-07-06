@@ -4,7 +4,6 @@ import { getPathname, type Locale } from "@/shared/i18n";
 import {
   buildArticleDetailUrl,
   buildNewsArticleJsonLd,
-  buildOgImageUrl,
   cn,
   formatDate,
   markdownToPlainText,
@@ -33,7 +32,6 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
     headline: article.title,
     description: markdownToPlainText(article.summary),
     datePublished: article.publishedAt,
-    image: article.thumbnailUrl ? buildOgImageUrl(article.thumbnailUrl) : undefined,
   });
 
   return (
@@ -103,18 +101,6 @@ function ArticleDetailContent({ className, article, locale }: ArticleDetailConte
         </p>
         <h1 className="text-display-xl text-ink">{article.title}</h1>
       </header>
-
-      {article.thumbnailUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          className="aspect-[16/9] w-full rounded-md bg-surface-soft object-cover"
-          src={article.thumbnailUrl}
-          alt=""
-          decoding="async"
-          fetchPriority="high"
-          aria-hidden="true"
-        />
-      )}
 
       <MarkdownContent markdown={article.summary} />
     </div>
