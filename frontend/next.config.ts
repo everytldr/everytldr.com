@@ -11,6 +11,9 @@ export default withNextIntl({
     "/*": ["./docs/pages/*.md"],
   },
   cacheComponents: true,
+  experimental: {
+    viewTransition: true,
+  },
   turbopack: {
     rules: {
       "*.svg": {
