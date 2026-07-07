@@ -2,6 +2,8 @@ package com.everytldr.ingestor.source.rss;
 
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourceType;
+import com.everytldr.ingestor.ingestion.IngestionExceptions;
+import com.everytldr.ingestor.source.ArticleCollectionTarget;
 import com.everytldr.ingestor.source.CollectedArticle;
 import com.everytldr.ingestor.source.SourceClient;
 import com.rometools.modules.mediarss.MediaEntryModule;
@@ -17,10 +19,10 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import java.io.StringReader;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -50,35 +52,22 @@ public class RssSourceClient implements SourceClient {
   }
 
   @Override
-  public List<CollectedArticle> collect(ArticleSource source) {
-    List<String> feedUrls = source.getPolicy().crawling().feedUrls();
-    List<CollectedArticle> collected = new ArrayList<>();
-    int failedFeeds = 0;
-
-    for (String feedUrl : feedUrls) {
-      try {
-        collected.addAll(fetchFeed(feedUrl, source));
-      } catch (RestClientException | IllegalStateException e) {
-        failedFeeds++;
-        log.warn(
-            "Failed to fetch RSS feed. sourceName={}, feedUrl={}", source.getName(), feedUrl, e);
-      }
+  public List<CollectedArticle> collect(ArticleCollectionTarget target) {
+    Objects.requireNonNull(target, "target must not be null");
+    ArticleSource source = target.source();
+    String feedUrl = target.feedUrl();
+    try {
+      return fetchFeed(feedUrl, source);
+    } catch (RestClientException e) {
+      throw new IngestionExceptions.Retryable(
+          "Failed to fetch RSS feed. sourceName=%s, feedUrl=%s"
+              .formatted(source.getName(), feedUrl),
+          e);
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      throw new IngestionExceptions.Skippable(
+          "Failed to read RSS feed. sourceName=%s, feedUrl=%s".formatted(source.getName(), feedUrl),
+          e);
     }
-
-    log.info(
-        "Fetched RSS feeds for source. sourceName={}, feeds={}, failedFeeds={}, collected={}",
-        source.getName(),
-        feedUrls.size(),
-        failedFeeds,
-        collected.size());
-
-    if (failedFeeds == feedUrls.size()) {
-      throw new IllegalStateException(
-          "All RSS feeds failed. sourceName=%s, feeds=%d"
-              .formatted(source.getName(), feedUrls.size()));
-    }
-
-    return collected;
   }
 
   private List<CollectedArticle> fetchFeed(String feedUrl, ArticleSource source) {

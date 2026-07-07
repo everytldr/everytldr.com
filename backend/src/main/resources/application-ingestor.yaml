@@ -2,6 +2,8 @@ spring:
   batch:
     job:
       enabled: false
+    jdbc:
+      initialize-schema: never
 
 everytldr:
   ingestor:
@@ -11,3 +13,11 @@ everytldr:
       feed:
         connect-timeout: ${INGESTION_FEED_CONNECT_TIMEOUT:5s}
         read-timeout: ${INGESTION_FEED_READ_TIMEOUT:10s}
+    batch:
+      chunk-size: ${INGESTOR_BATCH_CHUNK_SIZE:10}
+      retry:
+        limit: ${INGESTOR_BATCH_RETRY_LIMIT:3}
+        initial-interval: ${INGESTOR_BATCH_RETRY_INITIAL_INTERVAL:1s}
+        multiplier: ${INGESTOR_BATCH_RETRY_MULTIPLIER:2.0}
+        max-interval: ${INGESTOR_BATCH_RETRY_MAX_INTERVAL:10s}
+      skip-limit: ${INGESTOR_BATCH_SKIP_LIMIT:10}

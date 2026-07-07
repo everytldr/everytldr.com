@@ -20,6 +20,9 @@ public record SourcePolicy(CrawlingPolicy crawling) {
       if (feedUrls == null || feedUrls.isEmpty()) {
         throw new IllegalArgumentException("feedUrls must not be empty");
       }
+      if (feedUrls.stream().anyMatch(CrawlingPolicy::isInvalidFeedUrl)) {
+        throw new IllegalArgumentException("feedUrls must contain only absolute HTTP(S) URLs");
+      }
       if (hosts == null || hosts.isEmpty()) {
         throw new IllegalArgumentException("hosts must not be empty");
       }
@@ -65,6 +68,21 @@ public record SourcePolicy(CrawlingPolicy crawling) {
       String scheme = uri.getScheme();
       boolean isHttpUrl = "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
       return isHttpUrl && isAllowedHost(uri.getHost()) && isAllowedPath(uri.getPath());
+    }
+
+    private static boolean isInvalidFeedUrl(String feedUrl) {
+      if (feedUrl == null || feedUrl.isBlank()) {
+        return true;
+      }
+
+      try {
+        URI uri = URI.create(feedUrl);
+        String scheme = uri.getScheme();
+        return uri.getHost() == null
+            || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme));
+      } catch (IllegalArgumentException e) {
+        return true;
+      }
     }
 
     private boolean isAllowedPath(String path) {

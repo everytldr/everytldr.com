@@ -22,7 +22,7 @@ class ArticleSourceRepositoryTest {
 
   @Test
   void findsSeededActiveGlobalVoicesRssSource() {
-    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrue();
+    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrueOrderByIdAsc();
 
     ArticleSource globalVoicesSource =
         activeSources.stream()
@@ -53,7 +53,7 @@ class ArticleSourceRepositoryTest {
 
   @Test
   void findsSeeded360infoRssSource() {
-    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrue();
+    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrueOrderByIdAsc();
 
     ArticleSource threeSixtyInfoSource =
         activeSources.stream()
@@ -84,7 +84,7 @@ class ArticleSourceRepositoryTest {
 
   @Test
   void findsSeededCcByRssSources() {
-    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrue();
+    List<ArticleSource> activeSources = articleSourceRepository.findAllByIsActiveTrueOrderByIdAsc();
 
     ArticleSource universeToday = findSource(activeSources, "Universe Today");
     assertThat(universeToday.getId()).isEqualTo(62693100752990208L);

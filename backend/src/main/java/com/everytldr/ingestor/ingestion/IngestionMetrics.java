@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.time.Duration;
 import java.util.Locale;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +14,14 @@ import org.springframework.stereotype.Component;
 public class IngestionMetrics {
 
   private static final String ARTICLES_METRIC = "everytldr.ingestor.articles";
-  private static final String SOURCES_METRIC = "everytldr.ingestor.sources";
-  private static final String SOURCE_DURATION_METRIC = "everytldr.ingestor.source.duration";
+  private static final String ARTICLE_COLLECTION_JOB_STARTS_METRIC =
+      "everytldr.ingestor.article_collection.job.starts";
+  private static final String ARTICLE_COLLECTION_STEP_COMPLETIONS_METRIC =
+      "everytldr.ingestor.article_collection.step.completions";
+  private static final String ARTICLE_COLLECTION_TARGET_ATTEMPTS_METRIC =
+      "everytldr.ingestor.article_collection.target.attempts";
+  private static final String ARTICLE_COLLECTION_TARGET_ATTEMPT_DURATION_METRIC =
+      "everytldr.ingestor.article_collection.target.attempt.duration";
 
   private final MeterRegistry meterRegistry;
 
@@ -35,13 +42,50 @@ public class IngestionMetrics {
     recordArticleCount("saved", saved);
   }
 
-  public void recordSource(SourceType sourceType, boolean successful, Duration duration) {
-    String sourceTypeTag = sourceType.name().toLowerCase(Locale.ROOT);
-    String outcome = successful ? "success" : "failure";
+  public void recordArticleCollectionJobStart(String outcome) {
+    assertOutcome(outcome);
+    meterRegistry.counter(ARTICLE_COLLECTION_JOB_STARTS_METRIC, "outcome", outcome).increment();
+  }
+
+  public void recordArticleCollectionStepCompletion(String status, String exitCode) {
+    String statusTag = normalizeTagValue(status, "status");
+    String exitCodeTag = normalizeTagValue(exitCode, "exitCode");
     meterRegistry
-        .counter(SOURCES_METRIC, "source_type", sourceTypeTag, "outcome", outcome)
+        .counter(
+            ARTICLE_COLLECTION_STEP_COMPLETIONS_METRIC,
+            "status",
+            statusTag,
+            "exit_code",
+            exitCodeTag)
         .increment();
-    Timer.builder(SOURCE_DURATION_METRIC)
+  }
+
+  public void recordArticleCollectionTargetAttempt(SourceType sourceType, String outcome) {
+    Objects.requireNonNull(sourceType, "sourceType must not be null");
+    assertOutcome(outcome);
+
+    String sourceTypeTag = sourceType.name().toLowerCase(Locale.ROOT);
+    meterRegistry
+        .counter(
+            ARTICLE_COLLECTION_TARGET_ATTEMPTS_METRIC,
+            "source_type",
+            sourceTypeTag,
+            "outcome",
+            outcome)
+        .increment();
+  }
+
+  public void recordArticleCollectionTargetAttemptDuration(
+      SourceType sourceType, String outcome, Duration duration) {
+    Objects.requireNonNull(sourceType, "sourceType must not be null");
+    assertOutcome(outcome);
+    Objects.requireNonNull(duration, "duration must not be null");
+    if (duration.isNegative()) {
+      throw new IllegalArgumentException("duration must not be negative");
+    }
+
+    String sourceTypeTag = sourceType.name().toLowerCase(Locale.ROOT);
+    Timer.builder(ARTICLE_COLLECTION_TARGET_ATTEMPT_DURATION_METRIC)
         .tag("source_type", sourceTypeTag)
         .tag("outcome", outcome)
         .register(meterRegistry)
@@ -52,5 +96,20 @@ public class IngestionMetrics {
     if (count > 0) {
       meterRegistry.counter(ARTICLES_METRIC, "result", result).increment(count);
     }
+  }
+
+  private void assertOutcome(String outcome) {
+    Objects.requireNonNull(outcome, "outcome must not be null");
+    if (outcome.isBlank()) {
+      throw new IllegalArgumentException("outcome must not be blank");
+    }
+  }
+
+  private String normalizeTagValue(String value, String name) {
+    Objects.requireNonNull(value, "%s must not be null".formatted(name));
+    if (value.isBlank()) {
+      throw new IllegalArgumentException("%s must not be blank".formatted(name));
+    }
+    return value.toLowerCase(Locale.ROOT);
   }
 }

@@ -3,7 +3,6 @@ package com.everytldr.ingestor.source;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourceType;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,7 @@ class SourceClientRegistryTest {
       }
 
       @Override
-      public List<CollectedArticle> collect(ArticleSource source) {
+      public List<CollectedArticle> collect(ArticleCollectionTarget target) {
         return List.of();
       }
     };
