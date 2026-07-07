@@ -2,9 +2,8 @@
 
 import type { ArticleListItem } from "@/shared/api";
 import type { MainCategorySlug } from "@/shared/config";
-import { cn, formatDate, markdownToPlainText } from "@/shared/lib";
-import { Badge, Translation } from "@/shared/ui";
-import { useLocale } from "next-intl";
+import { cn, markdownToPlainText, useHydrated } from "@/shared/lib";
+import { Badge, RelativeTime, Skeleton, Translation } from "@/shared/ui";
 
 type ArticleCardProps = {
   className?: string;
@@ -13,7 +12,7 @@ type ArticleCardProps = {
 };
 
 export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
-  const locale = useLocale();
+  const hydrated = useHydrated();
   const summary = markdownToPlainText(article.summary);
   const rootCategory = article.category.split("-")[0] as MainCategorySlug;
 
@@ -33,7 +32,13 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
       <p className="line-clamp-2 text-body-sm text-meta">{summary}</p>
       <p className="text-caption text-meta">
         {article.source} ·{" "}
-        <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
+        <time dateTime={article.publishedAt}>
+          {hydrated ? (
+            <RelativeTime date={article.publishedAt} />
+          ) : (
+            <Skeleton className="inline-block w-12 align-middle">&nbsp;</Skeleton>
+          )}
+        </time>
       </p>
     </article>
   );
