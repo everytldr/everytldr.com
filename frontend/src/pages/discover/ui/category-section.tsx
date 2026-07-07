@@ -1,17 +1,24 @@
 import { ArticleList } from "@/entities/article";
-import type { ArticleListItem } from "@/shared/api";
 import type { MainCategoryNode } from "@/shared/config";
-import { Link } from "@/shared/i18n";
+import { Link, type Locale } from "@/shared/i18n";
 import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Translation } from "@/shared/ui";
+import { connection } from "next/server";
+import { fetchArticles } from "../api/fetch-articles";
+
+export const CATEGORY_SECTION_SIZE = 4;
 
 type CategorySectionProps = {
   className?: string;
   node: MainCategoryNode;
-  articles: ArticleListItem[];
+  locale: Locale;
 };
 
-export function CategorySection({ className, node, articles }: CategorySectionProps) {
+export async function CategorySection({ className, node, locale }: CategorySectionProps) {
+  await connection();
+
+  const articles = await fetchArticles(node.slug, locale, CATEGORY_SECTION_SIZE);
+
   return (
     <section
       className={cn(

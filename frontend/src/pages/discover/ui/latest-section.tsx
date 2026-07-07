@@ -1,15 +1,22 @@
 import { ArticleList } from "@/entities/article";
-import type { ArticleListItem } from "@/shared/api";
-import { Link } from "@/shared/i18n";
+import { Link, type Locale } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
 import { Translation } from "@/shared/ui";
+import { connection } from "next/server";
+import { fetchArticles } from "../api/fetch-articles";
+
+export const LATEST_SECTION_SIZE = 10;
 
 type LatestSectionProps = {
   className?: string;
-  articles: ArticleListItem[];
+  locale: Locale;
 };
 
-export function LatestSection({ className, articles }: LatestSectionProps) {
+export async function LatestSection({ className, locale }: LatestSectionProps) {
+  await connection();
+
+  const articles = await fetchArticles(undefined, locale, LATEST_SECTION_SIZE);
+
   return (
     <section
       className={cn(
