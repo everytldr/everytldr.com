@@ -7,7 +7,7 @@ import {
   type listArticlesResponse,
 } from "@/shared/api";
 import type { Locale } from "@/shared/i18n";
-import { cn } from "@/shared/lib";
+import { cn, type Optional } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { HydrationBoundary, dehydrate, type InfiniteData } from "@tanstack/react-query";
 import { cacheLife, cacheTag } from "next/cache";
@@ -15,7 +15,7 @@ import { Suspense } from "react";
 
 type CategoryPageProps = {
   className?: string;
-  categoryPrefix: string;
+  categoryPrefix?: string;
   locale: Locale;
 };
 
@@ -58,11 +58,11 @@ export async function CategoryPage({ className, categoryPrefix, locale }: Catego
   );
 }
 
-async function prefetchArticles(categoryPrefix: string, locale: Locale) {
+async function prefetchArticles(categoryPrefix: Optional<string>, locale: Locale) {
   "use cache";
 
   cacheLife("minutes");
-  cacheTag(`articles:${locale}:${categoryPrefix}`);
+  cacheTag(`articles:${locale}:${categoryPrefix ?? "latest"}`);
 
   const queryClient = getQueryClient();
   const queryOptions = getListArticlesSuspenseInfiniteQueryOptions(

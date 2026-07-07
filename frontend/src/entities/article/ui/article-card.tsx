@@ -1,7 +1,7 @@
 "use client";
 
 import type { ArticleListItem } from "@/shared/api";
-import type { MainCategorySlug } from "@/shared/config";
+import type { LeafCategorySlug } from "@/shared/config";
 import { cn, formatDate, markdownToPlainText, useHydrated } from "@/shared/lib";
 import { Badge, RelativeTime, Translation } from "@/shared/ui";
 import { useLocale } from "next-intl";
@@ -16,7 +16,7 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
   const locale = useLocale();
   const hydrated = useHydrated();
   const summary = markdownToPlainText(article.summary);
-  const rootCategory = article.category.split("-")[0] as MainCategorySlug;
+  const category = article.category.replace(/^([^-]+-[^-]+)-.*/, "$1") as LeafCategorySlug;
 
   return (
     <article
@@ -26,7 +26,7 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
       )}
     >
       <Badge>
-        <Translation tKey={`header.category.${rootCategory}`} />
+        <Translation tKey={`header.subcategory.${category}`} />
       </Badge>
       <h3 className={cn("line-clamp-1 min-w-0 text-display-sm text-ink", titleClassName)}>
         {article.title}

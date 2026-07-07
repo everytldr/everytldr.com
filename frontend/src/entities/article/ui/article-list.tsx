@@ -6,17 +6,24 @@ import { ArticleCard } from "./article-card";
 
 type ArticleListProps = PropsWithChildren<{
   className?: string;
+  listClassName?: string;
   articles: ArticleListItem[];
   empty: ReactNode;
 }>;
 
-export function ArticleList({ className, articles, empty, children }: ArticleListProps) {
+export function ArticleList({
+  className,
+  listClassName,
+  articles,
+  empty,
+  children,
+}: ArticleListProps) {
   return (
     <div className={className}>
       {articles.length === 0 ? (
         empty
       ) : (
-        <ul>
+        <ul className={listClassName}>
           {articles.map((article) => (
             <li key={article.id}>
               <Link

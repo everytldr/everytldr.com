@@ -54,6 +54,14 @@ export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps
     return () => window.removeEventListener("scroll", onScroll);
   }, [setVisible]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--floating-subnav-height", visible ? "3.5rem" : "0rem");
+    return () => {
+      root.style.removeProperty("--floating-subnav-height");
+    };
+  }, [visible]);
+
   const category = findRootCategory(categoryGraph, categorySlug);
 
   return (
@@ -65,7 +73,7 @@ export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps
       )}
       aria-hidden={!visible}
     >
-      <Container className="flex h-14 items-stretch overflow-x-scroll pc:h-16 sm:justify-center">
+      <Container className="flex h-14 items-stretch overflow-x-scroll sm:justify-center">
         <nav className="flex" aria-label={t("header.aria-label.subcategories")}>
           <ul className="flex items-stretch gap-xl">
             {category.children &&

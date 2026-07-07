@@ -1,4 +1,5 @@
 import { CategoryPage } from "@/pages/category";
+import { DiscoverPage } from "@/pages/discover";
 import { HomePage } from "@/pages/home";
 import { SportPage } from "@/pages/sport";
 import {
@@ -68,6 +69,14 @@ export default async function Page({ params }: PageProps) {
   const isSportTab = slug === "epl" || slug === "nba" || slug === "sport-events";
   if (isSportTab) {
     return <SportPage slug={slug} locale={locale} />;
+  }
+
+  if (slug === "discover") {
+    return <DiscoverPage locale={locale} />;
+  }
+
+  if (slug === "latest") {
+    return <CategoryPage locale={locale} />;
   }
 
   const isHomeTab = HOME_CATEGORY_NODE.children?.some((child) => child.slug === slug);

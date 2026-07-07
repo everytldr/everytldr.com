@@ -19,7 +19,7 @@ export const CATEGORY_GRAPH = [
     slug: "home",
     forceHidden: true,
     redirectPath: "/",
-    children: [{ slug: "discover" }, { slug: "trending" }, { slug: "latest" }],
+    children: [{ slug: "discover" }, { slug: "trending", forceHidden: true }, { slug: "latest" }],
   },
   {
     slug: "politics",
@@ -108,6 +108,7 @@ export type CategoryGraph = typeof CATEGORY_GRAPH;
 
 export const CATEGORY_NODES = CATEGORY_GRAPH.flatMap((node) => [node, ...(node.children ?? [])]);
 export const ROUTABLE_CATEGORY_NODES = CATEGORY_NODES.filter(isRoutable);
+export const ROUTABLE_MAIN_CATEGORY_NODES = CATEGORY_GRAPH.filter(isRoutable);
 export const LEAF_CATEGORY_SLUGS = CATEGORY_GRAPH.flatMap(
   (node) => node.children?.map((node) => node.slug) ?? [],
 );
@@ -121,6 +122,7 @@ export const DEFAULT_CATEGORY_NODE = ensure(
   CATEGORY_NODES.find((node) => node.slug === "discover"),
 );
 
+export type MainCategoryNode = (typeof ROUTABLE_MAIN_CATEGORY_NODES)[number];
 export type MainCategorySlug = (typeof CATEGORY_GRAPH)[number]["slug"];
 export type LeafCategorySlug = (typeof LEAF_CATEGORY_SLUGS)[number];
 export type CategorySlug = MainCategorySlug | LeafCategorySlug;

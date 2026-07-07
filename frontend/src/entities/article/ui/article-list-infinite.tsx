@@ -17,7 +17,7 @@ import { ArticleList } from "./article-list";
 
 type ArticleListInfiniteProps = {
   className?: string;
-  categoryPrefix: string;
+  categoryPrefix?: string;
   empty: ReactNode;
   locale: Locale;
 };

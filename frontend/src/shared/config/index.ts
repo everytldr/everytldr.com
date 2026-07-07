@@ -7,6 +7,7 @@ export {
   HOME_CATEGORY_NODE,
   LEAF_CATEGORY_SLUGS,
   ROUTABLE_CATEGORY_NODES,
+  ROUTABLE_MAIN_CATEGORY_NODES,
   STATIC_CATEGORY_SLUGS,
   findRootCategory,
   isFeedableCategory,
@@ -15,6 +16,7 @@ export {
   resolveCategoryFeedPrefix,
   type CategorySlug,
   type LeafCategorySlug,
+  type MainCategoryNode,
   type MainCategorySlug,
 } from "./category";
 export type { CategoryGraph, CategoryNode } from "./category";

@@ -1,4 +1,4 @@
-import { HomePage } from "@/pages/home";
+import { DiscoverPage } from "@/pages/discover";
 import { type Locale, locales } from "@/shared/i18n";
 import { buildPageMetadata, buildSiteJsonLd, serializeJsonLd } from "@/shared/lib";
 import type { Metadata } from "next";
@@ -33,7 +33,7 @@ export default async function Page({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildSiteJsonLd(locale)) }}
       />
-      <HomePage />
+      <DiscoverPage locale={locale} />
     </>
   );
 }
