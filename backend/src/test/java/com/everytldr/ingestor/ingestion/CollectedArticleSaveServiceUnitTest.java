@@ -1,7 +1,6 @@
 package com.everytldr.ingestor.ingestion;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,30 +46,16 @@ class CollectedArticleSaveServiceUnitTest {
         .when(collectedArticleCandidateSaveService)
         .saveNewArticleCandidate(eq(conflictingArticle), any(byte[].class));
 
-    assertThatCode(
-            () ->
-                collectedArticleSaveService.saveNewArticles(
-                    List.of(conflictingArticle, newArticle)))
-        .doesNotThrowAnyException();
+    collectedArticleSaveService.saveNewArticles(List.of(conflictingArticle, newArticle));
 
     verify(collectedArticleCandidateSaveService)
         .saveNewArticleCandidate(eq(conflictingArticle), any(byte[].class));
     verify(collectedArticleCandidateSaveService)
         .saveNewArticleCandidate(eq(newArticle), any(byte[].class));
-    assertThat(
-            meterRegistry
-                .get("everytldr.ingestor.articles")
-                .tag("result", "concurrency_duplicate_skipped")
-                .counter()
-                .count())
-        .isEqualTo(1.0);
-    assertThat(
-            meterRegistry
-                .get("everytldr.ingestor.articles")
-                .tag("result", "saved")
-                .counter()
-                .count())
-        .isEqualTo(1.0);
+    assertThat(articleMetricCount(meterRegistry, "received")).isEqualTo(2.0);
+    assertThat(articleMetricCount(meterRegistry, "valid")).isEqualTo(2.0);
+    assertThat(articleMetricCount(meterRegistry, "concurrency_duplicate_skipped")).isEqualTo(1.0);
+    assertThat(articleMetricCount(meterRegistry, "saved")).isEqualTo(1.0);
   }
 
   @Test
@@ -98,34 +83,16 @@ class CollectedArticleSaveServiceUnitTest {
             collectedArticle(newUrl),
             collectedArticle("")));
 
-    assertThat(
-            meterRegistry
-                .get("everytldr.ingestor.articles")
-                .tag("result", "invalid_skipped")
-                .counter()
-                .count())
-        .isEqualTo(1.0);
-    assertThat(
-            meterRegistry
-                .get("everytldr.ingestor.articles")
-                .tag("result", "duplicate_in_batch_skipped")
-                .counter()
-                .count())
-        .isEqualTo(1.0);
-    assertThat(
-            meterRegistry
-                .get("everytldr.ingestor.articles")
-                .tag("result", "existing_duplicate_skipped")
-                .counter()
-                .count())
-        .isEqualTo(1.0);
-    assertThat(
-            meterRegistry
-                .get("everytldr.ingestor.articles")
-                .tag("result", "saved")
-                .counter()
-                .count())
-        .isEqualTo(1.0);
+    assertThat(articleMetricCount(meterRegistry, "received")).isEqualTo(4.0);
+    assertThat(articleMetricCount(meterRegistry, "valid")).isEqualTo(2.0);
+    assertThat(articleMetricCount(meterRegistry, "invalid_skipped")).isEqualTo(1.0);
+    assertThat(articleMetricCount(meterRegistry, "duplicate_in_batch_skipped")).isEqualTo(1.0);
+    assertThat(articleMetricCount(meterRegistry, "existing_duplicate_skipped")).isEqualTo(1.0);
+    assertThat(articleMetricCount(meterRegistry, "saved")).isEqualTo(1.0);
+  }
+
+  private double articleMetricCount(SimpleMeterRegistry meterRegistry, String result) {
+    return meterRegistry.get("everytldr.ingestor.articles").tag("result", result).counter().count();
   }
 
   private CollectedArticle collectedArticle(String sourceUrl) {

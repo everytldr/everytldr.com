@@ -1,10 +1,9 @@
 "use client";
 
 import type { ArticleListItem } from "@/shared/api";
-import type { MainCategorySlug } from "@/shared/config";
-import { cn, formatDate, markdownToPlainText, useHydrated } from "@/shared/lib";
-import { Badge, RelativeTime, Translation } from "@/shared/ui";
-import { useLocale } from "next-intl";
+import type { LeafCategorySlug } from "@/shared/config";
+import { cn, markdownToPlainText, useHydrated } from "@/shared/lib";
+import { Badge, RelativeTime, Skeleton, Translation } from "@/shared/ui";
 
 type ArticleCardProps = {
   className?: string;
@@ -13,10 +12,9 @@ type ArticleCardProps = {
 };
 
 export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
-  const locale = useLocale();
   const hydrated = useHydrated();
   const summary = markdownToPlainText(article.summary);
-  const rootCategory = article.category.split("-")[0] as MainCategorySlug;
+  const category = article.category.replace(/^([^-]+-[^-]+)-.*/, "$1") as LeafCategorySlug;
 
   return (
     <article
@@ -26,7 +24,7 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
       )}
     >
       <Badge>
-        <Translation tKey={`header.category.${rootCategory}`} />
+        <Translation tKey={`header.subcategory.${category}`} />
       </Badge>
       <h3 className={cn("line-clamp-1 min-w-0 text-display-sm text-ink", titleClassName)}>
         {article.title}
@@ -38,7 +36,7 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
           {hydrated ? (
             <RelativeTime date={article.publishedAt} />
           ) : (
-            formatDate(article.publishedAt, locale)
+            <Skeleton className="inline-block w-12 align-middle">&nbsp;</Skeleton>
           )}
         </time>
       </p>

@@ -1,9 +1,11 @@
 package com.everytldr.common.domain.source;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -55,12 +57,52 @@ class SourcePolicyTest {
     assertThat(policy.isAllowedContentUrl("/global/news/story")).isFalse();
   }
 
+  @Test
+  void acceptsHttpAndHttpsFeedUrls() {
+    CrawlingPolicy policy =
+        policyWithFeedUrls(
+            List.of("https://news.example.com/feed.xml", "http://feeds.news.example.com/rss.xml"));
+
+    assertThat(policy.feedUrls())
+        .containsExactly(
+            "https://news.example.com/feed.xml", "http://feeds.news.example.com/rss.xml");
+  }
+
+  @Test
+  void rejectsInvalidFeedUrls() {
+    assertThatThrownBy(() -> policyWithFeedUrls(null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("feedUrls");
+    assertThatThrownBy(() -> policyWithFeedUrls(List.of()))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("feedUrls");
+    assertThatThrownBy(() -> policyWithFeedUrls(Collections.singletonList(null)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("feedUrls");
+
+    for (String feedUrl :
+        List.of(
+            " ",
+            "/relative-feed.xml",
+            "ftp://news.example.com/feed.xml",
+            "https:///feed.xml",
+            "https:/news.example.com/feed.xml",
+            "not a url")) {
+      assertThatThrownBy(() -> policyWithFeedUrls(List.of(feedUrl)))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("feedUrls");
+    }
+  }
+
   private CrawlingPolicy policy(String host) {
-    return new CrawlingPolicy(
-        List.of("https://news.example.com/feed.xml"),
-        List.of(host),
-        List.of("article"),
-        List.of(),
-        List.of());
+    return policyWithFeedUrlsAndHost(List.of("https://news.example.com/feed.xml"), host);
+  }
+
+  private CrawlingPolicy policyWithFeedUrls(List<String> feedUrls) {
+    return policyWithFeedUrlsAndHost(feedUrls, "news.example.com");
+  }
+
+  private CrawlingPolicy policyWithFeedUrlsAndHost(List<String> feedUrls, String host) {
+    return new CrawlingPolicy(feedUrls, List.of(host), List.of("article"), List.of(), List.of());
   }
 }
