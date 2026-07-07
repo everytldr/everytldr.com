@@ -11,7 +11,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Script from "next/script";
-import { type PropsWithChildren } from "react";
+import { type PropsWithChildren, ViewTransition } from "react";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -63,7 +63,9 @@ export default async function RootLayout({ params, children }: RootLayoutProps) 
       <body className="flex min-h-dvh flex-col">
         <GlobalProvider>
           <Header locale={locale} />
-          <div className="flex-1">{children}</div>
+          <ViewTransition default="page">
+            <div className="flex-1">{children}</div>
+          </ViewTransition>
           <Footer />
         </GlobalProvider>
         <Script

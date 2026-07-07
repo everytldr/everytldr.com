@@ -15,6 +15,40 @@
   }
 }
 
+::view-transition-old(.page) {
+  animation: 150ms ease-in both page-fade-out;
+}
+
+::view-transition-new(.page) {
+  animation: 200ms ease-out 120ms both page-fade-in;
+}
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-delay: 0s !important;
+    animation-duration: 0s !important;
+  }
+}
+
 @utility scrollbar-hidden {
   -ms-overflow-style: none;
   scrollbar-width: none;

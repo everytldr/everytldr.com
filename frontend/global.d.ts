@@ -1,3 +1,5 @@
+/// <reference types="react/canary" />
+
 import type messages from "./messages/en.json";
 
 declare module "next-intl" {
