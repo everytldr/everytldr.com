@@ -39,8 +39,8 @@ comment-nickname:
   ko: "닉네임"
 
 comment-password:
-  en: "Password"
-  ko: "비밀번호"
+  en: "Enter a password (4+ characters)"
+  ko: "비밀번호 4자 이상 입력해 주세요"
 
 comment-submit:
   en: "Comment"

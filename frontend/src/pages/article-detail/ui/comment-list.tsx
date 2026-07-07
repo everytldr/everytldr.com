@@ -23,9 +23,9 @@ export function CommentList({ className, articleId, comments, locale }: CommentL
     <div className={cn("space-y-2xl", className)}>
       <CommentComposer articleId={articleId} />
 
-      <div className="space-y-md">
+      <div className="space-y-xs">
         <Translation
-          className="text-caption text-meta"
+          className="inline-block text-caption text-meta"
           tKey="article-detail.comment-count"
           values={{ count: comments.length }}
         />
