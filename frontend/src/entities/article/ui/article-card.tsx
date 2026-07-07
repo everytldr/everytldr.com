@@ -17,12 +17,7 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
   const category = article.category.replace(/^([^-]+-[^-]+)-.*/, "$1") as LeafCategorySlug;
 
   return (
-    <article
-      className={cn(
-        "flex min-w-0 flex-col gap-2xs border-b border-hairline-soft py-md last:border-b-0",
-        className,
-      )}
-    >
+    <article className={cn("flex min-w-0 flex-col gap-2xs py-md", className)}>
       <Badge>
         <Translation tKey={`header.subcategory.${category}`} />
       </Badge>
