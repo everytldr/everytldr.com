@@ -72,9 +72,8 @@ export function CommentComposer({
       />
 
       <div className="border-t border-hairline-soft bg-canvas p-sm dark:bg-surface-soft">
-        <div className="grid gap-sm pc:grid-cols-[minmax(0,12rem)_minmax(0,12rem)_1fr]">
+        <div className="grid gap-sm pc:grid-cols-[minmax(0,12rem)_minmax(0,18rem)_1fr]">
           <Input
-            className="min-w-0"
             name="nickname"
             value={nickname}
             maxLength={MAX_NICKNAME_LENGTH}
@@ -83,7 +82,6 @@ export function CommentComposer({
             onChange={(event) => setNickname(event.target.value)}
           />
           <Input
-            className="min-w-0"
             name="password"
             type="password"
             value={password}
@@ -93,12 +91,14 @@ export function CommentComposer({
             onChange={(event) => setPassword(event.target.value)}
           />
           <div className="flex flex-wrap items-center justify-between gap-sm">
-            <Translation
-              className="shrink-0 text-caption-mono text-meta"
-              as="p"
-              tKey="article-detail.comment-char-count"
-              values={{ count: content.length }}
-            />
+            {!!content.length && (
+              <Translation
+                className="h-full shrink-0 text-caption-mono text-meta"
+                as="p"
+                tKey="article-detail.comment-char-count"
+                values={{ count: content.length }}
+              />
+            )}
             <div className="ml-auto flex items-center gap-sm">
               {onCancel && (
                 <Button variant="ghost" type="button" onClick={onCancel}>

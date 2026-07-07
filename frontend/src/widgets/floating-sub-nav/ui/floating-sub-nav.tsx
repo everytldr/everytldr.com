@@ -12,6 +12,7 @@ import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
+import { Presence as PresencePrimitive } from "radix-ui/internal";
 import { useEffect } from "react";
 import { useRafState } from "react-use";
 
@@ -65,49 +66,53 @@ export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps
   const category = findRootCategory(categoryGraph, categorySlug);
 
   return (
-    <div
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b border-hairline bg-canvas transition-transform duration-200 ease-out will-change-transform",
-        visible ? "translate-y-0" : "pointer-events-none -translate-y-full",
-        className,
-      )}
-      aria-hidden={!visible}
-    >
-      <Container className="flex h-14 items-stretch overflow-x-scroll sm:justify-center">
-        <nav className="flex" aria-label={t("header.aria-label.subcategories")}>
-          <ul className="flex items-stretch gap-xl">
-            {category.children &&
-              category.children
-                .filter((node) => !isHiddenNode(node))
-                .map((child) => {
-                  const isActive = child.slug === categorySlug;
-                  return (
-                    <li key={child.slug} className="flex">
-                      <Link
-                        className={cn(
-                          "inline-flex items-stretch text-nav-sm whitespace-nowrap transition-colors outline-none",
-                          "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                          isActive ? "text-ink" : "text-meta hover:text-ink",
-                        )}
-                        href={buildCategoryUrl(child)}
-                        prefetch={false}
-                        tabIndex={visible ? 0 : -1}
-                        aria-current={isActive ? "page" : undefined}
-                      >
-                        <Translation
+    <PresencePrimitive.Presence present={visible}>
+      <div
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 border-b border-hairline bg-canvas duration-200 ease-out will-change-transform",
+          "data-[state=open]:animate-in data-[state=open]:slide-in-from-top",
+          "data-[state=closed]:pointer-events-none data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top",
+          className,
+        )}
+        data-state={visible ? "open" : "closed"}
+        aria-hidden={!visible}
+      >
+        <Container className="flex h-14 items-stretch overflow-x-scroll sm:justify-center">
+          <nav className="flex" aria-label={t("header.aria-label.subcategories")}>
+            <ul className="flex items-stretch gap-xl">
+              {category.children &&
+                category.children
+                  .filter((node) => !isHiddenNode(node))
+                  .map((child) => {
+                    const isActive = child.slug === categorySlug;
+                    return (
+                      <li key={child.slug} className="flex">
+                        <Link
                           className={cn(
-                            "flex items-center border-b-2 transition-colors",
-                            isActive ? "border-ink" : "border-transparent",
+                            "inline-flex items-stretch text-nav-sm whitespace-nowrap transition-colors outline-none",
+                            "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+                            isActive ? "text-ink" : "text-meta hover:text-ink",
                           )}
-                          tKey={`header.subcategory.${child.slug}`}
-                        />
-                      </Link>
-                    </li>
-                  );
-                })}
-          </ul>
-        </nav>
-      </Container>
-    </div>
+                          href={buildCategoryUrl(child)}
+                          prefetch={false}
+                          tabIndex={visible ? 0 : -1}
+                          aria-current={isActive ? "page" : undefined}
+                        >
+                          <Translation
+                            className={cn(
+                              "flex items-center border-b-2 transition-colors",
+                              isActive ? "border-ink" : "border-transparent",
+                            )}
+                            tKey={`header.subcategory.${child.slug}`}
+                          />
+                        </Link>
+                      </li>
+                    );
+                  })}
+            </ul>
+          </nav>
+        </Container>
+      </div>
+    </PresencePrimitive.Presence>
   );
 }
