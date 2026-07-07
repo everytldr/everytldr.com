@@ -7,12 +7,7 @@ type ArticleCardSkeletonProps = {
 
 export function ArticleCardSkeleton({ className }: ArticleCardSkeletonProps) {
   return (
-    <div
-      className={cn(
-        "flex min-w-0 flex-col gap-2xs border-b border-hairline-soft py-md last:border-b-0",
-        className,
-      )}
-    >
+    <div className={cn("flex min-w-0 flex-col gap-2xs py-md", className)}>
       <Skeleton className="w-16 text-micro">&nbsp;</Skeleton>
       <Skeleton className="w-full text-display-sm">&nbsp;</Skeleton>
       <div className="flex flex-col">

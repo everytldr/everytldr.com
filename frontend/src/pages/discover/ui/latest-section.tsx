@@ -1,15 +1,23 @@
-import { ArticleList } from "@/entities/article";
-import type { ArticleListItem } from "@/shared/api";
-import { Link } from "@/shared/i18n";
+import { ArticleCardSkeleton, ArticleList } from "@/entities/article";
+import { Link, type Locale } from "@/shared/i18n";
 import { cn } from "@/shared/lib";
-import { Translation } from "@/shared/ui";
+import { Skeleton, Translation } from "@/shared/ui";
+import { range } from "lodash-es";
+import { connection } from "next/server";
+import { fetchArticles } from "../api/fetch-articles";
+
+export const LATEST_SECTION_SIZE = 6;
 
 type LatestSectionProps = {
   className?: string;
-  articles: ArticleListItem[];
+  locale: Locale;
 };
 
-export function LatestSection({ className, articles }: LatestSectionProps) {
+export async function LatestSection({ className, locale }: LatestSectionProps) {
+  await connection();
+
+  const articles = await fetchArticles(undefined, locale, LATEST_SECTION_SIZE);
+
   return (
     <section
       className={cn(
@@ -32,6 +40,34 @@ export function LatestSection({ className, articles }: LatestSectionProps) {
         </Link>
       </div>
       <ArticleList articles={articles} empty={null} />
+    </section>
+  );
+}
+
+type LatestSectionSkeletonProps = {
+  className?: string;
+  count: number;
+};
+
+export function LatestSectionSkeleton({ className, count }: LatestSectionSkeletonProps) {
+  return (
+    <section
+      className={cn(
+        "rounded-md border border-hairline bg-canvas p-lg dark:bg-surface-soft",
+        className,
+      )}
+    >
+      <div className="mb-sm flex items-center justify-between gap-sm">
+        <Skeleton className="w-24 text-display-md">&nbsp;</Skeleton>
+        <Skeleton className="w-16 text-button-sm">&nbsp;</Skeleton>
+      </div>
+      <ul>
+        {range(count).map((i) => (
+          <li key={i}>
+            <ArticleCardSkeleton />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
