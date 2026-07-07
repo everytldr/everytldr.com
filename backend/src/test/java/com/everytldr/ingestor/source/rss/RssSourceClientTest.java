@@ -8,6 +8,8 @@ import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
 import com.everytldr.common.domain.source.SourceType;
+import com.everytldr.ingestor.ingestion.IngestionExceptions;
+import com.everytldr.ingestor.source.ArticleCollectionTarget;
 import com.everytldr.ingestor.source.CollectedArticle;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -47,10 +49,11 @@ class RssSourceClientTest {
   }
 
   @Test
-  void collectsValidFeedEntries() {
+  void collectsValidSingleFeedTarget() {
     route("/rss.xml", 200, feedWithOneArticle());
+    ArticleSource source = source("/rss.xml");
 
-    List<CollectedArticle> articles = newClient().collect(source("/rss.xml"));
+    List<CollectedArticle> articles = newClient().collect(firstTarget(source));
 
     assertThat(articles)
         .containsExactly(
@@ -64,10 +67,41 @@ class RssSourceClientTest {
   }
 
   @Test
+  void throwsRetryableWhenSingleFeedHttpRequestFails() {
+    route("/broken.xml", 500, "boom");
+    ArticleSource source = source("/broken.xml");
+
+    assertThatThrownBy(() -> newClient().collect(firstTarget(source)))
+        .isInstanceOf(IngestionExceptions.Retryable.class)
+        .hasMessageContaining("Failed to fetch RSS feed");
+  }
+
+  @Test
+  void throwsSkippableWhenSingleFeedXmlIsInvalid() {
+    route("/broken.xml", 200, "<rss><channel>");
+    ArticleSource source = source("/broken.xml");
+
+    assertThatThrownBy(() -> newClient().collect(firstTarget(source)))
+        .isInstanceOf(IngestionExceptions.Skippable.class)
+        .hasMessageContaining("Failed to read RSS feed");
+  }
+
+  @Test
+  void throwsSkippableWhenSingleFeedBodyIsEmpty() {
+    route("/empty.xml", 200, " ");
+    ArticleSource source = source("/empty.xml");
+
+    assertThatThrownBy(() -> newClient().collect(firstTarget(source)))
+        .isInstanceOf(IngestionExceptions.Skippable.class)
+        .hasMessageContaining("Failed to read RSS feed");
+  }
+
+  @Test
   void resolvesThumbnailFromFeedMedia() {
     route("/rss.xml", 200, feedWithMedia());
+    ArticleSource source = source("/rss.xml");
 
-    List<CollectedArticle> articles = newClient().collect(source("/rss.xml"));
+    List<CollectedArticle> articles = newClient().collect(firstTarget(source));
 
     assertThat(articles)
         .extracting(CollectedArticle::thumbnailUrl)
@@ -78,15 +112,17 @@ class RssSourceClientTest {
   @Test
   void skipsEntriesMissingRequiredFields() {
     route("/rss.xml", 200, feedWithInvalidEntries());
+    ArticleSource source = source("/rss.xml");
 
-    assertThat(newClient().collect(source("/rss.xml"))).isEmpty();
+    assertThat(newClient().collect(firstTarget(source))).isEmpty();
   }
 
   @Test
   void skipsEntriesOutsideAllowedContentHosts() {
     route("/rss.xml", 200, feedWithMixedAllowedAndBlockedLinks());
+    ArticleSource source = source("/rss.xml");
 
-    List<CollectedArticle> articles = newClient().collect(source("/rss.xml"));
+    List<CollectedArticle> articles = newClient().collect(firstTarget(source));
 
     assertThat(articles)
         .extracting(CollectedArticle::contentUrl)
@@ -100,61 +136,15 @@ class RssSourceClientTest {
     List<CollectedArticle> articles =
         newClient()
             .collect(
-                sourceWithAllowedPathPrefixes(
-                    List.of("/global/news/", "/global/features/"), "/rss.xml"));
+                firstTarget(
+                    sourceWithAllowedPathPrefixes(
+                        List.of("/global/news/", "/global/features/"), "/rss.xml")));
 
     assertThat(articles)
         .extracting(CollectedArticle::contentUrl)
         .containsExactly(
             "https://news.example.com/global/news/allowed",
             "https://news.example.com/global/features/allowed");
-  }
-
-  @Test
-  void throwsWhenEveryConfiguredFeedFails() {
-    route("/broken.xml", 500, "boom");
-    route("/also-broken.xml", 500, "boom");
-
-    assertThatThrownBy(() -> newClient().collect(source("/broken.xml", "/also-broken.xml")))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("All RSS feeds failed");
-  }
-
-  @Test
-  void collectsFromEveryConfiguredFeed() {
-    route("/sport.xml", 200, feedWithArticle("https://news.example.com/sport"));
-    route("/food.xml", 200, feedWithArticle("https://news.example.com/food"));
-
-    List<CollectedArticle> articles = newClient().collect(source("/sport.xml", "/food.xml"));
-
-    assertThat(articles)
-        .extracting(CollectedArticle::contentUrl)
-        .containsExactlyInAnyOrder(
-            "https://news.example.com/sport", "https://news.example.com/food");
-  }
-
-  @Test
-  void continuesCollectingWhenOneFeedFails() {
-    route("/broken.xml", 500, "boom");
-    route("/good.xml", 200, feedWithArticle("https://news.example.com/good"));
-
-    List<CollectedArticle> articles = newClient().collect(source("/broken.xml", "/good.xml"));
-
-    assertThat(articles)
-        .extracting(CollectedArticle::contentUrl)
-        .containsExactly("https://news.example.com/good");
-  }
-
-  @Test
-  void skipsFeedWithInvalidXml() {
-    route("/broken.xml", 200, "<rss><channel>");
-    route("/good.xml", 200, feedWithArticle("https://news.example.com/good"));
-
-    List<CollectedArticle> articles = newClient().collect(source("/broken.xml", "/good.xml"));
-
-    assertThat(articles)
-        .extracting(CollectedArticle::contentUrl)
-        .containsExactly("https://news.example.com/good");
   }
 
   private RssSourceClient newClient() {
@@ -164,6 +154,10 @@ class RssSourceClientTest {
 
   private ArticleSource source(String... paths) {
     return sourceWithAllowedPathPrefixes(List.of(), paths);
+  }
+
+  private ArticleCollectionTarget firstTarget(ArticleSource source) {
+    return new ArticleCollectionTarget(source, source.getPolicy().crawling().feedUrls().getFirst());
   }
 
   private ArticleSource sourceWithAllowedPathPrefixes(
