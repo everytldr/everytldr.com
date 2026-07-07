@@ -63,7 +63,7 @@ export default async function RootLayout({ params, children }: RootLayoutProps) 
       <body className="flex min-h-dvh flex-col">
         <GlobalProvider>
           <Header locale={locale} />
-          <ViewTransition default="page">
+          <ViewTransition>
             <div className="flex-1">{children}</div>
           </ViewTransition>
           <Footer />
