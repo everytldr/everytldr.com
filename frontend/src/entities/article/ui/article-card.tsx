@@ -3,7 +3,7 @@
 import type { ArticleListItem } from "@/shared/api";
 import type { MainCategorySlug } from "@/shared/config";
 import { cn, markdownToPlainText, useHydrated } from "@/shared/lib";
-import { Badge, RelativeTime, Translation } from "@/shared/ui";
+import { Badge, RelativeTime, Skeleton, Translation } from "@/shared/ui";
 
 type ArticleCardProps = {
   className?: string;
@@ -36,9 +36,7 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
           {hydrated ? (
             <RelativeTime date={article.publishedAt} />
           ) : (
-            <span className="inline-block w-12 animate-pulse rounded-xs bg-surface-strong align-middle">
-              &nbsp;
-            </span>
+            <Skeleton className="inline-block w-12 align-middle">&nbsp;</Skeleton>
           )}
         </time>
       </p>
