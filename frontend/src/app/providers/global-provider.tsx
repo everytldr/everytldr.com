@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { type PropsWithChildren } from "react";
 import { SyncedStorageProvider } from "synced-storage/react";
 import { MSWProvider } from "./msw-provider";
+import { ProgressBarProvider } from "./progress-bar-provider";
 import { QueryProvider } from "./query-provider";
 
 export function GlobalProvider({ children }: PropsWithChildren) {
@@ -11,7 +12,9 @@ export function GlobalProvider({ children }: PropsWithChildren) {
       <ThemeProvider>
         <NextIntlClientProvider>
           <MSWProvider>
-            <QueryProvider>{children}</QueryProvider>
+            <QueryProvider>
+              <ProgressBarProvider>{children}</ProgressBarProvider>
+            </QueryProvider>
           </MSWProvider>
         </NextIntlClientProvider>
       </ThemeProvider>
