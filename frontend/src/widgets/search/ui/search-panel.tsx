@@ -2,7 +2,7 @@
 
 import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { cn } from "@/shared/lib";
-import { Input } from "@/shared/ui";
+import { Input, toast } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useState, type SubmitEvent } from "react";
 import { useArrowNavigation } from "../lib/use-arrow-navigation";
@@ -66,6 +66,10 @@ export function SearchPanel({
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (query.trim().length < MIN_SEARCH_QUERY_LENGTH) {
+      toast(t("min-length-toast", { min: MIN_SEARCH_QUERY_LENGTH }));
+      return;
+    }
     onSubmit(query);
   }
 }

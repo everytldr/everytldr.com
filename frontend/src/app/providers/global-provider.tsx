@@ -1,4 +1,5 @@
 import { ThemeProvider } from "@/shared/theme";
+import { Toaster } from "@/shared/ui";
 import { NextIntlClientProvider } from "next-intl";
 import { type PropsWithChildren } from "react";
 import { SyncedStorageProvider } from "synced-storage/react";
@@ -13,7 +14,10 @@ export function GlobalProvider({ children }: PropsWithChildren) {
         <NextIntlClientProvider>
           <MSWProvider>
             <QueryProvider>
-              <ProgressBarProvider>{children}</ProgressBarProvider>
+              <ProgressBarProvider>
+                {children}
+                <Toaster />
+              </ProgressBarProvider>
             </QueryProvider>
           </MSWProvider>
         </NextIntlClientProvider>
