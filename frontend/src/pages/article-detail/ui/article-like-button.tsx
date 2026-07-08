@@ -7,7 +7,7 @@ import {
   type getMyArticleLikeResponse,
 } from "@/shared/api";
 import { assert, cn } from "@/shared/lib";
-import { Button, Skeleton } from "@/shared/ui";
+import { Button, Skeleton, toast } from "@/shared/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -54,12 +54,18 @@ export function ArticleLikeButton({ className, articleId }: ArticleLikeButtonPro
   );
 
   async function handleToggle() {
-    const response = likeState.likedByReader
-      ? await unlike.mutateAsync({ articleId })
-      : await like.mutateAsync({ articleId });
+    try {
+      const response = likeState.likedByReader
+        ? await unlike.mutateAsync({ articleId })
+        : await like.mutateAsync({ articleId });
 
-    if (response.status === 200) {
+      if (response.status !== 200) {
+        throw new Error("Failed to toggle article like");
+      }
+
       queryClient.setQueryData<getMyArticleLikeResponse>(queryKey, response);
+    } catch {
+      toast.error(t("like-error"));
     }
   }
 }

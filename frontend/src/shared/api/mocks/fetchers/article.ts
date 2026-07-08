@@ -6,6 +6,7 @@ import type {
   ArticleLikeStateResponse,
   ArticleListItem,
   ArticleListResponse,
+  ArticleSearchResponse,
 } from "@/shared/api";
 import { EplTeam } from "@/shared/config";
 import { AN_HOUR, type Optional } from "@/shared/lib";
@@ -86,6 +87,33 @@ export const listArticles = ({ request }: { request: Request }) => {
   const responseData: ArticleListResponse = {
     items,
     nextCursor,
+  };
+
+  return HttpResponse.json(responseData);
+};
+
+export const searchArticles = ({ request }: { request: Request }) => {
+  const url = new URL(request.url);
+  const query = (url.searchParams.get("q") ?? "").trim().toLowerCase();
+  const offset = Number(url.searchParams.get("offset") ?? "0");
+  const size = Number(url.searchParams.get("size") ?? "10");
+
+  if (!query) {
+    return new HttpResponse(null, { status: 400 });
+  }
+
+  const matched = ALL_ARTICLES.filter(
+    (article) =>
+      article.title.toLowerCase().includes(query) || article.summary.toLowerCase().includes(query),
+  );
+  const items = take(drop(matched, offset), size);
+
+  const nextIndex = offset + size;
+  const nextOffset = nextIndex < matched.length ? nextIndex : null;
+
+  const responseData: ArticleSearchResponse = {
+    items,
+    nextOffset,
   };
 
   return HttpResponse.json(responseData);

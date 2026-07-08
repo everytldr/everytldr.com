@@ -1,6 +1,13 @@
 import { SearchPage } from "@/pages/search";
+import {
+  getQueryClient,
+  getSearchArticlesInfiniteQueryKey,
+  getSearchArticlesSuspenseInfiniteQueryOptions,
+} from "@/shared/api";
+import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { type Locale, locales } from "@/shared/i18n";
 import { buildPageMetadata } from "@/shared/lib";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
@@ -28,7 +35,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function Page({ searchParams }: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
+  const { locale } = await params;
   const { q = "" } = await searchParams;
-  return <SearchPage query={q} />;
+  const trimmedQuery = q.trim();
+
+  const queryClient = getQueryClient();
+  if (trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH) {
+    await queryClient.prefetchInfiniteQuery(
+      getSearchArticlesSuspenseInfiniteQueryOptions(
+        { q: trimmedQuery },
+        {
+          query: {
+            queryKey: [...getSearchArticlesInfiniteQueryKey({ q: trimmedQuery }), locale],
+          },
+          request: {
+            headers: {
+              "Accept-Language": locale,
+            },
+          },
+        },
+      ),
+    );
+  }
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <SearchPage query={q} />
+    </HydrationBoundary>
+  );
 }

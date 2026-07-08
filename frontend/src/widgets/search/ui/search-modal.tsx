@@ -1,5 +1,6 @@
 "use client";
 
+import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { useRouter } from "@/shared/i18n";
 import { buildSearchUrl, cn } from "@/shared/lib";
 import { Modal } from "@/shared/ui";
@@ -29,7 +30,7 @@ export function SearchModal({ className, isOpen, onClose }: SearchModalProps) {
       header={{
         className: "sr-only",
         title: t("aria-label.search-input"),
-        description: t("input-placeholder"),
+        description: t("input-placeholder", { min: MIN_SEARCH_QUERY_LENGTH }),
       }}
       onClose={onClose}
     >

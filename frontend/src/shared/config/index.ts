@@ -28,5 +28,6 @@ export {
   isBigSixTeam,
 } from "./epl";
 export type { BigSixTeam } from "./epl";
+export { MIN_SEARCH_QUERY_LENGTH } from "./search";
 export { OG_IMAGE, SITE_NAME, SITE_URL, SITE_VERIFICATION } from "./seo";
 export { STATIC_PAGE_URLS } from "./static-pages";
