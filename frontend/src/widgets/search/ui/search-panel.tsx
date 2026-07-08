@@ -5,7 +5,6 @@ import { Input } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useState, type SubmitEvent } from "react";
 import { useArrowNavigation } from "../lib/use-arrow-navigation";
-import { PopularSearches } from "./popular-searches";
 import { RecentSearches } from "./recent-searches";
 
 type SearchPanelProps = {
@@ -30,10 +29,10 @@ export function SearchPanel({
   const t = useTranslations("search");
   const [query, setQuery] = useState(initialQuery);
 
-  useArrowNavigation();
+  const navigationRef = useArrowNavigation();
 
   return (
-    <div className={cn("flex flex-col gap-lg", className)}>
+    <div ref={navigationRef} className={cn("flex flex-col gap-lg", className)}>
       <form onSubmit={handleSubmit}>
         <Input
           variant="search"
@@ -57,7 +56,8 @@ export function SearchPanel({
               onRemove={onRemoveRecent}
             />
           )}
-          <PopularSearches onItemSelect={onItemSelect} />
+          {/* TODO: Implement this */}
+          {/* <PopularSearches onItemSelect={onItemSelect} /> */}
         </>
       )}
     </div>
