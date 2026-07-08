@@ -52,7 +52,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Request Rate",
+      "title": "HTTP Request Rate / 5m Rate",
       "type": "timeseries"
     },
     {
@@ -100,7 +100,7 @@
           "refId": "A"
         }
       ],
-      "title": "HTTP Average Latency",
+      "title": "HTTP Average Latency / 5m Avg",
       "type": "timeseries"
     },
     {
@@ -148,7 +148,7 @@
           "refId": "A"
         }
       ],
-      "title": "Ingestor Article Results",
+      "title": "Ingestor Article Results / 1h Increase",
       "type": "timeseries"
     },
     {
@@ -190,13 +190,24 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (status) (increase(everytldr_enricher_jobs_total{application=\"everytldr-backend\"}[1h]))",
-          "legendFormat": "{{status}}",
+          "expr": "sum by (outcome) (everytldr_ingestor_article_collection_job_starts_total{application=\"everytldr-backend\"})",
+          "legendFormat": "job {{outcome}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (status, exit_code) (everytldr_ingestor_article_collection_step_completions_total{application=\"everytldr-backend\"})",
+          "legendFormat": "step {{status}}/{{exit_code}}",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Enricher Job Results",
+      "title": "Ingestor Batch Status / Total Since Start",
       "type": "timeseries"
     },
     {
@@ -238,13 +249,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "everytldr_enricher_jobs_backlog{application=\"everytldr-backend\"}",
-          "legendFormat": "{{state}}",
+          "expr": "sum by (source_type, outcome) (increase(everytldr_ingestor_article_collection_target_attempts_total{application=\"everytldr-backend\"}[1h]))",
+          "legendFormat": "{{source_type}} / {{outcome}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Enricher Backlog",
+      "title": "Ingestor Target Attempts / 1h Increase",
       "type": "timeseries"
     },
     {
@@ -257,7 +268,7 @@
           "color": {
             "mode": "palette-classic"
           },
-          "unit": "bytes"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -286,13 +297,109 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
+          "expr": "sum by (status) (increase(everytldr_enricher_jobs_total{application=\"everytldr-backend\"}[1h]))",
+          "legendFormat": "{{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Enricher Job Results / 1h Increase",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "everytldr_enricher_jobs_backlog{application=\"everytldr-backend\"}",
+          "legendFormat": "{{state}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Enricher Backlog / Current",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
           "expr": "sum by (area) (jvm_memory_used_bytes{application=\"everytldr-backend\"})",
           "legendFormat": "{{area}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "JVM Memory Used",
+      "title": "JVM Memory Used / Current",
       "type": "timeseries"
     }
   ],
@@ -313,6 +420,6 @@
   "timezone": "browser",
   "title": "EveryTLDR Backend",
   "uid": "everytldr-backend",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
