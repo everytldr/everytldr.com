@@ -124,6 +124,71 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
   boolean existsByIdAndLicenseCodeIn(
       @Param("id") Long id, @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
 
+  @Query(
+      value =
+          """
+          SELECT a.id AS id,
+                 s.title AS title,
+                 s.content AS summary,
+                 a.thumbnail_url AS thumbnailUrl,
+                 a.published_at AS publishedAt,
+                 a.source AS source,
+                 a.license_code AS licenseCode,
+                 a.license_version AS licenseVersion,
+                 c.slug AS categorySlug
+          FROM article a
+            JOIN article_summary s ON s.article_id = a.id AND s.language = :language
+            JOIN article_category ac ON ac.article_id = a.id
+            JOIN category c ON c.id = ac.category_id
+          WHERE a.deleted_at IS NULL
+            AND a.license_code IN (:licenseCodes)
+            AND MATCH(s.title, s.content) AGAINST (:query IN NATURAL LANGUAGE MODE)
+          ORDER BY MATCH(s.title, s.content) AGAINST (:query IN NATURAL LANGUAGE MODE) DESC,
+                   a.published_at DESC,
+                   a.id DESC
+          LIMIT :limit OFFSET :offset
+          """,
+      nativeQuery = true)
+  List<SearchItemProjection> searchByLicenseCodeIn(
+      @Param("query") String query,
+      @Param("language") String language,
+      @Param("licenseCodes") Collection<String> licenseCodes,
+      @Param("limit") int limit,
+      @Param("offset") int offset);
+
+  interface SearchItemProjection {
+    Long getId();
+
+    String getTitle();
+
+    String getSummary();
+
+    String getThumbnailUrl();
+
+    Instant getPublishedAt();
+
+    String getSource();
+
+    String getLicenseCode();
+
+    String getLicenseVersion();
+
+    String getCategorySlug();
+
+    default ListItemProjection toListItem() {
+      return new ListItemProjection(
+          getId(),
+          getTitle(),
+          getSummary(),
+          getThumbnailUrl(),
+          getPublishedAt(),
+          getSource(),
+          LicenseCode.fromValue(getLicenseCode()),
+          getLicenseVersion(),
+          getCategorySlug());
+    }
+  }
+
   record DetailProjection(
       Long id,
       String title,

@@ -14,11 +14,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -70,6 +72,23 @@ public class ArticleController {
             ? null
             : ArticleListCursor.encode(page.nextStart().publishedAt(), page.nextStart().id());
     return new ArticleListResponse(items, nextCursor);
+  }
+
+  @GetMapping("/search")
+  @Operation(operationId = "searchArticles")
+  public ArticleSearchResponse search(
+      @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
+      @RequestParam String q,
+      @RequestParam(required = false) Integer offset,
+      @RequestParam(required = false) Integer size) {
+    if (q.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "q must not be blank");
+    }
+    int pageSize = Pagination.clampSize(size);
+    int startOffset = offset == null ? 0 : Math.max(0, offset);
+
+    ArticleService.SearchResult result = articleService.search(language, q, startOffset, pageSize);
+    return ArticleSearchResponse.from(result, licensePolicyEvaluator);
   }
 
   public record ArticleDetailResponse(
@@ -153,6 +172,22 @@ public class ArticleController {
             licensePolicyEvaluator.requiresAttribution(projection.licenseInfo()),
             projection.categorySlug());
       }
+    }
+  }
+
+  public record ArticleSearchResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> items,
+      @Schema(
+              requiredMode = RequiredMode.REQUIRED,
+              types = {"integer", "null"})
+          Integer nextOffset) {
+    static ArticleSearchResponse from(
+        ArticleService.SearchResult result, LicensePolicyEvaluator licensePolicyEvaluator) {
+      List<ArticleListResponse.Item> items =
+          result.items().stream()
+              .map(item -> ArticleListResponse.Item.from(item, licensePolicyEvaluator))
+              .toList();
+      return new ArticleSearchResponse(items, result.nextOffset());
     }
   }
 }

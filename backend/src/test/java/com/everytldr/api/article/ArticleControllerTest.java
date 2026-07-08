@@ -222,6 +222,20 @@ class ArticleControllerTest {
         .andExpect(status().isBadRequest());
   }
 
+  @Test
+  void searchReturnsBadRequestWhenQueryMissing() throws Exception {
+    mockMvc
+        .perform(get("/api/articles/search").header("Accept-Language", "ko"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void searchReturnsBadRequestWhenQueryBlank() throws Exception {
+    mockMvc
+        .perform(get("/api/articles/search").header("Accept-Language", "ko").param("q", "   "))
+        .andExpect(status().isBadRequest());
+  }
+
   private Article saveArticle(
       Instant publishedAt, Category category, String language, String title, String content) {
     return saveArticle(publishedAt, category, language, title, content, licenseInfo());

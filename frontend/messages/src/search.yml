@@ -29,9 +29,9 @@ popular-meta:
   en: "Updated hourly"
   ko: "매시간 갱신"
 
-result-placeholder-body:
-  en: "We're still wiring this up. For now, browse by topic or pick a trending term."
-  ko: "검색 결과 화면은 곧 공개돼요. 그 전까지는 주제별로 둘러보거나 인기 검색어를 사용해 보세요."
+empty-state:
+  en: "No results for “{query}”. Try a different keyword or browse by topic."
+  ko: "‘{query}’에 대한 검색 결과가 없어요. 다른 키워드로 검색하거나 주제별로 둘러보세요."
 
 keyboard-hint:
   enter:

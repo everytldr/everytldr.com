@@ -20,6 +20,13 @@ export default defineConfig({
           useInfiniteQueryParam: "cursor",
           useSuspenseInfiniteQuery: true,
         },
+        operations: {
+          searchArticles: {
+            query: {
+              useInfiniteQueryParam: "offset",
+            },
+          },
+        },
       },
       clean: false,
     },

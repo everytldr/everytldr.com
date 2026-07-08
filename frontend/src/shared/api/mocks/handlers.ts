@@ -6,11 +6,13 @@ import {
   likeArticle,
   listArticleComments,
   listArticles,
+  searchArticles,
   unlikeArticle,
 } from "./fetchers/article";
 
 export const handlers = [
   http.get("*/api/articles", listArticles),
+  http.get("*/api/articles/search", searchArticles),
   http.get("*/api/articles/:articleId/comments", listArticleComments),
   http.post("*/api/articles/:articleId/comments", createArticleComment),
   http.get("*/api/articles/:articleId/likes/me", getMyArticleLike),
