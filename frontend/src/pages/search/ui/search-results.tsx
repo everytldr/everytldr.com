@@ -1,39 +1,33 @@
 "use client";
 
+import { ArticleCardSkeleton, ArticleList } from "@/entities/article";
 import {
-  getListArticlesInfiniteQueryKey,
-  getListArticlesSuspenseInfiniteQueryOptions,
+  getSearchArticlesInfiniteQueryKey,
+  getSearchArticlesSuspenseInfiniteQueryOptions,
   type ArticleListItem,
-  type listArticlesResponse,
+  type searchArticlesResponse,
 } from "@/shared/api";
-import type { Locale } from "@/shared/i18n";
 import type { Optional } from "@/shared/lib";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { range } from "lodash-es";
+import { useLocale } from "next-intl";
 import type { ReactNode } from "react";
 import { InView } from "react-intersection-observer";
-import { ArticleCardSkeleton } from "./article-card-skeleton";
-import { ArticleList } from "./article-list";
 
-type ArticleListInfiniteProps = {
+type SearchResultsProps = {
   className?: string;
-  categoryPrefix?: string;
+  query: string;
   empty: ReactNode;
-  locale: Locale;
 };
 
-export function ArticleListInfinite({
-  className,
-  categoryPrefix,
-  empty,
-  locale,
-}: ArticleListInfiniteProps) {
+export function SearchResults({ className, query, empty }: SearchResultsProps) {
+  const locale = useLocale();
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage } = useSuspenseInfiniteQuery({
-    ...getListArticlesSuspenseInfiniteQueryOptions(
-      { categoryPrefix },
+    ...getSearchArticlesSuspenseInfiniteQueryOptions(
+      { q: query },
       {
         query: {
-          queryKey: [...getListArticlesInfiniteQueryKey({ categoryPrefix }), locale],
+          queryKey: [...getSearchArticlesInfiniteQueryKey({ q: query }), locale],
         },
         request: {
           headers: {
@@ -42,8 +36,8 @@ export function ArticleListInfinite({
         },
       },
     ),
-    getNextPageParam: (lastPage: listArticlesResponse): Optional<string> =>
-      lastPage.status === 200 ? (lastPage.data.nextCursor ?? undefined) : undefined,
+    getNextPageParam: (lastPage: searchArticlesResponse): Optional<number> =>
+      lastPage.status === 200 ? (lastPage.data.nextOffset ?? undefined) : undefined,
   });
 
   const items: ArticleListItem[] = data.pages.flatMap((page) =>
@@ -71,4 +65,20 @@ export function ArticleListInfinite({
       fetchNextPage();
     }
   }
+}
+
+type SearchResultsSkeletonProps = {
+  className?: string;
+};
+
+export function SearchResultsSkeleton({ className }: SearchResultsSkeletonProps) {
+  return (
+    <ul className={className}>
+      {range(4).map((i) => (
+        <li key={i}>
+          <ArticleCardSkeleton />
+        </li>
+      ))}
+    </ul>
+  );
 }

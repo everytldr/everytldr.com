@@ -82,7 +82,11 @@ export const CATEGORY_GRAPH = [
   },
   {
     slug: "sport",
-    children: [{ slug: "sport-events" }, { slug: "epl" }, { slug: "nba", forceHidden: true }],
+    children: [
+      { slug: "sport-events" },
+      { slug: "epl", forceHidden: true },
+      { slug: "nba", forceHidden: true },
+    ],
   },
   {
     slug: "health",
