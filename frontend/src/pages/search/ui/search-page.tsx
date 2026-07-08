@@ -1,5 +1,6 @@
 "use client";
 
+import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { buildSearchUrl, cn } from "@/shared/lib";
 import { Translation } from "@/shared/ui";
 import { SearchPanel, useRecentSearches } from "@/widgets/search";
@@ -17,7 +18,7 @@ export function SearchPage({ className, query }: SearchPageProps) {
   const { terms, addTerm, removeTerm } = useRecentSearches();
 
   const trimmedQuery = query.trim();
-  const hasQuery = trimmedQuery.length > 0;
+  const hasQuery = trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH;
 
   return (
     <div className={cn("flex flex-col gap-2xl", className)}>

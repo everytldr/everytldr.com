@@ -1,6 +1,6 @@
 input-placeholder:
-  en: "Search topics, sources"
-  ko: "주제, 매체를 검색하세요"
+  en: "Type {min}+ characters to search"
+  ko: "{min}자 이상 입력해서 검색해보세요"
 
 trigger-placeholder:
   en: "<kbd>/</kbd> to search"

@@ -27,6 +27,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Profile("api")
 @Tag(name = "Articles")
 public class ArticleController {
+  private static final int MIN_QUERY_LENGTH = 2;
+
   private final ArticleService articleService;
   private final LicensePolicyEvaluator licensePolicyEvaluator;
 
@@ -81,8 +83,9 @@ public class ArticleController {
       @RequestParam String q,
       @RequestParam(required = false) Integer offset,
       @RequestParam(required = false) Integer size) {
-    if (q.isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "q must not be blank");
+    if (q.trim().length() < MIN_QUERY_LENGTH) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "q must be at least " + MIN_QUERY_LENGTH + " characters");
     }
     int pageSize = Pagination.clampSize(size);
     int startOffset = offset == null ? 0 : Math.max(0, offset);

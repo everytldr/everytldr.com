@@ -1,5 +1,6 @@
 "use client";
 
+import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { cn } from "@/shared/lib";
 import { Input } from "@/shared/ui";
 import { useTranslations } from "next-intl";
@@ -39,7 +40,7 @@ export function SearchPanel({
           autoComplete="off"
           enterKeyHint="search"
           name="q"
-          placeholder={t("input-placeholder")}
+          placeholder={t("input-placeholder", { min: MIN_SEARCH_QUERY_LENGTH })}
           type="search"
           value={query}
           aria-label={t("aria-label.search-input")}

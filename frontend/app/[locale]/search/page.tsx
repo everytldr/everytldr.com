@@ -4,6 +4,7 @@ import {
   getSearchArticlesInfiniteQueryKey,
   getSearchArticlesSuspenseInfiniteQueryOptions,
 } from "@/shared/api";
+import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { type Locale, locales } from "@/shared/i18n";
 import { buildPageMetadata } from "@/shared/lib";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
@@ -40,7 +41,7 @@ export default async function Page({ params, searchParams }: PageProps) {
   const trimmedQuery = q.trim();
 
   const queryClient = getQueryClient();
-  if (trimmedQuery.length > 0) {
+  if (trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH) {
     await queryClient.prefetchInfiniteQuery(
       getSearchArticlesSuspenseInfiniteQueryOptions(
         { q: trimmedQuery },
