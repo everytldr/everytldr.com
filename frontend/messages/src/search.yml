@@ -2,6 +2,10 @@ input-placeholder:
   en: "Type {min}+ characters to search"
   ko: "{min}자 이상 입력해서 검색해보세요"
 
+min-length-toast:
+  en: "Type at least {min} characters to search"
+  ko: "{min}자 이상 입력해주세요"
+
 trigger-placeholder:
   en: "<kbd>/</kbd> to search"
   ko: "<kbd>/</kbd>를 눌러 검색하세요"

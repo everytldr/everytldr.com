@@ -3,7 +3,7 @@
 import { useCreateArticleComment } from "@/shared/api";
 import { useRouter } from "@/shared/i18n";
 import { cn, type Nullable } from "@/shared/lib";
-import { Button, Input, Textarea, Translation } from "@/shared/ui";
+import { Button, Input, Textarea, toast, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useState, type ComponentProps, type SubmitEvent } from "react";
 
@@ -15,7 +15,6 @@ const MIN_PASSWORD_LENGTH = 4;
 enum ComposerError {
   Required = "required",
   PasswordMin = "password-min",
-  Submit = "submit",
 }
 
 type CommentComposerProps = {
@@ -161,8 +160,7 @@ export function CommentComposer({
       });
 
       if (response.status !== 201) {
-        setError(ComposerError.Submit);
-        return;
+        throw new Error("Failed to post comment");
       }
 
       setContent("");
@@ -172,7 +170,7 @@ export function CommentComposer({
       router.refresh();
       onSuccess?.();
     } catch {
-      setError(ComposerError.Submit);
+      toast.error(t("comment-submit-error"));
     }
   }
 }
@@ -183,8 +181,6 @@ function getErrorTKey(error: ComposerError): ComponentProps<typeof Translation>[
       return "article-detail.comment-error-required";
     case ComposerError.PasswordMin:
       return "article-detail.comment-error-password-min";
-    case ComposerError.Submit:
-      return "article-detail.comment-submit-error";
   }
 }
 
