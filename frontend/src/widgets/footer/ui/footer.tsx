@@ -20,7 +20,7 @@ export async function Footer({ className }: FooterProps) {
       <Container className="flex flex-col items-start gap-md py-xl text-meta pc:flex-row pc:items-center pc:justify-between">
         <div className="flex items-center gap-md text-body-sm">
           <Link href="/" aria-label="everytldr">
-            <Logo className="h-5" />
+            <Logo className="h-5 w-auto" />
           </Link>
           <span>© {year} everytldr</span>
         </div>
