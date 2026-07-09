@@ -42,7 +42,7 @@ export default async function Page({ params, searchParams }: PageProps) {
 
   const queryClient = getQueryClient();
   if (trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH) {
-    await queryClient.prefetchInfiniteQuery(
+    void queryClient.prefetchInfiniteQuery(
       getSearchArticlesSuspenseInfiniteQueryOptions(
         { q: trimmedQuery },
         {

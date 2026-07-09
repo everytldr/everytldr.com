@@ -4,7 +4,7 @@ import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { cn } from "@/shared/lib";
 import { Input, toast } from "@/shared/ui";
 import { useTranslations } from "next-intl";
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import { useArrowNavigation } from "../lib/use-arrow-navigation";
 import { RecentSearches } from "./recent-searches";
 
@@ -31,6 +31,15 @@ export function SearchPanel({
   const [query, setQuery] = useState(initialQuery);
 
   const navigationRef = useArrowNavigation();
+
+  useEffect(() => {
+    if (query === initialQuery) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   return (
     <div ref={navigationRef} className={cn("flex flex-col gap-lg", className)}>
