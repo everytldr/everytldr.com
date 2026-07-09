@@ -184,6 +184,9 @@ subcategory:
   sport-events:
     en: "Events"
     ko: "이벤트"
+  sport-football:
+    en: "Football"
+    ko: "축구"
   health-healthcare:
     en: "Healthcare"
     ko: "의료"
