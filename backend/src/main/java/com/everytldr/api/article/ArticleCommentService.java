@@ -3,6 +3,7 @@ package com.everytldr.api.article;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleComment;
 import com.everytldr.common.domain.article.ArticleCommentRepository;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -23,7 +24,7 @@ public class ArticleCommentService {
 
   public List<ArticleComment> listComments(Long articleId) {
     articleService.assertArticleExists(articleId);
-    return commentRepository.findByArticleIdOrderByIdAsc(articleId);
+    return commentRepository.findThreadByArticleId(articleId);
   }
 
   @Transactional
@@ -52,5 +53,39 @@ public class ArticleCommentService {
             : ArticleComment.createReply(
                 article, parent, nickname, passwordHash, ipHash, maskedIp, content);
     return commentRepository.save(comment);
+  }
+
+  public void verifyPassword(Long articleId, Long commentId, String password) {
+    ArticleComment comment = getCommentOrThrow(articleId, commentId);
+    assertPasswordMatches(comment, password);
+  }
+
+  @Transactional
+  public ArticleComment editComment(
+      Long articleId, Long commentId, String password, String content) {
+    ArticleComment comment = getCommentOrThrow(articleId, commentId);
+    assertPasswordMatches(comment, password);
+    comment.edit(content, Instant.now());
+    return comment;
+  }
+
+  @Transactional
+  public void deleteComment(Long articleId, Long commentId, String password) {
+    ArticleComment comment = getCommentOrThrow(articleId, commentId);
+    assertPasswordMatches(comment, password);
+    comment.softDelete(Instant.now());
+  }
+
+  private ArticleComment getCommentOrThrow(Long articleId, Long commentId) {
+    articleService.assertArticleExists(articleId);
+    return commentRepository
+        .findByIdAndArticleId(commentId, articleId)
+        .orElseThrow(() -> new ArticleCommentExceptions.NotFound(commentId));
+  }
+
+  private void assertPasswordMatches(ArticleComment comment, String password) {
+    if (!BCrypt.checkpw(password, comment.getPasswordHash())) {
+      throw new ArticleCommentExceptions.PasswordMismatch(comment.getId());
+    }
   }
 }

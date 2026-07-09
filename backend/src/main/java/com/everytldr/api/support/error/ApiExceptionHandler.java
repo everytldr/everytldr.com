@@ -18,6 +18,14 @@ public class ApiExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   void handleInvalidCommentParent() {}
 
+  @ExceptionHandler(ArticleCommentExceptions.NotFound.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  void handleCommentNotFound() {}
+
+  @ExceptionHandler(ArticleCommentExceptions.PasswordMismatch.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  void handleCommentPasswordMismatch() {}
+
   @ExceptionHandler(ClientAddressExceptions.Unavailable.class)
   @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
   void handleClientAddressUnavailable() {}

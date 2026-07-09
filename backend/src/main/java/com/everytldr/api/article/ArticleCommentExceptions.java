@@ -8,4 +8,16 @@ public final class ArticleCommentExceptions {
       super("invalid comment parent: " + parentId);
     }
   }
+
+  public static class NotFound extends RuntimeException {
+    public NotFound(Long commentId) {
+      super("comment not found: " + commentId);
+    }
+  }
+
+  public static class PasswordMismatch extends RuntimeException {
+    public PasswordMismatch(Long commentId) {
+      super("comment password mismatch: " + commentId);
+    }
+  }
 }

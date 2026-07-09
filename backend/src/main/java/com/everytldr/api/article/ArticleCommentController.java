@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,6 +68,46 @@ public class ArticleCommentController {
     return ArticleCommentListResponse.Item.from(comment);
   }
 
+  @PatchMapping("/{commentId}")
+  @Operation(operationId = "editArticleComment")
+  public ArticleCommentListResponse.Item editComment(
+      @PathVariable @Schema(type = "string") Long articleId,
+      @PathVariable @Schema(type = "string") Long commentId,
+      @Valid @RequestBody ArticleCommentEditRequest body) {
+    ArticleComment comment =
+        articleCommentService.editComment(articleId, commentId, body.password(), body.content());
+    return ArticleCommentListResponse.Item.from(comment);
+  }
+
+  @DeleteMapping("/{commentId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(operationId = "deleteArticleComment")
+  public void deleteComment(
+      @PathVariable @Schema(type = "string") Long articleId,
+      @PathVariable @Schema(type = "string") Long commentId,
+      @Valid @RequestBody ArticleCommentPasswordRequest body) {
+    articleCommentService.deleteComment(articleId, commentId, body.password());
+  }
+
+  @PostMapping("/{commentId}/password-verification")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(operationId = "verifyArticleCommentPassword")
+  public void verifyPassword(
+      @PathVariable @Schema(type = "string") Long articleId,
+      @PathVariable @Schema(type = "string") Long commentId,
+      @Valid @RequestBody ArticleCommentPasswordRequest body) {
+    articleCommentService.verifyPassword(articleId, commentId, body.password());
+  }
+
+  public record ArticleCommentEditRequest(
+      @Schema(requiredMode = RequiredMode.REQUIRED) @NotBlank @Size(min = 4, max = 100)
+          String password,
+      @Schema(requiredMode = RequiredMode.REQUIRED) @NotBlank @Size(max = 5000) String content) {}
+
+  public record ArticleCommentPasswordRequest(
+      @Schema(requiredMode = RequiredMode.REQUIRED) @NotBlank @Size(min = 4, max = 100)
+          String password) {}
+
   public record ArticleCommentCreateRequest(
       @Schema(
               requiredMode = RequiredMode.REQUIRED,
@@ -87,17 +129,31 @@ public class ArticleCommentController {
             String parentId,
         @Schema(requiredMode = RequiredMode.REQUIRED) String nickname,
         @Schema(requiredMode = RequiredMode.REQUIRED) String maskedIp,
-        @Schema(requiredMode = RequiredMode.REQUIRED) String content,
-        @Schema(requiredMode = RequiredMode.REQUIRED) Instant createdAt) {
+        @Schema(
+                requiredMode = RequiredMode.REQUIRED,
+                types = {"string", "null"})
+            String content,
+        @Schema(requiredMode = RequiredMode.REQUIRED) Instant createdAt,
+        @Schema(
+                requiredMode = RequiredMode.REQUIRED,
+                types = {"string", "null"})
+            Instant editedAt,
+        @Schema(
+                requiredMode = RequiredMode.REQUIRED,
+                types = {"string", "null"})
+            Instant deletedAt) {
       public static Item from(ArticleComment comment) {
         Long parentId = comment.getParent() == null ? null : comment.getParent().getId();
+        boolean deleted = comment.isSoftDeleted();
         return new Item(
             comment.getId().toString(),
             parentId == null ? null : parentId.toString(),
             comment.getNickname(),
             comment.getMaskedIp(),
-            comment.getContent(),
-            comment.getCreatedAt());
+            deleted ? null : comment.getContent(),
+            comment.getCreatedAt(),
+            deleted ? null : comment.getEditedAt(),
+            comment.getDeletedAt());
       }
     }
   }
