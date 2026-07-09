@@ -1,14 +1,16 @@
 "use client";
 
 import { uniqBy } from "lodash-es";
+import { useLocale } from "next-intl";
 import { useCallback } from "react";
 import { useStorageState } from "synced-storage/react";
 
-const STORAGE_KEY = "article-search:recent";
+const STORAGE_KEY_PREFIX = "article-search:recent";
 const MAX_TERMS = 5;
 
 export function useRecentSearches() {
-  const [terms, setTerms] = useStorageState<string[]>(STORAGE_KEY, [], {
+  const locale = useLocale();
+  const [terms, setTerms] = useStorageState<string[]>(`${STORAGE_KEY_PREFIX}:${locale}`, [], {
     strategy: "localStorage",
   });
 
