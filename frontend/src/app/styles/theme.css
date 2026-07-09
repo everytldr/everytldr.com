@@ -46,6 +46,10 @@
   --color-semantic-success: #15803d;
   --color-semantic-warning: #ea580c;
   --color-semantic-error: #dc2626;
+  --color-semantic-error-hover: #b91c1c;
+  --color-semantic-error-pressed: #991b1b;
+  --color-semantic-error-disabled: #f1b0b0;
+  --color-on-semantic-error: #ffffff;
 
   --color-scrim: #000000;
 
@@ -201,6 +205,10 @@
   --color-semantic-success: #34d399;
   --color-semantic-warning: #fb923c;
   --color-semantic-error: #f87171;
+  --color-semantic-error-hover: #f45a5a;
+  --color-semantic-error-pressed: #ef4444;
+  --color-semantic-error-disabled: #5a2020;
+  --color-on-semantic-error: #450a0a;
 
   /* Drop shadow on dark reads as smudge — components lift via surface tone instead. */
   --shadow-raised: none;

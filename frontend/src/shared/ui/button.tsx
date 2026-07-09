@@ -3,7 +3,7 @@ import { Slot } from "radix-ui";
 import type { ComponentProps } from "react";
 
 type ButtonProps = ComponentProps<"button"> & {
-  variant: "ghost" | "link" | "primary" | "secondary";
+  variant: "ghost" | "link" | "primary" | "secondary" | "destructive";
   asChild?: boolean;
 };
 
@@ -16,6 +16,8 @@ export function Button({ className, variant, asChild, ...props }: ButtonProps) {
         "inline-flex shrink-0 cursor-pointer items-center justify-center gap-xs whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas disabled:cursor-not-allowed",
         variant === "primary" &&
           "h-11 rounded-sm bg-primary px-md text-button-md text-on-primary hover:bg-primary-hover active:bg-primary-pressed disabled:bg-primary-disabled",
+        variant === "destructive" &&
+          "h-11 rounded-sm bg-semantic-error px-md text-button-md text-on-semantic-error hover:bg-semantic-error-hover active:bg-semantic-error-pressed disabled:bg-semantic-error-disabled",
         variant === "secondary" &&
           "h-11 rounded-sm border border-hairline-strong bg-canvas px-md text-button-md text-ink hover:bg-surface-soft active:bg-surface-strong disabled:opacity-50 dark:hover:bg-surface-strong dark:active:bg-surface-pressed",
         variant === "ghost" &&

@@ -85,3 +85,95 @@ comment-error-password-min:
 comment-submit-error:
   en: "Couldn't post your comment. Please try again"
   ko: "댓글을 등록하지 못했어요. 다시 시도해 주세요"
+
+comment-actions:
+  en: "More"
+  ko: "더보기"
+
+comment-actions-title:
+  en: "Comment"
+  ko: "댓글"
+
+comment-edit:
+  en: "Edit"
+  ko: "수정"
+
+comment-delete:
+  en: "Delete"
+  ko: "삭제"
+
+comment-delete-title:
+  en: "Delete comment"
+  ko: "댓글 삭제"
+
+comment-delete-description:
+  en: "Enter your password to delete this comment. This can't be undone."
+  ko: "비밀번호를 입력하면 이 댓글이 삭제돼요.\n되돌릴 수 없어요."
+
+comment-edit-title:
+  en: "Edit comment"
+  ko: "댓글 수정"
+
+comment-edit-verify-description:
+  en: "Enter your password to edit this comment."
+  ko: "비밀번호를 입력하면 이 댓글을 수정할 수 있어요."
+
+comment-edit-description:
+  en: "Update your comment, then save."
+  ko: "내용을 수정한 뒤 저장해 주세요."
+
+comment-edited:
+  en: "(edited)"
+  ko: "(수정됨)"
+
+comment-deleted:
+  en: "This comment has been deleted"
+  ko: "삭제된 댓글이에요"
+
+comment-cancel:
+  en: "Cancel"
+  ko: "취소"
+
+comment-password-confirm:
+  en: "Confirm"
+  ko: "확인"
+
+comment-password-verifying:
+  en: "Checking…"
+  ko: "확인 중…"
+
+comment-password-invalid:
+  en: "Incorrect password"
+  ko: "비밀번호가 맞지 않아요"
+
+comment-edit-save:
+  en: "Save"
+  ko: "저장"
+
+comment-edit-saving:
+  en: "Saving…"
+  ko: "저장 중…"
+
+comment-edit-error:
+  en: "Couldn't save your edit. Please try again"
+  ko: "댓글을 수정하지 못했어요. 다시 시도해 주세요"
+
+comment-edit-success:
+  en: "Comment updated"
+  ko: "댓글을 수정했어요"
+
+comment-delete-confirm:
+  en: "Delete"
+  ko: "삭제하기"
+
+comment-delete-deleting:
+  en: "Deleting…"
+  ko: "삭제 중…"
+
+comment-delete-error:
+  en: "Couldn't delete your comment. Please try again"
+  ko: "댓글을 삭제하지 못했어요. 다시 시도해 주세요"
+
+comment-delete-success:
+  en: "Comment deleted"
+  ko: "댓글을 삭제했어요"
