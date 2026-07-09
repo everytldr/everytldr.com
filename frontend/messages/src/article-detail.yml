@@ -6,6 +6,10 @@ unlike:
   en: "Unlike article"
   ko: "좋아요 취소"
 
+like-error:
+  en: "Couldn't update your like. Please try again"
+  ko: "좋아요를 반영하지 못했어요. 다시 시도해 주세요"
+
 source-link:
   en: "Read original at {source}"
   ko: "{source} 원문 보기"
