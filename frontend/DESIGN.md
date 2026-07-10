@@ -157,11 +157,17 @@ A finite, hand-balanced set (vs. free-form colour) guarantees that any new categ
 
 ### 3.1.4. Semantic.
 
-| Token              | Light   | Dark    |
-| ------------------ | ------- | ------- |
-| `semantic-success` | #15803d | #34d399 |
-| `semantic-warning` | #ea580c | #fb923c |
-| `semantic-error`   | #dc2626 | #f87171 |
+| Token                     | Light   | Dark    | Use                                                                    |
+| ------------------------- | ------- | ------- | ---------------------------------------------------------------------- |
+| `semantic-success`        | #15803d | #34d399 | Success text / icon                                                    |
+| `semantic-warning`        | #ea580c | #fb923c | Warning text / icon                                                    |
+| `semantic-error`          | #dc2626 | #f87171 | Error text (helper copy, `aria-invalid` ring); `button-destructive` rest fill (§ 5.1.) |
+| `semantic-error-hover`    | #b91c1c | #f45a5a | `:hover` on `button-destructive`                                       |
+| `semantic-error-pressed`  | #991b1b | #ef4444 | `:active` (held-down) on `button-destructive`                          |
+| `semantic-error-disabled` | #f1b0b0 | #5a2020 | Disabled `button-destructive`                                          |
+| `on-semantic-error`       | #ffffff | #450a0a | Text on `semantic-error` fill. Rebinds on dark (deep red restores AA over the lifted `#f87171` fill, mirroring `on-primary-dark` — § 3.1.5.) |
+
+`semantic-error` is the sole exception to the "no second accent" rule (§ 6.2.): it is reserved for error state and destructive-action affordances, never as a decorative or categorical hue. Hover/active darken in two steps on light and (per § 3.1.5.) also darken on dark; on dark the fill is the lifted `#f87171` so text flips to the deep-red `on-semantic-error-dark` to hold WCAG AA (§ 1.3.).
 
 ### 3.1.5. Dark-Palette Rationale.
 
@@ -404,6 +410,7 @@ Components are compositions of Tailwind utilities — no component stylesheets, 
 | Variant              | Background (rest) | Text         | Radius | Padding    | Height | Border                |
 | -------------------- | ----------------- | ------------ | ------ | ---------- | ------ | --------------------- |
 | `button-primary`     | `primary`         | `on-primary` | `sm`   | 12×16      | 44     | none                  |
+| `button-destructive` | `semantic-error`  | `on-semantic-error` | `sm` | 12×16 | 44     | none                  |
 | `button-secondary`   | `canvas`          | `ink`        | `sm`   | 12×16      | 44     | 1px `hairline-strong` |
 | `button-ghost`       | transparent       | `ink`        | `sm`   | 8×16       | auto   | none                  |
 | `button-link`        | transparent       | `primary`    | —      | 0          | auto   | none                  |
@@ -420,6 +427,7 @@ Pseudo-class mapping is fixed: `pressed` ↔ `:active`; `hover` ↔ `:hover`; `d
 | Variant                    | `:hover`                                                 | `:active`                        | `:disabled`                                 | `:focus-visible`                                                   |
 | -------------------------- | -------------------------------------------------------- | -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------ |
 | `button-primary`           | `bg-primary-hover`                                       | `bg-primary-pressed`             | `bg-primary-disabled`, `cursor-not-allowed` | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
+| `button-destructive`       | `bg-semantic-error-hover`                                | `bg-semantic-error-pressed`      | `bg-semantic-error-disabled`, `cursor-not-allowed` | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`      |
 | `button-secondary` (light) | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
 | `button-secondary` (dark)  | `bg-surface-strong`                                      | `bg-surface-pressed`             | `opacity-50`, `cursor-not-allowed`          | (same)                                                             |
 | `button-ghost` (light)     | `bg-surface-soft`                                        | `bg-surface-strong`              | `opacity-50`, `cursor-not-allowed`          | `ring-2 ring-primary ring-offset-2 ring-offset-canvas`             |
@@ -498,7 +506,7 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 
 ## 5.5. Modal.
 
-`canvas` surface, `lg` radius. Scrim per § 3.5. Mobile full-bleed slide-up. Desktop width is selected via the `size` prop:
+`canvas` surface, `lg` radius. Scrim per § 3.5. Desktop width is selected via the `size` prop:
 
 | Size | Width | Use                                                                                                |
 | ---- | ----- | -------------------------------------------------------------------------------------------------- |
@@ -507,6 +515,16 @@ Mobile defaults to "Load more" single button. Tablet+ uses numbered pagination.
 | `lg` | 640px | Information-dense surfaces with multiple sections (e.g. desktop search modal — §§ 5.1.1., 5.2.1.). |
 
 No size beyond `lg` exists. A surface that needs more horizontal real estate is a page, not a modal.
+
+## 5.6. Bottom Sheet (Mobile).
+
+Touch (coarse-pointer) presentation of § 5.5. modals, and of selectors and action menus. Inherits § 5.5.'s `canvas` surface, `lg` radius, and scrim. Differs in geometry: a bottom-anchored **floating card** (not full-bleed) — inset `sm` from the screen edges, `shadow-floating` over a 1px `hairline` border, `overflow-hidden` to clip children to the rounded corners. Drag handle at top; dismiss by drag-down or scrim tap. Centered `title-md` `ink` header, optional `body-sm` `meta` description. Body scrolls internally past `70vh`.
+
+| Rule                                                                                                          | Reason                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Action-sheet items are full-width `surface-soft`-filled buttons, `sm` radius, centered label + optional leading icon. State follows the chip-control ladder (`surface-soft → strong → pressed`, § 3.1.6.); destructive items use `semantic-error` text. | Filled rows read as discrete tap targets on touch; the ladder gives rest/hover/active headroom on both themes.      |
+| Focus ring on sheet buttons is `ring-2 ring-primary ring-inset` (not the `ring-offset` form of § 5.1.2.).      | The card's `overflow-hidden` (needed to clip the rounded corners) would crop an outward offset ring.               |
+| No drag handle **and** close-`X` together — the handle is the dismissal affordance.                            | Two redundant dismiss controls on the same edge; the handle already signals drag-to-dismiss.                       |
 
 # 6. Rules.
 
@@ -533,7 +551,7 @@ No size beyond `lg` exists. A surface that needs more horizontal real estate is 
 - No negative letter-spacing on Korean (§ 3.2.4.).
 - No `primary` on stateful selection or toggle markers; use `ink` instead (e.g. `chip-selected` — § 3.1.1., § 5.1.1.).
 - No `like-active` outside its dedicated toggle state (§ 3.1.1.).
-- No second accent colour — extend via category tints first (§ 3.1.3.).
+- No second accent colour — extend via category tints first (§ 3.1.3.). `semantic-error` is not an accent: it is confined to error state and destructive-action affordances (`button-destructive`, `aria-invalid` — §§ 3.1.4., 5.1.).
 - No shadow outside the tiers defined in § 3.5.; no shadow on `canvas`-flat resting surfaces — use hairline (§ 3.5.).
 - No Hangul in `caption-mono` (§ 3.2.4.).
 - No `display-*`, `title-*`, or `body-*` on categorical navigation labels; use `nav-*` (§ 3.2.2.).

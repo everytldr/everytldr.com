@@ -2,8 +2,11 @@ package com.everytldr.api.article;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,6 +43,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -208,6 +212,135 @@ class ArticleCommentControllerTest {
                 .header("X-Forwarded-For", "1.1.1.1")
                 .content(body))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void editsComment() throws Exception {
+    Long articleId = savedArticle().getId();
+    String commentId = createComment(articleId, "reader", "secret1234", "before");
+
+    editComment(articleId, commentId, "secret1234", "after")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").value("after"))
+        .andExpect(jsonPath("$.editedAt").value(notNullValue()));
+  }
+
+  @Test
+  void editRejectsWrongPassword() throws Exception {
+    Long articleId = savedArticle().getId();
+    String commentId = createComment(articleId, "reader", "secret1234", "before");
+
+    editComment(articleId, commentId, "wrongpass", "after").andExpect(status().isForbidden());
+  }
+
+  @Test
+  void deleteHidesLeafButKeepsRepliedCommentAsTombstone() throws Exception {
+    Long articleId = savedArticle().getId();
+    String leafId = createComment(articleId, "reader", "secret1234", "leaf");
+    String parentId = createComment(articleId, "reader", "secret1234", "parent");
+    createReply(articleId, parentId, "reply", "secret1234", "child");
+
+    deleteComment(articleId, leafId, "secret1234").andExpect(status().isNoContent());
+    deleteComment(articleId, parentId, "secret1234").andExpect(status().isNoContent());
+
+    mockMvc
+        .perform(get("/api/articles/{id}/comments", articleId))
+        .andExpect(jsonPath("$.items", hasSize(2)))
+        .andExpect(jsonPath("$.items[0].id").value(parentId))
+        .andExpect(jsonPath("$.items[0].deletedAt").value(notNullValue()))
+        .andExpect(jsonPath("$.items[0].content").value(nullValue()))
+        .andExpect(jsonPath("$.items[0].nickname").value(nullValue()))
+        .andExpect(jsonPath("$.items[0].maskedIp").value(nullValue()))
+        .andExpect(jsonPath("$.items[1].content").value("child"));
+  }
+
+  @Test
+  void verifiesPassword() throws Exception {
+    Long articleId = savedArticle().getId();
+    String commentId = createComment(articleId, "reader", "secret1234", "hi");
+
+    verifyPassword(articleId, commentId, "secret1234").andExpect(status().isNoContent());
+    verifyPassword(articleId, commentId, "wrongpass").andExpect(status().isForbidden());
+  }
+
+  private Article savedArticle() {
+    Article article =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "제목", "요약");
+    entityManager.flush();
+    entityManager.clear();
+    return article;
+  }
+
+  private ResultActions editComment(
+      Long articleId, String commentId, String password, String content) throws Exception {
+    return mockMvc.perform(
+        patch("/api/articles/{id}/comments/{commentId}", articleId, commentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                {"password":"%s","content":"%s"}
+                """
+                    .formatted(password, content)));
+  }
+
+  private ResultActions deleteComment(Long articleId, String commentId, String password)
+      throws Exception {
+    return mockMvc.perform(
+        delete("/api/articles/{id}/comments/{commentId}", articleId, commentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                {"password":"%s"}
+                """
+                    .formatted(password)));
+  }
+
+  private ResultActions verifyPassword(Long articleId, String commentId, String password)
+      throws Exception {
+    return mockMvc.perform(
+        post("/api/articles/{id}/comments/{commentId}/password-verification", articleId, commentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                {"password":"%s"}
+                """
+                    .formatted(password)));
+  }
+
+  private String createComment(Long articleId, String nickname, String password, String content)
+      throws Exception {
+    String body =
+        """
+        {"nickname":"%s","password":"%s","content":"%s"}
+        """
+            .formatted(nickname, password, content);
+    return postComment(articleId, body);
+  }
+
+  private String createReply(
+      Long articleId, String parentId, String nickname, String password, String content)
+      throws Exception {
+    String body =
+        """
+        {"parentId":"%s","nickname":"%s","password":"%s","content":"%s"}
+        """
+            .formatted(parentId, nickname, password, content);
+    return postComment(articleId, body);
+  }
+
+  private String postComment(Long articleId, String body) throws Exception {
+    String response =
+        mockMvc
+            .perform(
+                post("/api/articles/{id}/comments", articleId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Forwarded-For", "1.1.1.1")
+                    .content(body))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    return response.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
   }
 
   private Article saveArticle(

@@ -25,29 +25,53 @@
         "required" : [ "content", "nickname", "parentId", "password" ],
         "type" : "object"
       },
+      "ArticleCommentEditRequest" : {
+        "properties" : {
+          "content" : {
+            "maxLength" : 5000,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "password" : {
+            "maxLength" : 100,
+            "minLength" : 4,
+            "type" : "string"
+          }
+        },
+        "required" : [ "content", "password" ],
+        "type" : "object"
+      },
       "ArticleCommentListItem" : {
         "properties" : {
           "content" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "createdAt" : {
             "format" : "date-time",
             "type" : "string"
           },
+          "deletedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "editedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
           "id" : {
             "type" : "string"
           },
           "maskedIp" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "nickname" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "parentId" : {
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "content", "createdAt", "id", "maskedIp", "nickname", "parentId" ],
+        "required" : [ "content", "createdAt", "deletedAt", "editedAt", "id", "maskedIp", "nickname", "parentId" ],
         "type" : "object"
       },
       "ArticleCommentListResponse" : {
@@ -60,6 +84,17 @@
           }
         },
         "required" : [ "items" ],
+        "type" : "object"
+      },
+      "ArticleCommentPasswordRequest" : {
+        "properties" : {
+          "password" : {
+            "maxLength" : 100,
+            "minLength" : 4,
+            "type" : "string"
+          }
+        },
+        "required" : [ "password" ],
         "type" : "object"
       },
       "ArticleDetailResponse" : {
@@ -258,6 +293,9 @@
           "400" : {
             "description" : "Bad Request"
           },
+          "403" : {
+            "description" : "Forbidden"
+          },
           "404" : {
             "description" : "Not Found"
           },
@@ -309,6 +347,9 @@
           "400" : {
             "description" : "Bad Request"
           },
+          "403" : {
+            "description" : "Forbidden"
+          },
           "404" : {
             "description" : "Not Found"
           },
@@ -343,6 +384,9 @@
           },
           "400" : {
             "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
           },
           "404" : {
             "description" : "Not Found"
@@ -387,6 +431,158 @@
           "400" : {
             "description" : "Bad Request"
           },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{articleId}/comments/{commentId}" : {
+      "delete" : {
+        "operationId" : "deleteArticleComment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "commentId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ArticleCommentPasswordRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      },
+      "patch" : {
+        "operationId" : "editArticleComment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "commentId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ArticleCommentEditRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleCommentListItem"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{articleId}/comments/{commentId}/password-verification" : {
+      "post" : {
+        "operationId" : "verifyArticleCommentPassword",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "articleId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "commentId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ArticleCommentPasswordRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
           "404" : {
             "description" : "Not Found"
           },
@@ -422,6 +618,9 @@
           "400" : {
             "description" : "Bad Request"
           },
+          "403" : {
+            "description" : "Forbidden"
+          },
           "404" : {
             "description" : "Not Found"
           },
@@ -455,6 +654,9 @@
           "400" : {
             "description" : "Bad Request"
           },
+          "403" : {
+            "description" : "Forbidden"
+          },
           "404" : {
             "description" : "Not Found"
           },
@@ -487,6 +689,9 @@
           },
           "400" : {
             "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
           },
           "404" : {
             "description" : "Not Found"
@@ -523,6 +728,9 @@
           "400" : {
             "description" : "Bad Request"
           },
+          "403" : {
+            "description" : "Forbidden"
+          },
           "404" : {
             "description" : "Not Found"
           },
@@ -552,6 +760,9 @@
           },
           "400" : {
             "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
           },
           "404" : {
             "description" : "Not Found"

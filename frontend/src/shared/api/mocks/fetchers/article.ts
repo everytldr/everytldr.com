@@ -1,7 +1,9 @@
 import type {
   ArticleCommentCreateRequest,
+  ArticleCommentEditRequest,
   ArticleCommentListItem,
   ArticleCommentListResponse,
+  ArticleCommentPasswordRequest,
   ArticleDetailResponse,
   ArticleLikeStateResponse,
   ArticleListItem,
@@ -46,6 +48,8 @@ const COMMENTS_BY_ARTICLE_ID = new Map<string, ArticleCommentListItem[]>(
           id: firstCommentId,
           content: `Helpful summary. This made article ${index + 1} much easier to scan.`,
           createdAt: new Date(Date.now() - AN_HOUR).toISOString(),
+          editedAt: null,
+          deletedAt: null,
           maskedIp: "203.0.113.*",
           nickname: "Reader One",
           parentId: null,
@@ -54,6 +58,8 @@ const COMMENTS_BY_ARTICLE_ID = new Map<string, ArticleCommentListItem[]>(
           id: secondCommentId,
           content: "I would like to see more context on the source article next.",
           createdAt: new Date(Date.now() - AN_HOUR / 2).toISOString(),
+          editedAt: null,
+          deletedAt: null,
           maskedIp: "198.51.100.*",
           nickname: "Football Fan",
           parentId: firstCommentId,
@@ -171,6 +177,8 @@ export const createArticleComment: HttpResponseResolver<
     ...body,
     id: (BigInt(articleId) + BigInt(1000 + comments.length)).toString(),
     createdAt: new Date().toISOString(),
+    editedAt: null,
+    deletedAt: null,
     maskedIp: "192.0.2.*",
   };
 
@@ -178,6 +186,74 @@ export const createArticleComment: HttpResponseResolver<
   COMMENTS_BY_ARTICLE_ID.set(articleId, comments);
 
   return HttpResponse.json(newComment, { status: 201 });
+};
+
+export const editArticleComment: HttpResponseResolver<
+  { articleId: string; commentId: string },
+  ArticleCommentEditRequest
+> = async ({ request, params: { articleId, commentId } }) => {
+  if (!findArticle(articleId)) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  const comments = getArticleComments(articleId);
+  const comment = comments.find((item) => item.id === commentId);
+  if (!comment || comment.deletedAt) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  const body = await request.json();
+  comment.content = body.content;
+  comment.editedAt = new Date().toISOString();
+
+  return HttpResponse.json(comment);
+};
+
+export const deleteArticleComment: HttpResponseResolver<
+  { articleId: string; commentId: string },
+  ArticleCommentPasswordRequest
+> = ({ params: { articleId, commentId } }) => {
+  if (!findArticle(articleId)) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  const comments = getArticleComments(articleId);
+  const comment = comments.find((item) => item.id === commentId);
+  if (!comment || comment.deletedAt) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  const hasLiveReply = comments.some((item) => item.parentId === commentId && !item.deletedAt);
+
+  if (hasLiveReply) {
+    comment.content = null;
+    comment.nickname = null;
+    comment.maskedIp = null;
+    comment.deletedAt = new Date().toISOString();
+  } else {
+    COMMENTS_BY_ARTICLE_ID.set(
+      articleId,
+      comments.filter((item) => item.id !== commentId),
+    );
+  }
+
+  return new HttpResponse(null, { status: 204 });
+};
+
+export const verifyArticleCommentPassword: HttpResponseResolver<
+  { articleId: string; commentId: string },
+  ArticleCommentPasswordRequest
+> = ({ params: { articleId, commentId } }) => {
+  if (!findArticle(articleId)) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  const comment = getArticleComments(articleId).find((item) => item.id === commentId);
+  if (!comment || comment.deletedAt) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  return new HttpResponse(null, { status: 204 });
 };
 
 export const getMyArticleLike = ({ params: { articleId } }: { params: { articleId: string } }) => {

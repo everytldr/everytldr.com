@@ -77,22 +77,34 @@ class SoftDeleteTest {
   }
 
   @Test
-  void softDeletedCommentIsHiddenFromFindById() {
+  void softDeletedCommentIsHiddenUnlessItHasLiveReply() {
     Article article =
         articleRepository.saveAndFlush(
             Article.create("https://example.com/news/2", "Example", null, "en", Instant.now()));
+    ArticleComment parent = saveComment(article, null, "parent");
+    ArticleComment reply = saveComment(article, parent, "reply");
+    ArticleComment orphan = saveComment(article, null, "orphan");
 
-    ArticleComment comment =
-        commentRepository.saveAndFlush(
-            ArticleComment.createTopLevel(
-                article, "guest", SAMPLE_PASSWORD_HASH, SAMPLE_IP_HASH, "203.0", "Hello"));
-    Long commentId = comment.getId();
-
-    comment.softDelete(Instant.now());
-    commentRepository.saveAndFlush(comment);
+    parent.softDelete(Instant.now());
+    orphan.softDelete(Instant.now());
+    commentRepository.saveAllAndFlush(List.of(parent, orphan));
     entityManager.clear();
 
-    assertThat(commentRepository.findById(commentId)).isEmpty();
+    assertThat(commentRepository.findById(parent.getId())).isEmpty();
+    assertThat(commentRepository.findThreadByArticleId(article.getId()))
+        .extracting(ArticleComment::getId)
+        .contains(parent.getId(), reply.getId())
+        .doesNotContain(orphan.getId());
+  }
+
+  private ArticleComment saveComment(Article article, ArticleComment parent, String content) {
+    ArticleComment comment =
+        parent == null
+            ? ArticleComment.createTopLevel(
+                article, "guest", SAMPLE_PASSWORD_HASH, SAMPLE_IP_HASH, "203.0", content)
+            : ArticleComment.createReply(
+                article, parent, "guest", SAMPLE_PASSWORD_HASH, SAMPLE_IP_HASH, "203.0", content);
+    return commentRepository.saveAndFlush(comment);
   }
 
   private ArticleSource source() {
