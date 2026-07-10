@@ -1,11 +1,11 @@
 "use client";
 
 import type { ArticleCommentListItem } from "@/shared/api";
-import { cn, formatDate, type Nullable } from "@/shared/lib";
-import { Button, Translation } from "@/shared/ui";
-import { useTranslations } from "next-intl";
-import { useMemo, useState, type PropsWithChildren } from "react";
+import { cn, type Nullable } from "@/shared/lib";
+import { Translation } from "@/shared/ui";
+import { useMemo, useState } from "react";
 import { buildCommentTree, type CommentNode } from "../model/comment";
+import { CommentCard } from "./comment-card";
 import { CommentComposer } from "./comment-composer";
 
 type CommentListProps = {
@@ -45,7 +45,7 @@ export function CommentList({ className, articleId, comments, locale }: CommentL
                 comment={comment}
                 locale={locale}
                 isReplyOpen={activeReplyId === comment.id}
-                onToggleReply={() => handleToggleReply(comment.id)}
+                onToggleReply={comment.deletedAt ? undefined : () => handleToggleReply(comment.id)}
                 onCloseReply={() => setActiveReplyId(null)}
               />
             ))}
@@ -79,23 +79,15 @@ function CommentItem({
   onToggleReply,
   onCloseReply,
 }: CommentItemProps) {
-  const t = useTranslations("article-detail");
-
   return (
     <li className={cn("space-y-sm", className)}>
-      <CommentCard comment={comment} locale={locale}>
-        {onToggleReply && (
-          <Button
-            className="text-caption"
-            variant="link"
-            type="button"
-            aria-expanded={isReplyOpen}
-            onClick={onToggleReply}
-          >
-            {t("comment-reply")}
-          </Button>
-        )}
-      </CommentCard>
+      <CommentCard
+        articleId={articleId}
+        comment={comment}
+        locale={locale}
+        isReplyOpen={isReplyOpen}
+        onToggleReply={onToggleReply}
+      />
 
       {isReplyOpen && (
         <CommentComposer
@@ -112,42 +104,11 @@ function CommentItem({
         <ol className="space-y-md border-l border-hairline pl-md">
           {comment.children.map((child) => (
             <li key={child.id}>
-              <CommentCard comment={child} locale={locale} />
+              <CommentCard articleId={articleId} comment={child} locale={locale} />
             </li>
           ))}
         </ol>
       )}
     </li>
-  );
-}
-
-type CommentCardProps = PropsWithChildren<{
-  className?: string;
-  comment: CommentNode;
-  locale: string;
-}>;
-
-function CommentCard({ className, comment, locale, children }: CommentCardProps) {
-  const createdAt = comment.createdAt ? formatDate(comment.createdAt, locale) : "";
-
-  return (
-    <article
-      className={cn(
-        "rounded-md border border-hairline bg-canvas px-md py-md dark:bg-surface-soft",
-        className,
-      )}
-    >
-      <header className="flex flex-wrap items-center gap-xs text-caption text-meta">
-        <strong className="text-title-sm text-ink">{comment.nickname}</strong>
-        {createdAt && (
-          <>
-            <span aria-hidden="true">·</span>
-            <time dateTime={comment.createdAt}>{createdAt}</time>
-          </>
-        )}
-      </header>
-      <p className="mt-xs text-body-sm whitespace-pre-wrap text-body">{comment.content}</p>
-      {children && <div className="mt-xs flex">{children}</div>}
-    </article>
   );
 }

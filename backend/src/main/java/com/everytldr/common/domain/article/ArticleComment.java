@@ -9,6 +9,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,6 +44,8 @@ public class ArticleComment extends SoftDeletableEntity {
 
   @Column(columnDefinition = "TEXT NOT NULL")
   private String content;
+
+  @Column private Instant editedAt;
 
   private ArticleComment(
       Article article,
@@ -80,5 +83,10 @@ public class ArticleComment extends SoftDeletableEntity {
       String maskedIp,
       String content) {
     return new ArticleComment(article, parent, nickname, passwordHash, ipHash, maskedIp, content);
+  }
+
+  public void edit(String content, Instant at) {
+    this.content = content;
+    this.editedAt = at;
   }
 }

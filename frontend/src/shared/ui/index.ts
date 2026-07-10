@@ -11,6 +11,7 @@ export { default as Logo } from "./logo.svg";
 export { MarkdownContent } from "./markdown-content";
 export { Modal } from "./modal";
 export { RelativeTime } from "./relative-time";
+export { ResponsiveActionMenu, type ActionMenuItem } from "./responsive-action-menu";
 export { ResponsiveDialog } from "./responsive-dialog";
 export { ResponsiveSelector, type SelectorOption } from "./responsive-selector";
 export { ScrollableRow } from "./scrollable-row";
