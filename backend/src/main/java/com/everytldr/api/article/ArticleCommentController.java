@@ -127,8 +127,14 @@ public class ArticleCommentController {
                 requiredMode = RequiredMode.REQUIRED,
                 types = {"string", "null"})
             String parentId,
-        @Schema(requiredMode = RequiredMode.REQUIRED) String nickname,
-        @Schema(requiredMode = RequiredMode.REQUIRED) String maskedIp,
+        @Schema(
+                requiredMode = RequiredMode.REQUIRED,
+                types = {"string", "null"})
+            String nickname,
+        @Schema(
+                requiredMode = RequiredMode.REQUIRED,
+                types = {"string", "null"})
+            String maskedIp,
         @Schema(
                 requiredMode = RequiredMode.REQUIRED,
                 types = {"string", "null"})
@@ -148,8 +154,8 @@ public class ArticleCommentController {
         return new Item(
             comment.getId().toString(),
             parentId == null ? null : parentId.toString(),
-            comment.getNickname(),
-            comment.getMaskedIp(),
+            deleted ? null : comment.getNickname(),
+            deleted ? null : comment.getMaskedIp(),
             deleted ? null : comment.getContent(),
             comment.getCreatedAt(),
             deleted ? null : comment.getEditedAt(),

@@ -227,6 +227,8 @@ export const deleteArticleComment: HttpResponseResolver<
 
   if (hasLiveReply) {
     comment.content = null;
+    comment.nickname = null;
+    comment.maskedIp = null;
     comment.deletedAt = new Date().toISOString();
   } else {
     COMMENTS_BY_ARTICLE_ID.set(

@@ -62,10 +62,10 @@
             "type" : "string"
           },
           "maskedIp" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "nickname" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "parentId" : {
             "type" : [ "string", "null" ]

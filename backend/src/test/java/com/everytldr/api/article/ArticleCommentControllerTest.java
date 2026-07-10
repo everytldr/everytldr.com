@@ -249,6 +249,8 @@ class ArticleCommentControllerTest {
         .andExpect(jsonPath("$.items[0].id").value(parentId))
         .andExpect(jsonPath("$.items[0].deletedAt").value(notNullValue()))
         .andExpect(jsonPath("$.items[0].content").value(nullValue()))
+        .andExpect(jsonPath("$.items[0].nickname").value(nullValue()))
+        .andExpect(jsonPath("$.items[0].maskedIp").value(nullValue()))
         .andExpect(jsonPath("$.items[1].content").value("child"));
   }
 
