@@ -1,9 +1,13 @@
 package com.everytldr.api.article;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.everytldr.RedisTestcontainersConfig;
 import com.everytldr.TestcontainersConfig;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleComment;
@@ -26,8 +30,10 @@ import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
 import com.everytldr.common.domain.source.SourceType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.Cookie;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,16 +41,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestcontainersConfig.class)
+@Import({TestcontainersConfig.class, RedisTestcontainersConfig.class})
 @ActiveProfiles({"api", "test"})
 @Transactional
 class ArticleControllerTest {
+  private static final String VISITOR_COOKIE_NAME = "everytldr_visitor";
+
   @PersistenceContext private EntityManager entityManager;
 
   @Autowired private MockMvc mockMvc;
@@ -55,11 +67,13 @@ class ArticleControllerTest {
   @Autowired private ArticleCategoryRepository articleCategoryRepository;
   @Autowired private CategoryRepository categoryRepository;
   @Autowired private ArticleSourceRepository sourceRepository;
+  @Autowired private StringRedisTemplate redisTemplate;
 
   private Category football;
 
   @BeforeEach
   void seedFixtures() {
+    clearRedis();
     sourceRepository.saveAndFlush(source());
     football = categoryRepository.saveAndFlush(Category.create("football"));
   }
@@ -187,7 +201,68 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.category").value("football"))
         .andExpect(jsonPath("$.likeCount").value(1))
         .andExpect(jsonPath("$.commentCount").value(1))
+        .andExpect(jsonPath("$.viewCount").value(0))
         .andExpect(jsonPath("$.likedByReader").doesNotExist());
+  }
+
+  @Test
+  void countViewCreatesCookieAndCountsSameVisitorOnlyOnce() throws Exception {
+    Article article =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Title", "Summary");
+
+    MvcResult first =
+        mockMvc
+            .perform(post("/api/articles/{id}/views", article.getId()))
+            .andExpect(status().isNoContent())
+            .andExpect(content().string(""))
+            .andReturn();
+    String setCookie = first.getResponse().getHeader(HttpHeaders.SET_COOKIE);
+    String visitorId = extractVisitorId(setCookie);
+
+    mockMvc
+        .perform(post("/api/articles/{id}/views", article.getId()).cookie(visitorCookie(visitorId)))
+        .andExpect(status().isNoContent())
+        .andExpect(content().string(""));
+
+    mockMvc
+        .perform(
+            post("/api/articles/{id}/views", article.getId())
+                .cookie(visitorCookie(createAnotherVisitorId())))
+        .andExpect(status().isNoContent())
+        .andExpect(content().string(""));
+
+    assertThat(setCookie)
+        .startsWith(VISITOR_COOKIE_NAME + "=")
+        .contains("Path=/")
+        .contains("Max-Age=31536000")
+        .contains("HttpOnly")
+        .contains("Secure")
+        .contains("SameSite=Lax");
+    mockMvc
+        .perform(get("/api/articles/{id}", article.getId()).header("Accept-Language", "ko"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.viewCount").value(2));
+  }
+
+  @Test
+  void countViewReturnsNotFoundWhenArticleDoesNotExist() throws Exception {
+    mockMvc.perform(post("/api/articles/{id}/views", 9_999_999L)).andExpect(status().isNotFound());
+  }
+
+  @Test
+  void countViewReturnsNotFoundWhenArticleLicenseIsUnsupportedForPublishing() throws Exception {
+    Article article =
+        saveArticle(
+            Instant.parse("2026-04-01T00:00:00Z"),
+            football,
+            "ko",
+            "Title",
+            "Summary",
+            new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"));
+
+    mockMvc
+        .perform(post("/api/articles/{id}/views", article.getId()))
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -282,6 +357,30 @@ class ArticleControllerTest {
         "en",
         SourceType.RSS,
         licenseInfo());
+  }
+
+  private void clearRedis() {
+    redisTemplate.execute(
+        (RedisCallback<Void>)
+            connection -> {
+              connection.serverCommands().flushDb();
+              return null;
+            });
+  }
+
+  private static Cookie visitorCookie(String visitorId) {
+    return new Cookie(VISITOR_COOKIE_NAME, visitorId);
+  }
+
+  private static String extractVisitorId(String setCookie) {
+    assertThat(setCookie).startsWith(VISITOR_COOKIE_NAME + "=");
+    return setCookie.substring(VISITOR_COOKIE_NAME.length() + 1, setCookie.indexOf(';'));
+  }
+
+  private static String createAnotherVisitorId() {
+    byte[] bytes = new byte[32];
+    bytes[0] = 1;
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
   }
 
   private LicenseInfo licenseInfo() {

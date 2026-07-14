@@ -29,9 +29,10 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
           (SELECT COUNT(l.id)
            FROM ArticleLike l
            WHERE l.article = a AND l.isActive = TRUE),
-          (SELECT COUNT(comment.id)
-           FROM ArticleComment comment
-           WHERE comment.article = a))
+           (SELECT COUNT(comment.id)
+            FROM ArticleComment comment
+            WHERE comment.article = a),
+           a.viewCount)
       FROM Article a
         JOIN ArticleSummary s ON s.article = a AND s.language = :language
         JOIN ArticleCategory ac ON ac.article = a
@@ -201,7 +202,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       String licenseVersion,
       String category,
       long likeCount,
-      long commentCount) {
+      long commentCount,
+      long viewCount) {
     public String licenseCodeValue() {
       return licenseCode.value();
     }

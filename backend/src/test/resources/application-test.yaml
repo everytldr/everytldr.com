@@ -4,3 +4,9 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+
+everytldr:
+  visitor:
+    hash-secret: test-visitor-secret
+  article-view:
+    flush-enabled: false

@@ -2,6 +2,8 @@ package com.everytldr.api.article;
 
 import com.everytldr.api.support.language.ResolvedLanguage;
 import com.everytldr.api.support.pagination.Pagination;
+import com.everytldr.api.support.visitor.AnonymousVisitor;
+import com.everytldr.api.support.visitor.ResolvedAnonymousVisitor;
 import com.everytldr.common.domain.article.ArticleRepository.DetailProjection;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
 import com.everytldr.common.domain.language.SupportedLanguage;
@@ -13,30 +15,23 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/articles")
 @Profile("api")
 @Tag(name = "Articles")
+@RequiredArgsConstructor
 public class ArticleController {
   private static final int MIN_QUERY_LENGTH = 2;
 
   private final ArticleService articleService;
+  private final ArticleViewService articleViewService;
   private final LicensePolicyEvaluator licensePolicyEvaluator;
-
-  public ArticleController(
-      ArticleService articleService, LicensePolicyEvaluator licensePolicyEvaluator) {
-    this.articleService = articleService;
-    this.licensePolicyEvaluator = licensePolicyEvaluator;
-  }
 
   @GetMapping("/{id}")
   @Operation(operationId = "getArticle")
@@ -44,7 +39,17 @@ public class ArticleController {
       @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
       @PathVariable @Schema(type = "string") Long id) {
     DetailProjection detail = articleService.getArticleDetail(id, language);
-    return ArticleDetailResponse.from(detail, licensePolicyEvaluator);
+    long viewCount = articleViewService.getViewCount(id, detail.viewCount());
+    return ArticleDetailResponse.from(detail, licensePolicyEvaluator, viewCount);
+  }
+
+  @PostMapping("/{id}/views")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(operationId = "countArticleView")
+  public void countView(
+      @PathVariable @Schema(type = "string") Long id,
+      @Parameter(hidden = true) @ResolvedAnonymousVisitor AnonymousVisitor visitor) {
+    articleViewService.recordView(id, visitor.visitorHash());
   }
 
   @GetMapping
@@ -114,9 +119,10 @@ public class ArticleController {
               types = {"string", "null"}) // TODO: thumbnailUrl 나중에 Nullable 제거해야함
           String thumbnailUrl,
       @Schema(requiredMode = RequiredMode.REQUIRED) long likeCount,
-      @Schema(requiredMode = RequiredMode.REQUIRED) long commentCount) {
+      @Schema(requiredMode = RequiredMode.REQUIRED) long commentCount,
+      @Schema(requiredMode = RequiredMode.REQUIRED) long viewCount) {
     public static ArticleDetailResponse from(
-        DetailProjection article, LicensePolicyEvaluator licensePolicyEvaluator) {
+        DetailProjection article, LicensePolicyEvaluator licensePolicyEvaluator, long viewCount) {
       return new ArticleDetailResponse(
           article.id().toString(),
           article.title(),
@@ -131,7 +137,8 @@ public class ArticleController {
           licensePolicyEvaluator.requiresAttribution(article.licenseInfo()),
           article.thumbnailUrl(),
           article.likeCount(),
-          article.commentCount());
+          article.commentCount(),
+          viewCount);
     }
   }
 

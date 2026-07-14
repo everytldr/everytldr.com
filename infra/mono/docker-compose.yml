@@ -40,8 +40,13 @@ services:
       - "127.0.0.1:8080:8080"
     env_file:
       - .env.backend
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/actuator/health"]
@@ -73,6 +78,30 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: everytldr-redis
+    restart: always
+    mem_limit: 384m
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - noeviction
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   prometheus:
     image: prom/prometheus
@@ -109,6 +138,8 @@ services:
 volumes:
   mysql-data:
     name: everytldr-mysql-data
+  redis-data:
+    name: everytldr-redis-data
   caddy-data:
     name: everytldr-caddy-mono-data
   caddy-config:

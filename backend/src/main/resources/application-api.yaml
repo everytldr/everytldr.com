@@ -1,3 +1,9 @@
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -6,5 +12,14 @@ springdoc:
     enabled: ${SWAGGER_UI_ENABLED:true}
 
 everytldr:
+  visitor:
+    cookie-name: ${VISITOR_COOKIE_NAME:everytldr_visitor}
+    cookie-max-age: ${VISITOR_COOKIE_MAX_AGE:365d}
+    cookie-secure: ${VISITOR_COOKIE_SECURE:true}
+    hash-secret: ${VISITOR_HASH_SECRET}
   client-address:
     hash-secret: ${CLIENT_ADDRESS_HASH_SECRET:local-development-client-address-secret}
+  article-view:
+    deduplication-ttl: ${ARTICLE_VIEW_DEDUPLICATION_TTL:24h}
+    flush-enabled: ${ARTICLE_VIEW_FLUSH_ENABLED:true}
+    flush-cron: ${ARTICLE_VIEW_FLUSH_CRON:0 0 * * * *}
