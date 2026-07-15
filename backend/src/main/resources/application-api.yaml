@@ -26,6 +26,10 @@ everytldr:
     memory-guard:
       threshold: ${ARTICLE_VIEW_MEMORY_GUARD_THRESHOLD:0.9}
       sample-interval: ${ARTICLE_VIEW_MEMORY_GUARD_SAMPLE_INTERVAL:10s}
+    flush-history-cleanup:
+      retention: ${ARTICLE_VIEW_FLUSH_HISTORY_RETENTION:30d}
+      interval: ${ARTICLE_VIEW_FLUSH_HISTORY_CLEANUP_INTERVAL:1d}
+      batch-size: ${ARTICLE_VIEW_FLUSH_HISTORY_CLEANUP_BATCH_SIZE:1000}
   article-popularity:
     bucket-ttl: ${ARTICLE_POPULARITY_BUCKET_TTL:26h}
     bucket-lookback-hours: ${ARTICLE_POPULARITY_BUCKET_LOOKBACK_HOURS:24}

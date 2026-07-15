@@ -1,6 +1,7 @@
 package com.everytldr.api;
 
 import com.everytldr.api.article.ArticlePopularityProperties;
+import com.everytldr.api.article.ArticleViewFlushHistoryCleanupProperties;
 import com.everytldr.api.article.ArticleViewMemoryGuardProperties;
 import com.everytldr.api.article.ArticleViewProperties;
 import com.everytldr.api.support.visitor.AnonymousVisitorProperties;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties({
   ArticleViewProperties.class,
   ArticleViewMemoryGuardProperties.class,
+  ArticleViewFlushHistoryCleanupProperties.class,
   ArticlePopularityProperties.class,
   AnonymousVisitorProperties.class
 })
