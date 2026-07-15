@@ -34,7 +34,7 @@ export function CommentVerifyForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
-    <form className={cn("space-y-md px-md py-md pc:p-0", className)} onSubmit={handleSubmit}>
+    <form className={cn("space-y-md", className)} onSubmit={handleSubmit}>
       <Input
         className="w-full"
         name="password"

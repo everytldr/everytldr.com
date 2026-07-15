@@ -14,6 +14,7 @@ export default withNextIntl({
   experimental: {
     viewTransition: true,
   },
+  allowedDevOrigins: ["localhost", "192.168.*.*"],
   turbopack: {
     rules: {
       "*.svg": {
