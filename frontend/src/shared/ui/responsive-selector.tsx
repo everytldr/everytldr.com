@@ -103,7 +103,7 @@ function MobileSingleSelector<T extends string>({
     <div className={cn(className)}>
       {renderMobileTrigger({ selected, isOpen, open: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
-        <div className="flex flex-col gap-2xs px-md pb-md" role="radiogroup" aria-label={title}>
+        <div className="flex flex-col gap-2xs pb-md" role="radiogroup" aria-label={title}>
           {options.map((opt) => {
             const isCurrent = opt.value === value;
             return (

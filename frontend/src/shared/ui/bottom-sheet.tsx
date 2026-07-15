@@ -17,22 +17,25 @@ type BottomSheetProps = PropsWithChildren<{
 
 export function BottomSheet({ className, isOpen, header, children, onClose }: BottomSheetProps) {
   return (
-    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+    <Drawer open={isOpen} direction="bottom" onOpenChange={handleOpenChange}>
       <DrawerContent
         className={cn(
-          "mx-sm mb-sm overflow-hidden rounded-lg border pb-md shadow-floating",
+          "mx-sm mb-sm flex h-auto! max-h-[calc(90dvh-var(--spacing-sm))] flex-col gap-y-sm overflow-hidden rounded-lg border border-hairline bg-canvas p-md pb-0 shadow-floating",
           className,
         )}
       >
-        <div className={cn("px-md pt-md pb-2xs", header.className)}>
-          <DrawerTitle className="text-center text-title-md text-ink">{header.title}</DrawerTitle>
-          {header.description && (
-            <DrawerDescription className="mt-2xs text-center whitespace-pre-line">
-              {header.description}
-            </DrawerDescription>
-          )}
+        <div className="mx-auto block h-1.5 w-12 shrink-0 rounded-full bg-hairline-strong" />
+        <div className="scrollbar-hidden space-y-xs overflow-y-auto overscroll-contain">
+          <div className={cn("space-y-2xs", header.className)}>
+            <DrawerTitle className="text-center text-title-md text-ink">{header.title}</DrawerTitle>
+            {header.description && (
+              <DrawerDescription className="text-center whitespace-pre-line">
+                {header.description}
+              </DrawerDescription>
+            )}
+          </div>
+          {children}
         </div>
-        <div className="max-h-[70vh] min-h-0 overflow-y-auto overscroll-contain">{children}</div>
       </DrawerContent>
     </Drawer>
   );
