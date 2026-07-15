@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class ArticleViewService {
   private final ArticleService articleService;
   private final ArticleViewRedisRepository articleViewRedisRepository;
+  private final ArticleViewRedisMemoryGuard redisMemoryGuard;
+  private final ArticleViewMetrics metrics;
   private final ArticleViewProperties properties;
   private final ArticlePopularityProperties articlePopularityProperties;
   private final Clock clock;
@@ -26,6 +28,10 @@ public class ArticleViewService {
     Objects.requireNonNull(visitorHash, "visitorHash must not be null");
 
     Article article = articleService.getArticleOrThrow(articleId);
+    if (redisMemoryGuard.hasReachedCapacity()) {
+      metrics.recordCapacityRejected();
+      throw new ArticleViewExceptions.Unavailable();
+    }
     try {
       articleViewRedisRepository.recordViewIfUnique(
           articleId,
@@ -35,6 +41,7 @@ public class ArticleViewService {
           Instant.now(clock),
           articlePopularityProperties.bucketTtl());
     } catch (DataAccessException e) {
+      metrics.recordRedisErrorRejected();
       throw new ArticleViewExceptions.Unavailable(e);
     }
   }

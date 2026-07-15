@@ -1,6 +1,7 @@
 package com.everytldr.api.article;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -45,6 +46,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +70,7 @@ class ArticleControllerTest {
   @Autowired private CategoryRepository categoryRepository;
   @Autowired private ArticleSourceRepository sourceRepository;
   @Autowired private StringRedisTemplate redisTemplate;
+  @MockitoBean private ArticleViewRedisMemoryGuard redisMemoryGuard;
 
   private Category football;
 
@@ -288,6 +291,18 @@ class ArticleControllerTest {
   @Test
   void countViewReturnsNotFoundWhenArticleDoesNotExist() throws Exception {
     mockMvc.perform(post("/api/articles/{id}/views", 9_999_999L)).andExpect(status().isNotFound());
+  }
+
+  @Test
+  void countViewReturnsServiceUnavailableWhenRedisMemoryCapacityHasBeenReached() throws Exception {
+    Article article =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Title", "Summary");
+    when(redisMemoryGuard.hasReachedCapacity()).thenReturn(true);
+
+    mockMvc
+        .perform(post("/api/articles/{id}/views", article.getId()))
+        .andExpect(status().isServiceUnavailable())
+        .andExpect(content().string(""));
   }
 
   @Test

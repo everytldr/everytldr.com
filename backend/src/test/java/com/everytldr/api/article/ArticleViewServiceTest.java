@@ -3,6 +3,7 @@ package com.everytldr.api.article;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,8 @@ class ArticleViewServiceTest {
 
   @Mock private ArticleService articleService;
   @Mock private ArticleViewRedisRepository redisRepository;
+  @Mock private ArticleViewRedisMemoryGuard redisMemoryGuard;
+  @Mock private ArticleViewMetrics metrics;
 
   private ArticleViewService service;
 
@@ -36,6 +39,8 @@ class ArticleViewServiceTest {
         new ArticleViewService(
             articleService,
             redisRepository,
+            redisMemoryGuard,
+            metrics,
             new ArticleViewProperties(DEDUPLICATION_TTL, "0 0 * * * *"),
             new ArticlePopularityProperties(POPULARITY_BUCKET_TTL, 24),
             Clock.fixed(NOW, ZoneOffset.UTC));
@@ -89,5 +94,20 @@ class ArticleViewServiceTest {
 
     assertThatThrownBy(() -> service.recordView(1L, "visitor-hash"))
         .isInstanceOf(ArticleViewExceptions.Unavailable.class);
+    verify(metrics).recordRedisErrorRejected();
+  }
+
+  @Test
+  void rejectsViewBeforeRedisWriteWhenMemoryCapacityHasBeenReached() {
+    Article article = Article.create("https://example.com/a", "Example", null, "en", Instant.now());
+    when(articleService.getArticleOrThrow(1L)).thenReturn(article);
+    when(redisMemoryGuard.hasReachedCapacity()).thenReturn(true);
+
+    assertThatThrownBy(() -> service.recordView(1L, "visitor-hash"))
+        .isInstanceOf(ArticleViewExceptions.Unavailable.class);
+
+    verify(metrics).recordCapacityRejected();
+    verify(redisRepository, never())
+        .recordViewIfUnique(1L, "visitor-hash", 0L, DEDUPLICATION_TTL, NOW, POPULARITY_BUCKET_TTL);
   }
 }

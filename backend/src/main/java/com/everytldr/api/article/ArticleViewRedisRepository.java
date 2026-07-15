@@ -12,11 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalLong;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
@@ -74,6 +76,21 @@ public class ArticleViewRedisRepository {
     return value == null ? OptionalLong.empty() : OptionalLong.of(Long.parseLong(value));
   }
 
+  public MemoryUsage findMemoryUsage() {
+    Properties memoryInfo =
+        redisTemplate.execute(
+            (RedisCallback<Properties>)
+                connection -> {
+                  Properties info = connection.serverCommands().info("memory");
+                  if (info == null) {
+                    throw new IllegalStateException("Redis INFO MEMORY returned no result");
+                  }
+                  return info;
+                });
+    return new MemoryUsage(
+        parseMemoryValue(memoryInfo, "used_memory"), parseMemoryValue(memoryInfo, "maxmemory"));
+  }
+
   public List<Long> findPopularArticleIds(Instant currentTime, int bucketLookbackHours) {
     Objects.requireNonNull(currentTime, "currentTime must not be null");
     if (bucketLookbackHours < 0) {
@@ -108,7 +125,7 @@ public class ArticleViewRedisRepository {
         .toList();
   }
 
-  /** Lua RENAME으로 active delta를 flushing batch로 원자 이동해 DB flush 중 새 증가량이 기존 batch에 섞이지 않도록 한다. */
+  /** Lua RENAME으로 active delta를 flushing batch로 원자 이동해 DB flush 중 새 증가량이 기존 batch에 섞이지 않게 한다. */
   public void moveActiveDeltaToFlushBatch() {
     String batchId = UUID.randomUUID().toString();
     String flushingKey = createFlushingKey(batchId);
@@ -125,6 +142,10 @@ public class ArticleViewRedisRepository {
     return keys;
   }
 
+  public List<String> findFlushingBatchIds() {
+    return findFlushingKeys().stream().map(ArticleViewRedisRepository::extractBatchId).toList();
+  }
+
   public FlushBatch getFlushBatch(String key) {
     Objects.requireNonNull(key, "key must not be null");
     Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
@@ -136,6 +157,7 @@ public class ArticleViewRedisRepository {
   }
 
   public void deleteFlushBatch(String key) {
+    Objects.requireNonNull(key, "key must not be null");
     redisTemplate.delete(key);
   }
 
@@ -160,6 +182,14 @@ public class ArticleViewRedisRepository {
       throw new IllegalArgumentException("Invalid article view flush key: " + key);
     }
     return key.substring(FLUSHING_DELTA_KEY_PREFIX.length());
+  }
+
+  private static long parseMemoryValue(Properties memoryInfo, String name) {
+    String value = memoryInfo.getProperty(name);
+    if (value == null) {
+      throw new IllegalStateException("Redis INFO MEMORY did not include " + name);
+    }
+    return Long.parseLong(value);
   }
 
   private static DefaultRedisScript<Long> countViewScript() {
@@ -266,4 +296,12 @@ public class ArticleViewRedisRepository {
   }
 
   public record FlushBatch(String batchId, String key, Map<Long, Long> deltas) {}
+
+  public record MemoryUsage(long usedBytes, long maxBytes) {
+    public MemoryUsage {
+      if (usedBytes < 0 || maxBytes < 0) {
+        throw new IllegalArgumentException("Redis memory values must not be negative");
+      }
+    }
+  }
 }

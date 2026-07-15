@@ -63,6 +63,26 @@ class ArticleViewRedisRepositoryTest {
   }
 
   @Test
+  void findsRedisMemoryUsage() {
+    ArticleViewRedisRepository.MemoryUsage memoryUsage = repository.findMemoryUsage();
+
+    assertThat(memoryUsage.usedBytes()).isGreaterThanOrEqualTo(0);
+    assertThat(memoryUsage.maxBytes()).isGreaterThanOrEqualTo(0);
+  }
+
+  @Test
+  void movesActiveDeltaWithoutCreatingCountSnapshot() {
+    redisTemplate.opsForHash().put("av:delta:active", "42", "1");
+    redisTemplate.opsForHash().put("av:count:v1:42", "unexpected", "value");
+
+    repository.moveActiveDeltaToFlushBatch();
+
+    assertThat(redisTemplate.opsForHash().get("av:delta:active", "42")).isNull();
+    assertThat(repository.findFlushingKeys()).hasSize(1);
+    assertThat(redisTemplate.keys("av:count:flushing:*")).isEmpty();
+  }
+
+  @Test
   void concurrentDuplicateRequestsCountOnlyOnce() throws Exception {
     ExecutorService executor = Executors.newFixedThreadPool(8);
     try {

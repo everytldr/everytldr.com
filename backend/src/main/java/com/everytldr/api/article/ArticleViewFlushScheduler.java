@@ -18,7 +18,10 @@ import org.springframework.stereotype.Component;
 public class ArticleViewFlushScheduler {
   private final ArticleViewFlushService flushService;
 
-  @Scheduled(cron = "${everytldr.article-view.flush-cron}", zone = "Asia/Seoul")
+  @Scheduled(
+      scheduler = "articleViewFlushTaskScheduler",
+      cron = "${everytldr.article-view.flush-cron}",
+      zone = "Asia/Seoul")
   void flushPendingViews() {
     try {
       flushService.flushPendingViews();
