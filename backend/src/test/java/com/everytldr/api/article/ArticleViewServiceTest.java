@@ -7,8 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.everytldr.common.domain.article.Article;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.OptionalLong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,8 @@ import org.springframework.dao.DataAccessResourceFailureException;
 @ExtendWith(MockitoExtension.class)
 class ArticleViewServiceTest {
   private static final Duration DEDUPLICATION_TTL = Duration.ofHours(24);
+  private static final Duration POPULARITY_BUCKET_TTL = Duration.ofHours(26);
+  private static final Instant NOW = Instant.parse("2026-07-14T12:34:56Z");
 
   @Mock private ArticleService articleService;
   @Mock private ArticleViewRedisRepository redisRepository;
@@ -32,7 +36,9 @@ class ArticleViewServiceTest {
         new ArticleViewService(
             articleService,
             redisRepository,
-            new ArticleViewProperties(DEDUPLICATION_TTL, "0 0 * * * *"));
+            new ArticleViewProperties(DEDUPLICATION_TTL, "0 0 * * * *"),
+            new ArticlePopularityProperties(POPULARITY_BUCKET_TTL, 24),
+            Clock.fixed(NOW, ZoneOffset.UTC));
   }
 
   @Test
@@ -69,7 +75,8 @@ class ArticleViewServiceTest {
     when(articleService.getArticleOrThrow(1L)).thenReturn(article);
     service.recordView(1L, "visitor-hash");
 
-    verify(redisRepository).recordViewIfUnique(1L, "visitor-hash", 0L, DEDUPLICATION_TTL);
+    verify(redisRepository)
+        .recordViewIfUnique(1L, "visitor-hash", 0L, DEDUPLICATION_TTL, NOW, POPULARITY_BUCKET_TTL);
   }
 
   @Test
@@ -78,7 +85,7 @@ class ArticleViewServiceTest {
     when(articleService.getArticleOrThrow(1L)).thenReturn(article);
     doThrow(new DataAccessResourceFailureException("redis unavailable"))
         .when(redisRepository)
-        .recordViewIfUnique(1L, "visitor-hash", 0L, DEDUPLICATION_TTL);
+        .recordViewIfUnique(1L, "visitor-hash", 0L, DEDUPLICATION_TTL, NOW, POPULARITY_BUCKET_TTL);
 
     assertThatThrownBy(() -> service.recordView(1L, "visitor-hash"))
         .isInstanceOf(ArticleViewExceptions.Unavailable.class);

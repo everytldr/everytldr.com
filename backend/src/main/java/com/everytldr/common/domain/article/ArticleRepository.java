@@ -107,6 +107,54 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
   @Query(
       """
+      SELECT new com.everytldr.common.domain.article.ArticleRepository$ListItemProjection(
+          a.id,
+          s.title,
+          s.content,
+          a.thumbnailUrl,
+          a.publishedAt,
+          a.source,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
+          c.slug)
+      FROM Article a
+        JOIN ArticleSummary s ON s.article = a AND s.language = :language
+        JOIN ArticleCategory ac ON ac.article = a
+        JOIN ac.category c
+      WHERE a.id IN :articleIds
+        AND a.licenseInfo.licenseCode IN :licenseCodes
+      """)
+  List<ListItemProjection> findListItemsByIdInAndLanguageAndLicenseCodeIn(
+      @Param("articleIds") Collection<Long> articleIds,
+      @Param("language") String language,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
+
+  @Query(
+      """
+      SELECT new com.everytldr.common.domain.article.ArticleRepository$ListItemProjection(
+          a.id,
+          s.title,
+          s.content,
+          a.thumbnailUrl,
+          a.publishedAt,
+          a.source,
+          a.licenseInfo.licenseCode,
+          a.licenseInfo.licenseVersion,
+          c.slug)
+      FROM Article a
+        JOIN ArticleSummary s ON s.article = a AND s.language = :language
+        JOIN ArticleCategory ac ON ac.article = a
+        JOIN ac.category c
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
+      ORDER BY a.viewCount DESC, a.publishedAt DESC, a.id DESC
+      """)
+  List<ListItemProjection> findMostViewedByLanguageAndLicenseCodeIn(
+      @Param("language") String language,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes,
+      Pageable pageable);
+
+  @Query(
+      """
       SELECT a
       FROM Article a
       WHERE a.id = :id

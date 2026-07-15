@@ -51,8 +51,10 @@ class ArticleViewFlushServiceTest {
   @Test
   void flushesDeltaToDatabaseAndKeepsCurrentRedisCount() {
     Article article = saveArticle();
-    redisRepository.recordViewIfUnique(article.getId(), "visitor-a", 0L, DEDUPLICATION_TTL);
-    redisRepository.recordViewIfUnique(article.getId(), "visitor-b", 0L, DEDUPLICATION_TTL);
+    redisRepository.recordViewIfUnique(
+        article.getId(), "visitor-a", 0L, DEDUPLICATION_TTL, Instant.now(), Duration.ofHours(26));
+    redisRepository.recordViewIfUnique(
+        article.getId(), "visitor-b", 0L, DEDUPLICATION_TTL, Instant.now(), Duration.ofHours(26));
 
     flushService.flushPendingViews();
 
@@ -65,7 +67,8 @@ class ArticleViewFlushServiceTest {
   @Test
   void appliesSameFlushBatchOnlyOnce() {
     Article article = saveArticle();
-    redisRepository.recordViewIfUnique(article.getId(), "visitor-a", 0L, DEDUPLICATION_TTL);
+    redisRepository.recordViewIfUnique(
+        article.getId(), "visitor-a", 0L, DEDUPLICATION_TTL, Instant.now(), Duration.ofHours(26));
     redisRepository.moveActiveDeltaToFlushBatch();
     String flushingKey = redisRepository.findFlushingKeys().getFirst();
     ArticleViewRedisRepository.FlushBatch batch = redisRepository.getFlushBatch(flushingKey);

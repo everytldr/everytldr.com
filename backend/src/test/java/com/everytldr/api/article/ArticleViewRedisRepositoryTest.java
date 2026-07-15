@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.everytldr.RedisTestcontainersConfig;
 import com.everytldr.TestcontainersConfig;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -27,6 +28,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles({"api", "test"})
 class ArticleViewRedisRepositoryTest {
   private static final Duration DEDUPLICATION_TTL = Duration.ofHours(24);
+  private static final Duration POPULARITY_BUCKET_TTL = Duration.ofHours(26);
+  private static final Instant VIEWED_AT = Instant.parse("2026-07-14T12:34:56Z");
 
   @Autowired private ArticleViewRedisRepository repository;
   @Autowired private StringRedisTemplate redisTemplate;
@@ -43,14 +46,20 @@ class ArticleViewRedisRepositoryTest {
 
   @Test
   void countsFirstViewAndRejectsDuplicateVisitor() {
-    repository.recordViewIfUnique(42L, "visitor-a", 7L, DEDUPLICATION_TTL);
-    repository.recordViewIfUnique(42L, "visitor-a", 7L, DEDUPLICATION_TTL);
-    repository.recordViewIfUnique(42L, "visitor-b", 7L, DEDUPLICATION_TTL);
+    repository.recordViewIfUnique(
+        42L, "visitor-a", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
+    repository.recordViewIfUnique(
+        42L, "visitor-a", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
+    repository.recordViewIfUnique(
+        42L, "visitor-b", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
 
     assertThat(repository.findViewCount(42L)).hasValue(9L);
     assertThat(redisTemplate.opsForHash().get("av:delta:active", "42")).isEqualTo("2");
     assertThat(redisTemplate.getExpire("av:seen:v1:42:visitor-a"))
         .isBetween(Duration.ofHours(23).toSeconds(), Duration.ofHours(24).toSeconds());
+    assertThat(redisTemplate.opsForZSet().score("av:popular:v1:2026071412", "42")).isEqualTo(2.0);
+    assertThat(redisTemplate.getExpire("av:popular:v1:2026071412"))
+        .isBetween(Duration.ofHours(25).toSeconds(), Duration.ofHours(26).toSeconds());
   }
 
   @Test
@@ -61,7 +70,14 @@ class ArticleViewRedisRepositoryTest {
       for (int index = 0; index < 20; index++) {
         futures.add(
             executor.submit(
-                () -> repository.recordViewIfUnique(99L, "same-visitor", 0L, DEDUPLICATION_TTL)));
+                () ->
+                    repository.recordViewIfUnique(
+                        99L,
+                        "same-visitor",
+                        0L,
+                        DEDUPLICATION_TTL,
+                        VIEWED_AT,
+                        POPULARITY_BUCKET_TTL)));
       }
 
       for (Future<?> future : futures) {
@@ -76,6 +92,23 @@ class ArticleViewRedisRepositoryTest {
   }
 
   @Test
+  void sumsHourlyPopularityBucketsInDescendingOrder() {
+    repository.recordViewIfUnique(
+        41L,
+        "visitor-a",
+        0L,
+        DEDUPLICATION_TTL,
+        VIEWED_AT.minus(Duration.ofHours(1)),
+        POPULARITY_BUCKET_TTL);
+    repository.recordViewIfUnique(
+        41L, "visitor-b", 0L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
+    repository.recordViewIfUnique(
+        42L, "visitor-a", 0L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
+
+    assertThat(repository.findPopularArticleIds(VIEWED_AT, 1)).containsExactly(41L, 42L);
+  }
+
+  @Test
   void rollsBackCountAndDeltaWhenSeenKeyCannotBeAllocated() {
     redisTemplate.opsForValue().set("av:count:v1:100", "10");
     redisTemplate.opsForHash().put("av:delta:active", "100", "5");
@@ -85,15 +118,41 @@ class ArticleViewRedisRepositoryTest {
       updateMaxMemory(findUsedMemoryBytes());
 
       assertThatThrownBy(
-              () -> repository.recordViewIfUnique(100L, "new-visitor", 10L, DEDUPLICATION_TTL))
+              () ->
+                  repository.recordViewIfUnique(
+                      100L,
+                      "new-visitor",
+                      10L,
+                      DEDUPLICATION_TTL,
+                      VIEWED_AT,
+                      POPULARITY_BUCKET_TTL))
           .isInstanceOf(DataAccessException.class);
 
       assertThat(redisTemplate.opsForValue().get("av:count:v1:100")).isEqualTo("10");
       assertThat(redisTemplate.opsForHash().get("av:delta:active", "100")).isEqualTo("5");
       assertThat(redisTemplate.hasKey("av:seen:v1:100:new-visitor")).isFalse();
+      assertThat(redisTemplate.opsForZSet().score("av:popular:v1:2026071412", "100")).isNull();
     } finally {
       updateMaxMemory(originalMaxMemory);
     }
+  }
+
+  @Test
+  void rollsBackCountAndDeltaWhenPopularityBucketHasWrongType() {
+    redisTemplate.opsForValue().set("av:count:v1:101", "10");
+    redisTemplate.opsForHash().put("av:delta:active", "101", "5");
+    redisTemplate.opsForValue().set("av:popular:v1:2026071412", "not-a-zset");
+
+    assertThatThrownBy(
+            () ->
+                repository.recordViewIfUnique(
+                    101L, "new-visitor", 10L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL))
+        .isInstanceOf(DataAccessException.class);
+
+    assertThat(redisTemplate.opsForValue().get("av:count:v1:101")).isEqualTo("10");
+    assertThat(redisTemplate.opsForHash().get("av:delta:active", "101")).isEqualTo("5");
+    assertThat(redisTemplate.hasKey("av:seen:v1:101:new-visitor")).isFalse();
+    assertThat(redisTemplate.opsForValue().get("av:popular:v1:2026071412")).isEqualTo("not-a-zset");
   }
 
   private String findConfigValue(String name) {

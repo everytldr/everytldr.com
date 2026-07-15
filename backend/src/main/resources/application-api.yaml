@@ -23,3 +23,6 @@ everytldr:
     deduplication-ttl: ${ARTICLE_VIEW_DEDUPLICATION_TTL:24h}
     flush-enabled: ${ARTICLE_VIEW_FLUSH_ENABLED:true}
     flush-cron: ${ARTICLE_VIEW_FLUSH_CRON:0 0 * * * *}
+  article-popularity:
+    bucket-ttl: ${ARTICLE_POPULARITY_BUCKET_TTL:26h}
+    bucket-lookback-hours: ${ARTICLE_POPULARITY_BUCKET_LOOKBACK_HOURS:24}

@@ -28,8 +28,10 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ArticleController {
   private static final int MIN_QUERY_LENGTH = 2;
+  private static final int DEFAULT_POPULAR_SIZE = 10;
 
   private final ArticleService articleService;
+  private final ArticlePopularityService articlePopularityService;
   private final ArticleViewService articleViewService;
   private final LicensePolicyEvaluator licensePolicyEvaluator;
 
@@ -79,6 +81,21 @@ public class ArticleController {
             ? null
             : ArticleListCursor.encode(page.nextStart().publishedAt(), page.nextStart().id());
     return new ArticleListResponse(items, nextCursor);
+  }
+
+  @GetMapping("/popular")
+  @Operation(operationId = "listPopularArticles")
+  public ArticlePopularResponse listPopular(
+      @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
+      @RequestParam(required = false) Integer size) {
+    int pageSize = Pagination.clampSize(size == null ? DEFAULT_POPULAR_SIZE : size);
+    List<ListItemProjection> popularArticles =
+        articlePopularityService.listPopular(language, pageSize);
+    List<ArticleListResponse.Item> items =
+        popularArticles.stream()
+            .map(item -> ArticleListResponse.Item.from(item, licensePolicyEvaluator))
+            .toList();
+    return new ArticlePopularResponse(items);
   }
 
   @GetMapping("/search")
@@ -200,4 +217,7 @@ public class ArticleController {
       return new ArticleSearchResponse(items, result.nextOffset());
     }
   }
+
+  public record ArticlePopularResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> items) {}
 }

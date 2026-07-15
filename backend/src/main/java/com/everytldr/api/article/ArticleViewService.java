@@ -1,6 +1,8 @@
 package com.everytldr.api.article;
 
 import com.everytldr.common.domain.article.Article;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,8 @@ public class ArticleViewService {
   private final ArticleService articleService;
   private final ArticleViewRedisRepository articleViewRedisRepository;
   private final ArticleViewProperties properties;
+  private final ArticlePopularityProperties articlePopularityProperties;
+  private final Clock clock;
 
   public void recordView(Long articleId, String visitorHash) {
     Objects.requireNonNull(articleId, "articleId must not be null");
@@ -24,7 +28,12 @@ public class ArticleViewService {
     Article article = articleService.getArticleOrThrow(articleId);
     try {
       articleViewRedisRepository.recordViewIfUnique(
-          articleId, visitorHash, article.getViewCount(), properties.deduplicationTtl());
+          articleId,
+          visitorHash,
+          article.getViewCount(),
+          properties.deduplicationTtl(),
+          Instant.now(clock),
+          articlePopularityProperties.bucketTtl());
     } catch (DataAccessException e) {
       throw new ArticleViewExceptions.Unavailable(e);
     }

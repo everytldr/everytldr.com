@@ -104,6 +104,47 @@ class ArticleControllerTest {
   }
 
   @Test
+  void popularListsArticlesInRedisViewRankOrder() throws Exception {
+    Article leading =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Leading", "Summary");
+    Article trailing =
+        saveArticle(Instant.parse("2026-04-01T01:00:00Z"), football, "ko", "Trailing", "Summary");
+
+    mockMvc
+        .perform(post("/api/articles/{id}/views", leading.getId()))
+        .andExpect(status().isNoContent());
+
+    mockMvc
+        .perform(
+            post("/api/articles/{id}/views", leading.getId())
+                .cookie(visitorCookie(createAnotherVisitorId())))
+        .andExpect(status().isNoContent());
+    mockMvc
+        .perform(
+            post("/api/articles/{id}/views", trailing.getId())
+                .cookie(visitorCookie(createAnotherVisitorId())))
+        .andExpect(status().isNoContent());
+
+    mockMvc
+        .perform(get("/api/articles/popular").header("Accept-Language", "ko"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(2))
+        .andExpect(jsonPath("$.items[0].title").value("Leading"))
+        .andExpect(jsonPath("$.items[1].title").value("Trailing"))
+        .andExpect(jsonPath("$.nextCursor").doesNotExist());
+  }
+
+  @Test
+  void popularReturnsEmptyWhenNoViewsHaveBeenRecorded() throws Exception {
+    saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Unviewed", "Summary");
+
+    mockMvc
+        .perform(get("/api/articles/popular").header("Accept-Language", "ko"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items").isEmpty());
+  }
+
+  @Test
   void listHidesArticlesWithUnsupportedLicenseForPublishing() throws Exception {
     Instant base = Instant.parse("2026-04-01T00:00:00Z");
     saveArticle(base, football, "ko", "Supported", "蹂몃Ц", licenseInfo());
