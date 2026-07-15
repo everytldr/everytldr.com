@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

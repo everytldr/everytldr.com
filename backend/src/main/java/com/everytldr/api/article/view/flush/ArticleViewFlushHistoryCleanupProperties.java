@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;

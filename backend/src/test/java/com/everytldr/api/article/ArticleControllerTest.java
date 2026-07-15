@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.everytldr.RedisTestcontainersConfig;
 import com.everytldr.TestcontainersConfig;
+import com.everytldr.api.article.view.ArticleViewRedisMemoryGuard;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleComment;
 import com.everytldr.common.domain.article.ArticleCommentRepository;

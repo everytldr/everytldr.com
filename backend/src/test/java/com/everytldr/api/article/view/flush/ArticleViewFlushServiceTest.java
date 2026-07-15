@@ -1,9 +1,10 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.everytldr.RedisTestcontainersConfig;
 import com.everytldr.TestcontainersConfig;
+import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.license.LicenseInfo;

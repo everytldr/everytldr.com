@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

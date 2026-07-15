@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
 import com.everytldr.common.domain.language.SupportedLanguage;
 import com.everytldr.common.domain.license.LicenseCode;

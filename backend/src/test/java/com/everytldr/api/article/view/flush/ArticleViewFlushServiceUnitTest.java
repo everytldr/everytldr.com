@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

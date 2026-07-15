@@ -1,5 +1,6 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
+import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

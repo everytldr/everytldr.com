@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view;
 
 import java.time.Clock;
 import java.time.Duration;

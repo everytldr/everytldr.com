@@ -1,5 +1,6 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
+import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;

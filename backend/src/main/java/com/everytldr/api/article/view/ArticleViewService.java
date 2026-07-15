@@ -1,5 +1,7 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view;
 
+import com.everytldr.api.article.ArticlePopularityProperties;
+import com.everytldr.api.article.ArticleService;
 import com.everytldr.common.domain.article.Article;
 import java.time.Clock;
 import java.time.Instant;

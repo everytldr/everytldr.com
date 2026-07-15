@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -7,6 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.everytldr.api.article.ArticlePopularityProperties;
+import com.everytldr.api.article.ArticleService;
 import com.everytldr.common.domain.article.Article;
 import java.time.Clock;
 import java.time.Duration;

@@ -1,7 +1,9 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.everytldr.api.article.view.flush.ArticleViewFlushHistoryCleanupScheduler;
+import com.everytldr.api.article.view.flush.ArticleViewFlushScheduler;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.annotation.Scheduled;

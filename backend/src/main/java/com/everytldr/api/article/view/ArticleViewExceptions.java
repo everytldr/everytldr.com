@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view;
 
 public final class ArticleViewExceptions {
   private ArticleViewExceptions() {}

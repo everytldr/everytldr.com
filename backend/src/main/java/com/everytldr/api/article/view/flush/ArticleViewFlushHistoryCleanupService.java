@@ -1,5 +1,6 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
+import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;

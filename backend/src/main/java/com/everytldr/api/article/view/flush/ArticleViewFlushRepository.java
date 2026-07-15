@@ -1,4 +1,4 @@
-package com.everytldr.api.article;
+package com.everytldr.api.article.view.flush;
 
 import java.sql.Timestamp;
 import java.time.Instant;

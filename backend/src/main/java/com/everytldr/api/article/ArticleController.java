@@ -1,5 +1,6 @@
 package com.everytldr.api.article;
 
+import com.everytldr.api.article.view.ArticleViewService;
 import com.everytldr.api.support.language.ResolvedLanguage;
 import com.everytldr.api.support.pagination.Pagination;
 import com.everytldr.api.support.visitor.AnonymousVisitor;

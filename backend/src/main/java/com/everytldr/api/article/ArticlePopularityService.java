@@ -1,5 +1,6 @@
 package com.everytldr.api.article;
 
+import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
 import com.everytldr.common.domain.language.SupportedLanguage;
 import java.time.Clock;
