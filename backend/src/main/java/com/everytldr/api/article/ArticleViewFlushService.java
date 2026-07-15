@@ -15,7 +15,12 @@ public class ArticleViewFlushService {
   private final ArticleViewFlushWriter flushWriter;
 
   public void flushPendingViews() {
+    flushExistingBatches();
     redisRepository.moveActiveDeltaToFlushBatch();
+    flushExistingBatches();
+  }
+
+  private void flushExistingBatches() {
     List<String> flushingKeys = redisRepository.findFlushingKeys();
     for (String flushingKey : flushingKeys) {
       flushBatch(flushingKey);
@@ -26,7 +31,7 @@ public class ArticleViewFlushService {
     try {
       ArticleViewRedisRepository.FlushBatch batch = redisRepository.getFlushBatch(flushingKey);
       ArticleViewFlushWriter.ApplyResult result = flushWriter.apply(batch);
-      redisRepository.deleteFlushBatch(flushingKey);
+      redisRepository.deleteFlushBatch(batch.key());
       log.info(
           "Flushed article views. batchId={}, articleCount={}, result={}",
           batch.batchId(),
