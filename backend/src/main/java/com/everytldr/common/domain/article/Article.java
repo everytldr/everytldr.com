@@ -34,6 +34,9 @@ public class Article extends SoftDeletableEntity {
 
   @Embedded private LicenseInfo licenseInfo;
 
+  @Column(nullable = false)
+  private long viewCount;
+
   private Article(
       String contentUrl,
       String source,
@@ -47,6 +50,7 @@ public class Article extends SoftDeletableEntity {
     this.language = language;
     this.publishedAt = publishedAt;
     this.licenseInfo = licenseInfo == null ? LicenseInfo.createUnknown() : licenseInfo;
+    this.viewCount = 0L;
   }
 
   public static Article create(
