@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 class ArticleViewFlushSchedulingConfigTest {
   private final ArticleViewFlushSchedulingConfig config = new ArticleViewFlushSchedulingConfig();
@@ -13,6 +14,12 @@ class ArticleViewFlushSchedulingConfigTest {
   void createsDedicatedSingleThreadSchedulers() {
     assertThat(config.articleViewFlushTaskScheduler().getPoolSize()).isEqualTo(1);
     assertThat(config.articleViewFlushHistoryCleanupTaskScheduler().getPoolSize()).isEqualTo(1);
+  }
+
+  @Test
+  void cancelsDelayedFlushTasksOnShutdown() {
+    assertCancelsDelayedTasksOnShutdown(config.articleViewFlushTaskScheduler());
+    assertCancelsDelayedTasksOnShutdown(config.articleViewFlushHistoryCleanupTaskScheduler());
   }
 
   @Test
@@ -29,5 +36,18 @@ class ArticleViewFlushSchedulingConfigTest {
       throws NoSuchMethodException {
     Method method = type.getDeclaredMethod(methodName);
     return method.getAnnotation(Scheduled.class);
+  }
+
+  private static void assertCancelsDelayedTasksOnShutdown(ThreadPoolTaskScheduler taskScheduler) {
+    taskScheduler.initialize();
+    try {
+      assertThat(
+              taskScheduler
+                  .getScheduledThreadPoolExecutor()
+                  .getExecuteExistingDelayedTasksAfterShutdownPolicy())
+          .isFalse();
+    } finally {
+      taskScheduler.shutdown();
+    }
   }
 }

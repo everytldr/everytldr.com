@@ -31,6 +31,7 @@ public class ArticleViewFlushSchedulingConfig {
     taskScheduler.setThreadNamePrefix(threadNamePrefix);
     taskScheduler.setWaitForTasksToCompleteOnShutdown(true);
     taskScheduler.setAwaitTerminationSeconds(5);
+    taskScheduler.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
     return taskScheduler;
   }
 }

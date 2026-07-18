@@ -15,6 +15,7 @@ public class ArticleViewMemorySchedulingConfig {
     taskScheduler.setThreadNamePrefix("article-view-memory-");
     taskScheduler.setWaitForTasksToCompleteOnShutdown(true);
     taskScheduler.setAwaitTerminationSeconds(5);
+    taskScheduler.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
     return taskScheduler;
   }
 }
