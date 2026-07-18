@@ -4,6 +4,7 @@ import { getPathname, type Locale, locales } from "@/shared/i18n";
 import { buildArticleDetailUrl, buildCategoryUrl } from "@/shared/lib";
 import type { MetadataRoute } from "next";
 import { cacheLife, cacheTag } from "next/cache";
+import { connection } from "next/server";
 
 const STATIC_PATHS = Object.values(STATIC_PAGE_URLS).filter((url) => url.startsWith("/"));
 
@@ -18,6 +19,8 @@ type EntryOptions = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  await connection();
+
   const browsePaths = Array.from(new Set(["/", ...ROUTABLE_CATEGORY_NODES.map(buildCategoryUrl)]));
 
   const browseEntries = browsePaths.flatMap((path) =>
