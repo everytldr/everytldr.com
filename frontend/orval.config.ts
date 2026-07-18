@@ -13,17 +13,22 @@ export default defineConfig({
           path: "src/shared/api/fetcher.ts",
           name: "_fetch",
         },
-        query: {
-          useQuery: true,
-          useSuspenseQuery: true,
-          useInfinite: true,
-          useInfiniteQueryParam: "cursor",
-          useSuspenseInfiniteQuery: true,
-        },
         operations: {
+          getMyArticleLike: {
+            query: {
+              useSuspenseQuery: true,
+            },
+          },
           searchArticles: {
             query: {
+              useSuspenseInfiniteQuery: true,
               useInfiniteQueryParam: "offset",
+            },
+          },
+          listArticles: {
+            query: {
+              useSuspenseInfiniteQuery: true,
+              useInfiniteQueryParam: "cursor",
             },
           },
         },
