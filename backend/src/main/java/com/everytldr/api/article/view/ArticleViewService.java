@@ -3,6 +3,7 @@ package com.everytldr.api.article.view;
 import com.everytldr.api.article.ArticlePopularityProperties;
 import com.everytldr.api.article.ArticleService;
 import com.everytldr.common.domain.article.Article;
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;

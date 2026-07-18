@@ -1,9 +1,9 @@
-package com.everytldr.api.article.view.flush;
+package com.everytldr.scheduler.article.view;
 
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "everytldr.article-view.flush-history-cleanup")
+@ConfigurationProperties(prefix = "everytldr.article-view.flush.history-cleanup")
 public record ArticleViewFlushHistoryCleanupProperties(
     Duration retention, Duration interval, int batchSize) {
   public ArticleViewFlushHistoryCleanupProperties {

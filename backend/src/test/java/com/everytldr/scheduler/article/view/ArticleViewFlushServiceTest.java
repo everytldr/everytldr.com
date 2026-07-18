@@ -1,10 +1,9 @@
-package com.everytldr.api.article.view.flush;
+package com.everytldr.scheduler.article.view;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.everytldr.RedisTestcontainersConfig;
 import com.everytldr.TestcontainersConfig;
-import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.license.LicenseInfo;
@@ -13,6 +12,7 @@ import com.everytldr.common.domain.source.ArticleSourceRepository;
 import com.everytldr.common.domain.source.SourcePolicy;
 import com.everytldr.common.domain.source.SourcePolicy.CrawlingPolicy;
 import com.everytldr.common.domain.source.SourceType;
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Duration;
@@ -32,7 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @Import({TestcontainersConfig.class, RedisTestcontainersConfig.class})
-@ActiveProfiles({"api", "test"})
+@ActiveProfiles({"scheduler", "test"})
 class ArticleViewFlushServiceTest {
   private static final Duration DEDUPLICATION_TTL = Duration.ofHours(24);
 

@@ -10,4 +10,5 @@ everytldr:
     hash-secret: test-visitor-secret
     cookie-secure: true
   article-view:
-    flush-enabled: false
+    flush:
+      enabled: false

@@ -1,6 +1,6 @@
-package com.everytldr.api.article.view.flush;
+package com.everytldr.scheduler.article.view;
 
-import com.everytldr.api.article.view.ArticleViewRedisRepository;
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Profile("api")
+@Profile("scheduler")
 @Slf4j
 public class ArticleViewFlushHistoryCleanupService {
   private final ArticleViewFlushRepository flushRepository;

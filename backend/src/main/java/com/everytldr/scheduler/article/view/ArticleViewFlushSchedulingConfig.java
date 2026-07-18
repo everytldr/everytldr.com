@@ -1,18 +1,20 @@
-package com.everytldr.api.article.view;
+package com.everytldr.scheduler.article.view;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
-@Profile("api")
-public class ArticleViewSchedulingConfig {
-  @Bean
-  public ThreadPoolTaskScheduler articleViewMemoryTaskScheduler() {
-    return createTaskScheduler("article-view-memory-");
-  }
-
+@EnableConfigurationProperties({
+  ArticleViewFlushProperties.class,
+  ArticleViewFlushHistoryCleanupProperties.class
+})
+@EnableScheduling
+@Profile("scheduler")
+public class ArticleViewFlushSchedulingConfig {
   @Bean
   public ThreadPoolTaskScheduler articleViewFlushTaskScheduler() {
     return createTaskScheduler("article-view-flush-");
@@ -20,7 +22,7 @@ public class ArticleViewSchedulingConfig {
 
   @Bean
   public ThreadPoolTaskScheduler articleViewFlushHistoryCleanupTaskScheduler() {
-    return createTaskScheduler("article-view-history-cleanup-");
+    return createTaskScheduler("article-view-flush-history-cleanup-");
   }
 
   private static ThreadPoolTaskScheduler createTaskScheduler(String threadNamePrefix) {

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.everytldr.api.article.ArticlePopularityProperties;
 import com.everytldr.api.article.ArticleService;
 import com.everytldr.common.domain.article.Article;
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -43,7 +44,7 @@ class ArticleViewServiceTest {
             redisRepository,
             redisMemoryGuard,
             metrics,
-            new ArticleViewProperties(DEDUPLICATION_TTL, "0 0 * * * *"),
+            new ArticleViewProperties(DEDUPLICATION_TTL),
             new ArticlePopularityProperties(POPULARITY_BUCKET_TTL, 24),
             Clock.fixed(NOW, ZoneOffset.UTC));
   }

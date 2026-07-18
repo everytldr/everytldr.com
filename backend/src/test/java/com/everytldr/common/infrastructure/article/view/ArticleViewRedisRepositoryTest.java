@@ -1,4 +1,4 @@
-package com.everytldr.api.article.view;
+package com.everytldr.common.infrastructure.article.view;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -1,4 +1,4 @@
-package com.everytldr.api.article.view.flush;
+package com.everytldr.scheduler.article.view;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-@Profile("api")
+@Profile("scheduler")
 public class ArticleViewFlushRepository {
   private static final int BATCH_SIZE = 100;
 

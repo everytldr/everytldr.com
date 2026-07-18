@@ -1,6 +1,5 @@
 package com.everytldr.api.article.view;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Duration;
@@ -9,25 +8,14 @@ import org.junit.jupiter.api.Test;
 class ArticleViewPropertiesTest {
 
   @Test
-  void acceptsHourlyFlushCron() {
-    assertThatCode(() -> createProperties("0 0 * * * *")).doesNotThrowAnyException();
+  void acceptsPositiveDeduplicationTtl() {
+    new ArticleViewProperties(Duration.ofHours(24));
   }
 
   @Test
-  void rejectsBlankFlushCron() {
-    assertThatThrownBy(() -> createProperties(" "))
+  void rejectsNonPositiveDeduplicationTtl() {
+    assertThatThrownBy(() -> new ArticleViewProperties(Duration.ZERO))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("flushCron must not be blank");
-  }
-
-  @Test
-  void rejectsInvalidFlushCron() {
-    assertThatThrownBy(() -> createProperties("not-a-cron"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("flushCron must be a valid cron expression");
-  }
-
-  private static ArticleViewProperties createProperties(String flushCron) {
-    return new ArticleViewProperties(Duration.ofHours(24), flushCron);
+        .hasMessage("deduplicationTtl must be positive");
   }
 }

@@ -1,6 +1,6 @@
-package com.everytldr.api.article.view.flush;
+package com.everytldr.scheduler.article.view;
 
-import com.everytldr.api.article.view.ArticleViewRedisRepository;
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Profile("api")
+@Profile("scheduler")
 @Slf4j
 public class ArticleViewFlushService {
   private final ArticleViewRedisRepository redisRepository;

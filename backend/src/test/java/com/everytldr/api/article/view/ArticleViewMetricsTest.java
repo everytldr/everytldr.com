@@ -3,6 +3,7 @@ package com.everytldr.api.article.view;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Clock;
 import java.time.Duration;

@@ -7,6 +7,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;

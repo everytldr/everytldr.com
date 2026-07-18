@@ -1,8 +1,8 @@
 package com.everytldr.api.article;
 
-import com.everytldr.api.article.view.ArticleViewRedisRepository;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
 import com.everytldr.common.domain.language.SupportedLanguage;
+import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;

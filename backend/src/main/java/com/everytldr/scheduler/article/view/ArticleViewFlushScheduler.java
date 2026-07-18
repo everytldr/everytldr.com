@@ -1,4 +1,4 @@
-package com.everytldr.api.article.view.flush;
+package com.everytldr.scheduler.article.view;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@Profile("api")
+@Profile("scheduler")
 @ConditionalOnProperty(
-    name = "everytldr.article-view.flush-enabled",
+    name = "everytldr.article-view.flush.enabled",
     havingValue = "true",
     matchIfMissing = true)
 @Slf4j
@@ -20,7 +20,7 @@ public class ArticleViewFlushScheduler {
 
   @Scheduled(
       scheduler = "articleViewFlushTaskScheduler",
-      cron = "${everytldr.article-view.flush-cron}",
+      cron = "${everytldr.article-view.flush.cron}",
       zone = "Asia/Seoul")
   void flushPendingViews() {
     try {

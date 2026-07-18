@@ -1,4 +1,4 @@
-package com.everytldr.api.article.view;
+package com.everytldr.common.infrastructure.article.view;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-@Profile("api")
+@Profile({"api", "scheduler"})
 public class ArticleViewRedisRepository {
   private static final String SEEN_KEY_PREFIX = "av:seen:v1:";
   private static final String COUNT_KEY_PREFIX = "av:count:v1:";

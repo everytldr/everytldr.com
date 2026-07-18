@@ -3,7 +3,6 @@ package com.everytldr.api;
 import com.everytldr.api.article.ArticlePopularityProperties;
 import com.everytldr.api.article.view.ArticleViewMemoryGuardProperties;
 import com.everytldr.api.article.view.ArticleViewProperties;
-import com.everytldr.api.article.view.flush.ArticleViewFlushHistoryCleanupProperties;
 import com.everytldr.api.support.visitor.AnonymousVisitorProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties({
   ArticleViewProperties.class,
   ArticleViewMemoryGuardProperties.class,
-  ArticleViewFlushHistoryCleanupProperties.class,
   ArticlePopularityProperties.class,
   AnonymousVisitorProperties.class
 })

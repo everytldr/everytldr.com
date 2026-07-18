@@ -1,4 +1,4 @@
-package com.everytldr.api.article.view.flush;
+package com.everytldr.scheduler.article.view;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@Profile("api")
+@Profile("scheduler")
 @Slf4j
 public class ArticleViewFlushHistoryCleanupScheduler {
   private final ArticleViewFlushHistoryCleanupService cleanupService;
 
   @Scheduled(
       scheduler = "articleViewFlushHistoryCleanupTaskScheduler",
-      fixedDelayString = "${everytldr.article-view.flush-history-cleanup.interval}")
+      fixedDelayString = "${everytldr.article-view.flush.history-cleanup.interval}")
   void deleteExpiredHistory() {
     try {
       cleanupService.deleteExpiredHistory();
