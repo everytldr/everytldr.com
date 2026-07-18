@@ -6,5 +6,16 @@
     "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code",
     "editor.formatOnSave": true
   },
-  "tailwindCSS.classFunctions": ["cva"]
+  "tailwindCSS.classFunctions": ["cva"],
+  "rest-client.defaultHeaders": {
+    "Accept-Language": "ko",
+    "User-Agent": "vscode-restclient",
+    "Content-Type": "application/json",
+    "X-Forwarded-For": "127.0.0.1"
+  },
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "baseUrl": "http://localhost:8080/api"
+    }
+  }
 }

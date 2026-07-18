@@ -47,6 +47,7 @@ export function CommentEditDialog({
     >
       {step === "verify" ? (
         <CommentVerifyForm
+          className="pb-md"
           confirmTKey="article-detail.comment-password-confirm"
           pendingTKey="article-detail.comment-password-verifying"
           errorTKey="article-detail.comment-edit-error"
@@ -54,9 +55,9 @@ export function CommentEditDialog({
           onSubmit={handleVerified}
         />
       ) : (
-        <form className="space-y-md px-md py-md pc:p-0" onSubmit={handleSaveSubmit}>
+        <form className="space-y-md pb-md" onSubmit={handleSaveSubmit}>
           <Textarea
-            className="block max-h-64 min-h-32 w-full"
+            className="block max-h-32"
             name="content"
             value={content}
             maxLength={MAX_CONTENT_LENGTH}

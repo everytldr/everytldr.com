@@ -7,7 +7,7 @@ import { cacheLife, cacheTag } from "next/cache";
 
 const STATIC_PATHS = Object.values(STATIC_PAGE_URLS).filter((url) => url.startsWith("/"));
 
-const RECENT_ARTICLE_COUNT = 100;
+const RECENT_ARTICLE_COUNT = 50;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 

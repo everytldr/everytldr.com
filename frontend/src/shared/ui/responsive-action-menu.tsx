@@ -67,12 +67,12 @@ function MobileActionMenu({ className, actions, title, renderTrigger }: Responsi
     <div className={cn(className)}>
       {renderTrigger({ isOpen, open: () => setIsOpen(true) })}
       <BottomSheet isOpen={isOpen} header={{ title }} onClose={() => setIsOpen(false)}>
-        <div className="flex flex-col gap-2xs px-md pt-2xs pb-2xs" role="menu" aria-label={title}>
+        <div className="flex flex-col gap-2xs" role="menu" aria-label={title}>
           {actions.map((action) => (
             <button
               key={action.key}
               className={cn(
-                "flex h-13 w-full cursor-pointer items-center justify-center gap-sm rounded-sm bg-surface-soft text-button-md transition-colors outline-none hover:bg-surface-strong focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-surface-pressed disabled:cursor-not-allowed disabled:opacity-50",
+                "flex h-13 w-full cursor-pointer items-center justify-center gap-sm rounded-sm bg-surface-soft text-button-md transition-colors outline-none last:mb-md hover:bg-surface-strong focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-surface-pressed disabled:cursor-not-allowed disabled:opacity-50",
                 action.variant === "destructive" ? "text-semantic-error" : "text-ink",
               )}
               type="button"
