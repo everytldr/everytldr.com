@@ -43,6 +43,7 @@ dependencies {
     implementation("com.rometools:rome-modules:2.1.0")
     implementation("org.jsoup:jsoup:1.22.2")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")

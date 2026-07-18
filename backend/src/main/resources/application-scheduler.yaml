@@ -1,0 +1,9 @@
+everytldr:
+  article-view:
+    flush:
+      enabled: ${ARTICLE_VIEW_FLUSH_ENABLED:true}
+      cron: ${ARTICLE_VIEW_FLUSH_CRON:0 0 * * * *}
+      history-cleanup:
+        retention: ${ARTICLE_VIEW_FLUSH_HISTORY_RETENTION:30d}
+        interval: ${ARTICLE_VIEW_FLUSH_HISTORY_CLEANUP_INTERVAL:1d}
+        batch-size: ${ARTICLE_VIEW_FLUSH_HISTORY_CLEANUP_BATCH_SIZE:1000}

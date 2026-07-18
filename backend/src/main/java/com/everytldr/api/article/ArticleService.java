@@ -12,6 +12,8 @@ import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -87,6 +89,30 @@ public class ArticleService {
             .stream().map(SearchItemProjection::toListItem).toList();
     Integer nextOffset = hasMore ? offset + size : null;
     return new SearchResult(items, nextOffset);
+  }
+
+  public List<ListItemProjection> listByIdsInOrder(
+      SupportedLanguage language, List<Long> articleIds, int size) {
+    Objects.requireNonNull(language, "language must not be null");
+    Objects.requireNonNull(articleIds, "articleIds must not be null");
+    if (articleIds.isEmpty()) {
+      return List.of();
+    }
+
+    Map<Long, ListItemProjection> articlesById =
+        articleRepository
+            .findListItemsByIdInAndLanguageAndLicenseCodeIn(
+                articleIds, language.code(), getPublishableLicenseCodes())
+            .stream()
+            .collect(java.util.stream.Collectors.toMap(ListItemProjection::id, item -> item));
+
+    return articleIds.stream().map(articlesById::get).filter(Objects::nonNull).limit(size).toList();
+  }
+
+  public List<ListItemProjection> listMostViewed(SupportedLanguage language, int size) {
+    Objects.requireNonNull(language, "language must not be null");
+    return articleRepository.findMostViewedByLanguageAndLicenseCodeIn(
+        language.code(), getPublishableLicenseCodes(), PageRequest.of(0, size, Sort.unsorted()));
   }
 
   private Collection<LicenseCode> getPublishableLicenseCodes() {

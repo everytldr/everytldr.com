@@ -143,9 +143,13 @@
           },
           "title" : {
             "type" : "string"
+          },
+          "viewCount" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         },
-        "required" : [ "advertisingAllowed", "category", "commentCount", "contentUrl", "id", "licenseCode", "licenseVersion", "likeCount", "publishedAt", "requiresAttribution", "source", "summary", "thumbnailUrl", "title" ],
+        "required" : [ "advertisingAllowed", "category", "commentCount", "contentUrl", "id", "licenseCode", "licenseVersion", "likeCount", "publishedAt", "requiresAttribution", "source", "summary", "thumbnailUrl", "title", "viewCount" ],
         "type" : "object"
       },
       "ArticleLikeStateResponse" : {
@@ -219,6 +223,18 @@
         "required" : [ "items", "nextCursor" ],
         "type" : "object"
       },
+      "ArticlePopularResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ArticleListItem"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "items" ],
+        "type" : "object"
+      },
       "ArticleSearchResponse" : {
         "properties" : {
           "items" : {
@@ -285,6 +301,45 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ArticleListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/popular" : {
+      "get" : {
+        "operationId" : "listPopularArticles",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticlePopularResponse"
                 }
               }
             },
@@ -724,6 +779,37 @@
               }
             },
             "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{id}/views" : {
+      "post" : {
+        "operationId" : "countArticleView",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
           },
           "400" : {
             "description" : "Bad Request"

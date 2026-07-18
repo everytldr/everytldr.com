@@ -2,11 +2,17 @@ spring:
   config:
     import: optional:file:.env[.properties]
   profiles:
+    default: monolith
     group:
       monolith:
         - api
+        - scheduler
         - ingestor
         - enricher
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/everytldr?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8}
     username: ${DB_USERNAME:everytldr}
