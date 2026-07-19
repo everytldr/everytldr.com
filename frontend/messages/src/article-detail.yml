@@ -14,6 +14,10 @@ source-link:
   en: "Read original at {source}"
   ko: "{source} 원문 보기"
 
+view-count:
+  en: "{count} views"
+  ko: "조회 {count}"
+
 comments:
   en: "Comments"
   ko: "댓글"

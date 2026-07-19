@@ -17,6 +17,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { fetchArticleDetail } from "../api/fetch-article-detail";
 import { ArticleComments, ArticleCommentsError, ArticleCommentsSkeleton } from "./article-comments";
 import { ArticleLikeButton, ArticleLikeButtonSkeleton } from "./article-like-button";
+import { ArticleViewTracker } from "./article-view-tracker";
 
 type ArticleDetailPageProps = {
   className?: string;
@@ -40,6 +41,8 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
+
+      <ArticleViewTracker articleId={articleId} />
 
       <ArticleDetailContent article={article} locale={locale} />
 
@@ -88,6 +91,11 @@ function ArticleDetailContent({ className, article, locale }: ArticleDetailConte
         <p className="text-caption text-meta [&>*:not(:last-child)]:after:mx-2xs [&>*:not(:last-child)]:after:content-['·']">
           <span>{article.source}</span>
           <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
+          <Translation
+            as="span"
+            tKey="article-detail.view-count"
+            values={{ count: article.viewCount }}
+          />
           {article.requiresAttribution && (
             <a
               className="text-meta underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
