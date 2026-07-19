@@ -44,6 +44,8 @@ everytldr은 광고 표시를 위해 Google AdSense 또는 유사한 광고 서�
 
 ## 문의
 
-개인정보 관련 문의나 삭제 요청은 프로젝트 저장소를 이용해 주세요.
+개인정보 관련 문의나 삭제 요청은 프로젝트 저장소 또는 이메일을 이용해 주세요.
 
 [https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
+
+[contact@everytldr.com](mailto:contact@everytldr.com)

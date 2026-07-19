@@ -44,6 +44,8 @@ Information is kept only as long as needed for service operation, security, debu
 
 ## Contact
 
-For privacy questions or removal requests, use the project repository:
+For privacy questions or removal requests, use the project repository or email:
 
 [https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
+
+[contact@everytldr.com](mailto:contact@everytldr.com)

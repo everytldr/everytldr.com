@@ -5,8 +5,7 @@ import { ConditionalLink, Container, Logo, Translation } from "@/shared/ui";
 import { cacheLife } from "next/cache";
 import { type PropsWithChildren } from "react";
 
-const GITHUB_URL =
-  process.env.NEXT_PUBLIC_FOOTER_GITHUB_URL || "https://github.com/everytldr/everytldr.com";
+const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@everytldr.com";
 
 type FooterProps = {
   className?: string;
@@ -38,9 +37,7 @@ export async function Footer({ className }: FooterProps) {
             <Translation tKey="footer.terms" />
           </FooterLink>
           <FooterSeparator />
-          <FooterLink href={GITHUB_URL}>
-            <Translation tKey="footer.github" />
-          </FooterLink>
+          <FooterLink href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</FooterLink>
         </nav>
       </Container>
     </footer>
