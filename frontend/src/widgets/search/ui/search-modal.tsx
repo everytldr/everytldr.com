@@ -2,7 +2,7 @@
 
 import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
 import { useRouter } from "@/shared/i18n";
-import { buildSearchUrl, cn } from "@/shared/lib";
+import { buildArticleDetailUrl, buildSearchUrl, cn } from "@/shared/lib";
 import { Modal } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useRecentSearches } from "../model/use-recent-searches";
@@ -36,6 +36,7 @@ export function SearchModal({ className, isOpen, onClose }: SearchModalProps) {
     >
       <SearchPanel
         recentTerms={terms}
+        onArticleSelect={handleArticleSelect}
         onItemSelect={handleSearch}
         onRemoveRecent={removeTerm}
         onSubmit={handleSearch}
@@ -48,5 +49,10 @@ export function SearchModal({ className, isOpen, onClose }: SearchModalProps) {
     addTerm(term);
     onClose();
     router.push(buildSearchUrl(term));
+  }
+
+  function handleArticleSelect(articleId: string) {
+    onClose();
+    router.push(buildArticleDetailUrl(articleId));
   }
 }
