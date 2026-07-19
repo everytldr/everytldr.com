@@ -34,6 +34,8 @@ everytldr은 현재 제공 가능한 상태 그대로 제공됩니다. 중요한
 
 ## 문의
 
-이 약관에 관한 문의는 프로젝트 저장소를 이용해 주세요.
+이 약관에 관한 문의는 프로젝트 저장소 또는 이메일을 이용해 주세요.
 
 [https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
+
+[contact@everytldr.com](mailto:contact@everytldr.com)

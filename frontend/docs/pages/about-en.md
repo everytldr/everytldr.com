@@ -21,6 +21,8 @@ everytldr stores and displays summaries and article metadata, not full copyright
 
 ## Contact
 
-For product feedback, issue reports, or source-related concerns, use the project repository:
+For product feedback, issue reports, or source-related concerns, use the project repository or email:
 
 [https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
+
+[contact@everytldr.com](mailto:contact@everytldr.com)
