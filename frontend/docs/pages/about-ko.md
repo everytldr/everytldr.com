@@ -21,6 +21,8 @@ everytldr은 저작권이 있는 원문 기사 전체가 아니라 요약과 기
 
 ## 문의
 
-제품 피드백, 오류 제보, 출처 관련 문의는 프로젝트 저장소를 이용해 주세요.
+제품 피드백, 오류 제보, 출처 관련 문의는 프로젝트 저장소 또는 이메일을 이용해 주세요.
 
 [https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
+
+[contact@everytldr.com](mailto:contact@everytldr.com)

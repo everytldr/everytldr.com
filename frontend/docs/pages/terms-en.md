@@ -34,6 +34,8 @@ everytldr is provided on an as-is and as-available basis. You should verify impo
 
 ## Contact
 
-For questions about these Terms, use the project repository:
+For questions about these Terms, use the project repository or email:
 
 [https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
+
+[contact@everytldr.com](mailto:contact@everytldr.com)
