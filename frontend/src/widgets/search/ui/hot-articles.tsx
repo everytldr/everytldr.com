@@ -38,7 +38,7 @@ export function HotArticles({ className, onArticleSelect }: HotArticlesProps) {
 
   return (
     <section className={cn("flex flex-col gap-sm", className)}>
-      <Translation className="text-title-sm text-ink" as="h3" tKey="search.section.hot-articles" />
+      <Translation className="text-title-md text-ink" as="h3" tKey="search.section.hot-articles" />
       <ul className="flex flex-col">
         {isPending
           ? range(HOT_ARTICLES_SIZE).map((index) => (
