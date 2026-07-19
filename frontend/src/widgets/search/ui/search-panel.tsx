@@ -6,6 +6,7 @@ import { Input, toast } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useArrowNavigation } from "../lib/use-arrow-navigation";
+import { HotArticles } from "./hot-articles";
 import { RecentSearches } from "./recent-searches";
 
 type SearchPanelProps = {
@@ -13,6 +14,7 @@ type SearchPanelProps = {
   initialQuery?: string;
   recentTerms: ReadonlyArray<string>;
   showExploreSections?: boolean;
+  onArticleSelect: (articleId: string) => void;
   onItemSelect: (term: string) => void;
   onRemoveRecent: (term: string) => void;
   onSubmit: (query: string) => void;
@@ -23,6 +25,7 @@ export function SearchPanel({
   initialQuery = "",
   recentTerms,
   showExploreSections = true,
+  onArticleSelect,
   onItemSelect,
   onRemoveRecent,
   onSubmit,
@@ -66,8 +69,7 @@ export function SearchPanel({
               onRemove={onRemoveRecent}
             />
           )}
-          {/* TODO: Implement this */}
-          {/* <PopularSearches onItemSelect={onItemSelect} /> */}
+          <HotArticles onArticleSelect={onArticleSelect} />
         </>
       )}
     </div>

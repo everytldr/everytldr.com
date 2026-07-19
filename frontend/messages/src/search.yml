@@ -25,13 +25,9 @@ section:
   recent:
     en: "Recent"
     ko: "최근 검색"
-  popular:
-    en: "Trending"
-    ko: "인기 검색어"
-
-popular-meta:
-  en: "Updated hourly"
-  ko: "매시간 갱신"
+  hot-articles:
+    en: "Top 6 articles"
+    ko: "TOP 6 인기 기사예요"
 
 empty-state:
   en: "No results for “{query}”. Try a different keyword or browse by topic."

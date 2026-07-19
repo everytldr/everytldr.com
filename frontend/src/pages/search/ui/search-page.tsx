@@ -1,7 +1,7 @@
 "use client";
 
 import { MIN_SEARCH_QUERY_LENGTH } from "@/shared/config";
-import { buildSearchUrl, cn } from "@/shared/lib";
+import { buildArticleDetailUrl, buildSearchUrl, cn } from "@/shared/lib";
 import { Translation } from "@/shared/ui";
 import { SearchPanel, useRecentSearches } from "@/widgets/search";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ export function SearchPage({ className, query }: SearchPageProps) {
         initialQuery={query}
         recentTerms={terms}
         showExploreSections={!hasQuery}
+        onArticleSelect={handleArticleSelect}
         onItemSelect={handleSearch}
         onRemoveRecent={removeTerm}
         onSubmit={handleSearch}
@@ -51,5 +52,9 @@ export function SearchPage({ className, query }: SearchPageProps) {
   function handleSearch(term: string) {
     addTerm(term);
     router.push(buildSearchUrl(term));
+  }
+
+  function handleArticleSelect(articleId: string) {
+    router.push(buildArticleDetailUrl(articleId));
   }
 }
