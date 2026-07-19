@@ -27,7 +27,7 @@ section:
     ko: "최근 검색"
   hot-articles:
     en: "Top 6 articles"
-    ko: "인기 기사 TOP 6이에요"
+    ko: "TOP 6 인기 기사예요"
 
 empty-state:
   en: "No results for “{query}”. Try a different keyword or browse by topic."
