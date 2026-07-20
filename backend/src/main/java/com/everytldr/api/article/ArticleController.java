@@ -47,12 +47,12 @@ public class ArticleController {
   }
 
   @PostMapping("/{id}/views")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(operationId = "countArticleView")
-  public void countView(
+  public ArticleViewCountResponse countView(
       @PathVariable @Schema(type = "string") Long id,
       @Parameter(hidden = true) @ResolvedAnonymousVisitor AnonymousVisitor visitor) {
-    articleViewService.recordView(id, visitor.visitorHash());
+    long viewCount = articleViewService.recordView(id, visitor.visitorHash());
+    return new ArticleViewCountResponse(viewCount);
   }
 
   @GetMapping
@@ -159,6 +159,9 @@ public class ArticleController {
           viewCount);
     }
   }
+
+  public record ArticleViewCountResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) long viewCount) {}
 
   public record ArticleListResponse(
       @Schema(requiredMode = RequiredMode.REQUIRED) List<Item> items,
