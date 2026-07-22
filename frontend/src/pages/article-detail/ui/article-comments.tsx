@@ -17,7 +17,7 @@ export async function ArticleComments({ className, articleId, locale }: ArticleC
   const comments = response.data.items ?? [];
 
   return (
-    <section className={cn("space-y-md border-t border-hairline-soft pt-lg", className)}>
+    <section className={cn("space-y-md", className)}>
       <Translation className="text-display-sm text-ink" as="h2" tKey="article-detail.comments" />
 
       <CommentList articleId={articleId} comments={comments} locale={locale} />
@@ -31,7 +31,7 @@ type ArticleCommentsErrorProps = {
 
 export function ArticleCommentsError({ className }: ArticleCommentsErrorProps) {
   return (
-    <section className={cn("space-y-md border-t border-hairline-soft pt-lg", className)}>
+    <section className={cn("space-y-md", className)}>
       <Translation className="text-display-sm text-ink" as="h2" tKey="article-detail.comments" />
       <Translation
         className="rounded-md border border-hairline-soft bg-surface-soft p-2xl text-center text-body-md text-meta"
@@ -48,7 +48,7 @@ type ArticleCommentsSkeletonProps = {
 
 export function ArticleCommentsSkeleton({ className }: ArticleCommentsSkeletonProps) {
   return (
-    <section className={cn("space-y-md border-t border-hairline-soft pt-lg", className)}>
+    <section className={cn("space-y-md", className)}>
       <Skeleton className="h-7 w-24" />
       <div className="space-y-sm">
         <Skeleton className="h-24 w-full rounded-md" />
