@@ -36,7 +36,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const isHomeTab = HOME_CATEGORY_NODE.children?.some((child) => child.slug === slug);
   if (isHomeTab) {
-    const t = await getTranslations({ locale, namespace: "metadata.home" });
+    const namespace = slug === "latest" ? "metadata.latest" : "metadata.home";
+    const t = await getTranslations({ locale, namespace });
     return buildPageMetadata({
       title: t("title"),
       description: t("description"),
@@ -45,14 +46,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
-  const category = isMainCategorySlug(slug)
+  const isMain = isMainCategorySlug(slug);
+  const category = isMain
     ? (await getTranslations({ locale, namespace: "header.category" }))(slug)
     : (await getTranslations({ locale, namespace: "header.subcategory" }))(slug);
 
   const tMeta = await getTranslations({ locale, namespace: "metadata.category" });
   return buildPageMetadata({
     title: tMeta("title", { category }),
-    description: tMeta("description", { category }),
+    description: isMain ? tMeta(`main-description.${slug}`) : tMeta("description", { category }),
     locale,
     path: `/${slug}`,
     feedSlug: isFeedableCategory(slug) ? slug : undefined,
