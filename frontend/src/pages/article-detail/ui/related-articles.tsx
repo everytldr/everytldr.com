@@ -24,7 +24,7 @@ export async function RelatedArticles({ className, articleId, locale }: RelatedA
   return (
     <section className={cn("space-y-sm", className)}>
       <Translation className="text-display-md text-ink" as="h2" tKey="article-detail.related" />
-      <ScrollableRow scrollStep="item" fade>
+      <ScrollableRow scrollerClassName="px-md -mx-md" scrollStep="item" fade>
         <ul className="flex items-stretch gap-sm">
           {articles.map((article) => (
             <li key={article.id} className="w-56 shrink-0 sm:w-64">
