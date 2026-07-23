@@ -9,6 +9,7 @@ export {
   ROUTABLE_CATEGORY_NODES,
   ROUTABLE_MAIN_CATEGORY_NODES,
   STATIC_CATEGORY_SLUGS,
+  findDedicatedRouteCategorySlug,
   findRootCategory,
   isFeedableCategory,
   isHiddenNode,

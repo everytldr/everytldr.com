@@ -43,6 +43,28 @@ export function buildNewsArticleJsonLd(params: NewsArticleJsonLdParams): JsonLd 
   };
 }
 
+type BriefingJsonLdParams = {
+  url: string;
+  headline: string;
+  description: string;
+  datePublished: string;
+};
+
+export function buildBriefingJsonLd(params: BriefingJsonLdParams): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    mainEntityOfPage: { "@type": "WebPage", "@id": params.url },
+    headline: params.headline,
+    description: params.description,
+    image: [DEFAULT_IMAGE],
+    datePublished: params.datePublished,
+    dateModified: params.datePublished,
+    author: { "@id": ORGANIZATION_ID },
+    publisher: ORGANIZATION,
+  };
+}
+
 export function buildSiteJsonLd(locale: Locale): JsonLd {
   const localeUrl = `${SITE_URL}${getPathname({ locale, href: "/" })}`;
   const searchUrl = `${SITE_URL}${getPathname({ locale, href: "/search" })}`;

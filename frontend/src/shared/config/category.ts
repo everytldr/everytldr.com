@@ -1,4 +1,4 @@
-import { assert, ensure } from "@/shared/lib";
+import { assert, ensure, type Optional } from "@/shared/lib";
 
 export type CategoryNode = {
   slug: string;
@@ -19,7 +19,12 @@ export const CATEGORY_GRAPH = [
     slug: "home",
     forceHidden: true,
     redirectPath: "/",
-    children: [{ slug: "discover" }, { slug: "trending", forceHidden: true }, { slug: "latest" }],
+    children: [
+      { slug: "discover" },
+      { slug: "trending", forceHidden: true },
+      { slug: "latest" },
+      { slug: "briefings" },
+    ],
   },
   {
     slug: "politics",
@@ -110,6 +115,8 @@ export const CATEGORY_GRAPH = [
 
 export type CategoryGraph = typeof CATEGORY_GRAPH;
 
+const DEDICATED_ROUTE_CATEGORY_SLUGS = ["briefings"] as const satisfies readonly CategorySlug[];
+
 export const CATEGORY_NODES = CATEGORY_GRAPH.flatMap((node) => [node, ...(node.children ?? [])]);
 export const ROUTABLE_CATEGORY_NODES = CATEGORY_NODES.filter(isRoutable);
 export const ROUTABLE_MAIN_CATEGORY_NODES = CATEGORY_GRAPH.filter(isRoutable);
@@ -120,7 +127,7 @@ export const STATIC_CATEGORY_SLUGS = CATEGORY_GRAPH.flatMap((node) =>
   "redirectPath" in node && node.redirectPath
     ? (node.children?.map((child) => child.slug) ?? [])
     : [node.slug],
-);
+).filter((slug) => !isDedicatedRouteCategorySlug(slug));
 export const HOME_CATEGORY_NODE = ensure(CATEGORY_NODES.find((node) => node.slug === "home"));
 export const DEFAULT_CATEGORY_NODE = ensure(
   CATEGORY_NODES.find((node) => node.slug === "discover"),
@@ -160,6 +167,16 @@ export function resolveCategoryFeedPrefix(slug: CategorySlug) {
 
 export function isHiddenNode(node: CategoryNode) {
   return !isRoutable(node) && !node.redirectPath;
+}
+
+function isDedicatedRouteCategorySlug(slug: string): boolean {
+  return DEDICATED_ROUTE_CATEGORY_SLUGS.some((dedicated) => dedicated === slug);
+}
+
+export function findDedicatedRouteCategorySlug(pathname: string): Optional<CategorySlug> {
+  return DEDICATED_ROUTE_CATEGORY_SLUGS.find(
+    (slug) => pathname === `/${slug}` || pathname.startsWith(`/${slug}/`),
+  );
 }
 
 function isRoutable(node: CategoryNode): boolean {

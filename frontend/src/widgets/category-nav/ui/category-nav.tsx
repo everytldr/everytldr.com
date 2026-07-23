@@ -4,10 +4,11 @@ import {
   type CategoryGraph,
   type CategorySlug,
   DEFAULT_CATEGORY_NODE,
+  findDedicatedRouteCategorySlug,
   findRootCategory,
   isHiddenNode,
 } from "@/shared/config";
-import { Link } from "@/shared/i18n";
+import { Link, usePathname } from "@/shared/i18n";
 import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
@@ -21,8 +22,10 @@ type CategoryNavProps = {
 export function CategoryNav({ className, categoryGraph }: CategoryNavProps) {
   const t = useTranslations();
   const params = useParams<{ slug?: CategorySlug }>();
+  const pathname = usePathname();
 
-  const categorySlug = params?.slug ?? DEFAULT_CATEGORY_NODE.slug;
+  const categorySlug =
+    params?.slug ?? findDedicatedRouteCategorySlug(pathname) ?? DEFAULT_CATEGORY_NODE.slug;
   const category = findRootCategory(categoryGraph, categorySlug);
 
   return (
