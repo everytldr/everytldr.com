@@ -86,6 +86,9 @@ class JobProcessorTest {
     assertThat(processor.processNextBatch(2))
         .containsExactly(new ProcessingResult(job.getId(), SUCCEEDED));
     assertThat(jobMetricCount(SUCCEEDED)).isEqualTo(1.0);
+    assertThat(jobAttemptDurationCount(SUCCEEDED)).isEqualTo(1);
+    assertThat(externalStageDurationCount("content_resolution", "success")).isEqualTo(1);
+    assertThat(externalStageDurationCount("enrichment", "success")).isEqualTo(1);
   }
 
   @Test
@@ -103,6 +106,7 @@ class JobProcessorTest {
     assertThat(processor.processJob(job))
         .isEqualTo(new ProcessingResult(job.getId(), RETRY_SCHEDULED));
     assertThat(jobMetricCount(RETRY_SCHEDULED)).isEqualTo(1.0);
+    assertThat(externalStageDurationCount("content_resolution", "retryable_failure")).isEqualTo(1);
     verifyNoInteractions(enrichmentClient);
   }
 
@@ -238,6 +242,8 @@ class JobProcessorTest {
         .isEqualTo(new ProcessingResult(missingJob.getId(), SKIPPED_NOT_FOUND));
     assertThat(jobMetricCount(SKIPPED_NOT_PROCESSING)).isEqualTo(1.0);
     assertThat(jobMetricCount(SKIPPED_NOT_FOUND)).isEqualTo(1.0);
+    assertThat(jobAttemptDurationCount(SKIPPED_NOT_PROCESSING)).isEqualTo(1);
+    assertThat(jobAttemptDurationCount(SKIPPED_NOT_FOUND)).isEqualTo(1);
     verifyNoInteractions(contentResolver, enrichmentClient, completionService);
   }
 
@@ -257,6 +263,7 @@ class JobProcessorTest {
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
     verify(completionService).fail(job.getId(), "unexpected enrichment error: bad response");
+    assertThat(externalStageDurationCount("enrichment", "permanent_failure")).isEqualTo(1);
   }
 
   private JobProcessor newProcessor(
@@ -334,6 +341,23 @@ class JobProcessorTest {
         .get("everytldr.enricher.jobs")
         .tag("status", status.name().toLowerCase(Locale.ROOT))
         .counter()
+        .count();
+  }
+
+  private long jobAttemptDurationCount(ProcessingResult.Status status) {
+    return meterRegistry
+        .get("everytldr.enricher.job.attempt.duration")
+        .tag("status", status.name().toLowerCase(Locale.ROOT))
+        .timer()
+        .count();
+  }
+
+  private long externalStageDurationCount(String stage, String outcome) {
+    return meterRegistry
+        .get("everytldr.enricher.external.stage.duration")
+        .tag("stage", stage)
+        .tag("outcome", outcome)
+        .timer()
         .count();
   }
 
