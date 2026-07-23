@@ -48,7 +48,8 @@ class PollingSchedulerTest {
             batchSize,
             Duration.ofSeconds(30),
             3,
-            Duration.ofMinutes(10),
+            new ProcessingProperties.RetryProperties(
+                Duration.ofMinutes(1), 2.0, Duration.ofMinutes(10)),
             Duration.ofMinutes(15)));
   }
 }

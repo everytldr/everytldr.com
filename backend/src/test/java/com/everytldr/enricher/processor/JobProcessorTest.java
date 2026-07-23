@@ -6,6 +6,7 @@ import static com.everytldr.enricher.processor.ProcessingResult.Status.SKIPPED_N
 import static com.everytldr.enricher.processor.ProcessingResult.Status.SKIPPED_NOT_PROCESSING;
 import static com.everytldr.enricher.processor.ProcessingResult.Status.SUCCEEDED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -47,8 +48,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 class JobProcessorTest {
   private static final Instant NOW = Instant.parse("2026-05-28T01:02:03Z");
   private static final Instant PUBLISHED_AT = Instant.parse("2026-05-04T10:15:30Z");
-  private static final Duration RETRY_DELAY = Duration.ofMinutes(7);
-  private static final int MAX_ATTEMPTS = 2;
+  private static final Duration RETRY_INITIAL_INTERVAL = Duration.ofMinutes(1);
+  private static final int MAX_ATTEMPTS = 3;
   private static final String ARTICLE_BODY = "Full article body";
 
   @Mock private ArticleIngestionJobClaimService claimService;
@@ -64,24 +65,7 @@ class JobProcessorTest {
   @BeforeEach
   void setUp() {
     meterRegistry = new SimpleMeterRegistry();
-    processor =
-        new JobProcessor(
-            claimService,
-            jobRepository,
-            categorySlugProvider,
-            completionService,
-            List.of(contentResolver),
-            List.of(enrichmentClient),
-            new ProcessingProperties(
-                false,
-                10,
-                Duration.ofSeconds(30),
-                MAX_ATTEMPTS,
-                RETRY_DELAY,
-                Duration.ofMinutes(15)),
-            Clock.fixed(NOW, ZoneOffset.UTC),
-            new LicensePolicyEvaluator(),
-            new EnricherMetrics(meterRegistry, jobRepository));
+    processor = newProcessor(List.of(contentResolver), List.of(enrichmentClient));
   }
 
   @Test
@@ -112,13 +96,30 @@ class JobProcessorTest {
     when(contentResolver.supports(job.getArticle())).thenReturn(true);
     when(contentResolver.resolve(job.getArticle()))
         .thenThrow(EnrichmentException.retryable("content timeout"));
-    when(completionService.scheduleRetry(job.getId(), NOW.plus(RETRY_DELAY), "content timeout"))
+    when(completionService.scheduleRetry(
+            job.getId(), NOW.plus(RETRY_INITIAL_INTERVAL), "content timeout"))
         .thenReturn(CompletionStatus.RETRY_SCHEDULED);
 
     assertThat(processor.processJob(job))
         .isEqualTo(new ProcessingResult(job.getId(), RETRY_SCHEDULED));
     assertThat(jobMetricCount(RETRY_SCHEDULED)).isEqualTo(1.0);
     verifyNoInteractions(enrichmentClient);
+  }
+
+  @Test
+  void secondRetryableFailureSchedulesRetryWithExponentialBackoff() {
+    ArticleIngestionJob job = processingJob(108L, "https://globalvoices.org/second-retry", 2);
+
+    when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
+    when(contentResolver.supports(job.getArticle())).thenReturn(true);
+    when(contentResolver.resolve(job.getArticle()))
+        .thenThrow(EnrichmentException.retryable("content timeout"));
+    when(completionService.scheduleRetry(
+            job.getId(), NOW.plus(RETRY_INITIAL_INTERVAL.multipliedBy(2)), "content timeout"))
+        .thenReturn(CompletionStatus.RETRY_SCHEDULED);
+
+    assertThat(processor.processJob(job))
+        .isEqualTo(new ProcessingResult(job.getId(), RETRY_SCHEDULED));
   }
 
   @Test
@@ -149,6 +150,58 @@ class JobProcessorTest {
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
+    verifyNoInteractions(enrichmentClient);
+  }
+
+  @Test
+  void multipleContentResolversFailBeforeEnrichment() {
+    ArticleIngestionJob job = processingJob(109L, "https://globalvoices.org/multiple-resolvers", 1);
+    ContentResolver anotherContentResolver = mock(ContentResolver.class);
+    JobProcessor processorWithMultipleResolvers =
+        newProcessor(List.of(contentResolver, anotherContentResolver), List.of(enrichmentClient));
+
+    when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
+    when(contentResolver.supports(job.getArticle())).thenReturn(true);
+    when(anotherContentResolver.supports(job.getArticle())).thenReturn(true);
+    when(completionService.fail(
+            job.getId(),
+            "multiple content resolvers support source URL: https://globalvoices.org/multiple-resolvers"))
+        .thenReturn(CompletionStatus.FAILED);
+
+    assertThat(processorWithMultipleResolvers.processJob(job))
+        .isEqualTo(new ProcessingResult(job.getId(), FAILED));
+    verifyNoInteractions(enrichmentClient);
+  }
+
+  @Test
+  void multipleEnrichmentClientsFailBeforeResolvingContent() {
+    ArticleIngestionJob job = processingJob(110L, "https://globalvoices.org/multiple-clients", 1);
+    EnrichmentClient anotherEnrichmentClient = mock(EnrichmentClient.class);
+    JobProcessor processorWithMultipleClients =
+        newProcessor(List.of(contentResolver), List.of(enrichmentClient, anotherEnrichmentClient));
+
+    when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
+    when(contentResolver.supports(job.getArticle())).thenReturn(true);
+    when(completionService.fail(job.getId(), "multiple enrichment clients are configured: 2"))
+        .thenReturn(CompletionStatus.FAILED);
+
+    assertThat(processorWithMultipleClients.processJob(job))
+        .isEqualTo(new ProcessingResult(job.getId(), FAILED));
+    verifyNoInteractions(enrichmentClient, anotherEnrichmentClient);
+  }
+
+  @Test
+  void noEnrichmentClientFailsBeforeResolvingContent() {
+    ArticleIngestionJob job = processingJob(111L, "https://globalvoices.org/no-client", 1);
+    JobProcessor processorWithoutClient = newProcessor(List.of(contentResolver), List.of());
+
+    when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
+    when(contentResolver.supports(job.getArticle())).thenReturn(true);
+    when(completionService.fail(job.getId(), "no enrichment client is configured"))
+        .thenReturn(CompletionStatus.FAILED);
+
+    assertThat(processorWithoutClient.processJob(job))
+        .isEqualTo(new ProcessingResult(job.getId(), FAILED));
     verifyNoInteractions(enrichmentClient);
   }
 
@@ -204,6 +257,28 @@ class JobProcessorTest {
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
     verify(completionService).fail(job.getId(), "unexpected enrichment error: bad response");
+  }
+
+  private JobProcessor newProcessor(
+      List<ContentResolver> contentResolvers, List<EnrichmentClient> configuredEnrichmentClients) {
+    return new JobProcessor(
+        claimService,
+        jobRepository,
+        categorySlugProvider,
+        completionService,
+        contentResolvers,
+        configuredEnrichmentClients,
+        new ProcessingProperties(
+            false,
+            10,
+            Duration.ofSeconds(30),
+            MAX_ATTEMPTS,
+            new ProcessingProperties.RetryProperties(
+                RETRY_INITIAL_INTERVAL, 2.0, Duration.ofMinutes(10)),
+            Duration.ofMinutes(15)),
+        Clock.fixed(NOW, ZoneOffset.UTC),
+        new LicensePolicyEvaluator(),
+        new EnricherMetrics(meterRegistry, jobRepository));
   }
 
   private ArticleIngestionJob processingJob(Long id, String sourceUrl, int attemptCount) {

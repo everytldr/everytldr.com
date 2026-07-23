@@ -98,6 +98,10 @@ public class JobProcessor {
       throw EnrichmentException.permanent(
           "unsupported source URL for enrichment: %s".formatted(article.getContentUrl()));
     }
+    if (resolvers.size() > 1) {
+      throw EnrichmentException.permanent(
+          "multiple content resolvers support source URL: %s".formatted(article.getContentUrl()));
+    }
 
     return resolvers.getFirst();
   }
@@ -115,10 +119,14 @@ public class JobProcessor {
   }
 
   private EnrichmentClient selectEnrichmentClient() {
-    if (!enrichmentClients.isEmpty()) {
-      return enrichmentClients.getFirst();
+    if (enrichmentClients.isEmpty()) {
+      throw EnrichmentException.permanent("no enrichment client is configured");
     }
-    throw EnrichmentException.permanent("no enrichment client is configured");
+    if (enrichmentClients.size() > 1) {
+      throw EnrichmentException.permanent(
+          "multiple enrichment clients are configured: %d".formatted(enrichmentClients.size()));
+    }
+    return enrichmentClients.getFirst();
   }
 
   private ProcessingResult completeFailure(
@@ -128,7 +136,9 @@ public class JobProcessor {
     if (canRetry) {
       completionStatus =
           completionService.scheduleRetry(
-              jobId, Instant.now(clock).plus(properties.retryDelay()), exception.getMessage());
+              jobId,
+              Instant.now(clock).plus(properties.calculateRetryDelay(job.getAttemptCount())),
+              exception.getMessage());
     } else {
       boolean maxAttemptsExhausted =
           exception.isRetryable() && job.getAttemptCount() >= properties.maxAttempts();

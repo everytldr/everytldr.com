@@ -65,10 +65,12 @@ class ArticleIngestionJobClaimServiceTest {
   }
 
   @Test
-  void recoversStaleProcessingJobsBeforeClaimingPendingJobs() {
+  void recoversStaleJobsThenClaimsDueRetriesBeforePendingJobs() {
     ArticleIngestionJob staleJob =
         saveProcessingJob(
             "https://example.com/enricher/stale", NOW.minus(STALE_TIMEOUT).minusSeconds(1), 1);
+    ArticleIngestionJob dueRetryJob =
+        saveRetryScheduledJob("https://example.com/enricher/due-retry-after-stale", NOW);
     ArticleIngestionJob pendingJob =
         savePendingJob("https://example.com/enricher/pending-after-stale");
     flushAndClear();
@@ -77,9 +79,10 @@ class ArticleIngestionJobClaimServiceTest {
         claimService.claimNextJobs(NOW, 2).stream().map(ArticleIngestionJob::getId).toList();
     flushAndClear();
 
-    assertThat(claimedJobIds).containsExactly(staleJob.getId(), pendingJob.getId());
+    assertThat(claimedJobIds).containsExactly(staleJob.getId(), dueRetryJob.getId());
     assertClaimed(staleJob.getId(), 2);
-    assertClaimed(pendingJob.getId(), 1);
+    assertClaimed(dueRetryJob.getId(), 2);
+    assertState(pendingJob.getId(), IngestionState.PENDING);
   }
 
   @Test
