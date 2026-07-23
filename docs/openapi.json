@@ -251,6 +251,57 @@
         "required" : [ "items", "nextOffset" ],
         "type" : "object"
       },
+      "BriefingDetailResponse" : {
+        "properties" : {
+          "articles" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ArticleListItem"
+            },
+            "type" : "array"
+          },
+          "content" : {
+            "type" : "string"
+          },
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "articles", "content", "date", "title" ],
+        "type" : "object"
+      },
+      "BriefingListItem" : {
+        "properties" : {
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "date", "title" ],
+        "type" : "object"
+      },
+      "BriefingListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/BriefingListItem"
+            },
+            "type" : "array"
+          },
+          "nextCursor" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "items", "nextCursor" ],
+        "type" : "object"
+      },
       "CategoryListItem" : {
         "properties" : {
           "slug" : {
@@ -825,6 +876,92 @@
           }
         },
         "tags" : [ "Articles" ]
+      }
+    },
+    "/api/briefings" : {
+      "get" : {
+        "operationId" : "listBriefings",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "cursor",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefingListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Briefings" ]
+      }
+    },
+    "/api/briefings/{date}" : {
+      "get" : {
+        "operationId" : "getBriefing",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "date",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefingDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Briefings" ]
       }
     },
     "/api/categories" : {

@@ -185,7 +185,7 @@ public class ArticleController {
         @Schema(requiredMode = RequiredMode.REQUIRED) boolean advertisingAllowed,
         @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresAttribution,
         @Schema(requiredMode = RequiredMode.REQUIRED) String category) {
-      static Item from(
+      public static Item from(
           ListItemProjection projection, LicensePolicyEvaluator licensePolicyEvaluator) {
         return new Item(
             projection.id().toString(),
