@@ -7,3 +7,16 @@ everytldr:
         retention: ${ARTICLE_VIEW_FLUSH_HISTORY_RETENTION:30d}
         interval: ${ARTICLE_VIEW_FLUSH_HISTORY_CLEANUP_INTERVAL:1d}
         batch-size: ${ARTICLE_VIEW_FLUSH_HISTORY_CLEANUP_BATCH_SIZE:1000}
+  briefing:
+    generation:
+      enabled: ${BRIEFING_GENERATION_ENABLED:false}
+      cron: ${BRIEFING_GENERATION_CRON:0 30 * * * *}
+      article-count: ${BRIEFING_GENERATION_ARTICLE_COUNT:10}
+    ai:
+      gemini:
+        enabled: ${BRIEFING_AI_GEMINI_ENABLED:false}
+        base-url: ${BRIEFING_AI_GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+        api-key: ${GEMINI_API_KEY:}
+        model: ${BRIEFING_AI_GEMINI_MODEL:gemini-3.1-flash-lite}
+        timeout: ${BRIEFING_AI_GEMINI_TIMEOUT:60s}
+        prompt-path: ${BRIEFING_AI_GEMINI_PROMPT_PATH:classpath:prompts/briefing-generation-system-prompt.txt}
