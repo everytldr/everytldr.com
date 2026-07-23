@@ -1,5 +1,10 @@
 import { type ArticleDetailResponse } from "@/shared/api";
-import { ADSENSE_SLOT_ARTICLE_DETAIL, HIDE_ADSENSE, SITE_URL } from "@/shared/config";
+import {
+  ADSENSE_SLOT_ARTICLE_DETAIL,
+  HIDE_ADSENSE,
+  SITE_URL,
+  STATIC_PAGE_URLS,
+} from "@/shared/config";
 import { getPathname, type Locale } from "@/shared/i18n";
 import {
   buildArticleDetailUrl,
@@ -10,7 +15,7 @@ import {
   type Nullable,
   serializeJsonLd,
 } from "@/shared/lib";
-import { AdSlot, Button, MarkdownContent, Translation } from "@/shared/ui";
+import { AdSlot, Button, ConditionalLink, MarkdownContent, Translation } from "@/shared/ui";
 import { ExternalLink } from "lucide-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -34,6 +39,7 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
     headline: article.title,
     description: markdownToPlainText(article.summary),
     datePublished: article.publishedAt,
+    isBasedOn: article.contentUrl,
   });
 
   return (
@@ -125,6 +131,16 @@ function ArticleDetailContent({ className, article, locale }: ArticleDetailConte
       </header>
 
       <MarkdownContent markdown={article.summary} />
+
+      <p className="text-caption text-meta">
+        <Translation tKey="article-detail.ai-disclosure" />{" "}
+        <ConditionalLink
+          className="underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
+          href={STATIC_PAGE_URLS.about}
+        >
+          <Translation tKey="article-detail.ai-disclosure-link" />
+        </ConditionalLink>
+      </p>
     </div>
   );
 }
