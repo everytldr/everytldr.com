@@ -3,3 +3,5 @@ export const ADSENSE_CLIENT_ID =
 
 export const ADSENSE_SLOT_ARTICLE_DETAIL =
   process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_DETAIL || "6614950748";
+
+export const HIDE_ADSENSE = process.env.HIDE_ADSENSE === "true";

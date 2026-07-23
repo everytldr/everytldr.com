@@ -1,5 +1,5 @@
 import { type ArticleDetailResponse } from "@/shared/api";
-import { ADSENSE_SLOT_ARTICLE_DETAIL, SITE_URL } from "@/shared/config";
+import { ADSENSE_SLOT_ARTICLE_DETAIL, HIDE_ADSENSE, SITE_URL } from "@/shared/config";
 import { getPathname, type Locale } from "@/shared/i18n";
 import {
   buildArticleDetailUrl,
@@ -18,6 +18,7 @@ import { fetchArticleDetail } from "../api/fetch-article-detail";
 import { ArticleComments, ArticleCommentsError, ArticleCommentsSkeleton } from "./article-comments";
 import { ArticleLikeButton, ArticleLikeButtonSkeleton } from "./article-like-button";
 import { ArticleViewTracker } from "./article-view-tracker";
+import { RelatedArticles, RelatedArticlesSkeleton } from "./related-articles";
 
 type ArticleDetailPageProps = {
   className?: string;
@@ -41,12 +42,11 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-
       <ArticleViewTracker articleId={articleId} />
 
       <ArticleDetailContent article={article} locale={locale} />
 
-      <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">
+      <div className="flex flex-wrap items-center gap-sm">
         <ErrorBoundary fallback={null}>
           <Suspense fallback={<ArticleLikeButtonSkeleton />}>
             <ArticleLikeButton articleId={articleId} />
@@ -65,13 +65,27 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
         )}
       </div>
 
-      {article.advertisingAllowed && (
+      <ErrorBoundary fallback={null}>
+        <Suspense fallback={<RelatedArticlesSkeleton />}>
+          <RelatedArticles
+            className="border-t border-hairline-soft pt-lg"
+            articleId={articleId}
+            locale={locale}
+          />
+        </Suspense>
+      </ErrorBoundary>
+
+      {!HIDE_ADSENSE && article.advertisingAllowed && (
         <AdSlot className="w-full" slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
       )}
 
       <ErrorBoundary fallback={<ArticleCommentsError />}>
         <Suspense fallback={<ArticleCommentsSkeleton />}>
-          <ArticleComments articleId={articleId} locale={locale} />
+          <ArticleComments
+            className="border-t border-hairline-soft pt-lg"
+            articleId={articleId}
+            locale={locale}
+          />
         </Suspense>
       </ErrorBoundary>
     </article>
