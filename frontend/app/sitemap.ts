@@ -1,7 +1,12 @@
-import { type ArticleListItem, listArticles } from "@/shared/api";
+import {
+  type ArticleListItem,
+  type BriefingListItem,
+  listArticles,
+  listBriefings,
+} from "@/shared/api";
 import { ROUTABLE_CATEGORY_NODES, SITE_URL, STATIC_PAGE_URLS } from "@/shared/config";
 import { getPathname, type Locale, locales } from "@/shared/i18n";
-import { buildArticleDetailUrl, buildCategoryUrl } from "@/shared/lib";
+import { buildArticleDetailUrl, buildBriefingDetailUrl, buildCategoryUrl } from "@/shared/lib";
 import type { MetadataRoute } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { connection } from "next/server";
@@ -9,6 +14,8 @@ import { connection } from "next/server";
 const STATIC_PATHS = Object.values(STATIC_PAGE_URLS).filter((url) => url.startsWith("/"));
 
 const RECENT_ARTICLE_COUNT = 50;
+
+const RECENT_BRIEFING_COUNT = 50;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -40,7 +47,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  return [...browseEntries, ...staticEntries, ...articleEntries];
+  const briefings = await fetchRecentBriefings();
+  const briefingEntries = briefings.flatMap((briefing) =>
+    buildLocalizedEntries(buildBriefingDetailUrl(briefing.date), {
+      changeFrequency: "monthly",
+      priority: 0.7,
+      lastModified: briefing.date,
+    }),
+  );
+
+  return [...browseEntries, ...staticEntries, ...articleEntries, ...briefingEntries];
 }
 
 async function fetchRecentArticles(): Promise<ArticleListItem[]> {
@@ -54,6 +70,21 @@ async function fetchRecentArticles(): Promise<ArticleListItem[]> {
     return response.status === 200 ? response.data.items : [];
   } catch (e) {
     console.error("Failed to fetch articles for sitemap", e);
+    return [];
+  }
+}
+
+async function fetchRecentBriefings(): Promise<BriefingListItem[]> {
+  "use cache";
+
+  cacheLife("hours");
+  cacheTag("sitemap:briefings");
+
+  try {
+    const response = await listBriefings({ size: RECENT_BRIEFING_COUNT });
+    return response.status === 200 ? response.data.items : [];
+  } catch (e) {
+    console.error("Failed to fetch briefings for sitemap", e);
     return [];
   }
 }

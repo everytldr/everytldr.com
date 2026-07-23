@@ -30,6 +30,14 @@ search:
     en: "Search everytldr for summarised foreign news by topic, keyword, or source, and open each short summary alongside a link straight to the original report."
     ko: "주제·키워드·출처로 everytldr의 외신 요약을 검색하세요. 짧은 요약과 원문 출처 링크를 함께 확인할 수 있습니다."
 
+briefings:
+  title:
+    en: "Daily Briefings · everytldr"
+    ko: "데일리 브리핑 · everytldr"
+  description:
+    en: "One daily briefing that connects the day's most-read foreign news into a single narrative, in your language."
+    ko: "하루 동안 가장 많이 읽힌 외신을 하나의 흐름으로 엮은 데일리 브리핑을 당신의 언어로 전합니다."
+
 category:
   title:
     en: "{category} News, Summarised · everytldr"
