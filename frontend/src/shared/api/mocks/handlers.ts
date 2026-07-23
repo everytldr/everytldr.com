@@ -12,8 +12,11 @@ import {
   unlikeArticle,
   verifyArticleCommentPassword,
 } from "./fetchers/article";
+import { getBriefing, listBriefings } from "./fetchers/briefing";
 
 export const handlers = [
+  http.get("*/api/briefings", listBriefings),
+  http.get("*/api/briefings/:date", getBriefing),
   http.get("*/api/articles", listArticles),
   http.get("*/api/articles/search", searchArticles),
   http.get("*/api/articles/:articleId/comments", listArticleComments),

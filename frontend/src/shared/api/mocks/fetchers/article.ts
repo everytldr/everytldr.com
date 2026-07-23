@@ -19,7 +19,7 @@ const EPL_TEAMS = Object.values(EplTeam);
 const DEFAULT_LIKE_COUNT = 42;
 const FIRST_ARTICLE_ID = "45660871069790209";
 
-const ALL_ARTICLES: ArticleListItem[] = times(100, (index) => {
+export const ALL_ARTICLES: ArticleListItem[] = times(100, (index) => {
   const team = EPL_TEAMS[index % EPL_TEAMS.length];
   const id = (BigInt(FIRST_ARTICLE_ID) + BigInt(index)).toString();
   return {
