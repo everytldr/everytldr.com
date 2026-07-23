@@ -25,6 +25,7 @@ type NewsArticleJsonLdParams = {
   headline: string;
   description: string;
   datePublished: string;
+  isBasedOn?: string;
   image?: string;
 };
 
@@ -38,6 +39,7 @@ export function buildNewsArticleJsonLd(params: NewsArticleJsonLdParams): JsonLd 
     image: [params.image ?? DEFAULT_IMAGE],
     datePublished: params.datePublished,
     dateModified: params.datePublished,
+    ...(params.isBasedOn && { isBasedOn: params.isBasedOn }),
     author: { "@id": ORGANIZATION_ID },
     publisher: ORGANIZATION,
   };

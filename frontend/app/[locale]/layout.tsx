@@ -1,7 +1,13 @@
 import { jetbrainsMono, pretendard } from "@/app/fonts";
 import { GlobalProvider } from "@/app/providers";
 import "@/app/styles";
-import { ADSENSE_CLIENT_ID, GA_MEASUREMENT_ID, SITE_URL, SITE_VERIFICATION } from "@/shared/config";
+import {
+  ADSENSE_CLIENT_ID,
+  GA_MEASUREMENT_ID,
+  HIDE_ADSENSE,
+  SITE_URL,
+  SITE_VERIFICATION,
+} from "@/shared/config";
 import { routing } from "@/shared/i18n";
 import { buildPageMetadata, cn } from "@/shared/lib";
 import { Footer } from "@/widgets/footer";
@@ -82,11 +88,13 @@ export default async function RootLayout({ params, children }: RootLayoutProps) 
               gtag('config', '${GA_MEASUREMENT_ID}');
             `}
             </Script>
-            <Script
-              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
-              crossOrigin="anonymous"
-              strategy="afterInteractive"
-            />
+            {!HIDE_ADSENSE && (
+              <Script
+                src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+                crossOrigin="anonymous"
+                strategy="afterInteractive"
+              />
+            )}
           </>
         )}
       </body>
