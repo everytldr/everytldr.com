@@ -30,6 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class ArticleController {
   private static final int MIN_QUERY_LENGTH = 2;
   private static final int DEFAULT_POPULAR_SIZE = 10;
+  private static final int DEFAULT_RELATED_SIZE = 10;
 
   private final ArticleService articleService;
   private final ArticlePopularityService articlePopularityService;
@@ -97,6 +98,21 @@ public class ArticleController {
             .map(item -> ArticleListResponse.Item.from(item, licensePolicyEvaluator))
             .toList();
     return new ArticlePopularResponse(items);
+  }
+
+  @GetMapping("/{id}/related")
+  @Operation(operationId = "listRelatedArticles")
+  public ArticleRelatedResponse listRelated(
+      @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
+      @PathVariable @Schema(type = "string") Long id,
+      @RequestParam(required = false) Integer size) {
+    int pageSize = Pagination.clampSize(size == null ? DEFAULT_RELATED_SIZE : size);
+    List<ListItemProjection> relatedArticles = articleService.listRelated(language, id, pageSize);
+    List<ArticleListResponse.Item> items =
+        relatedArticles.stream()
+            .map(item -> ArticleListResponse.Item.from(item, licensePolicyEvaluator))
+            .toList();
+    return new ArticleRelatedResponse(items);
   }
 
   @GetMapping("/search")
@@ -220,5 +236,8 @@ public class ArticleController {
   }
 
   public record ArticlePopularResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> items) {}
+
+  public record ArticleRelatedResponse(
       @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> items) {}
 }

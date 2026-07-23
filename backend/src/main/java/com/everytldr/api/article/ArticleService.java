@@ -5,6 +5,7 @@ import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.article.ArticleRepository.DetailProjection;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
+import com.everytldr.common.domain.article.ArticleRepository.RelatedSeedProjection;
 import com.everytldr.common.domain.article.ArticleRepository.SearchItemProjection;
 import com.everytldr.common.domain.language.SupportedLanguage;
 import com.everytldr.common.domain.license.LicenseCode;
@@ -89,6 +90,33 @@ public class ArticleService {
             .stream().map(SearchItemProjection::toListItem).toList();
     Integer nextOffset = hasMore ? offset + size : null;
     return new SearchResult(items, nextOffset);
+  }
+
+  public List<ListItemProjection> listRelated(
+      SupportedLanguage language, Long articleId, int size) {
+    Objects.requireNonNull(language, "language must not be null");
+    Objects.requireNonNull(articleId, "articleId must not be null");
+
+    final double SAME_CATEGORY_RELEVANCE_BOOST = 1.5;
+
+    RelatedSeedProjection seed =
+        articleRepository
+            .findRelatedSeedByIdAndLanguageAndLicenseCodeIn(
+                articleId, language.code(), getPublishableLicenseCodes())
+            .orElseThrow(() -> new ArticleExceptions.NotFound(articleId));
+
+    List<String> publishableLicenseCodeValues =
+        getPublishableLicenseCodes().stream().map(LicenseCode::value).toList();
+    List<SearchItemProjection> rows =
+        articleRepository.findRelatedByLicenseCodeIn(
+            articleId,
+            seed.title(),
+            seed.categorySlug(),
+            SAME_CATEGORY_RELEVANCE_BOOST,
+            language.code(),
+            publishableLicenseCodeValues,
+            size);
+    return rows.stream().map(SearchItemProjection::toListItem).toList();
   }
 
   public List<ListItemProjection> listByIdsInOrder(

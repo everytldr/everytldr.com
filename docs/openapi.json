@@ -235,6 +235,18 @@
         "required" : [ "items" ],
         "type" : "object"
       },
+      "ArticleRelatedResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ArticleListItem"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "items" ],
+        "type" : "object"
+      },
       "ArticleSearchResponse" : {
         "properties" : {
           "items" : {
@@ -826,6 +838,52 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ArticleDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{id}/related" : {
+      "get" : {
+        "operationId" : "listRelatedArticles",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleRelatedResponse"
                 }
               }
             },

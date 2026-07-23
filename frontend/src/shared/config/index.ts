@@ -1,4 +1,4 @@
-export { ADSENSE_CLIENT_ID, ADSENSE_SLOT_ARTICLE_DETAIL } from "./ads";
+export { ADSENSE_CLIENT_ID, ADSENSE_SLOT_ARTICLE_DETAIL, HIDE_ADSENSE } from "./ads";
 export { GA_MEASUREMENT_ID } from "./analytics";
 export {
   BLOCKED_CATEGORY_SLUGS,

@@ -233,6 +233,59 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       @Param("limit") int limit,
       @Param("offset") int offset);
 
+  @Query(
+      """
+      SELECT new com.everytldr.common.domain.article.ArticleRepository$RelatedSeedProjection(
+          s.title,
+          c.slug)
+      FROM Article a
+        JOIN ArticleSummary s ON s.article = a AND s.language = :language
+        JOIN ArticleCategory ac ON ac.article = a
+        JOIN ac.category c
+      WHERE a.id = :id
+        AND a.licenseInfo.licenseCode IN :licenseCodes
+      """)
+  Optional<RelatedSeedProjection> findRelatedSeedByIdAndLanguageAndLicenseCodeIn(
+      @Param("id") Long id,
+      @Param("language") String language,
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
+
+  @Query(
+      value =
+          """
+          SELECT a.id AS id,
+                 s.title AS title,
+                 s.content AS summary,
+                 a.thumbnail_url AS thumbnailUrl,
+                 a.published_at AS publishedAt,
+                 a.source AS source,
+                 a.license_code AS licenseCode,
+                 a.license_version AS licenseVersion,
+                 c.slug AS categorySlug
+          FROM article a
+            JOIN article_summary s ON s.article_id = a.id AND s.language = :language
+            JOIN article_category ac ON ac.article_id = a.id
+            JOIN category c ON c.id = ac.category_id
+          WHERE a.deleted_at IS NULL
+            AND a.id <> :articleId
+            AND a.license_code IN (:licenseCodes)
+            AND MATCH(s.title, s.content) AGAINST (:query IN NATURAL LANGUAGE MODE)
+          ORDER BY MATCH(s.title, s.content) AGAINST (:query IN NATURAL LANGUAGE MODE)
+                     * (CASE WHEN c.slug = :categorySlug THEN :categoryBoost ELSE 1 END) DESC,
+                   a.published_at DESC,
+                   a.id DESC
+          LIMIT :limit
+          """,
+      nativeQuery = true)
+  List<SearchItemProjection> findRelatedByLicenseCodeIn(
+      @Param("articleId") Long articleId,
+      @Param("query") String query,
+      @Param("categorySlug") String categorySlug,
+      @Param("categoryBoost") double categoryBoost,
+      @Param("language") String language,
+      @Param("licenseCodes") Collection<String> licenseCodes,
+      @Param("limit") int limit);
+
   interface SearchItemProjection {
     Long getId();
 
@@ -265,6 +318,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
           getCategorySlug());
     }
   }
+
+  record RelatedSeedProjection(String title, String categorySlug) {}
 
   record DetailProjection(
       Long id,
