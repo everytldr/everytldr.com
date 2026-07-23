@@ -141,6 +141,22 @@ function ArticleDetailContent({ className, article, locale }: ArticleDetailConte
           <Translation tKey="article-detail.ai-disclosure-link" />
         </ConditionalLink>
       </p>
+
+      {article.requiresShareAlike && (
+        <p className="text-caption text-meta">
+          <a
+            className="underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
+            href={buildLicenseUrl(article.licenseCode, article.licenseVersion)}
+            target="_blank"
+            rel="noreferrer license"
+          >
+            <Translation
+              tKey="article-detail.share-alike-notice"
+              values={{ license: formatLicenseLabel(article.licenseCode, article.licenseVersion) }}
+            />
+          </a>
+        </p>
+      )}
     </div>
   );
 }

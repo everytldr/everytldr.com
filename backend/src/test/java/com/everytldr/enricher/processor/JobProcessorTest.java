@@ -157,14 +157,14 @@ class JobProcessorTest {
     ArticleIngestionJob job =
         processingJob(
             107L,
-            "https://globalvoices.org/share-alike",
+            "https://globalvoices.org/no-derivatives",
             1,
-            new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+            new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"));
 
     when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
     when(completionService.fail(
             job.getId(),
-            "article license does not allow transformed text publishing: licenseCode=CC-BY-SA"))
+            "article license does not allow transformed text publishing: licenseCode=CC-BY-ND"))
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));

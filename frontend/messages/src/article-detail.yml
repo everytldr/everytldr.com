@@ -22,6 +22,10 @@ ai-disclosure-link:
   en: "How everytldr works"
   ko: "everytldr 소개"
 
+share-alike-notice:
+  en: "This summary is licensed under {license}"
+  ko: "이 요약문은 {license} 라이선스로 공개돼요"
+
 view-count:
   en: "{count} views"
   ko: "조회 {count}"
