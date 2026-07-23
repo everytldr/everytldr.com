@@ -8,6 +8,7 @@ import com.everytldr.common.domain.language.SupportedLanguage;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +43,17 @@ public class BriefingService {
     return briefingRepository
         .findByBriefingDateAndLanguage(briefingDate, language.code())
         .orElseThrow(() -> new BriefingExceptions.NotFound(briefingDate));
+  }
+
+  public Optional<Briefing> findBriefingForArticle(SupportedLanguage language, Long articleId) {
+    Objects.requireNonNull(language, "language must not be null");
+    Objects.requireNonNull(articleId, "articleId must not be null");
+
+    return briefingRepository
+        .findByArticleIdAndLanguageOrderByBriefingDateDesc(
+            articleId, language.code(), PageRequest.of(0, 1))
+        .stream()
+        .findFirst();
   }
 
   public List<Long> listArticleIds(LocalDate briefingDate) {

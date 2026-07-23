@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface BriefingRepository extends JpaRepository<Briefing, Long> {
 
@@ -16,4 +18,17 @@ public interface BriefingRepository extends JpaRepository<Briefing, Long> {
 
   List<Briefing> findByLanguageAndBriefingDateLessThanOrderByBriefingDateDesc(
       String language, LocalDate cursor, Pageable pageable);
+
+  @Query(
+      """
+      SELECT b
+      FROM Briefing b
+      WHERE b.language = :language
+        AND b.briefingDate IN (
+          SELECT ba.briefingDate FROM BriefingArticle ba WHERE ba.article.id = :articleId
+        )
+      ORDER BY b.briefingDate DESC
+      """)
+  List<Briefing> findByArticleIdAndLanguageOrderByBriefingDateDesc(
+      @Param("articleId") Long articleId, @Param("language") String language, Pageable pageable);
 }

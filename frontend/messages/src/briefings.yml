@@ -9,3 +9,11 @@ empty-state:
 sources-heading:
   en: "Articles in this briefing"
   ko: "이 브리핑이 다룬 기사"
+
+hero-eyebrow:
+  en: "Today's Briefing"
+  ko: "오늘의 브리핑"
+
+hero-cta:
+  en: "Read the full briefing"
+  ko: "브리핑 전체 읽기"

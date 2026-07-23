@@ -20,6 +20,7 @@ import { ExternalLink } from "lucide-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { fetchArticleDetail } from "../api/fetch-article-detail";
+import { ArticleBriefingLink } from "./article-briefing-link";
 import { ArticleComments, ArticleCommentsError, ArticleCommentsSkeleton } from "./article-comments";
 import { ArticleLikeButton, ArticleLikeButtonSkeleton } from "./article-like-button";
 import { ArticleViewTracker } from "./article-view-tracker";
@@ -70,6 +71,12 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
           </Button>
         )}
       </div>
+
+      <ErrorBoundary fallback={null}>
+        <Suspense fallback={null}>
+          <ArticleBriefingLink articleId={articleId} locale={locale} />
+        </Suspense>
+      </ErrorBoundary>
 
       <ErrorBoundary fallback={null}>
         <Suspense fallback={<RelatedArticlesSkeleton />}>

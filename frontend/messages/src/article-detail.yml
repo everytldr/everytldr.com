@@ -26,6 +26,10 @@ view-count:
   en: "{count} views"
   ko: "조회 {count}"
 
+briefing-link:
+  en: "Featured in the {date} daily briefing"
+  ko: "이 기사를 다룬 {date} 브리핑 보기"
+
 related:
   en: "Related articles"
   ko: "관련 기사"

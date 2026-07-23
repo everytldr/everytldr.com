@@ -1,6 +1,19 @@
 {
   "components" : {
     "schemas" : {
+      "ArticleBriefingResponse" : {
+        "properties" : {
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "date", "title" ],
+        "type" : "object"
+      },
       "ArticleCommentCreateRequest" : {
         "properties" : {
           "content" : {
@@ -291,11 +304,14 @@
             "format" : "date",
             "type" : "string"
           },
+          "excerpt" : {
+            "type" : "string"
+          },
           "title" : {
             "type" : "string"
           }
         },
-        "required" : [ "date", "title" ],
+        "required" : [ "date", "excerpt", "title" ],
         "type" : "object"
       },
       "BriefingListResponse" : {
@@ -838,6 +854,44 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ArticleDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{id}/briefing" : {
+      "get" : {
+        "operationId" : "getArticleBriefing",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleBriefingResponse"
                 }
               }
             },

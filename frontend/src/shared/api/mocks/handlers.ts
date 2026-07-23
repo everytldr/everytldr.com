@@ -12,7 +12,7 @@ import {
   unlikeArticle,
   verifyArticleCommentPassword,
 } from "./fetchers/article";
-import { getBriefing, listBriefings } from "./fetchers/briefing";
+import { getArticleBriefing, getBriefing, listBriefings } from "./fetchers/briefing";
 
 export const handlers = [
   http.get("*/api/briefings", listBriefings),
@@ -27,6 +27,7 @@ export const handlers = [
     "*/api/articles/:articleId/comments/:commentId/password-verification",
     verifyArticleCommentPassword,
   ),
+  http.get("*/api/articles/:articleId/briefing", getArticleBriefing),
   http.get("*/api/articles/:articleId/likes/me", getMyArticleLike),
   http.put("*/api/articles/:articleId/likes/me", likeArticle),
   http.delete("*/api/articles/:articleId/likes/me", unlikeArticle),

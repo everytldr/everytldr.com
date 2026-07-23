@@ -78,8 +78,24 @@ class BriefingControllerTest {
         .andExpect(jsonPath("$.items.length()").value(2))
         .andExpect(jsonPath("$.items[0].date").value("2026-07-22"))
         .andExpect(jsonPath("$.items[0].title").value("브리핑 22"))
+        .andExpect(jsonPath("$.items[0].excerpt").value("내용 KO"))
         .andExpect(jsonPath("$.items[1].date").value("2026-07-21"))
         .andExpect(jsonPath("$.nextCursor").value("2026-07-21"));
+  }
+
+  @Test
+  void listExcerptTakesLeadParagraphAndTruncates() throws Exception {
+    String lead = "L".repeat(250);
+    String content = lead + "\n\nSecond paragraph should be excluded.";
+    briefingRepository.saveAndFlush(
+        Briefing.create(LocalDate.parse("2026-07-22"), "en", "Long", content));
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(get("/api/briefings").header("Accept-Language", "en"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items[0].excerpt").value("L".repeat(200) + "…"));
   }
 
   @Test

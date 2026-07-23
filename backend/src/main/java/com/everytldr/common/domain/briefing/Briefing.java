@@ -47,4 +47,12 @@ public class Briefing extends BaseEntity {
     this.title = title;
     this.content = content;
   }
+
+  public String extractExcerpt(int maxLength) {
+    String lead = content.strip().split("\\R\\s*\\R", 2)[0].strip();
+    if (lead.length() <= maxLength) {
+      return lead;
+    }
+    return lead.substring(0, maxLength).stripTrailing() + "…";
+  }
 }

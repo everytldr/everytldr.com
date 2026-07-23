@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Briefings")
 @RequiredArgsConstructor
 public class BriefingController {
+  private static final int EXCERPT_MAX_LENGTH = 200;
+
   private final BriefingService briefingService;
   private final ArticleService articleService;
   private final LicensePolicyEvaluator licensePolicyEvaluator;
@@ -73,9 +75,13 @@ public class BriefingController {
     @Schema(name = "BriefingListItem")
     public record Item(
         @Schema(requiredMode = RequiredMode.REQUIRED) LocalDate date,
-        @Schema(requiredMode = RequiredMode.REQUIRED) String title) {
+        @Schema(requiredMode = RequiredMode.REQUIRED) String title,
+        @Schema(requiredMode = RequiredMode.REQUIRED) String excerpt) {
       static Item from(Briefing briefing) {
-        return new Item(briefing.getBriefingDate(), briefing.getTitle());
+        return new Item(
+            briefing.getBriefingDate(),
+            briefing.getTitle(),
+            briefing.extractExcerpt(EXCERPT_MAX_LENGTH));
       }
     }
   }

@@ -1,4 +1,9 @@
-import type { BriefingDetailResponse, BriefingListItem, BriefingListResponse } from "@/shared/api";
+import type {
+  ArticleBriefingResponse,
+  BriefingDetailResponse,
+  BriefingListItem,
+  BriefingListResponse,
+} from "@/shared/api";
 import { A_DAY } from "@/shared/lib";
 import { take, times } from "lodash-es";
 import { HttpResponse } from "msw";
@@ -21,9 +26,12 @@ Equities closed mixed after inflation data came in below forecasts. Bond yields 
 
 Cease-fire negotiators reconvened with a narrower agenda focused on humanitarian corridors, and a separate trade dispute saw its first ministerial meeting in months.`;
 
+const MOCK_EXCERPT = MOCK_CONTENT.split("\n\n")[0];
+
 const ALL_BRIEFINGS: BriefingListItem[] = times(BRIEFING_COUNT, (index) => ({
   date: toDateString(index + 1),
   title: `Daily Briefing ${index + 1}: AI Rules, Market Signals, and Renewed Talks`,
+  excerpt: MOCK_EXCERPT,
 }));
 
 function toDateString(daysAgo: number) {
@@ -44,6 +52,28 @@ export const listBriefings = ({ request }: { request: Request }) => {
   const responseData: BriefingListResponse = {
     items,
     nextCursor,
+  };
+
+  return HttpResponse.json(responseData);
+};
+
+const BRIEFING_ARTICLE_IDS = new Set(
+  take(ALL_ARTICLES, BRIEFING_ARTICLE_COUNT).map((article) => article.id),
+);
+
+export const getArticleBriefing = ({
+  params: { articleId },
+}: {
+  params: { articleId: string };
+}) => {
+  if (!BRIEFING_ARTICLE_IDS.has(articleId)) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  const briefing = ALL_BRIEFINGS[0];
+  const responseData: ArticleBriefingResponse = {
+    date: briefing.date,
+    title: briefing.title,
   };
 
   return HttpResponse.json(responseData);
