@@ -85,3 +85,16 @@ sum by (method, uri, status) (rate(http_server_requests_seconds_count[5m]))
 ```
 
 메트릭 태그에는 값 종류가 적고 안정적인 값만 사용한다. URL, article id, job id, source name, raw client address처럼 값이 계속 늘어나는 정보는 메트릭 태그로 쓰지 않고 로그에 남긴다.
+
+## Enricher 처리 메트릭
+
+- `everytldr_enricher_polling_runs_total`: polling 실행 결과. `outcome`은 `success` 또는 `failure`다.
+- `everytldr_enricher_polling_duration_seconds`: polling 전체 소요 시간. `outcome`은 `success` 또는 `failure`다.
+- `everytldr_enricher_job_attempt_duration_seconds`: job 한 건의 전체 처리 소요 시간. `status`는 job 처리 결과다.
+- `everytldr_enricher_external_stage_duration_seconds`: 외부 단계 소요 시간. `stage`는 `content_resolution` 또는 `enrichment`이고, `outcome`은 `success`, `retryable_failure`, `permanent_failure`다.
+
+```promql
+sum by (outcome) (increase(everytldr_enricher_polling_runs_total[5m]))
+sum by (status) (rate(everytldr_enricher_job_attempt_duration_seconds_sum[5m])) / sum by (status) (rate(everytldr_enricher_job_attempt_duration_seconds_count[5m]))
+sum by (stage, outcome) (increase(everytldr_enricher_external_stage_duration_seconds_count[1h]))
+```

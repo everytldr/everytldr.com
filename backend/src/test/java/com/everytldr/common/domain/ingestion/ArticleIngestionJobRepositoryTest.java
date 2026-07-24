@@ -79,6 +79,21 @@ class ArticleIngestionJobRepositoryTest {
   }
 
   @Test
+  void prioritizesDueRetryJobsBeforePendingJobs() {
+    savePendingJob("https://example.com/pending-before-retry");
+    ArticleIngestionJob dueRetryJob =
+        saveRetryScheduledJob("https://example.com/due-retry-after-pending", NOW);
+    flushAndClear();
+
+    List<ArticleIngestionJob> claimableJobs =
+        articleIngestionJobRepository.findClaimableJobsForUpdate(NOW, 1);
+
+    assertThat(claimableJobs)
+        .extracting(ArticleIngestionJob::getId)
+        .containsExactly(dueRetryJob.getId());
+  }
+
+  @Test
   void findsStaleProcessingJobsForUpdate() {
     Instant staleAttemptStartedAt = NOW.minus(STALE_TIMEOUT).minusSeconds(1);
     Instant staleBoundaryAttemptStartedAt = NOW.minus(STALE_TIMEOUT);

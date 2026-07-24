@@ -23,12 +23,22 @@ class LicensePolicyEvaluatorTest {
         .isTrue();
     assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY"))).isTrue();
     assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-NC"))).isTrue();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-SA"))).isTrue();
+    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-NC-SA"))).isTrue();
 
     assertThat(evaluator.canPublishTransformedText(LicenseInfo.createUnknown())).isFalse();
-    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-SA"))).isFalse();
-    assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-NC-SA"))).isFalse();
     assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-ND"))).isFalse();
     assertThat(evaluator.canPublishTransformedText(licenseInfo("CC-BY-NC-ND"))).isFalse();
+  }
+
+  @Test
+  void requiresShareAlikeOnlyForShareAlikeCreativeCommonsLicenses() {
+    assertThat(evaluator.requiresShareAlike(licenseInfo("CC-BY-SA"))).isTrue();
+    assertThat(evaluator.requiresShareAlike(licenseInfo("CC-BY-NC-SA"))).isTrue();
+
+    assertThat(evaluator.requiresShareAlike(licenseInfo("CC-BY"))).isFalse();
+    assertThat(evaluator.requiresShareAlike(licenseInfo("CC-BY-NC"))).isFalse();
+    assertThat(evaluator.requiresShareAlike(LicenseInfo.createUnknown())).isFalse();
   }
 
   @Test

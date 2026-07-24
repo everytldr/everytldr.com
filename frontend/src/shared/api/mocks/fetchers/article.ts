@@ -143,6 +143,7 @@ export const getArticle = ({ params: { id } }: { params: { id: string } }) => {
     likeCount,
     contentUrl,
     viewCount: 99,
+    requiresShareAlike: false,
   };
 
   return HttpResponse.json(responseData);
