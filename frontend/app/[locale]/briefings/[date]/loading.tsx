@@ -1,6 +1,7 @@
-import { ArticleCardSkeleton } from "@/entities/article";
+import { ArticleScrollRowSkeleton } from "@/entities/article";
 import { Container, Skeleton } from "@/shared/ui";
-import { range } from "lodash-es";
+
+const BRIEFING_SOURCES_SKELETON_SIZE = 5;
 
 export default function Loading() {
   return (
@@ -9,7 +10,7 @@ export default function Loading() {
         <article className="space-y-xl">
           <div className="space-y-lg">
             <header className="space-y-sm">
-              <Skeleton className="h-4 w-40" />
+              <Skeleton className="w-72 text-display-md">&nbsp;</Skeleton>
               <div className="space-y-sm">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-3/4" />
@@ -25,13 +26,7 @@ export default function Loading() {
 
           <div className="space-y-sm border-t border-hairline-soft pt-lg">
             <Skeleton className="w-48 text-display-md">&nbsp;</Skeleton>
-            <ul>
-              {range(3).map((i) => (
-                <li key={i}>
-                  <ArticleCardSkeleton />
-                </li>
-              ))}
-            </ul>
+            <ArticleScrollRowSkeleton count={BRIEFING_SOURCES_SKELETON_SIZE} />
           </div>
         </article>
       </Container>

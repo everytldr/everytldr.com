@@ -2,9 +2,25 @@ title:
   en: "Daily Briefings"
   ko: "데일리 브리핑"
 
+dateline-prefix:
+  en: "Daily Briefing ·"
+  ko: "데일리 브리핑"
+
 empty-state:
   en: "No briefings yet"
   ko: "아직 브리핑이 없어요"
+
+date-nav-label:
+  en: "Briefing dates"
+  ko: "브리핑 날짜 이동"
+
+previous:
+  en: "Previous briefing"
+  ko: "이전 브리핑"
+
+next:
+  en: "Next briefing"
+  ko: "다음 브리핑"
 
 sources-heading:
   en: "Articles in this briefing"

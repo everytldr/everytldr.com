@@ -1,16 +1,19 @@
-import { ArticleList } from "@/entities/article";
+import { ArticleScrollRow } from "@/entities/article";
 import { SITE_URL } from "@/shared/config";
 import { getPathname, type Locale } from "@/shared/i18n";
 import {
   buildBriefingDetailUrl,
   buildBriefingJsonLd,
   cn,
-  formatDate,
+  formatDateWithWeekday,
   markdownToPlainText,
   serializeJsonLd,
 } from "@/shared/lib";
 import { Container, MarkdownContent, Translation } from "@/shared/ui";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { fetchBriefing } from "../api/fetch-briefing";
+import { BriefingDateNav } from "./briefing-date-nav";
 
 type BriefingDetailPageProps = {
   className?: string;
@@ -39,8 +42,9 @@ export async function BriefingDetailPage({ className, date, locale }: BriefingDe
 
           <div className="space-y-lg">
             <header className="space-y-sm">
-              <p className="text-caption text-meta">
-                <time dateTime={briefing.date}>{formatDate(briefing.date, locale)}</time>
+              <p className="text-display-md text-ink">
+                <Translation tKey="briefings.dateline-prefix" />{" "}
+                <time dateTime={briefing.date}>{formatDateWithWeekday(briefing.date, locale)}</time>
               </p>
               <h1 className="text-display-xl text-ink">{briefing.title}</h1>
             </header>
@@ -55,9 +59,19 @@ export async function BriefingDetailPage({ className, date, locale }: BriefingDe
                 as="h2"
                 tKey="briefings.sources-heading"
               />
-              <ArticleList articles={briefing.articles} empty={null} />
+              <ArticleScrollRow articles={briefing.articles} locale={locale} />
             </section>
           )}
+
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <BriefingDateNav
+                className="border-t border-hairline-soft pt-lg"
+                date={date}
+                locale={locale}
+              />
+            </Suspense>
+          </ErrorBoundary>
         </article>
       </Container>
     </main>
