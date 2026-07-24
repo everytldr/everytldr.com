@@ -156,9 +156,9 @@ class ArticleControllerTest {
         base.minus(1, ChronoUnit.HOURS),
         football,
         "ko",
-        "Share Alike",
+        "No Derivatives",
         "蹂몃Ц",
-        new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+        new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"));
     saveArticle(
         base.minus(2, ChronoUnit.HOURS),
         football,
@@ -243,6 +243,7 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.licenseVersion").value("4.0"))
         .andExpect(jsonPath("$.advertisingAllowed").value(true))
         .andExpect(jsonPath("$.requiresAttribution").value(true))
+        .andExpect(jsonPath("$.requiresShareAlike").value(false))
         .andExpect(jsonPath("$.category").value("football"))
         .andExpect(jsonPath("$.likeCount").value(1))
         .andExpect(jsonPath("$.commentCount").value(1))

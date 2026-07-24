@@ -132,6 +132,9 @@
           "requiresAttribution" : {
             "type" : "boolean"
           },
+          "requiresShareAlike" : {
+            "type" : "boolean"
+          },
           "source" : {
             "type" : "string"
           },
@@ -149,7 +152,7 @@
             "type" : "integer"
           }
         },
-        "required" : [ "advertisingAllowed", "category", "commentCount", "contentUrl", "id", "licenseCode", "licenseVersion", "likeCount", "publishedAt", "requiresAttribution", "source", "summary", "thumbnailUrl", "title", "viewCount" ],
+        "required" : [ "advertisingAllowed", "category", "commentCount", "contentUrl", "id", "licenseCode", "licenseVersion", "likeCount", "publishedAt", "requiresAttribution", "requiresShareAlike", "source", "summary", "thumbnailUrl", "title", "viewCount" ],
         "type" : "object"
       },
       "ArticleLikeStateResponse" : {

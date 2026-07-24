@@ -165,7 +165,7 @@ class ArticleCommentControllerTest {
             "ko",
             "?쒕ぉ",
             "?붿빟",
-            new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+            new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"));
     entityManager.flush();
     entityManager.clear();
 

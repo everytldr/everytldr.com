@@ -148,6 +148,7 @@ public class ArticleController {
           String licenseVersion,
       @Schema(requiredMode = RequiredMode.REQUIRED) boolean advertisingAllowed,
       @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresAttribution,
+      @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresShareAlike,
       @Schema(
               requiredMode = RequiredMode.REQUIRED,
               types = {"string", "null"}) // TODO: thumbnailUrl 나중에 Nullable 제거해야함
@@ -169,6 +170,7 @@ public class ArticleController {
           article.licenseVersion(),
           licensePolicyEvaluator.canDisplayAdvertising(article.licenseInfo()),
           licensePolicyEvaluator.requiresAttribution(article.licenseInfo()),
+          licensePolicyEvaluator.requiresShareAlike(article.licenseInfo()),
           article.thumbnailUrl(),
           article.likeCount(),
           article.commentCount(),
