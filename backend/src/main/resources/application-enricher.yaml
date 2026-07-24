@@ -5,7 +5,10 @@ everytldr:
       batch-size: ${ENRICHER_PROCESSING_BATCH_SIZE:10}
       fixed-delay: ${ENRICHER_PROCESSING_FIXED_DELAY:30s}
       max-attempts: ${ENRICHER_PROCESSING_MAX_ATTEMPTS:3}
-      retry-delay: ${ENRICHER_PROCESSING_RETRY_DELAY:10m}
+      retry:
+        initial-interval: ${ENRICHER_PROCESSING_RETRY_INITIAL_INTERVAL:1m}
+        multiplier: ${ENRICHER_PROCESSING_RETRY_MULTIPLIER:2.0}
+        max-interval: ${ENRICHER_PROCESSING_RETRY_MAX_INTERVAL:10m}
       stale-timeout: ${ENRICHER_PROCESSING_STALE_TIMEOUT:15m}
     content:
       timeout: ${ENRICHER_CONTENT_TIMEOUT:5s}

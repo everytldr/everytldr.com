@@ -3,11 +3,13 @@ package com.everytldr.api.article.view;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @Profile("api")
+@Slf4j
 public class ArticleViewMetrics {
   private static final String REDIS_MEMORY_USED_METRIC =
       "everytldr.article.view.redis.memory.used.bytes";
@@ -50,10 +52,18 @@ public class ArticleViewMetrics {
   }
 
   public void recordCapacityRejected() {
-    capacityRejected.increment();
+    recordSafely(RECORD_REJECTED_METRIC, capacityRejected::increment);
   }
 
   public void recordRedisErrorRejected() {
-    redisErrorRejected.increment();
+    recordSafely(RECORD_REJECTED_METRIC, redisErrorRejected::increment);
+  }
+
+  private void recordSafely(String metric, Runnable recorder) {
+    try {
+      recorder.run();
+    } catch (RuntimeException e) {
+      log.warn("Failed to record article view metric. metric={}", metric, e);
+    }
   }
 }

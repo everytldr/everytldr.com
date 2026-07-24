@@ -17,10 +17,12 @@ import com.everytldr.enricher.enrichment.EnrichmentRequest;
 import com.everytldr.enricher.enrichment.EnrichmentResult;
 import com.everytldr.enricher.processor.ProcessingResult.Status;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -51,17 +53,19 @@ public class JobProcessor {
 
   public ProcessingResult processJob(ArticleIngestionJob claimedJob) {
     Objects.requireNonNull(claimedJob, "claimedJob must not be null");
+    long startedAtNanos = System.nanoTime();
     Long jobId = claimedJob.getId();
 
     Optional<ArticleIngestionJob> reloadedJob =
         articleIngestionJobRepository.findByIdWithArticle(jobId);
     if (reloadedJob.isEmpty()) {
-      return recordResult(new ProcessingResult(jobId, Status.SKIPPED_NOT_FOUND));
+      return recordResult(new ProcessingResult(jobId, Status.SKIPPED_NOT_FOUND), startedAtNanos);
     }
 
     ArticleIngestionJob job = reloadedJob.get();
     if (job.getState() != IngestionState.PROCESSING) {
-      return recordResult(new ProcessingResult(jobId, Status.SKIPPED_NOT_PROCESSING));
+      return recordResult(
+          new ProcessingResult(jobId, Status.SKIPPED_NOT_PROCESSING), startedAtNanos);
     }
 
     try {
@@ -70,22 +74,28 @@ public class JobProcessor {
       ContentResolver contentResolver = selectContentResolver(article);
       EnrichmentClient enrichmentClient = selectEnrichmentClient();
 
-      ResolvedArticle resolvedArticle = contentResolver.resolve(article);
+      ResolvedArticle resolvedArticle =
+          measureExternalStage(
+              EnricherMetrics.ExternalStage.CONTENT_RESOLUTION,
+              () -> contentResolver.resolve(article));
       List<String> categorySlugs = categorySlugProvider.getCategorySlugs();
 
       List<EnrichmentResult> enrichmentResults =
-          enrichmentClient.enrich(
-              EnrichmentRequest.from(article, resolvedArticle.content(), categorySlugs));
+          measureExternalStage(
+              EnricherMetrics.ExternalStage.ENRICHMENT,
+              () ->
+                  enrichmentClient.enrich(
+                      EnrichmentRequest.from(article, resolvedArticle.content(), categorySlugs)));
       CompletionStatus completionStatus =
           completionService.completeWithResult(
               jobId, resolvedArticle.thumbnailUrl(), enrichmentResults);
-      return recordResult(ProcessingResult.from(jobId, completionStatus));
+      return recordResult(ProcessingResult.from(jobId, completionStatus), startedAtNanos);
     } catch (EnrichmentException e) {
-      return completeFailure(jobId, job, e);
+      return recordResult(completeFailure(jobId, job, e), startedAtNanos);
     } catch (RuntimeException e) {
       EnrichmentException permanentException =
           EnrichmentException.permanent("unexpected enrichment error: " + e.getMessage(), e);
-      return completeFailure(jobId, job, permanentException);
+      return recordResult(completeFailure(jobId, job, permanentException), startedAtNanos);
     }
   }
 
@@ -97,6 +107,10 @@ public class JobProcessor {
     if (hasNoResolver) {
       throw EnrichmentException.permanent(
           "unsupported source URL for enrichment: %s".formatted(article.getContentUrl()));
+    }
+    if (resolvers.size() > 1) {
+      throw EnrichmentException.permanent(
+          "multiple content resolvers support source URL: %s".formatted(article.getContentUrl()));
     }
 
     return resolvers.getFirst();
@@ -115,10 +129,14 @@ public class JobProcessor {
   }
 
   private EnrichmentClient selectEnrichmentClient() {
-    if (!enrichmentClients.isEmpty()) {
-      return enrichmentClients.getFirst();
+    if (enrichmentClients.isEmpty()) {
+      throw EnrichmentException.permanent("no enrichment client is configured");
     }
-    throw EnrichmentException.permanent("no enrichment client is configured");
+    if (enrichmentClients.size() > 1) {
+      throw EnrichmentException.permanent(
+          "multiple enrichment clients are configured: %d".formatted(enrichmentClients.size()));
+    }
+    return enrichmentClients.getFirst();
   }
 
   private ProcessingResult completeFailure(
@@ -128,7 +146,9 @@ public class JobProcessor {
     if (canRetry) {
       completionStatus =
           completionService.scheduleRetry(
-              jobId, Instant.now(clock).plus(properties.retryDelay()), exception.getMessage());
+              jobId,
+              Instant.now(clock).plus(properties.calculateRetryDelay(job.getAttemptCount())),
+              exception.getMessage());
     } else {
       boolean maxAttemptsExhausted =
           exception.isRetryable() && job.getAttemptCount() >= properties.maxAttempts();
@@ -146,11 +166,40 @@ public class JobProcessor {
         job.getAttemptCount(),
         completionStatus,
         exception);
-    return recordResult(ProcessingResult.from(jobId, completionStatus));
+    return ProcessingResult.from(jobId, completionStatus);
   }
 
-  private ProcessingResult recordResult(ProcessingResult result) {
-    enricherMetrics.recordJob(result.status());
+  private <T> T measureExternalStage(EnricherMetrics.ExternalStage stage, Supplier<T> operation) {
+    long startedAtNanos = System.nanoTime();
+    try {
+      T result = operation.get();
+      recordExternalStage(stage, EnricherMetrics.ExternalStageOutcome.SUCCESS, startedAtNanos);
+      return result;
+    } catch (EnrichmentException e) {
+      EnricherMetrics.ExternalStageOutcome outcome =
+          e.isRetryable()
+              ? EnricherMetrics.ExternalStageOutcome.RETRYABLE_FAILURE
+              : EnricherMetrics.ExternalStageOutcome.PERMANENT_FAILURE;
+      recordExternalStage(stage, outcome, startedAtNanos);
+      throw e;
+    } catch (RuntimeException e) {
+      recordExternalStage(
+          stage, EnricherMetrics.ExternalStageOutcome.PERMANENT_FAILURE, startedAtNanos);
+      throw e;
+    }
+  }
+
+  private void recordExternalStage(
+      EnricherMetrics.ExternalStage stage,
+      EnricherMetrics.ExternalStageOutcome outcome,
+      long startedAtNanos) {
+    enricherMetrics.recordExternalStage(
+        stage, outcome, Duration.ofNanos(System.nanoTime() - startedAtNanos));
+  }
+
+  private ProcessingResult recordResult(ProcessingResult result, long startedAtNanos) {
+    enricherMetrics.recordJob(
+        result.status(), Duration.ofNanos(System.nanoTime() - startedAtNanos));
     return result;
   }
 }
