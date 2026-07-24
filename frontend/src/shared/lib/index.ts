@@ -11,7 +11,17 @@ export {
   buildSiteJsonLd,
   serializeJsonLd,
 } from "./structured-data";
-export { AN_HOUR, A_DAY, A_MINUTE, A_SECOND, formatDate } from "./time";
+export {
+  AN_HOUR,
+  A_DAY,
+  A_MINUTE,
+  A_SECOND,
+  formatDate,
+  formatDateWithWeekday,
+  formatMonthDay,
+  formatNumericMonthDay,
+  formatWeekday,
+} from "./time";
 export {
   buildArticleDetailUrl,
   buildBriefingDetailUrl,
