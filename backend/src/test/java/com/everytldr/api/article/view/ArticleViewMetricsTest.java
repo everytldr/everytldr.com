@@ -1,9 +1,13 @@
 package com.everytldr.api.article.view;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.everytldr.common.infrastructure.article.view.ArticleViewRedisRepository;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Clock;
 import java.time.Duration;
@@ -66,5 +70,35 @@ class ArticleViewMetricsTest {
                 .counter()
                 .count())
         .isEqualTo(1);
+  }
+
+  @Test
+  void ignoresCounterIncrementFailures() {
+    ArticleViewRedisMemoryGuard memoryGuard =
+        new ArticleViewRedisMemoryGuard(
+            redisRepository,
+            new ArticleViewMemoryGuardProperties(0.9, Duration.ofSeconds(10)),
+            Clock.systemUTC());
+    Counter counter = mock(Counter.class);
+    doThrow(new IllegalStateException("meter registry failure")).when(counter).increment();
+    ArticleViewMetrics metrics =
+        new ArticleViewMetrics(new ThrowingCounterMeterRegistry(counter), memoryGuard);
+
+    assertThatCode(metrics::recordCapacityRejected).doesNotThrowAnyException();
+    assertThatCode(metrics::recordRedisErrorRejected).doesNotThrowAnyException();
+  }
+
+  private static class ThrowingCounterMeterRegistry extends SimpleMeterRegistry {
+
+    private final Counter counter;
+
+    ThrowingCounterMeterRegistry(Counter counter) {
+      this.counter = counter;
+    }
+
+    @Override
+    protected Counter newCounter(io.micrometer.core.instrument.Meter.Id id) {
+      return counter;
+    }
   }
 }

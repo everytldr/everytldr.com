@@ -7,10 +7,12 @@ import java.time.Duration;
 import java.util.Locale;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class IngestionMetrics {
 
   private static final String ARTICLES_METRIC = "everytldr.ingestor.articles";
@@ -44,20 +46,28 @@ public class IngestionMetrics {
 
   public void recordArticleCollectionJobStart(String outcome) {
     assertOutcome(outcome);
-    meterRegistry.counter(ARTICLE_COLLECTION_JOB_STARTS_METRIC, "outcome", outcome).increment();
+    recordSafely(
+        ARTICLE_COLLECTION_JOB_STARTS_METRIC,
+        () ->
+            meterRegistry
+                .counter(ARTICLE_COLLECTION_JOB_STARTS_METRIC, "outcome", outcome)
+                .increment());
   }
 
   public void recordArticleCollectionStepCompletion(String status, String exitCode) {
     String statusTag = normalizeTagValue(status, "status");
     String exitCodeTag = normalizeTagValue(exitCode, "exitCode");
-    meterRegistry
-        .counter(
-            ARTICLE_COLLECTION_STEP_COMPLETIONS_METRIC,
-            "status",
-            statusTag,
-            "exit_code",
-            exitCodeTag)
-        .increment();
+    recordSafely(
+        ARTICLE_COLLECTION_STEP_COMPLETIONS_METRIC,
+        () ->
+            meterRegistry
+                .counter(
+                    ARTICLE_COLLECTION_STEP_COMPLETIONS_METRIC,
+                    "status",
+                    statusTag,
+                    "exit_code",
+                    exitCodeTag)
+                .increment());
   }
 
   public void recordArticleCollectionTargetAttempt(SourceType sourceType, String outcome) {
@@ -65,14 +75,17 @@ public class IngestionMetrics {
     assertOutcome(outcome);
 
     String sourceTypeTag = sourceType.name().toLowerCase(Locale.ROOT);
-    meterRegistry
-        .counter(
-            ARTICLE_COLLECTION_TARGET_ATTEMPTS_METRIC,
-            "source_type",
-            sourceTypeTag,
-            "outcome",
-            outcome)
-        .increment();
+    recordSafely(
+        ARTICLE_COLLECTION_TARGET_ATTEMPTS_METRIC,
+        () ->
+            meterRegistry
+                .counter(
+                    ARTICLE_COLLECTION_TARGET_ATTEMPTS_METRIC,
+                    "source_type",
+                    sourceTypeTag,
+                    "outcome",
+                    outcome)
+                .increment());
   }
 
   public void recordArticleCollectionTargetAttemptDuration(
@@ -85,16 +98,29 @@ public class IngestionMetrics {
     }
 
     String sourceTypeTag = sourceType.name().toLowerCase(Locale.ROOT);
-    Timer.builder(ARTICLE_COLLECTION_TARGET_ATTEMPT_DURATION_METRIC)
-        .tag("source_type", sourceTypeTag)
-        .tag("outcome", outcome)
-        .register(meterRegistry)
-        .record(duration);
+    recordSafely(
+        ARTICLE_COLLECTION_TARGET_ATTEMPT_DURATION_METRIC,
+        () ->
+            Timer.builder(ARTICLE_COLLECTION_TARGET_ATTEMPT_DURATION_METRIC)
+                .tag("source_type", sourceTypeTag)
+                .tag("outcome", outcome)
+                .register(meterRegistry)
+                .record(duration));
   }
 
   private void recordArticleCount(String result, int count) {
     if (count > 0) {
-      meterRegistry.counter(ARTICLES_METRIC, "result", result).increment(count);
+      recordSafely(
+          ARTICLES_METRIC,
+          () -> meterRegistry.counter(ARTICLES_METRIC, "result", result).increment(count));
+    }
+  }
+
+  private void recordSafely(String metric, Runnable recorder) {
+    try {
+      recorder.run();
+    } catch (RuntimeException e) {
+      log.warn("Failed to record ingestor metric. metric={}", metric, e);
     }
   }
 
