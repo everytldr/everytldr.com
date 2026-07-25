@@ -62,9 +62,20 @@ class BriefingGenerationServiceTest {
 
   @BeforeEach
   void seedFixtures() {
+    clearArticleAndBriefingTables();
     sourceRepository.saveAndFlush(source());
     football = categoryRepository.saveAndFlush(Category.create("football"));
     yesterday = LocalDate.now(ZoneOffset.UTC).minusDays(1);
+  }
+
+  private void clearArticleAndBriefingTables() {
+    jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+    jdbcTemplate.update("DELETE FROM briefing_article");
+    jdbcTemplate.update("DELETE FROM briefing");
+    jdbcTemplate.update("DELETE FROM article_category");
+    jdbcTemplate.update("DELETE FROM article_summary");
+    jdbcTemplate.update("DELETE FROM article");
+    jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
   }
 
   @Test
