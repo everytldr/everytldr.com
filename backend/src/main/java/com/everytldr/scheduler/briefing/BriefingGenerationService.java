@@ -9,7 +9,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -59,12 +61,24 @@ public class BriefingGenerationService {
   private List<ListItemProjection> findMostViewedSources(LocalDate briefingDate) {
     Instant start = briefingDate.atStartOfDay(ZoneOffset.UTC).toInstant();
     Instant end = briefingDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-    return articleRepository.findMostViewedByPublishedAtBetweenAndLicenseCodeIn(
-        SupportedLanguage.ENGLISH.code(),
-        start,
-        end,
-        licensePolicyEvaluator.getPublishableTransformedTextLicenseCodes(),
-        PageRequest.of(0, properties.articleCount()));
+    List<ListItemProjection> rows =
+        articleRepository.findMostViewedByPublishedAtBetweenAndLicenseCodeIn(
+            SupportedLanguage.ENGLISH.code(),
+            start,
+            end,
+            licensePolicyEvaluator.getPublishableTransformedTextLicenseCodes(),
+            PageRequest.of(0, properties.articleCount()));
+    return distinctById(rows);
+  }
+
+  private List<ListItemProjection> distinctById(List<ListItemProjection> rows) {
+    return rows.stream()
+        .collect(
+            Collectors.toMap(
+                ListItemProjection::id, row -> row, (first, ignored) -> first, LinkedHashMap::new))
+        .values()
+        .stream()
+        .toList();
   }
 
   private BriefingGenerationClient.Request toRequest(List<ListItemProjection> sources) {
