@@ -10,7 +10,7 @@ everytldr:
   briefing:
     generation:
       enabled: ${BRIEFING_GENERATION_ENABLED:false}
-      cron: ${BRIEFING_GENERATION_CRON:0 30 * * * *}
+      cron: ${BRIEFING_GENERATION_CRON:0 30 6-23 * * *}
       article-count: ${BRIEFING_GENERATION_ARTICLE_COUNT:10}
     ai:
       gemini:
