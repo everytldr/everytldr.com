@@ -48,8 +48,8 @@ public class BriefingGenerationService {
       return;
     }
 
-    BriefingGenerationRequest request = toRequest(sources);
-    List<BriefingGenerationResult> results = generationClient.generate(request);
+    BriefingGenerationClient.Request request = toRequest(sources);
+    List<BriefingGenerationClient.Result> results = generationClient.generate(request);
     List<Long> articleIds = sources.stream().map(ListItemProjection::id).toList();
     briefingWriter.save(briefingDate, results, articleIds);
     log.info(
@@ -67,13 +67,14 @@ public class BriefingGenerationService {
         PageRequest.of(0, properties.articleCount()));
   }
 
-  private BriefingGenerationRequest toRequest(List<ListItemProjection> sources) {
-    List<BriefingGenerationRequest.SourceArticle> articles =
+  private BriefingGenerationClient.Request toRequest(List<ListItemProjection> sources) {
+    List<BriefingGenerationClient.Request.SourceArticle> articles =
         sources.stream()
             .map(
                 source ->
-                    new BriefingGenerationRequest.SourceArticle(source.title(), source.summary()))
+                    new BriefingGenerationClient.Request.SourceArticle(
+                        source.title(), source.summary()))
             .toList();
-    return new BriefingGenerationRequest(articles);
+    return new BriefingGenerationClient.Request(articles);
   }
 }

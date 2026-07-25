@@ -22,8 +22,10 @@ public class BriefingWriter {
 
   @Transactional
   public void save(
-      LocalDate briefingDate, List<BriefingGenerationResult> results, List<Long> articleIds) {
-    for (BriefingGenerationResult result : results) {
+      LocalDate briefingDate,
+      List<BriefingGenerationClient.Result> results,
+      List<Long> articleIds) {
+    for (BriefingGenerationClient.Result result : results) {
       briefingRepository.save(
           Briefing.create(briefingDate, result.language(), result.title(), result.content()));
     }

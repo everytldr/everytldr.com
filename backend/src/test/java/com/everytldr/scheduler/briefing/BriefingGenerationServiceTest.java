@@ -89,11 +89,11 @@ class BriefingGenerationServiceTest {
     assertThat(briefingArticleRepository.findArticleIdsByBriefingDate(yesterday))
         .containsExactly(mostViewed.getId(), secondViewed.getId(), thirdViewed.getId());
 
-    ArgumentCaptor<BriefingGenerationRequest> requestCaptor =
-        ArgumentCaptor.forClass(BriefingGenerationRequest.class);
+    ArgumentCaptor<BriefingGenerationClient.Request> requestCaptor =
+        ArgumentCaptor.forClass(BriefingGenerationClient.Request.class);
     verify(generationClient).generate(requestCaptor.capture());
     assertThat(requestCaptor.getValue().articles())
-        .extracting(BriefingGenerationRequest.SourceArticle::title)
+        .extracting(BriefingGenerationClient.Request.SourceArticle::title)
         .containsExactly("Most viewed", "Second", "Third");
   }
 
@@ -121,10 +121,10 @@ class BriefingGenerationServiceTest {
     assertThat(briefingRepository.existsByBriefingDate(yesterday)).isFalse();
   }
 
-  private List<BriefingGenerationResult> generationResults() {
+  private List<BriefingGenerationClient.Result> generationResults() {
     return List.of(
-        new BriefingGenerationResult("en", "Title EN", "Content EN"),
-        new BriefingGenerationResult("ko", "제목 KO", "내용 KO"));
+        new BriefingGenerationClient.Result("en", "Title EN", "Content EN"),
+        new BriefingGenerationClient.Result("ko", "제목 KO", "내용 KO"));
   }
 
   private Article saveArticle(

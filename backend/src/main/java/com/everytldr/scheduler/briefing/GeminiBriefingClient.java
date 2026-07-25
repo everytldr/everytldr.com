@@ -54,7 +54,7 @@ public class GeminiBriefingClient implements BriefingGenerationClient {
   }
 
   @Override
-  public List<BriefingGenerationResult> generate(BriefingGenerationRequest request) {
+  public List<Result> generate(Request request) {
     String payload = serializePayload(request);
     GeminiHttpResponse response = callGemini(payload);
     return parseResult(response);
@@ -92,7 +92,7 @@ public class GeminiBriefingClient implements BriefingGenerationClient {
     }
   }
 
-  private List<BriefingGenerationResult> parseResult(GeminiHttpResponse response) {
+  private List<Result> parseResult(GeminiHttpResponse response) {
     int statusCode = response.statusCode();
     boolean isSuccess = statusCode >= 200 && statusCode < 300;
     if (!isSuccess) {
@@ -118,8 +118,8 @@ public class GeminiBriefingClient implements BriefingGenerationClient {
     JsonNode output = parseJson(extractOutput(firstCandidate));
     assertExpectedOutputShape(output);
 
-    List<BriefingGenerationResult> results = toResults(output);
-    results.forEach(BriefingGenerationResult::assertValid);
+    List<Result> results = toResults(output);
+    results.forEach(Result::assertValid);
     assertCoversSupportedLanguages(results);
     return results;
   }
@@ -151,12 +151,12 @@ public class GeminiBriefingClient implements BriefingGenerationClient {
     }
   }
 
-  private List<BriefingGenerationResult> toResults(JsonNode output) {
+  private List<Result> toResults(JsonNode output) {
     return StreamSupport.stream(output.spliterator(), false)
         .map(
             item -> {
               try {
-                return objectMapper.treeToValue(item, BriefingGenerationResult.class);
+                return objectMapper.treeToValue(item, Result.class);
               } catch (JacksonException e) {
                 throw new BriefingGenerationException("Gemini output schema mismatch", e);
               }
@@ -164,7 +164,7 @@ public class GeminiBriefingClient implements BriefingGenerationClient {
         .toList();
   }
 
-  private String serializePayload(BriefingGenerationRequest request) {
+  private String serializePayload(Request request) {
     try {
       return objectMapper.writeValueAsString(GeminiUserPayload.from(request));
     } catch (JacksonException e) {
@@ -257,9 +257,9 @@ public class GeminiBriefingClient implements BriefingGenerationClient {
     }
   }
 
-  private void assertCoversSupportedLanguages(List<BriefingGenerationResult> results) {
+  private void assertCoversSupportedLanguages(List<Result> results) {
     Set<String> returnedLanguages =
-        results.stream().map(BriefingGenerationResult::language).collect(Collectors.toSet());
+        results.stream().map(Result::language).collect(Collectors.toSet());
     Set<String> supportedLanguages = new HashSet<>(SUPPORTED_LANGUAGE_CODES);
 
     if (!returnedLanguages.equals(supportedLanguages)) {
@@ -271,7 +271,7 @@ public class GeminiBriefingClient implements BriefingGenerationClient {
   private record GeminiHttpResponse(int statusCode, String body) {}
 
   private record GeminiUserPayload(List<GeminiArticlePayload> articles) {
-    static GeminiUserPayload from(BriefingGenerationRequest request) {
+    static GeminiUserPayload from(Request request) {
       Objects.requireNonNull(request, "request must not be null");
       List<GeminiArticlePayload> articles =
           request.articles().stream()
