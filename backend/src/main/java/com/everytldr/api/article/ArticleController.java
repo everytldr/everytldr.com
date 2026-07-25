@@ -1,6 +1,7 @@
 package com.everytldr.api.article;
 
 import com.everytldr.api.article.view.ArticleViewService;
+import com.everytldr.api.briefing.BriefingExceptions;
 import com.everytldr.api.briefing.BriefingService;
 import com.everytldr.api.support.language.ResolvedLanguage;
 import com.everytldr.api.support.pagination.Pagination;
@@ -127,10 +128,7 @@ public class ArticleController {
     Briefing briefing =
         briefingService
             .findBriefingForArticle(language, id)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "no briefing covers article " + id));
+            .orElseThrow(() -> new BriefingExceptions.NotFound(id));
     return new ArticleBriefingResponse(briefing.getBriefingDate(), briefing.getTitle());
   }
 

@@ -9,5 +9,9 @@ public final class BriefingExceptions {
     public NotFound(LocalDate briefingDate) {
       super("briefing not found: " + briefingDate);
     }
+
+    public NotFound(Long articleId) {
+      super("no briefing covers article: " + articleId);
+    }
   }
 }
