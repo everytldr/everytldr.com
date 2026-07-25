@@ -1,6 +1,12 @@
 import type { BriefingListItem } from "@/shared/api";
 import { Link, type Locale } from "@/shared/i18n";
-import { buildBriefingDetailUrl, cn, formatNumericMonthDay, formatWeekday } from "@/shared/lib";
+import {
+  buildBriefingDetailUrl,
+  cn,
+  formatNumericMonthDay,
+  formatWeekday,
+  markdownToPlainText,
+} from "@/shared/lib";
 import { Skeleton } from "@/shared/ui";
 
 type BriefingRowProps = {
@@ -27,7 +33,9 @@ export function BriefingRow({ className, briefing, locale }: BriefingRowProps) {
         <h2 className="line-clamp-2 text-display-sm text-ink group-hover:text-primary">
           {briefing.title}
         </h2>
-        <p className="line-clamp-2 text-body-sm text-meta">{briefing.excerpt}</p>
+        <p className="line-clamp-2 text-body-sm text-meta">
+          {markdownToPlainText(briefing.excerpt)}
+        </p>
       </div>
     </Link>
   );

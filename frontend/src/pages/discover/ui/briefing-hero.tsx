@@ -1,5 +1,5 @@
 import { Link, type Locale } from "@/shared/i18n";
-import { buildBriefingDetailUrl, cn, formatDate } from "@/shared/lib";
+import { buildBriefingDetailUrl, cn, formatDate, markdownToPlainText } from "@/shared/lib";
 import { Skeleton, Translation } from "@/shared/ui";
 import { ArrowRight } from "lucide-react";
 import { fetchLatestBriefing } from "../api/fetch-latest-briefing";
@@ -36,7 +36,9 @@ export async function BriefingHero({ className, locale }: BriefingHeroProps) {
         </time>
       </div>
       <h2 className="mt-2xs text-display-md text-ink group-hover:text-primary">{briefing.title}</h2>
-      <p className="mt-xs line-clamp-2 text-body-md text-meta">{briefing.excerpt}</p>
+      <p className="mt-xs line-clamp-2 text-body-md text-meta">
+        {markdownToPlainText(briefing.excerpt)}
+      </p>
       <span className="mt-sm inline-flex items-center gap-2xs text-button-sm text-primary group-hover:underline">
         <Translation tKey="briefings.hero-cta" />
         <ArrowRight className="size-sm" aria-hidden="true" />
