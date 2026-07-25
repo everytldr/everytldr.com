@@ -80,17 +80,21 @@ export const getArticleBriefing = ({
 };
 
 export const getBriefing = ({ params: { date } }: { params: { date: string } }) => {
-  const briefing = ALL_BRIEFINGS.find((item) => item.date === date);
+  const index = ALL_BRIEFINGS.findIndex((item) => item.date === date);
 
-  if (!briefing) {
+  if (index === -1) {
     return new HttpResponse(null, { status: 404 });
   }
+
+  const briefing = ALL_BRIEFINGS[index];
 
   const responseData: BriefingDetailResponse = {
     date: briefing.date,
     title: briefing.title,
     content: MOCK_CONTENT,
     articles: take(ALL_ARTICLES, BRIEFING_ARTICLE_COUNT),
+    previousDate: ALL_BRIEFINGS[index + 1]?.date ?? null,
+    nextDate: ALL_BRIEFINGS[index - 1]?.date ?? null,
   };
 
   return HttpResponse.json(responseData);

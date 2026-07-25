@@ -62,5 +62,26 @@ public class BriefingService {
     return briefingArticleRepository.findArticleIdsByBriefingDate(briefingDate);
   }
 
+  public AdjacentDates findAdjacentDates(SupportedLanguage language, LocalDate briefingDate) {
+    Objects.requireNonNull(language, "language must not be null");
+    Objects.requireNonNull(briefingDate, "briefingDate must not be null");
+
+    LocalDate previousDate =
+        briefingRepository
+            .findFirstByLanguageAndBriefingDateLessThanOrderByBriefingDateDesc(
+                language.code(), briefingDate)
+            .map(Briefing::getBriefingDate)
+            .orElse(null);
+    LocalDate nextDate =
+        briefingRepository
+            .findFirstByLanguageAndBriefingDateGreaterThanOrderByBriefingDateAsc(
+                language.code(), briefingDate)
+            .map(Briefing::getBriefingDate)
+            .orElse(null);
+    return new AdjacentDates(previousDate, nextDate);
+  }
+
   public record ListResult(List<Briefing> items, LocalDate nextCursor) {}
+
+  public record AdjacentDates(LocalDate previousDate, LocalDate nextDate) {}
 }

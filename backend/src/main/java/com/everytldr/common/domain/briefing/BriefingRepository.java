@@ -19,6 +19,12 @@ public interface BriefingRepository extends JpaRepository<Briefing, Long> {
   List<Briefing> findByLanguageAndBriefingDateLessThanOrderByBriefingDateDesc(
       String language, LocalDate cursor, Pageable pageable);
 
+  Optional<Briefing> findFirstByLanguageAndBriefingDateLessThanOrderByBriefingDateDesc(
+      String language, LocalDate briefingDate);
+
+  Optional<Briefing> findFirstByLanguageAndBriefingDateGreaterThanOrderByBriefingDateAsc(
+      String language, LocalDate briefingDate);
+
   @Query(
       """
       SELECT b

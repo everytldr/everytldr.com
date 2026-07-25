@@ -57,7 +57,8 @@ public class BriefingController {
     List<Long> articleIds = briefingService.listArticleIds(date);
     List<ListItemProjection> articles =
         articleService.listByIdsInOrder(language, articleIds, articleIds.size());
-    return BriefingDetailResponse.from(briefing, articles, licensePolicyEvaluator);
+    BriefingService.AdjacentDates adjacentDates = briefingService.findAdjacentDates(language, date);
+    return BriefingDetailResponse.from(briefing, articles, adjacentDates, licensePolicyEvaluator);
   }
 
   public record BriefingListResponse(
@@ -90,17 +91,33 @@ public class BriefingController {
       @Schema(requiredMode = RequiredMode.REQUIRED) LocalDate date,
       @Schema(requiredMode = RequiredMode.REQUIRED) String title,
       @Schema(requiredMode = RequiredMode.REQUIRED) String content,
-      @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> articles) {
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> articles,
+      @Schema(
+              requiredMode = RequiredMode.REQUIRED,
+              types = {"string", "null"},
+              format = "date")
+          LocalDate previousDate,
+      @Schema(
+              requiredMode = RequiredMode.REQUIRED,
+              types = {"string", "null"},
+              format = "date")
+          LocalDate nextDate) {
     static BriefingDetailResponse from(
         Briefing briefing,
         List<ListItemProjection> articles,
+        BriefingService.AdjacentDates adjacentDates,
         LicensePolicyEvaluator licensePolicyEvaluator) {
       List<ArticleListResponse.Item> items =
           articles.stream()
               .map(item -> ArticleListResponse.Item.from(item, licensePolicyEvaluator))
               .toList();
       return new BriefingDetailResponse(
-          briefing.getBriefingDate(), briefing.getTitle(), briefing.getContent(), items);
+          briefing.getBriefingDate(),
+          briefing.getTitle(),
+          briefing.getContent(),
+          items,
+          adjacentDates.previousDate(),
+          adjacentDates.nextDate());
     }
   }
 }

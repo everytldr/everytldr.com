@@ -10,8 +10,6 @@ import {
   serializeJsonLd,
 } from "@/shared/lib";
 import { Container, MarkdownContent, Translation } from "@/shared/ui";
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { fetchBriefing } from "../api/fetch-briefing";
 import { BriefingDateNav } from "./briefing-date-nav";
 
@@ -63,15 +61,14 @@ export async function BriefingDetailPage({ className, date, locale }: BriefingDe
             </section>
           )}
 
-          <ErrorBoundary fallback={null}>
-            <Suspense fallback={null}>
-              <BriefingDateNav
-                className="border-t border-hairline-soft pt-lg"
-                date={date}
-                locale={locale}
-              />
-            </Suspense>
-          </ErrorBoundary>
+          {(briefing.previousDate || briefing.nextDate) && (
+            <BriefingDateNav
+              className="border-t border-hairline-soft pt-lg"
+              previousDate={briefing.previousDate}
+              nextDate={briefing.nextDate}
+              locale={locale}
+            />
+          )}
         </article>
       </Container>
     </main>

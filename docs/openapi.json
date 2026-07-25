@@ -291,11 +291,19 @@
             "format" : "date",
             "type" : "string"
           },
+          "nextDate" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "previousDate" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
           "title" : {
             "type" : "string"
           }
         },
-        "required" : [ "articles", "content", "date", "title" ],
+        "required" : [ "articles", "content", "date", "nextDate", "previousDate", "title" ],
         "type" : "object"
       },
       "BriefingListItem" : {
