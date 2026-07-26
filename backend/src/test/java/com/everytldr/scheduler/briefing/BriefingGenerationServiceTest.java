@@ -97,29 +97,7 @@ class BriefingGenerationServiceTest {
             });
     assertThat(briefingRepository.findByBriefingDateAndLanguage(yesterday, "ko"))
         .hasValueSatisfying(briefing -> assertThat(briefing.getTitle()).isEqualTo("제목 KO"));
-    Instant diagStart = yesterday.atStartOfDay(ZoneOffset.UTC).toInstant();
-    Instant diagEnd = yesterday.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-    List<String> diagRows =
-        jdbcTemplate.query(
-            "SELECT id, published_at, license_code, view_count FROM article ORDER BY view_count DESC",
-            (rs, i) ->
-                "id=%d published_at=%s license=%s views=%d"
-                    .formatted(
-                        rs.getLong("id"),
-                        rs.getString("published_at"),
-                        rs.getString("license_code"),
-                        rs.getLong("view_count")));
-    String diag =
-        "nowUtc=%s yesterday=%s start=%s end=%s tz=%s%narticles=%s"
-            .formatted(
-                LocalDate.now(ZoneOffset.UTC),
-                yesterday,
-                diagStart,
-                diagEnd,
-                java.util.TimeZone.getDefault().getID(),
-                diagRows);
     assertThat(briefingArticleRepository.findArticleIdsByBriefingDate(yesterday))
-        .as(diag)
         .containsExactly(mostViewed.getId(), secondViewed.getId(), thirdViewed.getId());
 
     ArgumentCaptor<BriefingGenerationClient.Request> requestCaptor =
