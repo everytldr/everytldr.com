@@ -6,8 +6,8 @@ import {
   buildBriefingJsonLd,
   cn,
   formatDateWithWeekday,
-  markdownToPlainText,
   serializeJsonLd,
+  toMetaDescription,
 } from "@/shared/lib";
 import { Container, MarkdownContent, Translation } from "@/shared/ui";
 import { fetchBriefing } from "../api/fetch-briefing";
@@ -25,7 +25,7 @@ export async function BriefingDetailPage({ className, date, locale }: BriefingDe
   const jsonLd = buildBriefingJsonLd({
     url: `${SITE_URL}${getPathname({ locale, href: buildBriefingDetailUrl(date) })}`,
     headline: briefing.title,
-    description: markdownToPlainText(briefing.content),
+    description: toMetaDescription(briefing.content),
     datePublished: briefing.date,
   });
 

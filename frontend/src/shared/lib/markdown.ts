@@ -1,3 +1,13 @@
+const META_DESCRIPTION_MAX_LENGTH = 200;
+
+export function toMetaDescription(markdown: string): string {
+  const text = markdownToPlainText(markdown);
+
+  return text.length <= META_DESCRIPTION_MAX_LENGTH
+    ? text
+    : `${text.slice(0, META_DESCRIPTION_MAX_LENGTH).trimEnd()}…`;
+}
+
 export function markdownToPlainText(markdown: string) {
   return markdown
     .replace(/```[\s\S]*?```/g, " ")

@@ -1,7 +1,7 @@
 export { assert, ensure, type AssertionError } from "./assert";
 export { cn } from "./class-name";
 export { isBrowser, isEditableElement } from "./dom";
-export { markdownToPlainText } from "./markdown";
+export { markdownToPlainText, toMetaDescription } from "./markdown";
 export { buildPageMetadata } from "./metadata";
 export type { Maybe, Nullable, Optional } from "./nullish";
 export { buildArticleFeedItem, buildRssFeed } from "./rss";

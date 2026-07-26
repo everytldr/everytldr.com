@@ -1,6 +1,6 @@
 import { BriefingDetailPage, fetchBriefing } from "@/pages/briefing-detail";
 import type { Locale } from "@/shared/i18n";
-import { buildPageMetadata, markdownToPlainText } from "@/shared/lib";
+import { buildPageMetadata, toMetaDescription } from "@/shared/lib";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return buildPageMetadata({
     title: briefing.title,
-    description: markdownToPlainText(briefing.content),
+    description: toMetaDescription(briefing.content),
     locale,
     path: `/briefings/${date}`,
     article: { publishedTime: briefing.date },
