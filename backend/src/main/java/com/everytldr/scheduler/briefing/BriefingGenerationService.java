@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class BriefingGenerationService {
   static final int MIN_ARTICLE_COUNT = 3;
+  private static final int SOURCE_FETCH_MULTIPLIER = 3;
 
   private final ArticleRepository articleRepository;
   private final BriefingRepository briefingRepository;
@@ -43,7 +44,7 @@ public class BriefingGenerationService {
 
     List<ListItemProjection> sources = findMostViewedSources(briefingDate);
     if (sources.size() < MIN_ARTICLE_COUNT) {
-      log.info(
+      log.warn(
           "Skipped briefing generation. briefingDate={}, sourceCount={}",
           briefingDate,
           sources.size());
@@ -67,8 +68,8 @@ public class BriefingGenerationService {
             start,
             end,
             licensePolicyEvaluator.getPublishableTransformedTextLicenseCodes(),
-            PageRequest.of(0, properties.articleCount()));
-    return distinctById(rows);
+            PageRequest.of(0, properties.articleCount() * SOURCE_FETCH_MULTIPLIER));
+    return distinctById(rows).stream().limit(properties.articleCount()).toList();
   }
 
   private List<ListItemProjection> distinctById(List<ListItemProjection> rows) {
