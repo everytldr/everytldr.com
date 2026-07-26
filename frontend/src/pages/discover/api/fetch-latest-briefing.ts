@@ -12,7 +12,12 @@ export async function fetchLatestBriefing(locale: Locale): Promise<Nullable<Brie
   cacheLife("hours");
   cacheTag(`briefings:${locale}`);
 
-  const response = await listBriefings({ size: 1 }, { headers: { "Accept-Language": locale } });
+  try {
+    const response = await listBriefings({ size: 1 }, { headers: { "Accept-Language": locale } });
 
-  return response.status === 200 ? (response.data.items[0] ?? null) : null;
+    return response.status === 200 ? (response.data.items[0] ?? null) : null;
+  } catch (e) {
+    console.error("Failed to fetch latest briefing", e);
+    return null;
+  }
 }

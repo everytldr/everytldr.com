@@ -4,6 +4,7 @@ import { cn } from "@/shared/lib";
 import { Container } from "@/shared/ui";
 import { range } from "lodash-es";
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { BriefingHero, BriefingHeroSkeleton } from "./briefing-hero";
 import {
   CATEGORY_SECTION_SIZE,
@@ -21,9 +22,11 @@ export function DiscoverPage({ className, locale }: DiscoverPageProps) {
   return (
     <main className={cn("py-lg", className)}>
       <Container className="space-y-lg">
-        <Suspense fallback={<BriefingHeroSkeleton />}>
-          <BriefingHero locale={locale} />
-        </Suspense>
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={<BriefingHeroSkeleton />}>
+            <BriefingHero locale={locale} />
+          </Suspense>
+        </ErrorBoundary>
         <div className="grid grid-cols-1 gap-lg lg:grid-cols-3">
           <div className="space-y-lg lg:col-span-2">
             <Suspense
