@@ -53,7 +53,7 @@ function RecentChip({ className, term, onSelect, onRemove }: RecentChipProps) {
           {term}
         </button>
         <button
-          className="inline-flex size-md items-center justify-center rounded-full text-meta-soft transition-colors outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-primary"
+          className="inline-flex size-md items-center justify-center rounded-full text-meta transition-colors outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-primary"
           type="button"
           aria-label={`${t("aria-label.remove-recent")}: ${term}`}
           onClick={onRemove}
