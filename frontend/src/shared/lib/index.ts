@@ -8,6 +8,7 @@ export { buildArticleFeedItem, buildRssFeed } from "./rss";
 export {
   buildArticleEntries,
   buildLocalizedEntries,
+  buildNewsSitemap,
   buildSitemapIndex,
   buildUrlSet,
 } from "./sitemap";

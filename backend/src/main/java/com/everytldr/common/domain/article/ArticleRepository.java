@@ -210,6 +210,25 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       @Param("articleIds") Collection<Long> articleIds);
 
   @Query(
+      """
+      SELECT new com.everytldr.common.domain.article.ArticleRepository$NewsSitemapItemProjection(
+          a.id,
+          a.publishedAt,
+          s.language,
+          s.title)
+      FROM Article a
+        JOIN ArticleSummary s ON s.article = a
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
+        AND a.publishedAt >= :publishedAfter
+        AND EXISTS (SELECT 1 FROM ArticleCategory ac WHERE ac.article = a)
+      ORDER BY a.publishedAt DESC, a.id DESC
+      """)
+  List<NewsSitemapItemProjection> findRecentForNewsSitemapByLicenseCodeIn(
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes,
+      @Param("publishedAfter") Instant publishedAfter,
+      Pageable pageable);
+
+  @Query(
       value =
           """
           SELECT a.id AS id,
@@ -332,6 +351,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
   record SitemapItemProjection(Long id, Instant publishedAt) {}
 
   record SitemapLanguageProjection(Long articleId, String language) {}
+
+  record NewsSitemapItemProjection(Long id, Instant publishedAt, String language, String title) {}
 
   record DetailProjection(
       Long id,

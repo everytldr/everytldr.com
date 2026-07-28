@@ -9,10 +9,11 @@ import type {
   ArticleListItem,
   ArticleListResponse,
   ArticleSearchResponse,
+  NewsSitemapArticleListResponse,
   SitemapArticleListResponse,
 } from "@/shared/api";
 import { EplTeam } from "@/shared/config";
-import { AN_HOUR, type Optional } from "@/shared/lib";
+import { A_DAY, AN_HOUR, type Optional } from "@/shared/lib";
 import { drop, take, times } from "lodash-es";
 import { HttpResponse, type HttpResponseResolver } from "msw";
 
@@ -303,6 +304,30 @@ export const listSitemapArticles = ({ request }: { request: Request }) => {
     items,
     total: ascendingArticles.length,
   };
+
+  return HttpResponse.json(responseData);
+};
+
+export const listNewsSitemapArticles = ({ request }: { request: Request }) => {
+  const url = new URL(request.url);
+  const days = Number(url.searchParams.get("days") ?? "2");
+  const cutoff = Date.now() - days * A_DAY;
+
+  const items = ALL_ARTICLES.filter(
+    (article) => new Date(article.publishedAt).getTime() >= cutoff,
+  ).map((article, index) => ({
+    id: article.id,
+    publishedAt: article.publishedAt,
+    summaries:
+      index % 5 === 0
+        ? [{ language: "en", title: article.title }]
+        : [
+            { language: "en", title: article.title },
+            { language: "ko", title: `${article.title} (KO)` },
+          ],
+  }));
+
+  const responseData: NewsSitemapArticleListResponse = { items };
 
   return HttpResponse.json(responseData);
 };
