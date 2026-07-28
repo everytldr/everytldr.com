@@ -1,4 +1,4 @@
-import { assert, ensure } from "@/shared/lib";
+import { assert, ensure, type Optional } from "@/shared/lib";
 
 export type CategoryNode = {
   slug: string;
@@ -146,6 +146,18 @@ export function findRootCategory<T extends CategoryNode>(graph: readonly T[], sl
 
 export function isMainCategorySlug(slug: CategorySlug): slug is MainCategorySlug {
   return CATEGORY_GRAPH.some((node) => node.slug === slug);
+}
+
+export function resolveMainCategorySlug(slug: string): MainCategorySlug {
+  return slug.split("-")[0] as MainCategorySlug;
+}
+
+export function resolveLeafCategorySlug(slug: string): LeafCategorySlug {
+  return slug.replace(/^([^-]+-[^-]+)-.*/, "$1") as LeafCategorySlug;
+}
+
+export function findRoutableCategoryNode(slug: string): Optional<CategoryNode> {
+  return ROUTABLE_CATEGORY_NODES.find((node) => node.slug === slug);
 }
 
 export function isFeedableCategory(slug: string): slug is CategorySlug {

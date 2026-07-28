@@ -16,3 +16,4 @@ export {
   buildSearchUrl,
 } from "./url";
 export { useHydrated } from "./use-hydrated";
+export { useIsCoarsePointer } from "./use-is-coarse-pointer";

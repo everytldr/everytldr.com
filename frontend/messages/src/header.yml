@@ -181,6 +181,9 @@ subcategory:
   nba:
     en: "NBA"
     ko: "NBA"
+  sport-basketball:
+    en: "Basketball"
+    ko: "농구"
   sport-events:
     en: "Events"
     ko: "이벤트"
