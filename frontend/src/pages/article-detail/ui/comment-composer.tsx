@@ -6,11 +6,10 @@ import { cn, type Nullable } from "@/shared/lib";
 import { Button, Input, Textarea, toast, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useState, type ComponentProps, type SubmitEvent } from "react";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../model/comment";
 
 const MAX_CONTENT_LENGTH = 5000;
 const MAX_NICKNAME_LENGTH = 50;
-const MAX_PASSWORD_LENGTH = 100;
-const MIN_PASSWORD_LENGTH = 4;
 
 enum ComposerError {
   Required = "required",
