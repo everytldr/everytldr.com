@@ -12,6 +12,7 @@ import { routing } from "@/shared/i18n";
 import { buildPageMetadata, cn } from "@/shared/lib";
 import { Footer } from "@/widgets/footer";
 import { Header } from "@/widgets/header";
+import { SearchTrigger } from "@/widgets/search";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -68,7 +69,7 @@ export default async function RootLayout({ params, children }: RootLayoutProps) 
     >
       <body className="flex min-h-dvh flex-col">
         <GlobalProvider>
-          <Header locale={locale} />
+          <Header locale={locale} renderSearch={() => <SearchTrigger />} />
           <ViewTransition>
             <div className="flex-1">{children}</div>
           </ViewTransition>
