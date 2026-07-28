@@ -2,8 +2,8 @@
 
 import type { ArticleListItem } from "@/shared/api";
 import { resolveLeafCategorySlug } from "@/shared/config";
-import { cn, markdownToPlainText, useHydrated } from "@/shared/lib";
-import { Badge, RelativeTime, Skeleton, Translation } from "@/shared/ui";
+import { cn, markdownToPlainText } from "@/shared/lib";
+import { Badge, RelativeTime, Translation } from "@/shared/ui";
 
 type ArticleCardProps = {
   className?: string;
@@ -12,7 +12,6 @@ type ArticleCardProps = {
 };
 
 export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
-  const hydrated = useHydrated();
   const summary = markdownToPlainText(article.summary);
   const category = resolveLeafCategorySlug(article.category);
 
@@ -26,14 +25,7 @@ export function ArticleCard({ className, titleClassName, article }: ArticleCardP
       </h3>
       <p className="line-clamp-2 text-body-sm text-meta">{summary}</p>
       <p className="text-caption text-meta">
-        {article.source} ·{" "}
-        <time dateTime={article.publishedAt}>
-          {hydrated ? (
-            <RelativeTime date={article.publishedAt} />
-          ) : (
-            <Skeleton className="inline-block w-12 align-middle">&nbsp;</Skeleton>
-          )}
-        </time>
+        {article.source} · <RelativeTime date={article.publishedAt} />
       </p>
     </article>
   );
