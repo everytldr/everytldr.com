@@ -1,6 +1,9 @@
 import type { ArticleCommentListItem } from "@/shared/api";
 import { type Nullable } from "@/shared/lib";
 
+export const MIN_PASSWORD_LENGTH = 4;
+export const MAX_PASSWORD_LENGTH = 100;
+
 export type CommentNode = ArticleCommentListItem & {
   children: CommentNode[];
 };

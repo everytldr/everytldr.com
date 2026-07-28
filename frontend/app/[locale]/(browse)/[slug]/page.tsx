@@ -68,7 +68,7 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  const isSportTab = slug === "epl" || slug === "nba" || slug === "sport-events";
+  const isSportTab = slug === "epl" || slug === "nba";
   if (isSportTab) {
     return <SportPage slug={slug} locale={locale} />;
   }

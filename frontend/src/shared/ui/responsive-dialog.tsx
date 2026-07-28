@@ -1,6 +1,6 @@
 "use client";
 
-import { useIsCoarsePointer } from "@/shared/hooks";
+import { useIsCoarsePointer } from "@/shared/lib";
 import type { PropsWithChildren } from "react";
 import { BottomSheet } from "./bottom-sheet";
 import { Modal } from "./modal";
