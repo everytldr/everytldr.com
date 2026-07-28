@@ -1,13 +1,17 @@
 package com.everytldr.api.sitemap;
 
 import com.everytldr.common.domain.article.ArticleRepository;
+import com.everytldr.common.domain.article.ArticleRepository.NewsSitemapItemProjection;
 import com.everytldr.common.domain.article.ArticleRepository.SitemapItemProjection;
 import com.everytldr.common.domain.article.ArticleRepository.SitemapLanguageProjection;
+import com.everytldr.common.domain.language.SupportedLanguage;
 import com.everytldr.common.domain.license.LicenseCode;
 import com.everytldr.common.domain.license.LicensePolicyEvaluator;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,14 +24,16 @@ import org.springframework.stereotype.Service;
 @Profile("api")
 @RequiredArgsConstructor
 public class SitemapService {
+  private static final int MAX_SUMMARIES_PER_ARTICLE = SupportedLanguage.values().length;
+
   private final ArticleRepository articleRepository;
   private final LicensePolicyEvaluator licensePolicyEvaluator;
 
-  public long countArticles() {
+  public long countSitemapArticles() {
     return articleRepository.countAllForSitemapByLicenseCodeIn(getPublishableLicenseCodes());
   }
 
-  public List<SitemapArticle> findArticles(int page, int size) {
+  public List<SitemapArticle> findSitemapArticles(int page, int size) {
     List<SitemapItemProjection> items =
         articleRepository.findAllForSitemapByLicenseCodeIn(
             getPublishableLicenseCodes(), PageRequest.of(page, size));
@@ -45,6 +51,37 @@ public class SitemapService {
                     item.publishedAt(),
                     languagesByArticleId.getOrDefault(item.id(), List.of())))
         .toList();
+  }
+
+  public List<NewsSitemapArticle> findNewsSitemapArticles(Duration window, int maxArticles) {
+    Instant publishedAfter = Instant.now().minus(window);
+    List<NewsSitemapItemProjection> rows =
+        articleRepository.findRecentForNewsSitemapByLicenseCodeIn(
+            getPublishableLicenseCodes(),
+            publishedAfter,
+            PageRequest.of(0, maxArticles * MAX_SUMMARIES_PER_ARTICLE));
+
+    Map<Long, List<NewsSitemapItemProjection>> rowsByArticleId =
+        rows.stream()
+            .collect(
+                Collectors.groupingBy(
+                    NewsSitemapItemProjection::id, LinkedHashMap::new, Collectors.toList()));
+
+    return rowsByArticleId.values().stream()
+        .limit(maxArticles)
+        .map(SitemapService::toNewsSitemapArticle)
+        .toList();
+  }
+
+  private static NewsSitemapArticle toNewsSitemapArticle(List<NewsSitemapItemProjection> rows) {
+    NewsSitemapItemProjection first = rows.getFirst();
+    List<NewsSitemapSummary> summaries =
+        rows.stream()
+            .map(row -> new NewsSitemapSummary(row.language(), row.title()))
+            .sorted(Comparator.comparing(NewsSitemapSummary::language))
+            .toList();
+
+    return new NewsSitemapArticle(first.id(), first.publishedAt(), summaries);
   }
 
   private Map<Long, List<String>> findLanguagesByArticleId(List<SitemapItemProjection> items) {
@@ -67,4 +104,9 @@ public class SitemapService {
   }
 
   public record SitemapArticle(Long id, Instant publishedAt, List<String> languages) {}
+
+  public record NewsSitemapArticle(
+      Long id, Instant publishedAt, List<NewsSitemapSummary> summaries) {}
+
+  public record NewsSitemapSummary(String language, String title) {}
 }

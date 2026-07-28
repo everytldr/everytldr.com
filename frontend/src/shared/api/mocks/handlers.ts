@@ -8,6 +8,7 @@ import {
   likeArticle,
   listArticleComments,
   listArticles,
+  listNewsSitemapArticles,
   listSitemapArticles,
   searchArticles,
   unlikeArticle,
@@ -17,6 +18,7 @@ import {
 export const handlers = [
   http.get("*/api/articles", listArticles),
   http.get("*/internal/sitemap/articles", listSitemapArticles),
+  http.get("*/internal/sitemap/news", listNewsSitemapArticles),
   http.get("*/api/articles/search", searchArticles),
   http.get("*/api/articles/:articleId/comments", listArticleComments),
   http.post("*/api/articles/:articleId/comments", createArticleComment),

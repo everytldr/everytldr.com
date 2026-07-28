@@ -15,7 +15,11 @@ export async function GET() {
     (_, id) => `${SITE_URL}/articles/sitemap/${id}.xml`,
   );
 
-  const xml = buildSitemapIndex([`${SITE_URL}/core/sitemap.xml`, ...articleSitemapUrls]);
+  const xml = buildSitemapIndex([
+    `${SITE_URL}/core/sitemap.xml`,
+    `${SITE_URL}/news-sitemap.xml`,
+    ...articleSitemapUrls,
+  ]);
 
   return new Response(xml, {
     headers: { "content-type": "application/xml; charset=utf-8" },

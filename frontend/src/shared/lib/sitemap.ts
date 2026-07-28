@@ -81,6 +81,50 @@ export function buildUrlSet(entries: MetadataRoute.Sitemap): string {
   ].join("\n");
 }
 
+type NewsSitemapArticle = {
+  publishedAt: string;
+  summaries: { language: string; title: string }[];
+  id: string;
+};
+
+export function buildNewsSitemap(articles: NewsSitemapArticle[], publicationName: string): string {
+  const urls = articles
+    .flatMap((article) =>
+      article.summaries.flatMap((summary) => {
+        if (!isLocale(summary.language)) {
+          return [];
+        }
+
+        const url = buildLocaleUrl(summary.language, buildArticleDetailUrl(article.id));
+
+        return [
+          [
+            "  <url>",
+            `    <loc>${escapeXml(url)}</loc>`,
+            "    <news:news>",
+            "      <news:publication>",
+            `        <news:name>${escapeXml(publicationName)}</news:name>`,
+            `        <news:language>${escapeXml(summary.language)}</news:language>`,
+            "      </news:publication>",
+            `      <news:publication_date>${escapeXml(new Date(article.publishedAt).toISOString())}</news:publication_date>`,
+            `      <news:title>${escapeXml(summary.title)}</news:title>`,
+            "    </news:news>",
+            "  </url>",
+          ].join("\n"),
+        ];
+      }),
+    )
+    .join("\n");
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">',
+    urls,
+    "</urlset>",
+    "",
+  ].join("\n");
+}
+
 export function buildSitemapIndex(sitemapUrls: string[]): string {
   const entries = sitemapUrls
     .map((url) => ["  <sitemap>", `    <loc>${escapeXml(url)}</loc>`, "  </sitemap>"].join("\n"))

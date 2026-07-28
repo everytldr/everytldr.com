@@ -275,6 +275,49 @@
         "required" : [ "slug" ],
         "type" : "object"
       },
+      "NewsSitemapArticleListItem" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "summaries" : {
+            "items" : {
+              "$ref" : "#/components/schemas/NewsSitemapArticleSummary"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "id", "publishedAt", "summaries" ],
+        "type" : "object"
+      },
+      "NewsSitemapArticleListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/NewsSitemapArticleListItem"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "items" ],
+        "type" : "object"
+      },
+      "NewsSitemapArticleSummary" : {
+        "properties" : {
+          "language" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "language", "title" ],
+        "type" : "object"
+      },
       "SitemapArticleListItem" : {
         "properties" : {
           "id" : {
@@ -982,6 +1025,45 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/SitemapArticleListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Sitemap" ]
+      }
+    },
+    "/internal/sitemap/news" : {
+      "get" : {
+        "operationId" : "listNewsSitemapArticles",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "days",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NewsSitemapArticleListResponse"
                 }
               }
             },
