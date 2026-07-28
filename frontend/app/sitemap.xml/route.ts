@@ -2,8 +2,11 @@ import { listSitemapArticles } from "@/shared/api";
 import { SITE_URL, SITEMAP_ARTICLE_CHUNK_SIZE } from "@/shared/config";
 import { buildSitemapIndex } from "@/shared/lib";
 import { cacheLife, cacheTag } from "next/cache";
+import { connection } from "next/server";
 
 export async function GET() {
+  await connection();
+
   const total = await fetchArticleTotal();
   const chunkCount = countSitemapChunks(total, SITEMAP_ARTICLE_CHUNK_SIZE);
 
