@@ -44,6 +44,7 @@ export function CommentVerifyForm({
         placeholder={t("comment-password")}
         autoFocus
         aria-invalid={Boolean(shownErrorTKey) || undefined}
+        aria-label={t("comment-password")}
         onChange={(event) => setPassword(event.target.value)}
       />
       {shownErrorTKey && (

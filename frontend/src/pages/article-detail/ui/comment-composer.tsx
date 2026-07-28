@@ -77,6 +77,7 @@ export function CommentComposer({
             maxLength={MAX_NICKNAME_LENGTH}
             placeholder={t("comment-nickname")}
             aria-invalid={nicknameInvalid || undefined}
+            aria-label={t("comment-nickname")}
             onChange={(event) => setNickname(event.target.value)}
           />
           <Input
@@ -86,6 +87,7 @@ export function CommentComposer({
             maxLength={MAX_PASSWORD_LENGTH}
             placeholder={t("comment-password")}
             aria-invalid={passwordInvalid || undefined}
+            aria-label={t("comment-password")}
             onChange={(event) => setPassword(event.target.value)}
           />
           <div className="flex flex-wrap items-center justify-between gap-sm">
