@@ -9,6 +9,11 @@ export const OG_IMAGE = {
   alt: SITE_NAME,
 } as const;
 
+export const SITE_GITHUB_URL =
+  process.env.NEXT_PUBLIC_SITE_GITHUB_URL || "https://github.com/everytldr";
+
+export const SITEMAP_ARTICLE_CHUNK_SIZE = 2000;
+
 export const SITE_VERIFICATION = {
   bing: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || "8DC3AF348043B85F0C201E607926C701",
   naver:

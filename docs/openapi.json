@@ -274,6 +274,41 @@
         },
         "required" : [ "slug" ],
         "type" : "object"
+      },
+      "SitemapArticleListItem" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "languages" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "languages", "publishedAt" ],
+        "type" : "object"
+      },
+      "SitemapArticleListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SitemapArticleListItem"
+            },
+            "type" : "array"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "total" ],
+        "type" : "object"
       }
     }
   },
@@ -919,6 +954,53 @@
           }
         },
         "tags" : [ "Categories" ]
+      }
+    },
+    "/internal/sitemap/articles" : {
+      "get" : {
+        "operationId" : "listSitemapArticles",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SitemapArticleListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Sitemap" ]
       }
     }
   },
