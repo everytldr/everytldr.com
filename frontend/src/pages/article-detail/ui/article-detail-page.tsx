@@ -22,7 +22,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { fetchArticleDetail } from "../api/fetch-article-detail";
 import { ArticleCategoryPath } from "./article-category-path";
 import { ArticleComments, ArticleCommentsError, ArticleCommentsSkeleton } from "./article-comments";
-import { ArticleLikeButton, ArticleLikeButtonSkeleton } from "./article-like-button";
+import { ArticleLikeButton } from "./article-like-button";
 import { ArticleShareButton } from "./article-share-button";
 import { ArticleViewTracker } from "./article-view-tracker";
 import { RelatedArticles, RelatedArticlesSkeleton } from "./related-articles";
@@ -56,11 +56,7 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
       <ArticleDetailContent article={article} articleUrl={articleUrl} locale={locale} />
 
       <div className="flex flex-wrap items-center gap-sm">
-        <ErrorBoundary fallback={null}>
-          <Suspense fallback={<ArticleLikeButtonSkeleton />}>
-            <ArticleLikeButton articleId={articleId} />
-          </Suspense>
-        </ErrorBoundary>
+        <ArticleLikeButton articleId={articleId} />
         <ArticleShareButton variant="labeled" url={articleUrl} title={article.title} />
         {article.contentUrl && (
           <Button variant="link" asChild>
