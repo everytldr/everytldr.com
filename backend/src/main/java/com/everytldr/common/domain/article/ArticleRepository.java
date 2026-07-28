@@ -174,6 +174,42 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
       @Param("id") Long id, @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
 
   @Query(
+      """
+      SELECT new com.everytldr.common.domain.article.ArticleRepository$SitemapItemProjection(
+          a.id,
+          a.publishedAt)
+      FROM Article a
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
+        AND EXISTS (SELECT 1 FROM ArticleCategory ac WHERE ac.article = a)
+        AND EXISTS (SELECT 1 FROM ArticleSummary s WHERE s.article = a)
+      ORDER BY a.publishedAt ASC, a.id ASC
+      """)
+  List<SitemapItemProjection> findAllForSitemapByLicenseCodeIn(
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes, Pageable pageable);
+
+  @Query(
+      """
+      SELECT COUNT(a)
+      FROM Article a
+      WHERE a.licenseInfo.licenseCode IN :licenseCodes
+        AND EXISTS (SELECT 1 FROM ArticleCategory ac WHERE ac.article = a)
+        AND EXISTS (SELECT 1 FROM ArticleSummary s WHERE s.article = a)
+      """)
+  long countAllForSitemapByLicenseCodeIn(
+      @Param("licenseCodes") Collection<LicenseCode> licenseCodes);
+
+  @Query(
+      """
+      SELECT new com.everytldr.common.domain.article.ArticleRepository$SitemapLanguageProjection(
+          s.article.id,
+          s.language)
+      FROM ArticleSummary s
+      WHERE s.article.id IN :articleIds
+      """)
+  List<SitemapLanguageProjection> findSitemapLanguagesByArticleIdIn(
+      @Param("articleIds") Collection<Long> articleIds);
+
+  @Query(
       value =
           """
           SELECT a.id AS id,
@@ -292,6 +328,10 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
   }
 
   record RelatedSeedProjection(String title, String categorySlug) {}
+
+  record SitemapItemProjection(Long id, Instant publishedAt) {}
+
+  record SitemapLanguageProjection(Long articleId, String language) {}
 
   record DetailProjection(
       Long id,
