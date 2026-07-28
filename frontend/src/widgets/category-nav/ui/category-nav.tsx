@@ -72,7 +72,7 @@ export function CategoryNav({ className, categoryGraph }: CategoryNavProps) {
                     <Link
                       key={child.slug}
                       className={cn(
-                        "inline-flex items-center text-nav-sm whitespace-nowrap transition-colors outline-none",
+                        "inline-flex items-center text-nav-sm font-extrabold whitespace-nowrap transition-colors outline-none",
                         "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft",
                         isActive ? "text-ink" : "text-meta hover:text-ink",
                       )}

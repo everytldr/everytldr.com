@@ -89,7 +89,7 @@ export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps
                       <li key={child.slug} className="flex">
                         <Link
                           className={cn(
-                            "inline-flex items-stretch text-nav-sm whitespace-nowrap transition-colors outline-none",
+                            "inline-flex items-stretch text-nav-sm font-extrabold whitespace-nowrap transition-colors outline-none",
                             "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
                             isActive ? "text-ink" : "text-meta hover:text-ink",
                           )}
