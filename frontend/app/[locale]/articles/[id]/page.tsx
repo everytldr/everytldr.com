@@ -1,6 +1,6 @@
 import { ArticleDetailPage, fetchArticleDetail } from "@/pages/article-detail";
 import type { Locale } from "@/shared/i18n";
-import { buildOgImageUrl, buildPageMetadata, markdownToPlainText } from "@/shared/lib";
+import { buildPageMetadata, markdownToPlainText } from "@/shared/lib";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -28,9 +28,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: markdownToPlainText(article.summary),
     locale,
     path: `/articles/${id}`,
-    images: article.thumbnailUrl
-      ? [{ url: buildOgImageUrl(article.thumbnailUrl), alt: article.title }]
-      : undefined,
     article: { publishedTime: article.publishedAt },
   });
 }
