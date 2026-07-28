@@ -1,7 +1,7 @@
 "use client";
 
 import type { ArticleListItem } from "@/shared/api";
-import type { LeafCategorySlug } from "@/shared/config";
+import { resolveLeafCategorySlug } from "@/shared/config";
 import { cn, markdownToPlainText, useHydrated } from "@/shared/lib";
 import { Badge, RelativeTime, Skeleton, Translation } from "@/shared/ui";
 
@@ -14,7 +14,7 @@ type ArticleCardProps = {
 export function ArticleCard({ className, titleClassName, article }: ArticleCardProps) {
   const hydrated = useHydrated();
   const summary = markdownToPlainText(article.summary);
-  const category = article.category.replace(/^([^-]+-[^-]+)-.*/, "$1") as LeafCategorySlug;
+  const category = resolveLeafCategorySlug(article.category);
 
   return (
     <article className={cn("flex min-w-0 flex-col gap-2xs py-md", className)}>
