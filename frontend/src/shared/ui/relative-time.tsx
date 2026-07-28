@@ -1,6 +1,6 @@
 "use client";
 
-import { A_MINUTE } from "@/shared/lib";
+import { A_MINUTE, useHydrated } from "@/shared/lib";
 import { useFormatter, useNow } from "next-intl";
 
 type RelativeTimeProps = {
@@ -11,6 +11,11 @@ type RelativeTimeProps = {
 export function RelativeTime({ className, date }: RelativeTimeProps) {
   const format = useFormatter();
   const now = useNow({ updateInterval: A_MINUTE });
+  const hydrated = useHydrated();
 
-  return <span className={className}>{format.relativeTime(new Date(date), now)}</span>;
+  return (
+    <time key={String(hydrated)} className={className} dateTime={date} suppressHydrationWarning>
+      {format.relativeTime(new Date(date), now)}
+    </time>
+  );
 }
