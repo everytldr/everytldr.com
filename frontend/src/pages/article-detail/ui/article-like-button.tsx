@@ -24,12 +24,12 @@ export function ArticleLikeButton({ className, articleId }: ArticleLikeButtonPro
   const like = useLikeArticle();
   const unlike = useUnlikeArticle();
 
-  if (data?.status !== 200) {
-    return null;
-  }
-
   if (isPending) {
     return <ArticleLikeButtonSkeleton className={className} />;
+  }
+
+  if (data?.status !== 200) {
+    return null;
   }
 
   const likeState = data.data;
