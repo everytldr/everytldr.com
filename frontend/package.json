@@ -6,11 +6,11 @@
   "scripts": {
     "lint": "pnpm lint:eslint && pnpm lint:steiger",
     "lint:eslint": "eslint",
-    "lint:steiger": "steiger .",
+    "lint:steiger": "steiger src",
     "dev": "concurrently -n app,messages,steiger,orval -c blue,green,yellow,red \"pnpm dev:app\" \"pnpm dev:messages\" \"pnpm dev:steiger\" \"pnpm dev:orval\"",
     "dev:app": "next dev",
     "dev:messages": "tsx scripts/build-messages.ts --watch",
-    "dev:steiger": "steiger . --watch",
+    "dev:steiger": "steiger src --watch",
     "dev:orval": "orval --watch",
     "build": "pnpm build:messages && pnpm lint:steiger && pnpm build:orval && pnpm build:app",
     "build:app": "next build",
