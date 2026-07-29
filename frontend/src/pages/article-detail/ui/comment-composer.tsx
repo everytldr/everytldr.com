@@ -6,11 +6,10 @@ import { cn, type Nullable } from "@/shared/lib";
 import { Button, Input, Textarea, toast, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useState, type ComponentProps, type SubmitEvent } from "react";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../model/comment";
 
 const MAX_CONTENT_LENGTH = 5000;
 const MAX_NICKNAME_LENGTH = 50;
-const MAX_PASSWORD_LENGTH = 100;
-const MIN_PASSWORD_LENGTH = 4;
 
 enum ComposerError {
   Required = "required",
@@ -78,6 +77,7 @@ export function CommentComposer({
             maxLength={MAX_NICKNAME_LENGTH}
             placeholder={t("comment-nickname")}
             aria-invalid={nicknameInvalid || undefined}
+            aria-label={t("comment-nickname")}
             onChange={(event) => setNickname(event.target.value)}
           />
           <Input
@@ -87,6 +87,7 @@ export function CommentComposer({
             maxLength={MAX_PASSWORD_LENGTH}
             placeholder={t("comment-password")}
             aria-invalid={passwordInvalid || undefined}
+            aria-label={t("comment-password")}
             onChange={(event) => setPassword(event.target.value)}
           />
           <div className="flex flex-wrap items-center justify-between gap-sm">

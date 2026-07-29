@@ -1,4 +1,9 @@
-import { ArticleCommentsSkeleton, ArticleLikeButtonSkeleton } from "@/pages/article-detail";
+import {
+  ArticleCommentsSkeleton,
+  ArticleLikeButtonSkeleton,
+  RelatedArticlesSkeleton,
+} from "@/pages/article-detail";
+import { HIDE_ADSENSE } from "@/shared/config";
 import { Skeleton } from "@/shared/ui";
 
 export default function Loading() {
@@ -20,14 +25,16 @@ export default function Loading() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">
+      <div className="flex flex-wrap items-center gap-sm">
         <ArticleLikeButtonSkeleton />
-        <Skeleton className="h-11 w-28 rounded-sm" />
+        <Skeleton className="w-28 text-body-sm">&nbsp;</Skeleton>
       </div>
 
-      <Skeleton className="min-h-24 w-full" />
+      <RelatedArticlesSkeleton className="border-t border-hairline-soft pt-lg" />
 
-      <ArticleCommentsSkeleton />
+      {!HIDE_ADSENSE && <Skeleton className="min-h-24 w-full" />}
+
+      <ArticleCommentsSkeleton className="border-t border-hairline-soft pt-lg" />
     </article>
   );
 }

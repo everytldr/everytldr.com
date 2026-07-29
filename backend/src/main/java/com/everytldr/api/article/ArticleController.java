@@ -1,12 +1,15 @@
 package com.everytldr.api.article;
 
 import com.everytldr.api.article.view.ArticleViewService;
+import com.everytldr.api.briefing.BriefingExceptions;
+import com.everytldr.api.briefing.BriefingService;
 import com.everytldr.api.support.language.ResolvedLanguage;
 import com.everytldr.api.support.pagination.Pagination;
 import com.everytldr.api.support.visitor.AnonymousVisitor;
 import com.everytldr.api.support.visitor.ResolvedAnonymousVisitor;
 import com.everytldr.common.domain.article.ArticleRepository.DetailProjection;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
+import com.everytldr.common.domain.briefing.Briefing;
 import com.everytldr.common.domain.language.SupportedLanguage;
 import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -30,10 +34,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class ArticleController {
   private static final int MIN_QUERY_LENGTH = 2;
   private static final int DEFAULT_POPULAR_SIZE = 10;
+  private static final int DEFAULT_RELATED_SIZE = 10;
 
   private final ArticleService articleService;
   private final ArticlePopularityService articlePopularityService;
   private final ArticleViewService articleViewService;
+  private final BriefingService briefingService;
   private final LicensePolicyEvaluator licensePolicyEvaluator;
 
   @GetMapping("/{id}")
@@ -99,6 +105,33 @@ public class ArticleController {
     return new ArticlePopularResponse(items);
   }
 
+  @GetMapping("/{id}/related")
+  @Operation(operationId = "listRelatedArticles")
+  public ArticleRelatedResponse listRelated(
+      @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
+      @PathVariable @Schema(type = "string") Long id,
+      @RequestParam(required = false) Integer size) {
+    int pageSize = Pagination.clampSize(size == null ? DEFAULT_RELATED_SIZE : size);
+    List<ListItemProjection> relatedArticles = articleService.listRelated(language, id, pageSize);
+    List<ArticleListResponse.Item> items =
+        relatedArticles.stream()
+            .map(item -> ArticleListResponse.Item.from(item, licensePolicyEvaluator))
+            .toList();
+    return new ArticleRelatedResponse(items);
+  }
+
+  @GetMapping("/{id}/briefing")
+  @Operation(operationId = "getArticleBriefing")
+  public ArticleBriefingResponse getBriefing(
+      @Parameter(hidden = true) @ResolvedLanguage SupportedLanguage language,
+      @PathVariable @Schema(type = "string") Long id) {
+    Briefing briefing =
+        briefingService
+            .findBriefingForArticle(language, id)
+            .orElseThrow(() -> new BriefingExceptions.NotFound(id));
+    return new ArticleBriefingResponse(briefing.getBriefingDate(), briefing.getTitle());
+  }
+
   @GetMapping("/search")
   @Operation(operationId = "searchArticles")
   public ArticleSearchResponse search(
@@ -132,6 +165,7 @@ public class ArticleController {
           String licenseVersion,
       @Schema(requiredMode = RequiredMode.REQUIRED) boolean advertisingAllowed,
       @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresAttribution,
+      @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresShareAlike,
       @Schema(
               requiredMode = RequiredMode.REQUIRED,
               types = {"string", "null"}) // TODO: thumbnailUrl 나중에 Nullable 제거해야함
@@ -153,6 +187,7 @@ public class ArticleController {
           article.licenseVersion(),
           licensePolicyEvaluator.canDisplayAdvertising(article.licenseInfo()),
           licensePolicyEvaluator.requiresAttribution(article.licenseInfo()),
+          licensePolicyEvaluator.requiresShareAlike(article.licenseInfo()),
           article.thumbnailUrl(),
           article.likeCount(),
           article.commentCount(),
@@ -188,7 +223,7 @@ public class ArticleController {
         @Schema(requiredMode = RequiredMode.REQUIRED) boolean advertisingAllowed,
         @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresAttribution,
         @Schema(requiredMode = RequiredMode.REQUIRED) String category) {
-      static Item from(
+      public static Item from(
           ListItemProjection projection, LicensePolicyEvaluator licensePolicyEvaluator) {
         return new Item(
             projection.id().toString(),
@@ -224,4 +259,11 @@ public class ArticleController {
 
   public record ArticlePopularResponse(
       @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> items) {}
+
+  public record ArticleRelatedResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> items) {}
+
+  public record ArticleBriefingResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) LocalDate date,
+      @Schema(requiredMode = RequiredMode.REQUIRED) String title) {}
 }

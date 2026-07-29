@@ -4,6 +4,10 @@ everytldr은 사용자가 읽지 못하는 언어로 작성된 뉴스를 따라�
 
 이 서비스는 외부 매체의 비한국어 원문 기사를 수집하고, 지원 언어로 AI 요약을 생성하며, 각 기사를 제품에서 정의한 카테고리로 분류하고, 원문 출처로 연결합니다. 원문 보도를 대체하는 것이 아니라, 어떤 기사를 더 깊게 읽을지 빠르게 판단할 수 있도록 돕는 것이 목적입니다.
 
+## 이름의 유래
+
+everytldr은 "every"와 "TL;DR"을 합친 이름입니다. TL;DR은 "too long; didn't read"의 인터넷 약어로, 긴 글 앞에 붙는 짧은 요약을 뜻합니다. 이 서비스가 하는 일이 정확히 그것입니다. 모든 기사가 먼저 TL;DR 요약으로 도착하고, 원문은 링크 한 번으로 열립니다. "every tldr", "everytl;dr"로도 표기합니다.
+
 ## 제공하는 것
 
 - 한국어와 영어 AI 요약
@@ -21,8 +25,6 @@ everytldr은 저작권이 있는 원문 기사 전체가 아니라 요약과 기
 
 ## 문의
 
-제품 피드백, 오류 제보, 출처 관련 문의는 프로젝트 저장소 또는 이메일을 이용해 주세요.
-
-[https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
-
-[contact@everytldr.com](mailto:contact@everytldr.com)
+- **일반 피드백·질문**: [contact@everytldr.com](mailto:contact@everytldr.com)으로 보내 주세요
+- **언론사·저작권자**: 요약의 정정, 출처 표기 수정, 게재 중단을 원하시면 [contact@everytldr.com](mailto:contact@everytldr.com)으로 요청해 주세요. 해당 요청은 우선 처리합니다
+- **버그 제보**: [프로젝트 저장소](https://github.com/everytldr/everytldr.com)에 이슈로 남겨 주세요

@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  useGetMyArticleLikeSuspense,
+  useGetMyArticleLike,
   useLikeArticle,
   useUnlikeArticle,
   type getMyArticleLikeResponse,
 } from "@/shared/api";
-import { assert, cn } from "@/shared/lib";
+import { cn } from "@/shared/lib";
 import { Button, Skeleton, toast } from "@/shared/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
@@ -20,11 +20,17 @@ type ArticleLikeButtonProps = {
 export function ArticleLikeButton({ className, articleId }: ArticleLikeButtonProps) {
   const t = useTranslations("article-detail");
   const queryClient = useQueryClient();
-  const { data, queryKey } = useGetMyArticleLikeSuspense(articleId);
+  const { data, isPending, queryKey } = useGetMyArticleLike(articleId);
   const like = useLikeArticle();
   const unlike = useUnlikeArticle();
 
-  assert(data.status === 200, "Failed to load article like state");
+  if (isPending) {
+    return <ArticleLikeButtonSkeleton className={className} />;
+  }
+
+  if (data?.status !== 200) {
+    return null;
+  }
 
   const likeState = data.data;
 

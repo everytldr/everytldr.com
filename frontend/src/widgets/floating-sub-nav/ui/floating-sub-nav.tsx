@@ -4,10 +4,11 @@ import {
   type CategoryGraph,
   type CategorySlug,
   DEFAULT_CATEGORY_NODE,
+  findDedicatedRouteCategorySlug,
   findRootCategory,
   isHiddenNode,
 } from "@/shared/config";
-import { Link } from "@/shared/i18n";
+import { Link, usePathname } from "@/shared/i18n";
 import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
@@ -23,7 +24,9 @@ type FloatingSubNavProps = {
 
 export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps) {
   const params = useParams<{ slug?: CategorySlug }>();
-  const categorySlug = params?.slug ?? DEFAULT_CATEGORY_NODE.slug;
+  const pathname = usePathname();
+  const categorySlug =
+    params?.slug ?? findDedicatedRouteCategorySlug(pathname) ?? DEFAULT_CATEGORY_NODE.slug;
   const t = useTranslations();
   const [visible, setVisible] = useRafState(false);
 
@@ -89,19 +92,25 @@ export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps
                       <li key={child.slug} className="flex">
                         <Link
                           className={cn(
-                            "inline-flex items-stretch text-nav-sm whitespace-nowrap transition-colors outline-none",
+                            "group inline-flex items-center gap-xs outline-none",
                             "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                            isActive ? "text-ink" : "text-meta hover:text-ink",
                           )}
                           href={buildCategoryUrl(child)}
                           prefetch={false}
                           tabIndex={visible ? 0 : -1}
                           aria-current={isActive ? "page" : undefined}
                         >
+                          <span
+                            className={cn(
+                              "size-2xs shrink-0 rounded-full transition-colors",
+                              isActive ? "bg-ink" : "bg-transparent",
+                            )}
+                            aria-hidden="true"
+                          />
                           <Translation
                             className={cn(
-                              "flex items-center border-b-2 transition-colors",
-                              isActive ? "border-ink" : "border-transparent",
+                              "text-nav-sm whitespace-nowrap transition-colors",
+                              isActive ? "text-ink" : "text-meta group-hover:text-ink",
                             )}
                             tKey={`header.subcategory.${child.slug}`}
                           />

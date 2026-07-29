@@ -5,6 +5,7 @@ import com.everytldr.common.domain.article.Article;
 import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.article.ArticleRepository.DetailProjection;
 import com.everytldr.common.domain.article.ArticleRepository.ListItemProjection;
+import com.everytldr.common.domain.article.ArticleRepository.RelatedSeedProjection;
 import com.everytldr.common.domain.article.ArticleRepository.SearchItemProjection;
 import com.everytldr.common.domain.language.SupportedLanguage;
 import com.everytldr.common.domain.license.LicenseCode;
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -91,6 +93,33 @@ public class ArticleService {
     return new SearchResult(items, nextOffset);
   }
 
+  public List<ListItemProjection> listRelated(
+      SupportedLanguage language, Long articleId, int size) {
+    Objects.requireNonNull(language, "language must not be null");
+    Objects.requireNonNull(articleId, "articleId must not be null");
+
+    final double SAME_CATEGORY_RELEVANCE_BOOST = 1.5;
+
+    RelatedSeedProjection seed =
+        articleRepository
+            .findRelatedSeedByIdAndLanguageAndLicenseCodeIn(
+                articleId, language.code(), getPublishableLicenseCodes())
+            .orElseThrow(() -> new ArticleExceptions.NotFound(articleId));
+
+    List<String> publishableLicenseCodeValues =
+        getPublishableLicenseCodes().stream().map(LicenseCode::value).toList();
+    List<SearchItemProjection> rows =
+        articleRepository.findRelatedByLicenseCodeIn(
+            articleId,
+            seed.title(),
+            seed.categorySlug(),
+            SAME_CATEGORY_RELEVANCE_BOOST,
+            language.code(),
+            publishableLicenseCodeValues,
+            size);
+    return rows.stream().map(SearchItemProjection::toListItem).toList();
+  }
+
   public List<ListItemProjection> listByIdsInOrder(
       SupportedLanguage language, List<Long> articleIds, int size) {
     Objects.requireNonNull(language, "language must not be null");
@@ -104,7 +133,8 @@ public class ArticleService {
             .findListItemsByIdInAndLanguageAndLicenseCodeIn(
                 articleIds, language.code(), getPublishableLicenseCodes())
             .stream()
-            .collect(java.util.stream.Collectors.toMap(ListItemProjection::id, item -> item));
+            .collect(
+                Collectors.toMap(ListItemProjection::id, item -> item, (first, ignored) -> first));
 
     return articleIds.stream().map(articlesById::get).filter(Objects::nonNull).limit(size).toList();
   }

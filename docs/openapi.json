@@ -1,6 +1,19 @@
 {
   "components" : {
     "schemas" : {
+      "ArticleBriefingResponse" : {
+        "properties" : {
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "date", "title" ],
+        "type" : "object"
+      },
       "ArticleCommentCreateRequest" : {
         "properties" : {
           "content" : {
@@ -132,6 +145,9 @@
           "requiresAttribution" : {
             "type" : "boolean"
           },
+          "requiresShareAlike" : {
+            "type" : "boolean"
+          },
           "source" : {
             "type" : "string"
           },
@@ -149,7 +165,7 @@
             "type" : "integer"
           }
         },
-        "required" : [ "advertisingAllowed", "category", "commentCount", "contentUrl", "id", "licenseCode", "licenseVersion", "likeCount", "publishedAt", "requiresAttribution", "source", "summary", "thumbnailUrl", "title", "viewCount" ],
+        "required" : [ "advertisingAllowed", "category", "commentCount", "contentUrl", "id", "licenseCode", "licenseVersion", "likeCount", "publishedAt", "requiresAttribution", "requiresShareAlike", "source", "summary", "thumbnailUrl", "title", "viewCount" ],
         "type" : "object"
       },
       "ArticleLikeStateResponse" : {
@@ -235,6 +251,18 @@
         "required" : [ "items" ],
         "type" : "object"
       },
+      "ArticleRelatedResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ArticleListItem"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "items" ],
+        "type" : "object"
+      },
       "ArticleSearchResponse" : {
         "properties" : {
           "items" : {
@@ -261,6 +289,71 @@
         "required" : [ "viewCount" ],
         "type" : "object"
       },
+      "BriefingDetailResponse" : {
+        "properties" : {
+          "articles" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ArticleListItem"
+            },
+            "type" : "array"
+          },
+          "content" : {
+            "type" : "string"
+          },
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "nextDate" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "previousDate" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "requiresShareAlike" : {
+            "type" : "boolean"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "articles", "content", "date", "nextDate", "previousDate", "requiresShareAlike", "title" ],
+        "type" : "object"
+      },
+      "BriefingListItem" : {
+        "properties" : {
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "excerpt" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "date", "excerpt", "title" ],
+        "type" : "object"
+      },
+      "BriefingListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/BriefingListItem"
+            },
+            "type" : "array"
+          },
+          "nextCursor" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "items", "nextCursor" ],
+        "type" : "object"
+      },
       "CategoryListItem" : {
         "properties" : {
           "slug" : {
@@ -268,6 +361,116 @@
           }
         },
         "required" : [ "slug" ],
+        "type" : "object"
+      },
+      "NewsSitemapArticleListItem" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "summaries" : {
+            "items" : {
+              "$ref" : "#/components/schemas/NewsSitemapArticleSummary"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "id", "publishedAt", "summaries" ],
+        "type" : "object"
+      },
+      "NewsSitemapArticleListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/NewsSitemapArticleListItem"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "items" ],
+        "type" : "object"
+      },
+      "NewsSitemapArticleSummary" : {
+        "properties" : {
+          "language" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "language", "title" ],
+        "type" : "object"
+      },
+      "SitemapArticleListItem" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "languages" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "languages", "publishedAt" ],
+        "type" : "object"
+      },
+      "SitemapArticleListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SitemapArticleListItem"
+            },
+            "type" : "array"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "total" ],
+        "type" : "object"
+      },
+      "SitemapBriefingListItem" : {
+        "properties" : {
+          "date" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "languages" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "date", "languages" ],
+        "type" : "object"
+      },
+      "SitemapBriefingListResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SitemapBriefingListItem"
+            },
+            "type" : "array"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "total" ],
         "type" : "object"
       }
     }
@@ -806,6 +1009,90 @@
         "tags" : [ "Articles" ]
       }
     },
+    "/api/articles/{id}/briefing" : {
+      "get" : {
+        "operationId" : "getArticleBriefing",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleBriefingResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
+    "/api/articles/{id}/related" : {
+      "get" : {
+        "operationId" : "listRelatedArticles",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleRelatedResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Articles" ]
+      }
+    },
     "/api/articles/{id}/views" : {
       "post" : {
         "operationId" : "countArticleView",
@@ -844,6 +1131,92 @@
         "tags" : [ "Articles" ]
       }
     },
+    "/api/briefings" : {
+      "get" : {
+        "operationId" : "listBriefings",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "cursor",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefingListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Briefings" ]
+      }
+    },
+    "/api/briefings/{date}" : {
+      "get" : {
+        "operationId" : "getBriefing",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "date",
+          "required" : true,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BriefingDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Briefings" ]
+      }
+    },
     "/api/categories" : {
       "get" : {
         "operationId" : "listCategories",
@@ -875,6 +1248,139 @@
           }
         },
         "tags" : [ "Categories" ]
+      }
+    },
+    "/internal/sitemap/articles" : {
+      "get" : {
+        "operationId" : "listSitemapArticles",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SitemapArticleListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Sitemap" ]
+      }
+    },
+    "/internal/sitemap/briefings" : {
+      "get" : {
+        "operationId" : "listSitemapBriefings",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SitemapBriefingListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Sitemap" ]
+      }
+    },
+    "/internal/sitemap/news" : {
+      "get" : {
+        "operationId" : "listNewsSitemapArticles",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "days",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NewsSitemapArticleListResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "503" : {
+            "description" : "Service Unavailable"
+          }
+        },
+        "tags" : [ "Sitemap" ]
       }
     }
   },

@@ -1,4 +1,4 @@
-export { ADSENSE_CLIENT_ID, ADSENSE_SLOT_ARTICLE_DETAIL } from "./ads";
+export { ADSENSE_CLIENT_ID, ADSENSE_SLOT_ARTICLE_DETAIL, HIDE_ADSENSE } from "./ads";
 export { GA_MEASUREMENT_ID } from "./analytics";
 export {
   BLOCKED_CATEGORY_SLUGS,
@@ -9,11 +9,15 @@ export {
   ROUTABLE_CATEGORY_NODES,
   ROUTABLE_MAIN_CATEGORY_NODES,
   STATIC_CATEGORY_SLUGS,
+  findDedicatedRouteCategorySlug,
   findRootCategory,
+  findRoutableCategoryNode,
   isFeedableCategory,
   isHiddenNode,
   isMainCategorySlug,
   resolveCategoryFeedPrefix,
+  resolveLeafCategorySlug,
+  resolveMainCategorySlug,
   type CategorySlug,
   type LeafCategorySlug,
   type MainCategoryNode,
@@ -29,5 +33,13 @@ export {
 } from "./epl";
 export type { BigSixTeam } from "./epl";
 export { MIN_SEARCH_QUERY_LENGTH } from "./search";
-export { OG_IMAGE, SITE_NAME, SITE_URL, SITE_VERIFICATION } from "./seo";
+export {
+  OG_IMAGE,
+  SITEMAP_ARTICLE_CHUNK_SIZE,
+  SITEMAP_BRIEFING_CHUNK_SIZE,
+  SITE_GITHUB_URL,
+  SITE_NAME,
+  SITE_URL,
+  SITE_VERIFICATION,
+} from "./seo";
 export { STATIC_PAGE_URLS } from "./static-pages";

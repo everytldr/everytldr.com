@@ -4,6 +4,10 @@ everytldr helps readers follow news originally written in languages they do not 
 
 The service collects non-Korean source articles from external publishers, generates AI summaries in supported languages, classifies each article into a product-defined category, and links back to the original source. The goal is not to replace original reporting. everytldr is designed to help readers decide what deserves deeper reading.
 
+## Why the name
+
+The name joins "every" with "TL;DR", the internet shorthand for "too long; didn't read" — the short version that comes before the long one. That is what the service does: every story arrives as a TL;DR summary first, with the full original one click away. It is also written as "every tldr" or "everytl;dr".
+
 ## What we provide
 
 - AI-generated summaries in Korean and English
@@ -21,8 +25,6 @@ everytldr stores and displays summaries and article metadata, not full copyright
 
 ## Contact
 
-For product feedback, issue reports, or source-related concerns, use the project repository or email:
-
-[https://github.com/everytldr/everytldr.com](https://github.com/everytldr/everytldr.com)
-
-[contact@everytldr.com](mailto:contact@everytldr.com)
+- **General feedback and questions**: email [contact@everytldr.com](mailto:contact@everytldr.com)
+- **Publishers and rights holders**: to request a correction, an attribution fix, or removal of a summary that links to your article, email [contact@everytldr.com](mailto:contact@everytldr.com). These requests are handled with priority.
+- **Bug reports**: open an issue on the [project repository](https://github.com/everytldr/everytldr.com)

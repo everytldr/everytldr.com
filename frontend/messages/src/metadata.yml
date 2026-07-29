@@ -1,31 +1,78 @@
 default:
   title:
-    en: "everytldr"
-    ko: "everytldr"
+    en: "everytldr — TL;DR news summaries in your language"
+    ko: "everytldr — 외신 헤드라인 TL;DR 요약"
   description:
-    en: "Foreign news, summarised in your language."
-    ko: "외신을 당신의 언어로 요약합니다."
+    en: "everytldr condenses foreign news into TL;DR summaries in your language, with every story linked back to the original report so you can read further."
+    ko: "everytldr은 외신 기사를 당신의 언어로 짧고 명확하게 TL;DR 요약합니다. 매 기사마다 원문 출처 링크가 붙어, 더 깊이 읽을 기사를 빠르게 고를 수 있습니다."
 
 home:
   title:
-    en: "everytldr — Foreign news, summarised in your language"
-    ko: "everytldr — 외신을 당신의 언어로 요약"
+    en: "everytldr — TL;DR news summaries in your language"
+    ko: "everytldr — 외신 헤드라인 TL;DR 요약"
   description:
-    en: "Read the world's headlines as concise summaries in your language. everytldr turns foreign news into short, clear briefings."
-    ko: "전 세계 헤드라인을 당신의 언어로 짧고 명확하게. everytldr이 외신을 핵심만 간추려 전합니다."
+    en: "Read the world's headlines as TL;DR summaries in your language. everytldr turns foreign news into short, clear briefings, each linked to the original report."
+    ko: "전 세계 헤드라인을 당신의 언어로 짧고 명확하게. everytldr이 외신을 TL;DR로 간추려 전하고, 매 기사마다 원문 출처 링크를 함께 붙입니다."
+
+latest:
+  title:
+    en: "Latest TL;DR News Summaries · everytldr"
+    ko: "최신 뉴스 TL;DR 요약 · everytldr"
+  description:
+    en: "Every foreign-news TL;DR summary on everytldr in newest-first order. See what just broke around the world, condensed into a short briefing and linked to the original."
+    ko: "everytldr에 올라온 외신 TL;DR 요약을 최신순으로 모았습니다. 방금 들어온 소식부터, 매 기사마다 원문 출처 링크와 함께 확인하세요."
 
 search:
   title:
-    en: "Search · everytldr"
-    ko: "검색 · everytldr"
+    en: "Search TL;DR News Summaries · everytldr"
+    ko: "뉴스 TL;DR 요약 검색 · everytldr"
   description:
-    en: "Search summarised foreign news by topic or source on everytldr."
-    ko: "주제나 출처로 요약된 외신을 everytldr에서 검색하세요."
+    en: "Search everytldr for summarised foreign news by topic, keyword, or source, and open each short summary alongside a link straight to the original report."
+    ko: "주제·키워드·출처로 everytldr의 외신 요약을 검색하세요. 짧은 요약과 원문 출처 링크를 함께 확인할 수 있습니다."
+
+briefings:
+  title:
+    en: "Daily Briefings · everytldr"
+    ko: "데일리 브리핑 · everytldr"
+  description:
+    en: "One daily briefing that connects the day's most-read foreign news into a single narrative, in your language."
+    ko: "하루 동안 가장 많이 읽힌 외신을 하나의 흐름으로 엮은 데일리 브리핑을 당신의 언어로 전합니다."
 
 category:
   title:
-    en: "{category} · everytldr"
-    ko: "{category} · everytldr"
+    en: "{category} News, TL;DR Summaries · everytldr"
+    ko: "{category} 뉴스 TL;DR 요약 · everytldr"
   description:
-    en: "The latest {category} news from around the world, summarised in your language."
-    ko: "전 세계 {category} 뉴스를 당신의 언어로 요약해 전합니다."
+    en: "The latest {category} news from around the world, condensed into TL;DR summaries in your language. Every story links back to the original report so you can read further."
+    ko: "전 세계 {category} 뉴스를 당신의 언어로 짧게 TL;DR 요약합니다. 매 기사마다 원문 출처 링크가 붙어, 더 깊이 읽을 기사를 빠르게 고를 수 있습니다."
+  main-description:
+    home:
+      en: "everytldr condenses foreign news into TL;DR summaries in your language, with every story linked back to the original report so you can read further."
+      ko: "everytldr은 외신 기사를 당신의 언어로 짧고 명확하게 TL;DR 요약합니다. 매 기사마다 원문 출처 링크가 붙어, 더 깊이 읽을 기사를 빠르게 고를 수 있습니다."
+    politics:
+      en: "Elections, government, and law from around the world, each condensed into a short, clear summary in your language with a link straight to the original report."
+      ko: "전 세계 선거·정부·법 뉴스를 당신의 언어로 짧고 명확하게 요약합니다. 매 기사마다 원문 출처 링크가 붙어, 더 깊이 읽을 기사를 빠르게 고를 수 있습니다."
+    economy:
+      en: "Business, markets, policy, and work: foreign economic news condensed into short summaries in your language, each one linked back to the original report."
+      ko: "비즈니스·금융·정책·노동까지, 해외 경제 뉴스를 당신의 언어로 짧게 간추립니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."
+    society:
+      en: "Education, rights, migration, and safety: social news from around the world condensed into short summaries in your language, each linked to the original report."
+      ko: "교육·인권·이주·안전 등 전 세계 사회 뉴스를 당신의 언어로 짧게 요약합니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."
+    world:
+      en: "Conflict, geopolitics, and humanitarian reporting from every region, condensed into short summaries in your language with a link to the original report."
+      ko: "분쟁·지정학·인도주의까지 각 지역의 국제 뉴스를 당신의 언어로 짧게 간추립니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."
+    technology:
+      en: "AI, cybersecurity, devices, games, and science: foreign tech news condensed into short summaries in your language, each linked to the original report."
+      ko: "AI·보안·디바이스·게임·과학까지 해외 기술 뉴스를 당신의 언어로 짧게 요약합니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."
+    culture:
+      en: "Arts, history, language, lifestyle, and religion: cultural news from around the world condensed into short summaries in your language, linked to the original."
+      ko: "예술·역사·언어·라이프스타일·종교까지 전 세계 문화 뉴스를 당신의 언어로 짧게 요약합니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."
+    sport:
+      en: "Football, basketball, and the major events: sport news from around the world condensed into short summaries in your language, each linked to the original."
+      ko: "축구·농구·주요 대회까지 전 세계 스포츠 뉴스를 당신의 언어로 짧게 간추립니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."
+    health:
+      en: "Healthcare, public health, mental health, and wellness: foreign health news condensed into short summaries in your language, each linked to the original."
+      ko: "의료·공중보건·정신건강·웰빙까지 해외 건강 뉴스를 당신의 언어로 짧게 요약합니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."
+    environment:
+      en: "Climate, energy, nature, and pollution: environmental news from around the world condensed into short summaries in your language, linked to the original report."
+      ko: "기후·에너지·자연·오염까지 전 세계 환경 뉴스를 당신의 언어로 짧게 요약합니다. 매 기사마다 원문 출처 링크가 붙어 필요한 기사만 골라 읽을 수 있습니다."

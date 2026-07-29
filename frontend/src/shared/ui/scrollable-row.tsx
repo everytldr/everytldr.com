@@ -1,11 +1,10 @@
 "use client";
 
-import { useIsCoarsePointer } from "@/shared/hooks";
-import { cn } from "@/shared/lib";
+import { cn, useIsCoarsePointer, type Nullable, type Optional } from "@/shared/lib";
 import { isEqual } from "lodash-es";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type PropsWithChildren, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 import { IconButton } from "./icon-button";
 
 enum Direction {
@@ -16,9 +15,19 @@ enum Direction {
 type ScrollableRowProps = PropsWithChildren<{
   className?: string;
   scrollerClassName?: string;
+  scrollStep?: "item" | "viewport";
+  fade?: boolean;
 }>;
 
-export function ScrollableRow({ className, scrollerClassName, children }: ScrollableRowProps) {
+const FADE_WIDTH = "2rem";
+
+export function ScrollableRow({
+  className,
+  scrollerClassName,
+  scrollStep = "viewport",
+  fade = false,
+  children,
+}: ScrollableRowProps) {
   const t = useTranslations("common.aria-label");
   const isCoarsePointer = useIsCoarsePointer();
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -62,7 +71,11 @@ export function ScrollableRow({ className, scrollerClassName, children }: Scroll
 
   return (
     <div className={cn("relative", className)}>
-      <div ref={scrollerRef} className={cn("scrollbar-hidden overflow-x-auto", scrollerClassName)}>
+      <div
+        ref={scrollerRef}
+        className={cn("scrollbar-hidden overflow-x-auto", scrollerClassName)}
+        style={fade ? { maskImage: buildFadeMask(canScrollPrev, canScrollNext) } : undefined}
+      >
         {children}
       </div>
       {showArrows && canScrollPrev && (
@@ -90,7 +103,31 @@ export function ScrollableRow({ className, scrollerClassName, children }: Scroll
       if (!el) {
         return;
       }
-      el.scrollBy({ left: direction * el.clientWidth * 0.85, behavior: "smooth" });
+      const distance = scrollStep === "item" ? findItemPitch(el) : null;
+      el.scrollBy({
+        left: direction * (distance ?? el.clientWidth * 0.85),
+        behavior: "smooth",
+      });
     };
   }
+}
+
+function buildFadeMask(fadePrev: boolean, fadeNext: boolean): Optional<string> {
+  if (!fadePrev && !fadeNext) {
+    return undefined;
+  }
+
+  const start = fadePrev ? `transparent 0, black ${FADE_WIDTH}` : "black 0";
+  const end = fadeNext ? `black calc(100% - ${FADE_WIDTH}), transparent 100%` : "black 100%";
+  return `linear-gradient(to right, ${start}, ${end})`;
+}
+
+function findItemPitch(scroller: HTMLDivElement): Nullable<number> {
+  const [first, second] = Array.from(scroller.firstElementChild?.children ?? []);
+  if (!first || !second) {
+    return null;
+  }
+
+  const pitch = second.getBoundingClientRect().left - first.getBoundingClientRect().left;
+  return pitch > 0 ? pitch : null;
 }

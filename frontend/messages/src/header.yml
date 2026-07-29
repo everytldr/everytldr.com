@@ -88,6 +88,9 @@ subcategory:
   latest:
     en: "Latest"
     ko: "최신"
+  briefings:
+    en: "Briefings"
+    ko: "브리핑"
   politics-elections:
     en: "Elections"
     ko: "선거"
@@ -181,6 +184,9 @@ subcategory:
   nba:
     en: "NBA"
     ko: "NBA"
+  sport-basketball:
+    en: "Basketball"
+    ko: "농구"
   sport-events:
     en: "Events"
     ko: "이벤트"

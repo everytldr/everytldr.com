@@ -1,5 +1,10 @@
 import { type ArticleDetailResponse } from "@/shared/api";
-import { ADSENSE_SLOT_ARTICLE_DETAIL, SITE_URL } from "@/shared/config";
+import {
+  ADSENSE_SLOT_ARTICLE_DETAIL,
+  HIDE_ADSENSE,
+  SITE_URL,
+  STATIC_PAGE_URLS,
+} from "@/shared/config";
 import { getPathname, type Locale } from "@/shared/i18n";
 import {
   buildArticleDetailUrl,
@@ -10,14 +15,18 @@ import {
   type Nullable,
   serializeJsonLd,
 } from "@/shared/lib";
-import { AdSlot, Button, MarkdownContent, Translation } from "@/shared/ui";
+import { AdSlot, Button, ConditionalLink, MarkdownContent, Translation } from "@/shared/ui";
 import { ExternalLink } from "lucide-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { fetchArticleDetail } from "../api/fetch-article-detail";
+import { ArticleBriefingLink } from "./article-briefing-link";
+import { ArticleCategoryPath } from "./article-category-path";
 import { ArticleComments, ArticleCommentsError, ArticleCommentsSkeleton } from "./article-comments";
-import { ArticleLikeButton, ArticleLikeButtonSkeleton } from "./article-like-button";
+import { ArticleLikeButton } from "./article-like-button";
+import { ArticleShareButton } from "./article-share-button";
 import { ArticleViewCount } from "./article-view-count";
+import { RelatedArticles, RelatedArticlesSkeleton } from "./related-articles";
 
 type ArticleDetailPageProps = {
   className?: string;
@@ -27,12 +36,14 @@ type ArticleDetailPageProps = {
 
 export async function ArticleDetailPage({ className, articleId, locale }: ArticleDetailPageProps) {
   const article = await fetchArticleDetail(articleId, locale);
+  const articleUrl = `${SITE_URL}${getPathname({ locale, href: buildArticleDetailUrl(articleId) })}`;
 
   const jsonLd = buildNewsArticleJsonLd({
-    url: `${SITE_URL}${getPathname({ locale, href: buildArticleDetailUrl(articleId) })}`,
+    url: articleUrl,
     headline: article.title,
     description: markdownToPlainText(article.summary),
     datePublished: article.publishedAt,
+    isBasedOn: article.contentUrl,
   });
 
   return (
@@ -42,14 +53,16 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
-      <ArticleDetailContent article={article} articleId={articleId} locale={locale} />
+      <ArticleDetailContent
+        article={article}
+        articleId={articleId}
+        articleUrl={articleUrl}
+        locale={locale}
+      />
 
-      <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">
-        <ErrorBoundary fallback={null}>
-          <Suspense fallback={<ArticleLikeButtonSkeleton />}>
-            <ArticleLikeButton articleId={articleId} />
-          </Suspense>
-        </ErrorBoundary>
+      <div className="flex flex-wrap items-center gap-sm">
+        <ArticleLikeButton articleId={articleId} />
+        <ArticleShareButton variant="labeled" url={articleUrl} title={article.title} />
         {article.contentUrl && (
           <Button variant="link" asChild>
             <a href={article.contentUrl} target="_blank" rel="noreferrer">
@@ -63,13 +76,33 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
         )}
       </div>
 
-      {article.advertisingAllowed && (
+      <ErrorBoundary fallback={null}>
+        <Suspense fallback={null}>
+          <ArticleBriefingLink articleId={articleId} locale={locale} />
+        </Suspense>
+      </ErrorBoundary>
+
+      <ErrorBoundary fallback={null}>
+        <Suspense fallback={<RelatedArticlesSkeleton />}>
+          <RelatedArticles
+            className="border-t border-hairline-soft pt-lg"
+            articleId={articleId}
+            locale={locale}
+          />
+        </Suspense>
+      </ErrorBoundary>
+
+      {!HIDE_ADSENSE && article.advertisingAllowed && (
         <AdSlot className="w-full" slot={ADSENSE_SLOT_ARTICLE_DETAIL} />
       )}
 
       <ErrorBoundary fallback={<ArticleCommentsError />}>
         <Suspense fallback={<ArticleCommentsSkeleton />}>
-          <ArticleComments articleId={articleId} locale={locale} />
+          <ArticleComments
+            className="border-t border-hairline-soft pt-lg"
+            articleId={articleId}
+            locale={locale}
+          />
         </Suspense>
       </ErrorBoundary>
     </article>
@@ -80,6 +113,7 @@ type ArticleDetailContentProps = {
   className?: string;
   article: ArticleDetailResponse;
   articleId: string;
+  articleUrl: string;
   locale: Locale;
 };
 
@@ -87,30 +121,66 @@ function ArticleDetailContent({
   className,
   article,
   articleId,
+  articleUrl,
   locale,
 }: ArticleDetailContentProps) {
   return (
     <div className={cn("space-y-lg", className)}>
       <header className="space-y-sm">
-        <p className="text-caption text-meta [&>*:not(:last-child)]:after:mx-2xs [&>*:not(:last-child)]:after:content-['·']">
-          <span>{article.source}</span>
-          <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
-          <ArticleViewCount articleId={articleId} initialViewCount={article.viewCount} />
-          {article.requiresAttribution && (
+        <ArticleCategoryPath category={article.category} />
+        <h1 className="text-display-xl text-ink">{article.title}</h1>
+        <div className="flex items-center justify-between gap-sm">
+          <div className="flex min-w-0 flex-col gap-2xs sm:flex-row sm:items-baseline sm:gap-2xs">
+            <span className="truncate text-title-md text-ink">{article.source}</span>
+            <p className="text-caption text-meta before:content-none sm:before:mr-2xs sm:before:content-['·'] [&>*:not(:last-child)]:after:mx-2xs [&>*:not(:last-child)]:after:content-['·']">
+              <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
+              <ArticleViewCount articleId={articleId} initialViewCount={article.viewCount} />
+            </p>
+          </div>
+          <ArticleShareButton variant="icon" url={articleUrl} title={article.title} />
+        </div>
+      </header>
+
+      <MarkdownContent markdown={article.summary} />
+
+      <p className="text-caption text-meta">
+        <Translation tKey="article-detail.ai-disclosure" />{" "}
+        <ConditionalLink
+          className="underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
+          href={STATIC_PAGE_URLS.about}
+        >
+          <Translation tKey="article-detail.ai-disclosure-link" />
+        </ConditionalLink>
+        {article.requiresAttribution && (
+          <>
+            {" · "}
             <a
-              className="text-meta underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
+              className="underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
               href={buildLicenseUrl(article.licenseCode, article.licenseVersion)}
               target="_blank"
               rel="noreferrer license"
             >
               {formatLicenseLabel(article.licenseCode, article.licenseVersion)}
             </a>
-          )}
-        </p>
-        <h1 className="text-display-xl text-ink">{article.title}</h1>
-      </header>
+          </>
+        )}
+      </p>
 
-      <MarkdownContent markdown={article.summary} />
+      {article.requiresShareAlike && (
+        <p className="text-caption text-meta">
+          <a
+            className="underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
+            href={buildLicenseUrl(article.licenseCode, article.licenseVersion)}
+            target="_blank"
+            rel="noreferrer license"
+          >
+            <Translation
+              tKey="article-detail.share-alike-notice"
+              values={{ license: formatLicenseLabel(article.licenseCode, article.licenseVersion) }}
+            />
+          </a>
+        </p>
+      )}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { useIsCoarsePointer } from "@/shared/hooks";
-import { cn } from "@/shared/lib";
+import { cn, useIsCoarsePointer } from "@/shared/lib";
 import { noop } from "lodash-es";
 import type { LucideIcon } from "lucide-react";
 import { type ReactNode, useState } from "react";

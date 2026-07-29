@@ -9,3 +9,11 @@ privacy:
 terms:
   en: "Terms"
   ko: "이용약관"
+
+aria-label:
+  categories:
+    en: "Categories"
+    ko: "카테고리"
+  site:
+    en: "Site links"
+    ko: "사이트 링크"
