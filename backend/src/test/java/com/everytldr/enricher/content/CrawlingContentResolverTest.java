@@ -18,11 +18,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -159,7 +161,7 @@ class CrawlingContentResolverTest {
   }
 
   @Test
-  void rejectsDisallowedResponseHostAsPermanentFailure() {
+  void rejectsDisallowedInitialUriAsPermanentFailure() {
     route(
         "/story",
         200,
@@ -173,7 +175,7 @@ class CrawlingContentResolverTest {
                     .resolve(article(serverUrl("/story"))),
             EnrichmentException.class);
 
-    assertThat(exception).hasMessageContaining("crawled response URI is not allowed");
+    assertThat(exception).hasMessageContaining("crawled request URI is not allowed");
     assertThat(exception.isRetryable()).isFalse();
   }
 
@@ -190,6 +192,88 @@ class CrawlingContentResolverTest {
 
     assertThat(exception).hasMessageContaining("retryable article content response status: 503");
     assertThat(exception.isRetryable()).isTrue();
+  }
+
+  @Test
+  void rejectsInitialUriBeforeSendingRequest() {
+    AtomicInteger requestCount = new AtomicInteger();
+    server.createContext("/blocked", exchange -> requestCount.incrementAndGet());
+
+    EnrichmentException exception =
+        catchThrowableOfType(
+            () ->
+                new ContentCrawler(Duration.ofSeconds(2), 4096)
+                    .crawl(URI.create(serverUrl("/blocked")), ignored -> false),
+            EnrichmentException.class);
+
+    assertThat(exception).hasMessageContaining("crawled request URI is not allowed");
+    assertThat(exception.isRetryable()).isFalse();
+    assertThat(requestCount).hasValue(0);
+  }
+
+  @Test
+  void followsAllowedRedirectAndUsesFinalUriForRelativeThumbnailUrl() {
+    route("/redirect", 302, Map.of("Location", "/articles/final/"), "");
+    route(
+        "/articles/final/",
+        200,
+        Map.of("Content-Type", "text/html"),
+        """
+        <html>
+          <head><meta property="og:image" content="thumbnail.jpg" /></head>
+          <body><article>%s</article></body>
+        </html>
+        """
+            .formatted("content ".repeat(10)));
+
+    ResolvedArticle resolved =
+        resolver(List.of("localhost"), List.of("article")).resolve(article(serverUrl("/redirect")));
+
+    assertThat(resolved.content()).contains("content");
+    assertThat(resolved.thumbnailUrl()).isEqualTo(serverUrl("/articles/final/thumbnail.jpg"));
+  }
+
+  @Test
+  void rejectsDisallowedRedirectBeforeSendingRedirectRequest() {
+    AtomicInteger blockedRequestCount = new AtomicInteger();
+    server.createContext("/blocked", exchange -> blockedRequestCount.incrementAndGet());
+    route(
+        "/redirect",
+        302,
+        Map.of("Location", "http://127.0.0.1:%d/blocked".formatted(server.getAddress().getPort())),
+        "");
+
+    EnrichmentException exception =
+        catchThrowableOfType(
+            () ->
+                resolver(List.of("localhost"), List.of("article"))
+                    .resolve(article(serverUrl("/redirect"))),
+            EnrichmentException.class);
+
+    assertThat(exception).hasMessageContaining("crawled request URI is not allowed");
+    assertThat(exception.isRetryable()).isFalse();
+    assertThat(blockedRequestCount).hasValue(0);
+  }
+
+  @Test
+  void rejectsRedirectChainsLongerThanThreeHops() {
+    AtomicInteger fifthRequestCount = new AtomicInteger();
+    route("/one", 302, Map.of("Location", "/two"), "");
+    route("/two", 302, Map.of("Location", "/three"), "");
+    route("/three", 302, Map.of("Location", "/four"), "");
+    route("/four", 302, Map.of("Location", "/five"), "");
+    server.createContext("/five", exchange -> fifthRequestCount.incrementAndGet());
+
+    EnrichmentException exception =
+        catchThrowableOfType(
+            () ->
+                resolver(List.of("localhost"), List.of("article"))
+                    .resolve(article(serverUrl("/one"))),
+            EnrichmentException.class);
+
+    assertThat(exception).hasMessageContaining("exceeded redirect limit");
+    assertThat(exception.isRetryable()).isFalse();
+    assertThat(fifthRequestCount).hasValue(0);
   }
 
   @Test
