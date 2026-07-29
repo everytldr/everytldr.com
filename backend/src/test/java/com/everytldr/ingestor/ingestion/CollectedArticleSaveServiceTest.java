@@ -175,8 +175,8 @@ class CollectedArticleSaveServiceTest {
                 "https://www.theguardian.com/football/unknown-license",
                 LicenseInfo.createUnknown()),
             collectedArticle(
-                "https://www.theguardian.com/football/share-alike",
-                new LicenseInfo(LicenseCode.CC_BY_SA, "4.0")),
+                "https://www.theguardian.com/football/non-commercial-no-derivatives",
+                new LicenseInfo(LicenseCode.CC_BY_NC_ND, "4.0")),
             collectedArticle(
                 "https://www.theguardian.com/football/no-derivatives",
                 new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"))));
@@ -198,6 +198,21 @@ class CollectedArticleSaveServiceTest {
 
     Article article = articleRepository.findAll().getFirst();
     assertThat(article.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY_NC);
+    assertThat(articleIngestionJobRepository.findAll()).hasSize(1);
+  }
+
+  @Test
+  void savesCollectedArticleWithShareAlikeTransformableLicense() {
+    CollectedArticle collectedArticle =
+        collectedArticle(
+            "https://www.theguardian.com/football/share-alike",
+            new LicenseInfo(LicenseCode.CC_BY_NC_SA, "4.0"));
+
+    collectedArticleSaveService.saveNewArticles(List.of(collectedArticle));
+    clearPersistenceContext();
+
+    Article article = articleRepository.findAll().getFirst();
+    assertThat(article.getLicenseInfo().getLicenseCode()).isEqualTo(LicenseCode.CC_BY_NC_SA);
     assertThat(articleIngestionJobRepository.findAll()).hasSize(1);
   }
 

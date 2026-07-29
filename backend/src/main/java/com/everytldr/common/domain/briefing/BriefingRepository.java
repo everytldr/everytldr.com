@@ -1,6 +1,7 @@
 package com.everytldr.common.domain.briefing;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -37,4 +38,32 @@ public interface BriefingRepository extends JpaRepository<Briefing, Long> {
       """)
   List<Briefing> findByArticleIdAndLanguageOrderByBriefingDateDesc(
       @Param("articleId") Long articleId, @Param("language") String language, Pageable pageable);
+
+  @Query(
+      """
+      SELECT DISTINCT b.briefingDate
+      FROM Briefing b
+      ORDER BY b.briefingDate DESC
+      """)
+  List<LocalDate> findAllDatesForSitemap(Pageable pageable);
+
+  @Query(
+      """
+      SELECT COUNT(DISTINCT b.briefingDate)
+      FROM Briefing b
+      """)
+  long countAllDatesForSitemap();
+
+  @Query(
+      """
+      SELECT new com.everytldr.common.domain.briefing.BriefingRepository$SitemapLanguageProjection(
+          b.briefingDate,
+          b.language)
+      FROM Briefing b
+      WHERE b.briefingDate IN :briefingDates
+      """)
+  List<SitemapLanguageProjection> findSitemapLanguagesByBriefingDateIn(
+      @Param("briefingDates") Collection<LocalDate> briefingDates);
+
+  record SitemapLanguageProjection(LocalDate briefingDate, String language) {}
 }

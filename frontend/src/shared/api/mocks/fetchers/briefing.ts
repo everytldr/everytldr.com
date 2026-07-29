@@ -3,9 +3,10 @@ import type {
   BriefingDetailResponse,
   BriefingListItem,
   BriefingListResponse,
+  SitemapBriefingListResponse,
 } from "@/shared/api";
 import { A_DAY } from "@/shared/lib";
-import { take, times } from "lodash-es";
+import { drop, take, times } from "lodash-es";
 import { HttpResponse } from "msw";
 import { ALL_ARTICLES } from "./article";
 
@@ -52,6 +53,24 @@ export const listBriefings = ({ request }: { request: Request }) => {
   const responseData: BriefingListResponse = {
     items,
     nextCursor,
+  };
+
+  return HttpResponse.json(responseData);
+};
+
+export const listSitemapBriefings = ({ request }: { request: Request }) => {
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get("page") ?? "0");
+  const size = Number(url.searchParams.get("size") ?? "2000");
+
+  const items = take(drop(ALL_BRIEFINGS, page * size), size).map((briefing, index) => ({
+    date: briefing.date,
+    languages: index % 5 === 0 ? ["en"] : ["en", "ko"],
+  }));
+
+  const responseData: SitemapBriefingListResponse = {
+    items,
+    total: ALL_BRIEFINGS.length,
   };
 
   return HttpResponse.json(responseData);

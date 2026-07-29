@@ -49,7 +49,10 @@ public interface ArticleIngestionJobRepository extends JpaRepository<ArticleInge
       FROM ArticleIngestionJob j
       WHERE j.state = :pendingState
          OR (j.state = :retryScheduledState AND j.nextAttemptAt <= :now)
-      ORDER BY j.nextAttemptAt ASC, j.id ASC
+      ORDER BY
+        CASE WHEN j.state = :retryScheduledState THEN 0 ELSE 1 END ASC,
+        j.nextAttemptAt ASC,
+        j.id ASC
       """)
   List<ArticleIngestionJob> findClaimableJobsForUpdate(
       @Param("pendingState") IngestionState pendingState,

@@ -1,4 +1,4 @@
-import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/shared/config";
+import { OG_IMAGE, SITE_GITHUB_URL, SITE_NAME, SITE_URL } from "@/shared/config";
 import { getPathname, type Locale } from "@/shared/i18n";
 
 type JsonLd = Record<string, unknown>;
@@ -7,11 +7,17 @@ const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 
 const DEFAULT_IMAGE = `${SITE_URL}${OG_IMAGE.url}`;
 
+const ORGANIZATION_DESCRIPTION =
+  "everytldr condenses foreign news into TL;DR summaries in your language, with every story linked back to the original report.";
+
 const ORGANIZATION: JsonLd = {
-  "@type": "Organization",
+  "@type": "NewsMediaOrganization",
   "@id": ORGANIZATION_ID,
   name: SITE_NAME,
+  alternateName: ["every tldr", "everytl;dr", "EveryTLDR"],
+  description: ORGANIZATION_DESCRIPTION,
   url: SITE_URL,
+  sameAs: [SITE_GITHUB_URL],
   logo: {
     "@type": "ImageObject",
     url: DEFAULT_IMAGE,

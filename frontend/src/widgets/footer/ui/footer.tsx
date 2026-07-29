@@ -32,7 +32,7 @@ export async function Footer({ className }: FooterProps) {
 
         <div className="flex flex-col items-start gap-md pc:flex-row pc:items-center pc:justify-between">
           <div className="flex items-center gap-md text-body-sm">
-            <Link href="/" aria-label="everytldr">
+            <Link href="/">
               <Logo className="h-5 w-auto" />
             </Link>
             <span>© {year} everytldr</span>

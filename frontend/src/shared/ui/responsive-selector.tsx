@@ -1,9 +1,8 @@
 "use client";
 
-import { useIsCoarsePointer } from "@/shared/hooks";
-import { cn, type Optional } from "@/shared/lib";
+import { cn, useIsCoarsePointer, type Optional } from "@/shared/lib";
 import { Check } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { useState, type ReactNode } from "react";
 import { BottomSheet } from "./bottom-sheet";
 import {
   DropdownMenu,

@@ -155,6 +155,18 @@ export function isMainCategorySlug(slug: CategorySlug): slug is MainCategorySlug
   return CATEGORY_GRAPH.some((node) => node.slug === slug);
 }
 
+export function resolveMainCategorySlug(slug: string): MainCategorySlug {
+  return slug.split("-")[0] as MainCategorySlug;
+}
+
+export function resolveLeafCategorySlug(slug: string): LeafCategorySlug {
+  return slug.replace(/^([^-]+-[^-]+)-.*/, "$1") as LeafCategorySlug;
+}
+
+export function findRoutableCategoryNode(slug: string): Optional<CategoryNode> {
+  return ROUTABLE_CATEGORY_NODES.find((node) => node.slug === slug);
+}
+
 export function isFeedableCategory(slug: string): slug is CategorySlug {
   const isRoutableSlug = ROUTABLE_CATEGORY_NODES.some((node) => node.slug === slug);
   const isHomeTab = HOME_CATEGORY_NODE.children?.some((child) => child.slug === slug) ?? false;

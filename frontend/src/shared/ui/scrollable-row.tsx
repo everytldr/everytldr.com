@@ -1,11 +1,10 @@
 "use client";
 
-import { useIsCoarsePointer } from "@/shared/hooks";
-import { cn, type Nullable, type Optional } from "@/shared/lib";
+import { cn, useIsCoarsePointer, type Nullable, type Optional } from "@/shared/lib";
 import { isEqual } from "lodash-es";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type PropsWithChildren, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 import { IconButton } from "./icon-button";
 
 enum Direction {

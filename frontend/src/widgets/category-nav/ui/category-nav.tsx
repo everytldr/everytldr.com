@@ -75,15 +75,27 @@ export function CategoryNav({ className, categoryGraph }: CategoryNavProps) {
                     <Link
                       key={child.slug}
                       className={cn(
-                        "inline-flex items-center text-nav-sm whitespace-nowrap transition-colors outline-none",
+                        "group inline-flex items-center gap-xs outline-none",
                         "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft",
-                        isActive ? "text-ink" : "text-meta-soft hover:text-ink",
                       )}
                       href={buildCategoryUrl(child)}
                       prefetch={false}
                       aria-current={isActive ? "page" : undefined}
                     >
-                      <Translation tKey={`header.subcategory.${child.slug}`} />
+                      <span
+                        className={cn(
+                          "size-2xs shrink-0 rounded-full transition-colors duration-700",
+                          isActive ? "bg-ink" : "bg-transparent",
+                        )}
+                        aria-hidden="true"
+                      />
+                      <Translation
+                        className={cn(
+                          "text-nav-sm whitespace-nowrap transition-colors duration-700",
+                          isActive ? "text-ink" : "text-meta group-hover:text-ink",
+                        )}
+                        tKey={`header.subcategory.${child.slug}`}
+                      />
                     </Link>
                   );
                 })}

@@ -6,7 +6,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class LicensePolicyEvaluator {
   private static final Set<LicenseCode> PUBLISHABLE_TRANSFORMED_TEXT_CODES =
-      Set.of(LicenseCode.CC0, LicenseCode.PUBLIC_DOMAIN, LicenseCode.CC_BY, LicenseCode.CC_BY_NC);
+      Set.of(
+          LicenseCode.CC0,
+          LicenseCode.PUBLIC_DOMAIN,
+          LicenseCode.CC_BY,
+          LicenseCode.CC_BY_NC,
+          LicenseCode.CC_BY_SA,
+          LicenseCode.CC_BY_NC_SA);
+  private static final Set<LicenseCode> SHARE_ALIKE_REQUIRED_CODES =
+      Set.of(LicenseCode.CC_BY_SA, LicenseCode.CC_BY_NC_SA);
   private static final Set<LicenseCode> COMMERCIAL_ALLOWED_CODES =
       Set.of(
           LicenseCode.CC0,
@@ -33,6 +41,10 @@ public class LicensePolicyEvaluator {
 
   public boolean requiresAttribution(LicenseInfo licenseInfo) {
     return hasLicenseCode(licenseInfo, ATTRIBUTION_REQUIRED_CODES);
+  }
+
+  public boolean requiresShareAlike(LicenseInfo licenseInfo) {
+    return hasLicenseCode(licenseInfo, SHARE_ALIKE_REQUIRED_CODES);
   }
 
   public Set<LicenseCode> getPublishableTransformedTextLicenseCodes() {

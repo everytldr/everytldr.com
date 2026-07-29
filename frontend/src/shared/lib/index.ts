@@ -6,6 +6,14 @@ export { buildPageMetadata } from "./metadata";
 export type { Maybe, Nullable, Optional } from "./nullish";
 export { buildArticleFeedItem, buildRssFeed } from "./rss";
 export {
+  buildArticleEntries,
+  buildBriefingEntries,
+  buildLocalizedEntries,
+  buildNewsSitemap,
+  buildSitemapIndex,
+  buildUrlSet,
+} from "./sitemap";
+export {
   buildBriefingJsonLd,
   buildNewsArticleJsonLd,
   buildSiteJsonLd,
@@ -32,3 +40,4 @@ export {
   buildSearchUrl,
 } from "./url";
 export { useHydrated } from "./use-hydrated";
+export { useIsCoarsePointer } from "./use-is-coarse-pointer";

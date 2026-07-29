@@ -18,6 +18,7 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import java.io.StringReader;
+import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
@@ -88,7 +89,7 @@ public class RssSourceClient implements SourceClient {
     }
 
     try {
-      return new SyndFeedInput().build(new StringReader(xml));
+      return new SyndFeedInput().build(new StringReader(FeedDateNormalizer.normalize(xml)));
     } catch (IllegalArgumentException | FeedException e) {
       throw new IllegalStateException(
           "Failed to parse RSS feed. sourceName=%s, feedUrl=%s"
@@ -103,34 +104,57 @@ public class RssSourceClient implements SourceClient {
       return Optional.empty();
     }
 
-    String link = entry.getLink();
-    if (!StringUtils.hasText(link)) {
+    String contentUrl = resolveContentUrl(entry);
+    if (contentUrl == null) {
       log.warn("Skipping RSS entry because link is missing. sourceName={}", source.getName());
       return Optional.empty();
     }
-    if (!source.getPolicy().crawling().isAllowedContentUrl(link)) {
+    if (!source.getPolicy().crawling().isAllowedContentUrl(contentUrl)) {
       log.warn(
           "Skipping RSS entry because link is not allowed. sourceName={}, link={}",
           source.getName(),
-          link);
+          contentUrl);
       return Optional.empty();
     }
 
     Instant publishedAt = resolvePublishedAt(entry);
     if (publishedAt == null) {
-      log.warn("Skipping RSS entry because published date is missing. link={}", link);
+      log.warn("Skipping RSS entry because published date is missing. link={}", contentUrl);
       return Optional.empty();
     }
 
     String thumbnailUrl = resolveThumbnailUrl(entry);
     return Optional.of(
         new CollectedArticle(
-            link,
+            contentUrl,
             source.getName(),
             thumbnailUrl,
             source.getLanguage(),
             publishedAt,
             source.getLicenseInfo()));
+  }
+
+  private String resolveContentUrl(SyndEntry entry) {
+    String link = entry.getLink();
+    if (StringUtils.hasText(link)) {
+      return link;
+    }
+
+    String uri = entry.getUri();
+    return isHttpUrl(uri) ? uri : null;
+  }
+
+  private boolean isHttpUrl(String value) {
+    if (!StringUtils.hasText(value)) {
+      return false;
+    }
+
+    try {
+      String scheme = URI.create(value).getScheme();
+      return "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
   private String resolveThumbnailUrl(SyndEntry entry) {

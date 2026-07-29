@@ -5,7 +5,7 @@ import { cn, type Nullable } from "@/shared/lib";
 import { Button, Input, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
 import { useState, type ComponentProps, type SubmitEvent } from "react";
-import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "./constants";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "../model/comment";
 
 type TranslationTKey = ComponentProps<typeof Translation>["tKey"];
 
@@ -44,6 +44,7 @@ export function CommentVerifyForm({
         placeholder={t("comment-password")}
         autoFocus
         aria-invalid={Boolean(shownErrorTKey) || undefined}
+        aria-label={t("comment-password")}
         onChange={(event) => setPassword(event.target.value)}
       />
       {shownErrorTKey && (
