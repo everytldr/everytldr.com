@@ -42,6 +42,17 @@ class LicensePolicyEvaluatorTest {
   }
 
   @Test
+  void briefingSourceLicenseCodesExcludeNonCommercialShareAlike() {
+    assertThat(evaluator.getBriefingSourceLicenseCodes())
+        .containsExactlyInAnyOrder(
+            LicenseCode.CC0,
+            LicenseCode.PUBLIC_DOMAIN,
+            LicenseCode.CC_BY,
+            LicenseCode.CC_BY_NC,
+            LicenseCode.CC_BY_SA);
+  }
+
+  @Test
   void requiresAttributionForAttributionCreativeCommonsLicenses() {
     assertThat(evaluator.requiresAttribution(licenseInfo("CC-BY"))).isTrue();
     assertThat(evaluator.requiresAttribution(new LicenseInfo(LicenseCode.CC0, "1.0"))).isFalse();

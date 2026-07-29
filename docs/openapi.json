@@ -302,11 +302,14 @@
             "format" : "date",
             "type" : [ "string", "null" ]
           },
+          "requiresShareAlike" : {
+            "type" : "boolean"
+          },
           "title" : {
             "type" : "string"
           }
         },
-        "required" : [ "articles", "content", "date", "nextDate", "previousDate", "title" ],
+        "required" : [ "articles", "content", "date", "nextDate", "previousDate", "requiresShareAlike", "title" ],
         "type" : "object"
       },
       "BriefingListItem" : {

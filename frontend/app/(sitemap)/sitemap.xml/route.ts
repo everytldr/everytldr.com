@@ -18,7 +18,7 @@ export async function GET() {
   const xml = buildSitemapIndex([
     `${SITE_URL}/core/sitemap.xml`,
     `${SITE_URL}/news/sitemap.xml`,
-    `${SITE_URL}/briefings/sitemap.xml`,
+    `${SITE_URL}/briefings/sitemap/0.xml`,
     ...articleSitemapUrls,
   ]);
 

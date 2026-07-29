@@ -48,6 +48,19 @@ export async function BriefingDetailPage({ className, date, locale }: BriefingDe
             </header>
 
             <MarkdownContent markdown={briefing.content} />
+
+            {briefing.requiresShareAlike && (
+              <p className="text-caption text-meta">
+                <a
+                  className="underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"
+                  href="https://creativecommons.org/licenses/by-sa/4.0/"
+                  target="_blank"
+                  rel="noreferrer license"
+                >
+                  <Translation tKey="briefings.share-alike-notice" />
+                </a>
+              </p>
+            )}
           </div>
 
           {briefing.articles.length > 0 && (

@@ -111,6 +111,7 @@ export const getBriefing = ({ params: { date } }: { params: { date: string } }) 
     date: briefing.date,
     title: briefing.title,
     content: MOCK_CONTENT,
+    requiresShareAlike: false,
     articles: take(ALL_ARTICLES, BRIEFING_ARTICLE_COUNT),
     previousDate: ALL_BRIEFINGS[index + 1]?.date ?? null,
     nextDate: ALL_BRIEFINGS[index - 1]?.date ?? null,

@@ -88,31 +88,6 @@ class ArticlePopularityRepositoryTest {
         .containsExactly(second.getId(), first.getId());
   }
 
-  @Test
-  void reproPublishableSetWithCc0ExcludesShareAlike() {
-    Article ccby =
-        saveArticle("CCBY", Instant.parse("2026-04-01T00:00:00Z"), LicenseInfo.createCcBy("4.0"));
-    Article shareAlike =
-        saveArticle(
-            "SA",
-            Instant.parse("2026-04-01T01:00:00Z"),
-            new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
-    updateViewCount(ccby, 30L);
-    updateViewCount(shareAlike, 99L);
-
-    List<ListItemProjection> rows =
-        articleRepository.findMostViewedByLanguageAndLicenseCodeIn(
-            "ko",
-            Set.of(
-                LicenseCode.CC0,
-                LicenseCode.PUBLIC_DOMAIN,
-                LicenseCode.CC_BY,
-                LicenseCode.CC_BY_NC),
-            PageRequest.of(0, 10));
-
-    assertThat(rows).extracting(ListItemProjection::id).containsExactly(ccby.getId());
-  }
-
   private Article saveArticle(String title, Instant publishedAt, LicenseInfo licenseInfo) {
     Article article =
         articleRepository.saveAndFlush(

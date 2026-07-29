@@ -18,6 +18,7 @@ import com.everytldr.common.domain.category.ArticleCategory;
 import com.everytldr.common.domain.category.ArticleCategoryRepository;
 import com.everytldr.common.domain.category.Category;
 import com.everytldr.common.domain.category.CategoryRepository;
+import com.everytldr.common.domain.license.LicenseCode;
 import com.everytldr.common.domain.license.LicenseInfo;
 import com.everytldr.common.domain.source.ArticleSource;
 import com.everytldr.common.domain.source.ArticleSourceRepository;
@@ -143,9 +144,28 @@ class BriefingControllerTest {
         .andExpect(jsonPath("$.date").value("2026-07-22"))
         .andExpect(jsonPath("$.title").value("Briefing EN"))
         .andExpect(jsonPath("$.content").value("Content EN"))
+        .andExpect(jsonPath("$.requiresShareAlike").value(false))
         .andExpect(jsonPath("$.articles.length()").value(2))
         .andExpect(jsonPath("$.articles[0].title").value("First"))
         .andExpect(jsonPath("$.articles[1].title").value("Second"));
+  }
+
+  @Test
+  void getMarksShareAlikeWhenAnySourceArticleRequiresIt() throws Exception {
+    LocalDate date = LocalDate.parse("2026-07-22");
+    saveBriefing(date, "Briefing EN", "브리핑 KO");
+    Article attribution = saveArticle("First", "첫 기사", LicenseInfo.createCcBy("4.0"));
+    Article shareAlike =
+        saveArticle("Second", "둘째 기사", new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+    briefingArticleRepository.saveAndFlush(BriefingArticle.create(date, attribution));
+    briefingArticleRepository.saveAndFlush(BriefingArticle.create(date, shareAlike));
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(get("/api/briefings/{date}", "2026-07-22").header("Accept-Language", "en"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.requiresShareAlike").value(true));
   }
 
   @Test
@@ -182,6 +202,10 @@ class BriefingControllerTest {
   }
 
   private Article saveArticle(String title, String koreanTitle) {
+    return saveArticle(title, koreanTitle, LicenseInfo.createCcBy("4.0"));
+  }
+
+  private Article saveArticle(String title, String koreanTitle, LicenseInfo licenseInfo) {
     Article article =
         articleRepository.saveAndFlush(
             Article.create(
@@ -190,7 +214,7 @@ class BriefingControllerTest {
                 null,
                 "en",
                 Instant.parse("2026-07-22T00:00:00Z"),
-                LicenseInfo.createCcBy("4.0")));
+                licenseInfo));
     articleCategoryRepository.saveAndFlush(ArticleCategory.create(article, football));
     summaryRepository.saveAndFlush(ArticleSummary.create(article, "en", title, "Summary"));
     summaryRepository.saveAndFlush(ArticleSummary.create(article, "ko", koreanTitle, "요약"));

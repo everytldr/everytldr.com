@@ -91,6 +91,7 @@ public class BriefingController {
       @Schema(requiredMode = RequiredMode.REQUIRED) LocalDate date,
       @Schema(requiredMode = RequiredMode.REQUIRED) String title,
       @Schema(requiredMode = RequiredMode.REQUIRED) String content,
+      @Schema(requiredMode = RequiredMode.REQUIRED) boolean requiresShareAlike,
       @Schema(requiredMode = RequiredMode.REQUIRED) List<ArticleListResponse.Item> articles,
       @Schema(
               requiredMode = RequiredMode.REQUIRED,
@@ -111,10 +112,15 @@ public class BriefingController {
           articles.stream()
               .map(item -> ArticleListResponse.Item.from(item, licensePolicyEvaluator))
               .toList();
+      boolean requiresShareAlike =
+          articles.stream()
+              .anyMatch(
+                  article -> licensePolicyEvaluator.requiresShareAlike(article.licenseInfo()));
       return new BriefingDetailResponse(
           briefing.getBriefingDate(),
           briefing.getTitle(),
           briefing.getContent(),
+          requiresShareAlike,
           items,
           adjacentDates.previousDate(),
           adjacentDates.nextDate());

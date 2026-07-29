@@ -67,7 +67,7 @@ public class BriefingGenerationService {
             SupportedLanguage.ENGLISH.code(),
             start,
             end,
-            licensePolicyEvaluator.getPublishableTransformedTextLicenseCodes(),
+            licensePolicyEvaluator.getBriefingSourceLicenseCodes(),
             PageRequest.of(0, properties.articleCount() * SOURCE_FETCH_MULTIPLIER));
     return distinctById(rows).stream().limit(properties.articleCount()).toList();
   }

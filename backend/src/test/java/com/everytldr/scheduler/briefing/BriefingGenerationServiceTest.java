@@ -82,9 +82,11 @@ class BriefingGenerationServiceTest {
   void generatesBriefingFromYesterdayTopViewedArticles() {
     Article mostViewed = saveArticle("Most viewed", yesterday, 30L, LicenseInfo.createCcBy("4.0"));
     Article secondViewed = saveArticle("Second", yesterday, 20L, LicenseInfo.createCcBy("4.0"));
-    Article thirdViewed = saveArticle("Third", yesterday, 10L, LicenseInfo.createCcBy("4.0"));
+    Article thirdViewed =
+        saveArticle("Third", yesterday, 10L, new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
     saveArticle("Out of window", yesterday.minusDays(1), 99L, LicenseInfo.createCcBy("4.0"));
-    saveArticle("Unpublishable", yesterday, 99L, new LicenseInfo(LicenseCode.CC_BY_SA, "4.0"));
+    saveArticle("Share alike", yesterday, 99L, new LicenseInfo(LicenseCode.CC_BY_NC_SA, "4.0"));
+    saveArticle("Unpublishable", yesterday, 99L, new LicenseInfo(LicenseCode.CC_BY_ND, "4.0"));
     when(generationClient.generate(any())).thenReturn(generationResults());
 
     generationService.generateDailyBriefing();
