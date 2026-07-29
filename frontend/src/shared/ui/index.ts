@@ -14,6 +14,7 @@ export { RelativeTime } from "./relative-time";
 export { ResponsiveActionMenu, type ActionMenuItem } from "./responsive-action-menu";
 export { ResponsiveDialog } from "./responsive-dialog";
 export { ResponsiveSelector, type SelectorOption } from "./responsive-selector";
+export { ScrollReset } from "./scroll-reset";
 export { ScrollableRow } from "./scrollable-row";
 export { Skeleton } from "./skeleton";
 export { Toaster, toast } from "./sonner";
