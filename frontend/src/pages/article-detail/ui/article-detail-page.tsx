@@ -17,7 +17,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { fetchArticleDetail } from "../api/fetch-article-detail";
 import { ArticleComments, ArticleCommentsError, ArticleCommentsSkeleton } from "./article-comments";
 import { ArticleLikeButton, ArticleLikeButtonSkeleton } from "./article-like-button";
-import { ArticleViewTracker } from "./article-view-tracker";
+import { ArticleViewCount } from "./article-view-count";
 
 type ArticleDetailPageProps = {
   className?: string;
@@ -42,9 +42,7 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
-      <ArticleViewTracker articleId={articleId} />
-
-      <ArticleDetailContent article={article} locale={locale} />
+      <ArticleDetailContent article={article} articleId={articleId} locale={locale} />
 
       <div className="flex flex-wrap items-center gap-sm border-t border-hairline-soft pt-lg">
         <ErrorBoundary fallback={null}>
@@ -81,21 +79,23 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
 type ArticleDetailContentProps = {
   className?: string;
   article: ArticleDetailResponse;
+  articleId: string;
   locale: Locale;
 };
 
-function ArticleDetailContent({ className, article, locale }: ArticleDetailContentProps) {
+function ArticleDetailContent({
+  className,
+  article,
+  articleId,
+  locale,
+}: ArticleDetailContentProps) {
   return (
     <div className={cn("space-y-lg", className)}>
       <header className="space-y-sm">
         <p className="text-caption text-meta [&>*:not(:last-child)]:after:mx-2xs [&>*:not(:last-child)]:after:content-['·']">
           <span>{article.source}</span>
           <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
-          <Translation
-            as="span"
-            tKey="article-detail.view-count"
-            values={{ count: article.viewCount }}
-          />
+          <ArticleViewCount articleId={articleId} initialViewCount={article.viewCount} />
           {article.requiresAttribution && (
             <a
               className="text-meta underline underline-offset-4 outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:text-primary-pressed"

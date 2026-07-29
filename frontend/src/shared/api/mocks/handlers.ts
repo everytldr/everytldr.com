@@ -1,5 +1,6 @@
 import { http } from "msw";
 import {
+  countArticleView,
   createArticleComment,
   deleteArticleComment,
   editArticleComment,
@@ -24,6 +25,7 @@ export const handlers = [
     "*/api/articles/:articleId/comments/:commentId/password-verification",
     verifyArticleCommentPassword,
   ),
+  http.post("*/api/articles/:articleId/views", countArticleView),
   http.get("*/api/articles/:articleId/likes/me", getMyArticleLike),
   http.put("*/api/articles/:articleId/likes/me", likeArticle),
   http.delete("*/api/articles/:articleId/likes/me", unlikeArticle),
