@@ -9,6 +9,7 @@ export {
   ROUTABLE_CATEGORY_NODES,
   ROUTABLE_MAIN_CATEGORY_NODES,
   STATIC_CATEGORY_SLUGS,
+  findDedicatedRouteCategorySlug,
   findRootCategory,
   findRoutableCategoryNode,
   isFeedableCategory,
@@ -35,6 +36,7 @@ export { MIN_SEARCH_QUERY_LENGTH } from "./search";
 export {
   OG_IMAGE,
   SITEMAP_ARTICLE_CHUNK_SIZE,
+  SITEMAP_BRIEFING_CHUNK_SIZE,
   SITE_GITHUB_URL,
   SITE_NAME,
   SITE_URL,

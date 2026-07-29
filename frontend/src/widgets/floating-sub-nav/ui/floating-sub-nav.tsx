@@ -4,10 +4,11 @@ import {
   type CategoryGraph,
   type CategorySlug,
   DEFAULT_CATEGORY_NODE,
+  findDedicatedRouteCategorySlug,
   findRootCategory,
   isHiddenNode,
 } from "@/shared/config";
-import { Link } from "@/shared/i18n";
+import { Link, usePathname } from "@/shared/i18n";
 import { buildCategoryUrl, cn } from "@/shared/lib";
 import { Container, Translation } from "@/shared/ui";
 import { useTranslations } from "next-intl";
@@ -23,7 +24,9 @@ type FloatingSubNavProps = {
 
 export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps) {
   const params = useParams<{ slug?: CategorySlug }>();
-  const categorySlug = params?.slug ?? DEFAULT_CATEGORY_NODE.slug;
+  const pathname = usePathname();
+  const categorySlug =
+    params?.slug ?? findDedicatedRouteCategorySlug(pathname) ?? DEFAULT_CATEGORY_NODE.slug;
   const t = useTranslations();
   const [visible, setVisible] = useRafState(false);
 
