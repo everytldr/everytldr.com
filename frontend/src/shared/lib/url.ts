@@ -36,6 +36,10 @@ export function buildArticleDetailUrl(articleId: string): string {
   return `/articles/${articleId}`;
 }
 
+export function buildBriefingDetailUrl(briefingDate: string): string {
+  return `/briefings/${briefingDate}`;
+}
+
 const WSRV_ENDPOINT = "https://wsrv.nl/";
 
 export function buildOgImageUrl(src: string): string {

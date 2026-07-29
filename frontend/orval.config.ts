@@ -31,6 +31,12 @@ export default defineConfig({
               useInfiniteQueryParam: "cursor",
             },
           },
+          listBriefings: {
+            query: {
+              useSuspenseInfiniteQuery: true,
+              useInfiniteQueryParam: "cursor",
+            },
+          },
         },
       },
       clean: false,

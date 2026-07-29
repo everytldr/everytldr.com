@@ -2,12 +2,14 @@ package com.everytldr.api.sitemap;
 
 import com.everytldr.api.sitemap.SitemapService.NewsSitemapArticle;
 import com.everytldr.api.sitemap.SitemapService.SitemapArticle;
+import com.everytldr.api.sitemap.SitemapService.SitemapBriefing;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -43,6 +45,19 @@ public class SitemapController {
     List<SitemapArticle> articles = sitemapService.findSitemapArticles(pageNumber, pageSize);
 
     return SitemapArticleListResponse.from(articles, total);
+  }
+
+  @GetMapping("/briefings")
+  @Operation(operationId = "listSitemapBriefings")
+  public SitemapBriefingListResponse listBriefings(
+      @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size) {
+    int pageNumber = assertValidPage(page);
+    int pageSize = assertValidSize(size);
+
+    long total = sitemapService.countSitemapBriefings();
+    List<SitemapBriefing> briefings = sitemapService.findSitemapBriefings(pageNumber, pageSize);
+
+    return SitemapBriefingListResponse.from(briefings, total);
   }
 
   @GetMapping("/news")
@@ -106,6 +121,24 @@ public class SitemapController {
         @Schema(requiredMode = RequiredMode.REQUIRED) List<String> languages) {
       public static Item from(SitemapArticle article) {
         return new Item(article.id().toString(), article.publishedAt(), article.languages());
+      }
+    }
+  }
+
+  public record SitemapBriefingListResponse(
+      @Schema(requiredMode = RequiredMode.REQUIRED) List<Item> items,
+      @Schema(requiredMode = RequiredMode.REQUIRED) long total) {
+    public static SitemapBriefingListResponse from(List<SitemapBriefing> briefings, long total) {
+      List<Item> items = briefings.stream().map(Item::from).toList();
+      return new SitemapBriefingListResponse(items, total);
+    }
+
+    @Schema(name = "SitemapBriefingListItem")
+    public record Item(
+        @Schema(requiredMode = RequiredMode.REQUIRED) LocalDate date,
+        @Schema(requiredMode = RequiredMode.REQUIRED) List<String> languages) {
+      public static Item from(SitemapBriefing briefing) {
+        return new Item(briefing.briefingDate(), briefing.languages());
       }
     }
   }

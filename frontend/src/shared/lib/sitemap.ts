@@ -1,7 +1,7 @@
 import { SITE_URL } from "@/shared/config";
 import { getPathname, isLocale, type Locale, locales } from "@/shared/i18n";
 import type { MetadataRoute } from "next";
-import { buildArticleDetailUrl } from "./url";
+import { buildArticleDetailUrl, buildBriefingDetailUrl } from "./url";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -15,6 +15,11 @@ type SitemapArticle = {
   publishedAt: string;
   languages: string[];
   id: string;
+};
+
+type SitemapBriefing = {
+  date: string;
+  languages: string[];
 };
 
 function buildLocaleUrl(locale: Locale, path: string): string {
@@ -48,6 +53,19 @@ export function buildArticleEntries(article: SitemapArticle): MetadataRoute.Site
   return buildLocalizedEntries(
     buildArticleDetailUrl(article.id),
     { changeFrequency: "weekly", priority: 0.6, lastModified: article.publishedAt },
+    availableLocales,
+  );
+}
+
+export function buildBriefingEntries(briefing: SitemapBriefing): MetadataRoute.Sitemap {
+  const availableLocales = briefing.languages.filter(isLocale);
+  if (availableLocales.length === 0) {
+    return [];
+  }
+
+  return buildLocalizedEntries(
+    buildBriefingDetailUrl(briefing.date),
+    { changeFrequency: "monthly", priority: 0.7, lastModified: briefing.date },
     availableLocales,
   );
 }

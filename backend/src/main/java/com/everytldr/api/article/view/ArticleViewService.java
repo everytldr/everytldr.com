@@ -26,7 +26,7 @@ public class ArticleViewService {
   private final ArticlePopularityProperties articlePopularityProperties;
   private final Clock clock;
 
-  public void recordView(Long articleId, String visitorHash) {
+  public long recordView(Long articleId, String visitorHash) {
     Objects.requireNonNull(articleId, "articleId must not be null");
     Objects.requireNonNull(visitorHash, "visitorHash must not be null");
 
@@ -36,7 +36,7 @@ public class ArticleViewService {
       throw new ArticleViewExceptions.Unavailable();
     }
     try {
-      articleViewRedisRepository.recordViewIfUnique(
+      return articleViewRedisRepository.recordViewIfUnique(
           articleId,
           visitorHash,
           article.getViewCount(),

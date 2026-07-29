@@ -19,6 +19,10 @@ import com.everytldr.common.domain.article.ArticleLikeRepository;
 import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.article.ArticleSummary;
 import com.everytldr.common.domain.article.ArticleSummaryRepository;
+import com.everytldr.common.domain.briefing.Briefing;
+import com.everytldr.common.domain.briefing.BriefingArticle;
+import com.everytldr.common.domain.briefing.BriefingArticleRepository;
+import com.everytldr.common.domain.briefing.BriefingRepository;
 import com.everytldr.common.domain.category.ArticleCategory;
 import com.everytldr.common.domain.category.ArticleCategoryRepository;
 import com.everytldr.common.domain.category.Category;
@@ -34,6 +38,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
@@ -70,6 +75,8 @@ class ArticleControllerTest {
   @Autowired private ArticleCategoryRepository articleCategoryRepository;
   @Autowired private CategoryRepository categoryRepository;
   @Autowired private ArticleSourceRepository sourceRepository;
+  @Autowired private BriefingRepository briefingRepository;
+  @Autowired private BriefingArticleRepository briefingArticleRepository;
   @Autowired private StringRedisTemplate redisTemplate;
   @MockitoBean private ArticleViewRedisMemoryGuard redisMemoryGuard;
 
@@ -114,20 +121,18 @@ class ArticleControllerTest {
     Article trailing =
         saveArticle(Instant.parse("2026-04-01T01:00:00Z"), football, "ko", "Trailing", "Summary");
 
-    mockMvc
-        .perform(post("/api/articles/{id}/views", leading.getId()))
-        .andExpect(status().isNoContent());
+    mockMvc.perform(post("/api/articles/{id}/views", leading.getId())).andExpect(status().isOk());
 
     mockMvc
         .perform(
             post("/api/articles/{id}/views", leading.getId())
                 .cookie(visitorCookie(createAnotherVisitorId())))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isOk());
     mockMvc
         .perform(
             post("/api/articles/{id}/views", trailing.getId())
                 .cookie(visitorCookie(createAnotherVisitorId())))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(get("/api/articles/popular").header("Accept-Language", "ko"))
@@ -252,30 +257,30 @@ class ArticleControllerTest {
   }
 
   @Test
-  void countViewCreatesCookieAndCountsSameVisitorOnlyOnce() throws Exception {
+  void countViewCreatesCookieReturnsCurrentCountAndCountsSameVisitorOnlyOnce() throws Exception {
     Article article =
         saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Title", "Summary");
 
     MvcResult first =
         mockMvc
             .perform(post("/api/articles/{id}/views", article.getId()))
-            .andExpect(status().isNoContent())
-            .andExpect(content().string(""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.viewCount").value(1))
             .andReturn();
     String setCookie = first.getResponse().getHeader(HttpHeaders.SET_COOKIE);
     String visitorId = extractVisitorId(setCookie);
 
     mockMvc
         .perform(post("/api/articles/{id}/views", article.getId()).cookie(visitorCookie(visitorId)))
-        .andExpect(status().isNoContent())
-        .andExpect(content().string(""));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.viewCount").value(1));
 
     mockMvc
         .perform(
             post("/api/articles/{id}/views", article.getId())
                 .cookie(visitorCookie(createAnotherVisitorId())))
-        .andExpect(status().isNoContent())
-        .andExpect(content().string(""));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.viewCount").value(2));
 
     assertThat(setCookie)
         .startsWith(VISITOR_COOKIE_NAME + "=")
@@ -293,6 +298,38 @@ class ArticleControllerTest {
   @Test
   void countViewReturnsNotFoundWhenArticleDoesNotExist() throws Exception {
     mockMvc.perform(post("/api/articles/{id}/views", 9_999_999L)).andExpect(status().isNotFound());
+  }
+
+  @Test
+  void getBriefingReturnsBriefingCoveringArticleInRequestedLanguage() throws Exception {
+    Article article =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Title", "Summary");
+    LocalDate date = LocalDate.parse("2026-04-01");
+    briefingRepository.saveAndFlush(Briefing.create(date, "en", "Briefing EN", "Content EN"));
+    briefingRepository.saveAndFlush(Briefing.create(date, "ko", "브리핑 KO", "내용 KO"));
+    briefingArticleRepository.saveAndFlush(BriefingArticle.create(date, article));
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(
+            get("/api/articles/{id}/briefing", article.getId()).header("Accept-Language", "ko"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.date").value("2026-04-01"))
+        .andExpect(jsonPath("$.title").value("브리핑 KO"));
+  }
+
+  @Test
+  void getBriefingReturnsNotFoundWhenArticleNotInAnyBriefing() throws Exception {
+    Article article =
+        saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Title", "Summary");
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(
+            get("/api/articles/{id}/briefing", article.getId()).header("Accept-Language", "ko"))
+        .andExpect(status().isNotFound());
   }
 
   @Test

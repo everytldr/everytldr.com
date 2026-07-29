@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -132,7 +133,8 @@ public class ArticleService {
             .findListItemsByIdInAndLanguageAndLicenseCodeIn(
                 articleIds, language.code(), getPublishableLicenseCodes())
             .stream()
-            .collect(java.util.stream.Collectors.toMap(ListItemProjection::id, item -> item));
+            .collect(
+                Collectors.toMap(ListItemProjection::id, item -> item, (first, ignored) -> first));
 
     return articleIds.stream().map(articlesById::get).filter(Objects::nonNull).limit(size).toList();
   }

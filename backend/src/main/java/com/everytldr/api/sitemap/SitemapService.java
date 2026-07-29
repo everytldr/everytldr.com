@@ -4,11 +4,13 @@ import com.everytldr.common.domain.article.ArticleRepository;
 import com.everytldr.common.domain.article.ArticleRepository.NewsSitemapItemProjection;
 import com.everytldr.common.domain.article.ArticleRepository.SitemapItemProjection;
 import com.everytldr.common.domain.article.ArticleRepository.SitemapLanguageProjection;
+import com.everytldr.common.domain.briefing.BriefingRepository;
 import com.everytldr.common.domain.language.SupportedLanguage;
 import com.everytldr.common.domain.license.LicenseCode;
 import com.everytldr.common.domain.license.LicensePolicyEvaluator;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -27,6 +29,7 @@ public class SitemapService {
   private static final int MAX_SUMMARIES_PER_ARTICLE = SupportedLanguage.values().length;
 
   private final ArticleRepository articleRepository;
+  private final BriefingRepository briefingRepository;
   private final LicensePolicyEvaluator licensePolicyEvaluator;
 
   public long countSitemapArticles() {
@@ -50,6 +53,28 @@ public class SitemapService {
                     item.id(),
                     item.publishedAt(),
                     languagesByArticleId.getOrDefault(item.id(), List.of())))
+        .toList();
+  }
+
+  public long countSitemapBriefings() {
+    return briefingRepository.countAllDatesForSitemap();
+  }
+
+  public List<SitemapBriefing> findSitemapBriefings(int page, int size) {
+    List<LocalDate> briefingDates =
+        briefingRepository.findAllDatesForSitemap(PageRequest.of(page, size));
+    if (briefingDates.isEmpty()) {
+      return List.of();
+    }
+
+    Map<LocalDate, List<String>> languagesByBriefingDate =
+        findLanguagesByBriefingDate(briefingDates);
+
+    return briefingDates.stream()
+        .map(
+            briefingDate ->
+                new SitemapBriefing(
+                    briefingDate, languagesByBriefingDate.getOrDefault(briefingDate, List.of())))
         .toList();
   }
 
@@ -99,11 +124,26 @@ public class SitemapService {
                             languages.stream().sorted(Comparator.naturalOrder()).toList()))));
   }
 
+  private Map<LocalDate, List<String>> findLanguagesByBriefingDate(List<LocalDate> briefingDates) {
+    return briefingRepository.findSitemapLanguagesByBriefingDateIn(briefingDates).stream()
+        .collect(
+            Collectors.groupingBy(
+                BriefingRepository.SitemapLanguageProjection::briefingDate,
+                Collectors.mapping(
+                    BriefingRepository.SitemapLanguageProjection::language,
+                    Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        languages ->
+                            languages.stream().sorted(Comparator.naturalOrder()).toList()))));
+  }
+
   private Collection<LicenseCode> getPublishableLicenseCodes() {
     return licensePolicyEvaluator.getPublishableTransformedTextLicenseCodes();
   }
 
   public record SitemapArticle(Long id, Instant publishedAt, List<String> languages) {}
+
+  public record SitemapBriefing(LocalDate briefingDate, List<String> languages) {}
 
   public record NewsSitemapArticle(
       Long id, Instant publishedAt, List<NewsSitemapSummary> summaries) {}

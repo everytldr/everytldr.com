@@ -20,11 +20,12 @@ import { ExternalLink } from "lucide-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { fetchArticleDetail } from "../api/fetch-article-detail";
+import { ArticleBriefingLink } from "./article-briefing-link";
 import { ArticleCategoryPath } from "./article-category-path";
 import { ArticleComments, ArticleCommentsError, ArticleCommentsSkeleton } from "./article-comments";
 import { ArticleLikeButton } from "./article-like-button";
 import { ArticleShareButton } from "./article-share-button";
-import { ArticleViewTracker } from "./article-view-tracker";
+import { ArticleViewCount } from "./article-view-count";
 import { RelatedArticles, RelatedArticlesSkeleton } from "./related-articles";
 
 type ArticleDetailPageProps = {
@@ -51,9 +52,13 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <ArticleViewTracker articleId={articleId} />
 
-      <ArticleDetailContent article={article} articleUrl={articleUrl} locale={locale} />
+      <ArticleDetailContent
+        article={article}
+        articleId={articleId}
+        articleUrl={articleUrl}
+        locale={locale}
+      />
 
       <div className="flex flex-wrap items-center gap-sm">
         <ArticleLikeButton articleId={articleId} />
@@ -70,6 +75,12 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
           </Button>
         )}
       </div>
+
+      <ErrorBoundary fallback={null}>
+        <Suspense fallback={null}>
+          <ArticleBriefingLink articleId={articleId} locale={locale} />
+        </Suspense>
+      </ErrorBoundary>
 
       <ErrorBoundary fallback={null}>
         <Suspense fallback={<RelatedArticlesSkeleton />}>
@@ -101,6 +112,7 @@ export async function ArticleDetailPage({ className, articleId, locale }: Articl
 type ArticleDetailContentProps = {
   className?: string;
   article: ArticleDetailResponse;
+  articleId: string;
   articleUrl: string;
   locale: Locale;
 };
@@ -108,6 +120,7 @@ type ArticleDetailContentProps = {
 function ArticleDetailContent({
   className,
   article,
+  articleId,
   articleUrl,
   locale,
 }: ArticleDetailContentProps) {
@@ -121,11 +134,7 @@ function ArticleDetailContent({
             <span className="truncate text-title-md text-ink">{article.source}</span>
             <p className="text-caption text-meta before:content-none sm:before:mr-2xs sm:before:content-['·'] [&>*:not(:last-child)]:after:mx-2xs [&>*:not(:last-child)]:after:content-['·']">
               <time dateTime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
-              <Translation
-                as="span"
-                tKey="article-detail.view-count"
-                values={{ count: article.viewCount }}
-              />
+              <ArticleViewCount articleId={articleId} initialViewCount={article.viewCount} />
             </p>
           </div>
           <ArticleShareButton variant="icon" url={articleUrl} title={article.title} />

@@ -1,21 +1,39 @@
 export { assert, ensure, type AssertionError } from "./assert";
 export { cn } from "./class-name";
 export { isBrowser, isEditableElement } from "./dom";
-export { markdownToPlainText } from "./markdown";
+export { markdownToPlainText, toMetaDescription } from "./markdown";
 export { buildPageMetadata } from "./metadata";
 export type { Maybe, Nullable, Optional } from "./nullish";
 export { buildArticleFeedItem, buildRssFeed } from "./rss";
+export { safelyGet, safelyGetAsync, safelyRun, safelyRunAsync } from "./safely";
 export {
   buildArticleEntries,
+  buildBriefingEntries,
   buildLocalizedEntries,
   buildNewsSitemap,
   buildSitemapIndex,
   buildUrlSet,
 } from "./sitemap";
-export { buildNewsArticleJsonLd, buildSiteJsonLd, serializeJsonLd } from "./structured-data";
-export { AN_HOUR, A_DAY, A_MINUTE, A_SECOND, formatDate } from "./time";
+export {
+  buildBriefingJsonLd,
+  buildNewsArticleJsonLd,
+  buildSiteJsonLd,
+  serializeJsonLd,
+} from "./structured-data";
+export {
+  AN_HOUR,
+  A_DAY,
+  A_MINUTE,
+  A_SECOND,
+  formatDate,
+  formatDateWithWeekday,
+  formatMonthDay,
+  formatNumericMonthDay,
+  formatWeekday,
+} from "./time";
 export {
   buildArticleDetailUrl,
+  buildBriefingDetailUrl,
   buildCategoryUrl,
   buildEplFilterUrl,
   buildEplTabUrl,
