@@ -9,6 +9,7 @@ import type {
   ArticleListItem,
   ArticleListResponse,
   ArticleSearchResponse,
+  ArticleViewCountResponse,
 } from "@/shared/api";
 import { EplTeam } from "@/shared/config";
 import { AN_HOUR, type Optional } from "@/shared/lib";
@@ -17,6 +18,7 @@ import { HttpResponse, type HttpResponseResolver } from "msw";
 
 const EPL_TEAMS = Object.values(EplTeam);
 const DEFAULT_LIKE_COUNT = 42;
+const DEFAULT_VIEW_COUNT = 99;
 const FIRST_ARTICLE_ID = "45660871069790209";
 
 const ALL_ARTICLES: ArticleListItem[] = times(100, (index) => {
@@ -70,6 +72,7 @@ const COMMENTS_BY_ARTICLE_ID = new Map<string, ArticleCommentListItem[]>(
 );
 
 const LIKED_ARTICLE_IDS = new Set<string>();
+const VIEWED_ARTICLE_IDS = new Set<string>();
 
 export const listArticles = ({ request }: { request: Request }) => {
   const url = new URL(request.url);
@@ -142,7 +145,7 @@ export const getArticle = ({ params: { id } }: { params: { id: string } }) => {
     commentCount,
     likeCount,
     contentUrl,
-    viewCount: 99,
+    viewCount: getArticleViewCount(id),
   };
 
   return HttpResponse.json(responseData);
@@ -257,6 +260,18 @@ export const verifyArticleCommentPassword: HttpResponseResolver<
   return new HttpResponse(null, { status: 204 });
 };
 
+export const countArticleView = ({ params: { articleId } }: { params: { articleId: string } }) => {
+  if (!findArticle(articleId)) {
+    return new HttpResponse(null, { status: 404 });
+  }
+
+  VIEWED_ARTICLE_IDS.add(articleId);
+
+  const responseData: ArticleViewCountResponse = { viewCount: getArticleViewCount(articleId) };
+
+  return HttpResponse.json(responseData);
+};
+
 export const getMyArticleLike = ({ params: { articleId } }: { params: { articleId: string } }) => {
   if (!findArticle(articleId)) {
     return new HttpResponse(null, { status: 404 });
@@ -291,6 +306,10 @@ function findArticle(articleId: string): Optional<ArticleListItem> {
 
 function getArticleComments(articleId: string): ArticleCommentListItem[] {
   return COMMENTS_BY_ARTICLE_ID.get(articleId) ?? [];
+}
+
+function getArticleViewCount(articleId: string): number {
+  return DEFAULT_VIEW_COUNT + (VIEWED_ARTICLE_IDS.has(articleId) ? 1 : 0);
 }
 
 function getArticleLikeCount(articleId: string): number {
