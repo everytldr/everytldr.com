@@ -46,13 +46,19 @@ class ArticleViewRedisRepositoryTest {
 
   @Test
   void countsFirstViewAndRejectsDuplicateVisitor() {
-    repository.recordViewIfUnique(
-        42L, "visitor-a", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
-    repository.recordViewIfUnique(
-        42L, "visitor-a", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
-    repository.recordViewIfUnique(
-        42L, "visitor-b", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
+    long firstViewCount =
+        repository.recordViewIfUnique(
+            42L, "visitor-a", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
+    long duplicateViewCount =
+        repository.recordViewIfUnique(
+            42L, "visitor-a", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
+    long anotherVisitorViewCount =
+        repository.recordViewIfUnique(
+            42L, "visitor-b", 7L, DEDUPLICATION_TTL, VIEWED_AT, POPULARITY_BUCKET_TTL);
 
+    assertThat(firstViewCount).isEqualTo(8L);
+    assertThat(duplicateViewCount).isEqualTo(8L);
+    assertThat(anotherVisitorViewCount).isEqualTo(9L);
     assertThat(repository.findViewCount(42L)).hasValue(9L);
     assertThat(redisTemplate.opsForHash().get("av:delta:active", "42")).isEqualTo("2");
     assertThat(redisTemplate.getExpire("av:seen:v1:42:visitor-a"))

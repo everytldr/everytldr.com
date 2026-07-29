@@ -81,8 +81,13 @@ class ArticleViewServiceTest {
   void recordsViewUsingDatabaseCountAsRedisBaseline() {
     Article article = Article.create("https://example.com/a", "Example", null, "en", Instant.now());
     when(articleService.getArticleOrThrow(1L)).thenReturn(article);
-    service.recordView(1L, "visitor-hash");
+    when(redisRepository.recordViewIfUnique(
+            1L, "visitor-hash", 0L, DEDUPLICATION_TTL, NOW, POPULARITY_BUCKET_TTL))
+        .thenReturn(8L);
 
+    long result = service.recordView(1L, "visitor-hash");
+
+    assertThat(result).isEqualTo(8L);
     verify(redisRepository)
         .recordViewIfUnique(1L, "visitor-hash", 0L, DEDUPLICATION_TTL, NOW, POPULARITY_BUCKET_TTL);
   }

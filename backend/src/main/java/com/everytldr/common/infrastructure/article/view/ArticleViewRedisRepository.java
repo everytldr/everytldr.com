@@ -44,7 +44,7 @@ public class ArticleViewRedisRepository {
   private final StringRedisTemplate redisTemplate;
 
   /** 하나의 Redis Lua script로 중복 검사, count 초기화, count/delta 증가와 실패 시 rollback을 원자적으로 처리한다. */
-  public void recordViewIfUnique(
+  public long recordViewIfUnique(
       Long articleId,
       String visitorHash,
       long databaseViewCount,
@@ -57,7 +57,7 @@ public class ArticleViewRedisRepository {
     Objects.requireNonNull(viewedAt, "viewedAt must not be null");
     Objects.requireNonNull(popularityBucketTtl, "popularityBucketTtl must not be null");
 
-    redisTemplate.execute(
+    return redisTemplate.execute(
         COUNT_VIEW_SCRIPT,
         List.of(
             createSeenKey(articleId, visitorHash),
@@ -202,7 +202,7 @@ public class ArticleViewRedisRepository {
         end
 
         if redis.call('EXISTS', KEYS[1]) == 1 then
-          return 0
+          return tonumber(redis.call('GET', KEYS[2])) or tonumber(ARGV[2])
         end
 
         local countInitialized = redis.pcall('SETNX', KEYS[2], ARGV[2])
@@ -268,15 +268,7 @@ public class ArticleViewRedisRepository {
           removeInitializedCount()
           return redis.error_reply(firstView.err)
         end
-        if not firstView then
-          rollbackPopularity()
-          redis.pcall('DECR', KEYS[2])
-          rollbackDelta()
-          removeInitializedCount()
-          return 0
-        end
-
-        return 1
+        return countIncremented
         """);
     return script;
   }

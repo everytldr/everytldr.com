@@ -5,6 +5,7 @@ export { markdownToPlainText, toMetaDescription } from "./markdown";
 export { buildPageMetadata } from "./metadata";
 export type { Maybe, Nullable, Optional } from "./nullish";
 export { buildArticleFeedItem, buildRssFeed } from "./rss";
+export { safelyGet, safelyGetAsync, safelyRun, safelyRunAsync } from "./safely";
 export {
   buildArticleEntries,
   buildBriefingEntries,

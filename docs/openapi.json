@@ -279,6 +279,16 @@
         "required" : [ "items", "nextOffset" ],
         "type" : "object"
       },
+      "ArticleViewCountResponse" : {
+        "properties" : {
+          "viewCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "viewCount" ],
+        "type" : "object"
+      },
       "BriefingDetailResponse" : {
         "properties" : {
           "articles" : {
@@ -1095,8 +1105,15 @@
           }
         } ],
         "responses" : {
-          "204" : {
-            "description" : "No Content"
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleViewCountResponse"
+                }
+              }
+            },
+            "description" : "OK"
           },
           "400" : {
             "description" : "Bad Request"

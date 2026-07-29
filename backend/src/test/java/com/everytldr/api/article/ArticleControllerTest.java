@@ -121,20 +121,18 @@ class ArticleControllerTest {
     Article trailing =
         saveArticle(Instant.parse("2026-04-01T01:00:00Z"), football, "ko", "Trailing", "Summary");
 
-    mockMvc
-        .perform(post("/api/articles/{id}/views", leading.getId()))
-        .andExpect(status().isNoContent());
+    mockMvc.perform(post("/api/articles/{id}/views", leading.getId())).andExpect(status().isOk());
 
     mockMvc
         .perform(
             post("/api/articles/{id}/views", leading.getId())
                 .cookie(visitorCookie(createAnotherVisitorId())))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isOk());
     mockMvc
         .perform(
             post("/api/articles/{id}/views", trailing.getId())
                 .cookie(visitorCookie(createAnotherVisitorId())))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(get("/api/articles/popular").header("Accept-Language", "ko"))
@@ -259,30 +257,30 @@ class ArticleControllerTest {
   }
 
   @Test
-  void countViewCreatesCookieAndCountsSameVisitorOnlyOnce() throws Exception {
+  void countViewCreatesCookieReturnsCurrentCountAndCountsSameVisitorOnlyOnce() throws Exception {
     Article article =
         saveArticle(Instant.parse("2026-04-01T00:00:00Z"), football, "ko", "Title", "Summary");
 
     MvcResult first =
         mockMvc
             .perform(post("/api/articles/{id}/views", article.getId()))
-            .andExpect(status().isNoContent())
-            .andExpect(content().string(""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.viewCount").value(1))
             .andReturn();
     String setCookie = first.getResponse().getHeader(HttpHeaders.SET_COOKIE);
     String visitorId = extractVisitorId(setCookie);
 
     mockMvc
         .perform(post("/api/articles/{id}/views", article.getId()).cookie(visitorCookie(visitorId)))
-        .andExpect(status().isNoContent())
-        .andExpect(content().string(""));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.viewCount").value(1));
 
     mockMvc
         .perform(
             post("/api/articles/{id}/views", article.getId())
                 .cookie(visitorCookie(createAnotherVisitorId())))
-        .andExpect(status().isNoContent())
-        .andExpect(content().string(""));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.viewCount").value(2));
 
     assertThat(setCookie)
         .startsWith(VISITOR_COOKIE_NAME + "=")
