@@ -55,9 +55,10 @@ public class CrawlingContentResolver implements ContentResolver {
 
     CrawlingPolicy policy = source.getPolicy().crawling();
 
-    String html = contentCrawler.crawl(contentUri, policy::isAllowedContentUri);
+    ContentCrawler.CrawledContent crawledContent =
+        contentCrawler.crawl(contentUri, policy::isAllowedContentUri);
 
-    Document document = Jsoup.parse(html, contentUri.toString());
+    Document document = Jsoup.parse(crawledContent.html(), crawledContent.finalUri().toString());
     document.select("script, style, noscript").remove();
 
     Optional<String> extracted = extractContent(document, source);
