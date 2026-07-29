@@ -1,6 +1,6 @@
 "use client";
 
-import { A_SECOND, useHydrated } from "@/shared/lib";
+import { A_SECOND, useHydrated, useIsCoarsePointer } from "@/shared/lib";
 import { Button, ResponsiveDialog, toast } from "@/shared/ui";
 import { Check, Copy, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -14,6 +14,7 @@ type ShareChannel = {
   key: "x" | "facebook" | "linkedin" | "threads";
   Icon: FC<ComponentProps<"svg">>;
   buildHref: (params: { url: string; title: string }) => string;
+  prefersSystemShare?: boolean;
 };
 
 const SHARE_CHANNELS: ShareChannel[] = [
@@ -22,12 +23,14 @@ const SHARE_CHANNELS: ShareChannel[] = [
     Icon: X,
     buildHref: ({ url, title }) =>
       `https://x.com/intent/post?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    prefersSystemShare: true,
   },
   {
     key: "facebook",
     Icon: Facebook,
     buildHref: ({ url }) =>
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    prefersSystemShare: true,
   },
   {
     key: "linkedin",
@@ -62,8 +65,10 @@ export function ArticleShareDialog({
 }: ArticleShareDialogProps) {
   const t = useTranslations("article-detail");
   const hydrated = useHydrated();
+  const isCoarsePointer = useIsCoarsePointer();
   const [isCopied, setIsCopied] = useState(false);
   const canShareViaSystem = hydrated && typeof navigator.share === "function";
+  const shouldDelegateToSystem = canShareViaSystem && isCoarsePointer;
 
   useEffect(() => {
     if (!isCopied) {
@@ -83,17 +88,28 @@ export function ArticleShareDialog({
     >
       <div className="space-y-md pb-md">
         <ul className="grid grid-cols-4 gap-xs">
-          {SHARE_CHANNELS.map(({ key, Icon, buildHref }) => (
+          {SHARE_CHANNELS.map(({ key, Icon, buildHref, prefersSystemShare }) => (
             <li key={key} className="min-w-0">
-              <a
-                className="flex w-full flex-col items-center gap-2xs rounded-sm bg-surface-soft px-2xs py-sm text-caption text-ink transition-colors outline-none hover:bg-surface-strong focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-surface-pressed"
-                href={buildHref({ url, title })}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Icon className="size-5 shrink-0" aria-hidden="true" />
-                <span className="w-full truncate text-center">{t(`share-channel.${key}`)}</span>
-              </a>
+              {prefersSystemShare && shouldDelegateToSystem ? (
+                <button
+                  className="flex w-full cursor-pointer flex-col items-center gap-2xs rounded-sm bg-surface-soft px-2xs py-sm text-caption text-ink transition-colors outline-none hover:bg-surface-strong focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-surface-pressed"
+                  type="button"
+                  onClick={handleSystemShare}
+                >
+                  <Icon className="size-5 shrink-0" aria-hidden="true" />
+                  <span className="w-full truncate text-center">{t(`share-channel.${key}`)}</span>
+                </button>
+              ) : (
+                <a
+                  className="flex w-full flex-col items-center gap-2xs rounded-sm bg-surface-soft px-2xs py-sm text-caption text-ink transition-colors outline-none hover:bg-surface-strong focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-surface-pressed"
+                  href={buildHref({ url, title })}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Icon className="size-5 shrink-0" aria-hidden="true" />
+                  <span className="w-full truncate text-center">{t(`share-channel.${key}`)}</span>
+                </a>
+              )}
             </li>
           ))}
         </ul>
