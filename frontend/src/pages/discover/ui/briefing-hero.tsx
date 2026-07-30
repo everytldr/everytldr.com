@@ -62,10 +62,14 @@ export function BriefingHeroSkeleton({ className }: BriefingHeroSkeletonProps) {
         className,
       )}
     >
-      <Skeleton className="w-28 text-caption">&nbsp;</Skeleton>
+      <div className="flex items-center justify-between gap-sm">
+        <Skeleton className="w-28 text-caption">&nbsp;</Skeleton>
+        <Skeleton className="w-20 text-caption">&nbsp;</Skeleton>
+      </div>
       <Skeleton className="mt-2xs w-3/4 text-display-md">&nbsp;</Skeleton>
       <Skeleton className="mt-xs w-full text-body-md">&nbsp;</Skeleton>
       <Skeleton className="mt-2xs w-2/3 text-body-md">&nbsp;</Skeleton>
+      <Skeleton className="mt-sm w-32 text-button-sm">&nbsp;</Skeleton>
     </div>
   );
 }
