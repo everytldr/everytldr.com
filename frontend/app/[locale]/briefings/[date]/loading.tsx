@@ -1,5 +1,5 @@
 import { ArticleScrollRowSkeleton } from "@/entities/article";
-import { BriefingArchiveLink, BriefingDateNavSkeleton } from "@/pages/briefing-detail";
+import { BriefingArchiveLinkSkeleton, BriefingDateNavSkeleton } from "@/pages/briefing-detail";
 import { Skeleton } from "@/shared/ui";
 import { range } from "lodash-es";
 
@@ -10,7 +10,7 @@ export default function Loading() {
   return (
     <article className="space-y-xl">
       <div className="space-y-lg">
-        <BriefingArchiveLink />
+        <BriefingArchiveLinkSkeleton />
 
         <header className="space-y-sm">
           <Skeleton className="w-72 text-display-md">&nbsp;</Skeleton>
