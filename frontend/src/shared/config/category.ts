@@ -1,4 +1,4 @@
-import { assert, ensure, type Optional } from "@/shared/lib";
+import { ensure, type Optional } from "@/shared/lib";
 
 export type CategoryNode = {
   slug: string;
@@ -138,7 +138,10 @@ export type MainCategorySlug = (typeof CATEGORY_GRAPH)[number]["slug"];
 export type LeafCategorySlug = (typeof LEAF_CATEGORY_SLUGS)[number];
 export type CategorySlug = MainCategorySlug | LeafCategorySlug;
 
-export function findRootCategory<T extends CategoryNode>(graph: readonly T[], slug: string): T {
+export function findRootCategory<T extends CategoryNode>(
+  graph: readonly T[],
+  slug: string,
+): Optional<T> {
   function findRecursively(node: CategoryNode): boolean {
     if (slug === node.slug) {
       return true;
@@ -146,9 +149,7 @@ export function findRootCategory<T extends CategoryNode>(graph: readonly T[], sl
     return node.children?.some(findRecursively) || false;
   }
 
-  const category = graph.find(findRecursively);
-  assert(category, "Invalid subcategory slug");
-  return category;
+  return graph.find(findRecursively);
 }
 
 export function isMainCategorySlug(slug: CategorySlug): slug is MainCategorySlug {

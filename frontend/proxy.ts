@@ -6,7 +6,7 @@ const intlMiddleware = createMiddleware(routing);
 
 export const config = {
   matcher: [
-    "/((?!api|trpc|_next|_vercel|healthz|.*\\..*).*)",
+    "/((?!api|trpc|_next|_vercel|healthz|robots\\.txt|sitemap\\.xml|ads\\.txt|favicon\\.ico|icon\\.svg|core/sitemap\\.xml|news/sitemap\\.xml|briefings/sitemap/|articles/sitemap/|mockServiceWorker\\.js|logo-square\\.png|og-image\\.png).*)",
     "/api/:path*",
     "/feed.xml",
     "/:path*/feed.xml",

@@ -2,6 +2,7 @@ package com.everytldr.enricher.enrichment.gemini;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.groups.Tuple.tuple;
 
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import com.everytldr.enricher.enrichment.EnrichmentRequest;
@@ -147,6 +148,29 @@ class GeminiEnrichmentClientTest {
   }
 
   @Test
+  void nonStringModelOutputFieldThrowsPermanentException() {
+    route(
+        200,
+        geminiResponse(
+            """
+            [
+              {
+                "language": 1,
+                "title": "Korean civic rights summary",
+                "summary": "Korean summary describing civic rights advocacy.",
+                "categorySlug": "rights"
+              }
+            ]
+            """));
+
+    EnrichmentException exception = catchEnrichmentException();
+
+    assertThat(exception)
+        .hasMessageContaining("Gemini output item fields do not match expected schema");
+    assertThat(exception.isRetryable()).isFalse();
+  }
+
+  @Test
   void disallowedCategoryThrowsPermanentException() {
     route(
         200,
@@ -175,7 +199,7 @@ class GeminiEnrichmentClientTest {
   }
 
   @Test
-  void mismatchedCategoriesThrowPermanentException() {
+  void semanticResultInconsistenciesArePassedToCompletionValidation() {
     route(
         200,
         geminiResponse(
@@ -188,7 +212,7 @@ class GeminiEnrichmentClientTest {
                 "categorySlug": "media"
               },
               {
-                "language": "en",
+                "language": "ko",
                 "title": "Civic Rights Summary",
                 "summary": "The article describes civic rights advocacy.",
                 "categorySlug": "rights"
@@ -196,10 +220,11 @@ class GeminiEnrichmentClientTest {
             ]
             """));
 
-    EnrichmentException exception = catchEnrichmentException();
+    List<EnrichmentResult> results = newClient().enrich(request());
 
-    assertThat(exception).hasMessageContaining("Gemini categorySlug values do not match");
-    assertThat(exception.isRetryable()).isFalse();
+    assertThat(results)
+        .extracting(EnrichmentResult::language, EnrichmentResult::categorySlug)
+        .containsExactly(tuple("ko", "media"), tuple("ko", "rights"));
   }
 
   private GeminiEnrichmentClient newClient() {
