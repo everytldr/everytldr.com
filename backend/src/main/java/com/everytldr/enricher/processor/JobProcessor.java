@@ -55,6 +55,7 @@ public class JobProcessor {
     Objects.requireNonNull(claimedJob, "claimedJob must not be null");
     long startedAtNanos = System.nanoTime();
     Long jobId = claimedJob.getId();
+    int claimedAttemptCount = claimedJob.getAttemptCount();
 
     Optional<ArticleIngestionJob> reloadedJob =
         articleIngestionJobRepository.findByIdWithArticle(jobId);
@@ -63,7 +64,8 @@ public class JobProcessor {
     }
 
     ArticleIngestionJob job = reloadedJob.get();
-    if (job.getState() != IngestionState.PROCESSING) {
+    if (job.getState() != IngestionState.PROCESSING
+        || job.getAttemptCount() != claimedAttemptCount) {
       return recordResult(
           new ProcessingResult(jobId, Status.SKIPPED_NOT_PROCESSING), startedAtNanos);
     }
@@ -88,14 +90,15 @@ public class JobProcessor {
                       EnrichmentRequest.from(article, resolvedArticle.content(), categorySlugs)));
       CompletionStatus completionStatus =
           completionService.completeWithResult(
-              jobId, resolvedArticle.thumbnailUrl(), enrichmentResults);
+              jobId, claimedAttemptCount, resolvedArticle.thumbnailUrl(), enrichmentResults);
       return recordResult(ProcessingResult.from(jobId, completionStatus), startedAtNanos);
     } catch (EnrichmentException e) {
-      return recordResult(completeFailure(jobId, job, e), startedAtNanos);
+      return recordResult(completeFailure(jobId, claimedAttemptCount, e), startedAtNanos);
     } catch (RuntimeException e) {
       EnrichmentException permanentException =
           EnrichmentException.permanent("unexpected enrichment error: " + e.getMessage(), e);
-      return recordResult(completeFailure(jobId, job, permanentException), startedAtNanos);
+      return recordResult(
+          completeFailure(jobId, claimedAttemptCount, permanentException), startedAtNanos);
     }
   }
 
@@ -140,30 +143,31 @@ public class JobProcessor {
   }
 
   private ProcessingResult completeFailure(
-      Long jobId, ArticleIngestionJob job, EnrichmentException exception) {
-    boolean canRetry = exception.isRetryable() && job.getAttemptCount() < properties.maxAttempts();
+      Long jobId, int attemptCount, EnrichmentException exception) {
+    boolean canRetry = exception.isRetryable() && attemptCount < properties.maxAttempts();
     CompletionStatus completionStatus;
     if (canRetry) {
       completionStatus =
           completionService.scheduleRetry(
               jobId,
-              Instant.now(clock).plus(properties.calculateRetryDelay(job.getAttemptCount())),
+              attemptCount,
+              Instant.now(clock).plus(properties.calculateRetryDelay(attemptCount)),
               exception.getMessage());
     } else {
       boolean maxAttemptsExhausted =
-          exception.isRetryable() && job.getAttemptCount() >= properties.maxAttempts();
+          exception.isRetryable() && attemptCount >= properties.maxAttempts();
       String failureMessage =
           maxAttemptsExhausted
               ? "max attempts exhausted: " + exception.getMessage()
               : exception.getMessage();
-      completionStatus = completionService.fail(jobId, failureMessage);
+      completionStatus = completionService.fail(jobId, attemptCount, failureMessage);
     }
 
     log.warn(
         "Article enrichment failed. jobId={}, retryable={}, attemptCount={}, status={}",
         jobId,
         exception.isRetryable(),
-        job.getAttemptCount(),
+        attemptCount,
         completionStatus,
         exception);
     return ProcessingResult.from(jobId, completionStatus);

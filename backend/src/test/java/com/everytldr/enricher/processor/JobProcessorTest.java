@@ -80,7 +80,7 @@ class JobProcessorTest {
         .thenReturn(new ResolvedArticle(ARTICLE_BODY, null));
     when(categorySlugProvider.getCategorySlugs()).thenReturn(categorySlugs());
     when(enrichmentClient.enrich(enrichmentRequest(job.getArticle()))).thenReturn(results);
-    when(completionService.completeWithResult(job.getId(), null, results))
+    when(completionService.completeWithResult(job.getId(), job.getAttemptCount(), null, results))
         .thenReturn(CompletionStatus.SUCCEEDED);
 
     assertThat(processor.processNextBatch(2))
@@ -100,7 +100,10 @@ class JobProcessorTest {
     when(contentResolver.resolve(job.getArticle()))
         .thenThrow(EnrichmentException.retryable("content timeout"));
     when(completionService.scheduleRetry(
-            job.getId(), NOW.plus(RETRY_INITIAL_INTERVAL), "content timeout"))
+            job.getId(),
+            job.getAttemptCount(),
+            NOW.plus(RETRY_INITIAL_INTERVAL),
+            "content timeout"))
         .thenReturn(CompletionStatus.RETRY_SCHEDULED);
 
     assertThat(processor.processJob(job))
@@ -119,7 +122,10 @@ class JobProcessorTest {
     when(contentResolver.resolve(job.getArticle()))
         .thenThrow(EnrichmentException.retryable("content timeout"));
     when(completionService.scheduleRetry(
-            job.getId(), NOW.plus(RETRY_INITIAL_INTERVAL.multipliedBy(2)), "content timeout"))
+            job.getId(),
+            job.getAttemptCount(),
+            NOW.plus(RETRY_INITIAL_INTERVAL.multipliedBy(2)),
+            "content timeout"))
         .thenReturn(CompletionStatus.RETRY_SCHEDULED);
 
     assertThat(processor.processJob(job))
@@ -135,7 +141,8 @@ class JobProcessorTest {
     when(contentResolver.supports(job.getArticle())).thenReturn(true);
     when(contentResolver.resolve(job.getArticle()))
         .thenThrow(EnrichmentException.retryable("content timeout"));
-    when(completionService.fail(job.getId(), "max attempts exhausted: content timeout"))
+    when(completionService.fail(
+            job.getId(), job.getAttemptCount(), "max attempts exhausted: content timeout"))
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
@@ -150,6 +157,7 @@ class JobProcessorTest {
     when(contentResolver.supports(job.getArticle())).thenReturn(false);
     when(completionService.fail(
             job.getId(),
+            job.getAttemptCount(),
             "unsupported source URL for enrichment: https://unsupported.example.com/article"))
         .thenReturn(CompletionStatus.FAILED);
 
@@ -169,6 +177,7 @@ class JobProcessorTest {
     when(anotherContentResolver.supports(job.getArticle())).thenReturn(true);
     when(completionService.fail(
             job.getId(),
+            job.getAttemptCount(),
             "multiple content resolvers support source URL: https://globalvoices.org/multiple-resolvers"))
         .thenReturn(CompletionStatus.FAILED);
 
@@ -186,7 +195,8 @@ class JobProcessorTest {
 
     when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
     when(contentResolver.supports(job.getArticle())).thenReturn(true);
-    when(completionService.fail(job.getId(), "multiple enrichment clients are configured: 2"))
+    when(completionService.fail(
+            job.getId(), job.getAttemptCount(), "multiple enrichment clients are configured: 2"))
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processorWithMultipleClients.processJob(job))
@@ -201,7 +211,8 @@ class JobProcessorTest {
 
     when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
     when(contentResolver.supports(job.getArticle())).thenReturn(true);
-    when(completionService.fail(job.getId(), "no enrichment client is configured"))
+    when(completionService.fail(
+            job.getId(), job.getAttemptCount(), "no enrichment client is configured"))
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processorWithoutClient.processJob(job))
@@ -221,6 +232,7 @@ class JobProcessorTest {
     when(jobRepository.findByIdWithArticle(job.getId())).thenReturn(Optional.of(job));
     when(completionService.fail(
             job.getId(),
+            job.getAttemptCount(),
             "article license does not allow transformed text publishing: licenseCode=CC-BY-ND"))
         .thenReturn(CompletionStatus.FAILED);
 
@@ -248,6 +260,19 @@ class JobProcessorTest {
   }
 
   @Test
+  void skipsReclaimedAttemptBeforeExternalWork() {
+    ArticleIngestionJob claimedJob = processingJob(112L, "https://globalvoices.org/stale", 1);
+    ArticleIngestionJob reclaimedJob = processingJob(112L, "https://globalvoices.org/stale", 2);
+
+    when(jobRepository.findByIdWithArticle(claimedJob.getId()))
+        .thenReturn(Optional.of(reclaimedJob));
+
+    assertThat(processor.processJob(claimedJob))
+        .isEqualTo(new ProcessingResult(claimedJob.getId(), SKIPPED_NOT_PROCESSING));
+    verifyNoInteractions(contentResolver, enrichmentClient, completionService);
+  }
+
+  @Test
   void permanentUnexpectedErrorsAreMarkedFailed() {
     ArticleIngestionJob job = processingJob(106L, "https://globalvoices.org/unexpected", 1);
 
@@ -258,11 +283,13 @@ class JobProcessorTest {
     when(categorySlugProvider.getCategorySlugs()).thenReturn(categorySlugs());
     when(enrichmentClient.enrich(enrichmentRequest(job.getArticle())))
         .thenThrow(new IllegalStateException("bad response"));
-    when(completionService.fail(job.getId(), "unexpected enrichment error: bad response"))
+    when(completionService.fail(
+            job.getId(), job.getAttemptCount(), "unexpected enrichment error: bad response"))
         .thenReturn(CompletionStatus.FAILED);
 
     assertThat(processor.processJob(job)).isEqualTo(new ProcessingResult(job.getId(), FAILED));
-    verify(completionService).fail(job.getId(), "unexpected enrichment error: bad response");
+    verify(completionService)
+        .fail(job.getId(), job.getAttemptCount(), "unexpected enrichment error: bad response");
     assertThat(externalStageDurationCount("enrichment", "permanent_failure")).isEqualTo(1);
   }
 
