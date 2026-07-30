@@ -33,6 +33,7 @@ export {
 } from "./time";
 export {
   buildArticleDetailUrl,
+  buildBriefingArchiveUrl,
   buildBriefingDetailUrl,
   buildCategoryUrl,
   buildEplFilterUrl,

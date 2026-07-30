@@ -11,6 +11,7 @@ import {
 } from "@/shared/lib";
 import { MarkdownContent, Translation } from "@/shared/ui";
 import { fetchBriefing } from "../api/fetch-briefing";
+import { BriefingArchiveLink } from "./briefing-archive-link";
 import { BriefingDateNav } from "./briefing-date-nav";
 
 type BriefingDetailPageProps = {
@@ -37,6 +38,8 @@ export async function BriefingDetailPage({ className, date, locale }: BriefingDe
       />
 
       <div className="space-y-lg">
+        <BriefingArchiveLink />
+
         <header className="space-y-sm">
           <p className="text-display-md text-ink">
             <Translation tKey="briefings.dateline-prefix" />{" "}
