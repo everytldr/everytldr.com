@@ -1,6 +1,6 @@
 import { Link } from "@/shared/i18n";
 import { buildBriefingArchiveUrl, cn } from "@/shared/lib";
-import { Translation } from "@/shared/ui";
+import { Skeleton, Translation } from "@/shared/ui";
 import { ChevronLeft } from "lucide-react";
 
 type BriefingArchiveLinkProps = {
@@ -22,5 +22,18 @@ export function BriefingArchiveLink({ className }: BriefingArchiveLinkProps) {
         tKey="briefings.back-to-archive"
       />
     </Link>
+  );
+}
+
+type BriefingArchiveLinkSkeletonProps = {
+  className?: string;
+};
+
+export function BriefingArchiveLinkSkeleton({ className }: BriefingArchiveLinkSkeletonProps) {
+  return (
+    <div className={cn("inline-flex items-center gap-xs", className)}>
+      <Skeleton className="size-9 rounded-full" />
+      <Skeleton className="w-32 text-body-sm">&nbsp;</Skeleton>
+    </div>
   );
 }
