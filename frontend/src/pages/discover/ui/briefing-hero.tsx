@@ -2,6 +2,7 @@ import { Link, type Locale } from "@/shared/i18n";
 import { buildBriefingDetailUrl, cn, formatDate, markdownToPlainText } from "@/shared/lib";
 import { Skeleton, Translation } from "@/shared/ui";
 import { ArrowRight } from "lucide-react";
+import { connection } from "next/server";
 import { fetchLatestBriefing } from "../api/fetch-latest-briefing";
 
 type BriefingHeroProps = {
@@ -10,6 +11,8 @@ type BriefingHeroProps = {
 };
 
 export async function BriefingHero({ className, locale }: BriefingHeroProps) {
+  await connection();
+
   const briefing = await fetchLatestBriefing(locale);
 
   if (!briefing) {
