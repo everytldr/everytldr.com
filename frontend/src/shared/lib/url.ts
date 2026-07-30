@@ -36,6 +36,10 @@ export function buildArticleDetailUrl(articleId: string): string {
   return `/articles/${articleId}`;
 }
 
+export function buildBriefingArchiveUrl(): string {
+  return "/briefings";
+}
+
 export function buildBriefingDetailUrl(briefingDate: string): string {
   return `/briefings/${briefingDate}`;
 }

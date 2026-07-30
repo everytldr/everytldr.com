@@ -14,6 +14,10 @@ empty-state:
   en: "No briefings yet"
   ko: "아직 브리핑이 없어요"
 
+back-to-archive:
+  en: "See all briefings"
+  ko: "브리핑 목록 보기"
+
 date-nav-label:
   en: "Briefing dates"
   ko: "브리핑 날짜 이동"
