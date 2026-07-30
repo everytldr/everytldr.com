@@ -1,12 +1,19 @@
 "use client";
 
 import { ProgressProvider } from "@bprogress/next/app";
-import { type PropsWithChildren } from "react";
+import { Suspense, type PropsWithChildren } from "react";
 
 export function ProgressBarProvider({ children }: PropsWithChildren) {
   return (
-    <ProgressProvider color="var(--color-primary)" height="2px" options={{ showSpinner: false }}>
+    <>
+      <Suspense>
+        <ProgressProvider
+          color="var(--color-primary)"
+          height="2px"
+          options={{ showSpinner: false }}
+        />
+      </Suspense>
       {children}
-    </ProgressProvider>
+    </>
   );
 }
