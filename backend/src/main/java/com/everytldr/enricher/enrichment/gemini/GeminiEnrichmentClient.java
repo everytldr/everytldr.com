@@ -135,13 +135,7 @@ public class GeminiEnrichmentClient implements EnrichmentClient {
     assertExpectedOutputShape(output);
 
     List<EnrichmentResult> results = toResults(output);
-    results.forEach(
-        result -> {
-          result.assertValid();
-          assertCategoryAllowed(result, allowedCategorySlugs);
-        });
-    assertSingleCategory(results);
-    assertCoversSupportedLanguages(results);
+    results.forEach(result -> assertCategoryAllowed(result, allowedCategorySlugs));
     return results;
   }
 
@@ -275,7 +269,9 @@ public class GeminiEnrichmentClient implements EnrichmentClient {
     Set<String> expectedFields = Set.copyOf(RESULT_FIELDS);
     for (JsonNode item : output) {
       Set<String> fieldNames = new HashSet<>(item.propertyNames());
-      if (!fieldNames.equals(expectedFields)) {
+      boolean hasExpectedFieldTypes =
+          item.isObject() && RESULT_FIELDS.stream().allMatch(field -> item.path(field).isString());
+      if (!fieldNames.equals(expectedFields) || !hasExpectedFieldTypes) {
         throw EnrichmentException.permanent(
             "Gemini output item fields do not match expected schema");
       }
@@ -286,24 +282,6 @@ public class GeminiEnrichmentClient implements EnrichmentClient {
     if (!allowedCategorySlugs.contains(result.categorySlug())) {
       throw EnrichmentException.permanent(
           "Gemini categorySlug is not allowed: " + result.categorySlug());
-    }
-  }
-
-  private void assertSingleCategory(List<EnrichmentResult> results) {
-    long categoryCount = results.stream().map(EnrichmentResult::categorySlug).distinct().count();
-    if (categoryCount != 1) {
-      throw EnrichmentException.permanent("Gemini categorySlug values do not match");
-    }
-  }
-
-  private void assertCoversSupportedLanguages(List<EnrichmentResult> results) {
-    Set<String> returnedLanguages =
-        results.stream().map(EnrichmentResult::language).collect(Collectors.toSet());
-    Set<String> supportedLanguages = new HashSet<>(SUPPORTED_LANGUAGE_CODES);
-
-    if (!returnedLanguages.equals(supportedLanguages)) {
-      throw EnrichmentException.permanent(
-          "Gemini languages do not match supported set: " + returnedLanguages);
     }
   }
 

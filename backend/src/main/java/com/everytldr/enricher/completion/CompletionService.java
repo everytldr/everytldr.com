@@ -10,13 +10,17 @@ import com.everytldr.common.domain.category.CategoryRepository;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJob;
 import com.everytldr.common.domain.ingestion.ArticleIngestionJobRepository;
 import com.everytldr.common.domain.ingestion.IngestionState;
+import com.everytldr.common.domain.language.SupportedLanguage;
 import com.everytldr.enricher.enrichment.EnrichmentException;
 import com.everytldr.enricher.enrichment.EnrichmentResult;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Profile("enricher")
 public class CompletionService {
+
+  private static final Set<String> SUPPORTED_LANGUAGE_CODES =
+      Set.copyOf(Arrays.stream(SupportedLanguage.values()).map(SupportedLanguage::code).toList());
 
   private final ArticleIngestionJobRepository articleIngestionJobRepository;
   private final ArticleSummaryRepository articleSummaryRepository;
@@ -81,11 +88,27 @@ public class CompletionService {
     if (results.isEmpty()) {
       throw new CompletionFailure("invalid enrichment result: results must not be empty");
     }
+    Set<String> resultLanguageCodes = new HashSet<>();
+    String categorySlug = null;
     for (EnrichmentResult result : results) {
       if (result == null) {
         throw new CompletionFailure("invalid enrichment result: result is null");
       }
       result.assertValid();
+      if (!resultLanguageCodes.add(result.language())) {
+        throw new CompletionFailure(
+            "invalid enrichment result: duplicate language: " + result.language());
+      }
+      if (categorySlug == null) {
+        categorySlug = result.categorySlug();
+      } else if (!categorySlug.equals(result.categorySlug())) {
+        throw new CompletionFailure("invalid enrichment result: categorySlug values do not match");
+      }
+    }
+
+    if (!resultLanguageCodes.equals(SUPPORTED_LANGUAGE_CODES)) {
+      throw new CompletionFailure(
+          "invalid enrichment result: languages must include each supported language exactly once");
     }
   }
 

@@ -139,7 +139,7 @@ class CompletionServiceTest {
         completionService.completeWithResult(
             job.getId(),
             job.getAttemptCount(),
-            null,
+            "https://example.com/thumbnail.jpg",
             List.of(new EnrichmentResult("ko", "", "KO summary", "media")));
     flushAndClear();
 
@@ -148,7 +148,80 @@ class CompletionServiceTest {
     assertThat(reloadedJob.getState()).isEqualTo(IngestionState.FAILED);
     assertThat(reloadedJob.getLastErrorMessage())
         .isEqualTo("invalid enrichment result: title is blank");
-    assertNoSummariesOrCategories(articleId);
+    assertNoEnrichmentWrites(articleId);
+  }
+
+  @Test
+  void duplicateLanguageResultMarksJobFailedWithoutPartialWrites() {
+    ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/duplicate-language");
+    Long articleId = job.getArticle().getId();
+    flushAndClear();
+
+    CompletionStatus status =
+        completionService.completeWithResult(
+            job.getId(),
+            job.getAttemptCount(),
+            "https://example.com/thumbnail.jpg",
+            List.of(
+                new EnrichmentResult(
+                    "ko", "KO title", "KO summary", "politics-government-governance"),
+                new EnrichmentResult(
+                    "ko",
+                    "Second KO title",
+                    "Second KO summary",
+                    "politics-government-governance")));
+    flushAndClear();
+
+    assertThat(status).isEqualTo(CompletionStatus.FAILED);
+    assertThat(jobRepository.findById(job.getId()).orElseThrow().getLastErrorMessage())
+        .isEqualTo("invalid enrichment result: duplicate language: ko");
+    assertNoEnrichmentWrites(articleId);
+  }
+
+  @Test
+  void missingLanguageResultMarksJobFailedWithoutPartialWrites() {
+    ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/missing-language");
+    Long articleId = job.getArticle().getId();
+    flushAndClear();
+
+    CompletionStatus status =
+        completionService.completeWithResult(
+            job.getId(),
+            job.getAttemptCount(),
+            "https://example.com/thumbnail.jpg",
+            List.of(
+                new EnrichmentResult(
+                    "ko", "KO title", "KO summary", "politics-government-governance")));
+    flushAndClear();
+
+    assertThat(status).isEqualTo(CompletionStatus.FAILED);
+    assertThat(jobRepository.findById(job.getId()).orElseThrow().getLastErrorMessage())
+        .isEqualTo(
+            "invalid enrichment result: languages must include each supported language exactly once");
+    assertNoEnrichmentWrites(articleId);
+  }
+
+  @Test
+  void mismatchedCategoryResultsMarkJobFailedWithoutPartialWrites() {
+    ArticleIngestionJob job = saveProcessingJob("https://example.com/enricher/mismatched-category");
+    Long articleId = job.getArticle().getId();
+    flushAndClear();
+
+    CompletionStatus status =
+        completionService.completeWithResult(
+            job.getId(),
+            job.getAttemptCount(),
+            "https://example.com/thumbnail.jpg",
+            List.of(
+                new EnrichmentResult(
+                    "ko", "KO title", "KO summary", "politics-government-governance"),
+                new EnrichmentResult("en", "EN title", "EN summary", "media")));
+    flushAndClear();
+
+    assertThat(status).isEqualTo(CompletionStatus.FAILED);
+    assertThat(jobRepository.findById(job.getId()).orElseThrow().getLastErrorMessage())
+        .isEqualTo("invalid enrichment result: categorySlug values do not match");
+    assertNoEnrichmentWrites(articleId);
   }
 
   @Test
@@ -165,7 +238,7 @@ class CompletionServiceTest {
     assertThat(status).isEqualTo(CompletionStatus.SKIPPED_NOT_PROCESSING);
     assertThat(jobRepository.findById(job.getId()).orElseThrow().getState())
         .isEqualTo(IngestionState.PENDING);
-    assertNoSummariesOrCategories(articleId);
+    assertNoEnrichmentWrites(articleId);
   }
 
   @Test
@@ -185,7 +258,7 @@ class CompletionServiceTest {
     assertThat(reloadedJob.getState()).isEqualTo(IngestionState.PROCESSING);
     assertThat(reloadedJob.getAttemptCount()).isEqualTo(staleAttemptCount + 1);
     assertThat(articleRepository.findById(articleId).orElseThrow().getThumbnailUrl()).isNull();
-    assertNoSummariesOrCategories(articleId);
+    assertNoEnrichmentWrites(articleId);
   }
 
   @Test
@@ -217,7 +290,8 @@ class CompletionServiceTest {
     assertThat(summary.getContent()).isEqualTo(content);
   }
 
-  private void assertNoSummariesOrCategories(Long articleId) {
+  private void assertNoEnrichmentWrites(Long articleId) {
+    assertThat(articleRepository.findById(articleId).orElseThrow().getThumbnailUrl()).isNull();
     assertThat(
             articleSummaryRepository.findByArticleIdAndLanguage(
                 articleId, SupportedLanguage.KOREAN.code()))
