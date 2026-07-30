@@ -83,7 +83,7 @@ export function FloatingSubNav({ className, categoryGraph }: FloatingSubNavProps
         <Container className="scrollbar-hidden flex overflow-x-auto sm:justify-center">
           <nav aria-label={t("header.aria-label.subcategories")}>
             <ul className="flex h-14 items-stretch gap-lg">
-              {category.children &&
+              {category?.children &&
                 category.children
                   .filter((node) => !isHiddenNode(node))
                   .map((child) => {

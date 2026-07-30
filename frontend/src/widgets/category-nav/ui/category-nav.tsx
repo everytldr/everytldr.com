@@ -39,7 +39,7 @@ export function CategoryNav({ className, categoryGraph }: CategoryNavProps) {
             {categoryGraph
               .filter((node) => !isHiddenNode(node))
               .map((node) => {
-                const isActive = node.slug === category.slug;
+                const isActive = node.slug === category?.slug;
                 return (
                   <Link
                     key={node.slug}
@@ -66,7 +66,7 @@ export function CategoryNav({ className, categoryGraph }: CategoryNavProps) {
           aria-label={t("header.aria-label.subcategories")}
         >
           <div className="flex h-11 items-center gap-md">
-            {category.children &&
+            {category?.children &&
               category.children
                 .filter((node) => !isHiddenNode(node))
                 .map((child) => {
