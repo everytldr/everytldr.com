@@ -34,12 +34,12 @@ public class CompletionService {
 
   @Transactional
   public CompletionStatus completeWithResult(
-      Long jobId, String thumbnailUrl, List<EnrichmentResult> results) {
+      Long jobId, int expectedAttemptCount, String thumbnailUrl, List<EnrichmentResult> results) {
     Objects.requireNonNull(jobId, "jobId must not be null");
 
-    ArticleIngestionJob job = findJob(jobId);
+    ArticleIngestionJob job = findJobForUpdate(jobId);
 
-    if (job.getState() != IngestionState.PROCESSING) {
+    if (!isCurrentAttempt(job, expectedAttemptCount)) {
       return CompletionStatus.SKIPPED_NOT_PROCESSING;
     }
 
@@ -90,12 +90,13 @@ public class CompletionService {
   }
 
   @Transactional
-  public CompletionStatus scheduleRetry(Long jobId, Instant nextAttemptAt, String errorMessage) {
+  public CompletionStatus scheduleRetry(
+      Long jobId, int expectedAttemptCount, Instant nextAttemptAt, String errorMessage) {
     Objects.requireNonNull(jobId, "jobId must not be null");
     Objects.requireNonNull(nextAttemptAt, "nextAttemptAt must not be null");
 
-    ArticleIngestionJob job = findJob(jobId);
-    if (job.getState() != IngestionState.PROCESSING) {
+    ArticleIngestionJob job = findJobForUpdate(jobId);
+    if (!isCurrentAttempt(job, expectedAttemptCount)) {
       return CompletionStatus.SKIPPED_NOT_PROCESSING;
     }
 
@@ -104,11 +105,11 @@ public class CompletionService {
   }
 
   @Transactional
-  public CompletionStatus fail(Long jobId, String errorMessage) {
+  public CompletionStatus fail(Long jobId, int expectedAttemptCount, String errorMessage) {
     Objects.requireNonNull(jobId, "jobId must not be null");
 
-    ArticleIngestionJob job = findJob(jobId);
-    if (job.getState() != IngestionState.PROCESSING) {
+    ArticleIngestionJob job = findJobForUpdate(jobId);
+    if (!isCurrentAttempt(job, expectedAttemptCount)) {
       return CompletionStatus.SKIPPED_NOT_PROCESSING;
     }
 
@@ -116,10 +117,15 @@ public class CompletionService {
     return CompletionStatus.FAILED;
   }
 
-  private ArticleIngestionJob findJob(Long jobId) {
+  private ArticleIngestionJob findJobForUpdate(Long jobId) {
     return articleIngestionJobRepository
-        .findById(jobId)
+        .findByIdForUpdate(jobId)
         .orElseThrow(() -> new NoSuchElementException("Article ingestion job not found: " + jobId));
+  }
+
+  private boolean isCurrentAttempt(ArticleIngestionJob job, int expectedAttemptCount) {
+    return job.getState() == IngestionState.PROCESSING
+        && job.getAttemptCount() == expectedAttemptCount;
   }
 
   private Category findCategory(String categorySlug) {
