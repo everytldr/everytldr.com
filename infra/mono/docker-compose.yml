@@ -9,8 +9,13 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /srv/caddy/sites:/etc/caddy/conf.d:ro
+      - /srv/www:/srv/www:ro
       - caddy-data:/data
       - caddy-config:/config
+    networks:
+      - default
+      - web
     depends_on:
       frontend:
         condition: service_healthy
@@ -134,6 +139,10 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+
+networks:
+  web:
+    external: true
 
 volumes:
   mysql-data:
