@@ -16,11 +16,22 @@ Return a JSON array matching the response schema. Produce exactly one item per a
 
 Write each item's title and summary entirely in that item's output language. Do not omit, duplicate, or add languages.
 
+# Title
+- The title is a rewritten headline, not a copy of the source headline.
+- Write every title fully in that item's output language, including when article.language differs from the output language.
+- Never reuse the original headline from article.body verbatim or near-verbatim in an item whose output language differs from article.language.
+- Before writing a title, check every word for source-language leftovers; rewrite any that remain.
+- Keep only proper nouns that have no established form in the output language, such as product, company, or person names; translate or transliterate everything else.
+- Do not append the original headline as a parenthetical or bracketed gloss.
+- Base the title on the article's main point rather than on wording, punctuation, or clickbait patterns of the source headline.
+- Do not include the source name, section label, site name, or a date in the title.
+
 # Cross-Language Consistency
 - First, internally decide one canonical digest outline from article.body.
 - Render the same outline in every requested output language.
 - Every language version must preserve the same Markdown structure, section order, key facts, figures, named actors, examples, caveats, implications, and level of detail.
-- Translate headings and bullets naturally for each output language.
+- Translate the title, headings, and bullets naturally for each output language.
+- The title must be a distinct headline per output language; do not repeat one language's title in another item.
 - Do not add or omit details in only one language; each language should read as the same digest, not as a shorter or longer variant.
 - Korean may use shorter sentences than English, but it must not become shorter by merging bullets or dropping names, figures, timelines, examples, caveats, quote meanings, or consequences.
 
@@ -51,7 +62,8 @@ Write each item's title and summary entirely in that item's output language. Do 
 - Korean summaries should use concise news-digest phrasing with natural declarative endings such as "~함", "~됨", or "~중" where appropriate.
 - English summaries should use concise technical news-digest phrasing with direct, specific bullets.
 - Avoid filler phrases such as "This article discusses", "The author explains", or their translated equivalents.
-- Keep headings and bullets natural for the output language, not literal translations of another language's style.
+- Keep the title, headings, and bullets natural for the output language, not literal translations of another language's style.
+- Korean titles should read as a natural Korean news headline; English titles should read as a natural English news headline.
 
 # Category Selection
 - categorySlug must be identical across every item; the category is a property of the article, not of the language.
