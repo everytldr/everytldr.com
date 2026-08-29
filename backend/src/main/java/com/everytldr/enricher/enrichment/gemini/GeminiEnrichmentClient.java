@@ -205,7 +205,11 @@ public class GeminiEnrichmentClient implements EnrichmentClient {
                     "enum",
                     SUPPORTED_LANGUAGE_CODES),
                 "title",
-                Map.of("type", "string", "description", "Article title in the specified language."),
+                Map.of(
+                    "type",
+                    "string",
+                    "description",
+                    "Rewritten article headline, written entirely in the specified language, never copied from the source headline."),
                 "summary",
                 Map.of(
                     "type",
